@@ -1,0 +1,47 @@
+// Device-linking (provisioning) messages. Written from
+// spec/service/linking.md §4, never copied from upstream.
+syntax = "proto2";
+
+package signalcligo;
+
+option go_package = "github.com/aren55555/signal-cli-go/internal/proto/signalpb";
+
+// §4.1: the server's opaque provisioning address for this socket.
+message ProvisioningAddress {
+  optional string address = 1;
+}
+
+// §4.2.
+message ProvisionEnvelope {
+  optional bytes public_key = 1; // primary's ephemeral key, 33 bytes
+  optional bytes body = 2;       // §3.3 layout
+}
+
+// §4.3.
+message ProvisionMessage {
+  optional bytes aci_identity_key_public = 1;
+  optional bytes aci_identity_key_private = 2;
+  optional string number = 3;
+  optional string provisioning_code = 4;
+  optional string user_agent = 5;
+  optional bytes profile_key = 6;
+  optional bool read_receipts = 7;
+  optional string aci = 8;
+  optional uint32 provisioning_version = 9;
+  optional string pni = 10; // no "PNI:" prefix
+  optional bytes pni_identity_key_public = 11;
+  optional bytes pni_identity_key_private = 12;
+  reserved 13;
+  optional bytes ephemeral_backup_key = 14;
+  optional string account_entropy_pool = 15;
+  optional bytes media_root_backup_key = 16;
+  optional bytes aci_binary = 17;
+  optional bytes pni_binary = 18;
+}
+
+// §4.5: an encrypted device name.
+message DeviceName {
+  optional bytes ephemeral_public = 1;
+  optional bytes synthetic_iv = 2;
+  optional bytes ciphertext = 3;
+}
