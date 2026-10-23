@@ -315,3 +315,6 @@ func (r *Root) Delete(a *Account) error {
 	}
 	return os.RemoveAll(filepath.Join(r.dir, a.path))
 }
+
+// Dir is the account directory's full path.
+func (a *Account) Dir() string { return filepath.Join(a.root.dir, a.path) }

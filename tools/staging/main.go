@@ -5,6 +5,8 @@
 //
 //	staging link  [-data DIR] [-name NAME] [-url-file FILE]
 //	staging probe [-data DIR]
+//	staging receive [-data DIR] [-linger D]
+//	staging send [-data DIR] -to ACI -m TEXT
 package main
 
 import (
@@ -22,12 +24,16 @@ func mask(s string) string { return digits.ReplaceAllString(s, "<NUMBER>") }
 func main() {
 	log.SetFlags(0)
 	if len(os.Args) < 2 {
-		log.Fatal("usage: staging link|probe [flags]")
+		log.Fatal("usage: staging link|probe|receive|send [flags]")
 	}
 	cmd, args := os.Args[1], os.Args[2:]
 	switch cmd {
 	case "link":
 		link(args)
+	case "receive":
+		receive(args)
+	case "send":
+		send(args)
 	case "probe":
 		probe(args)
 	default:

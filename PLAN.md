@@ -501,3 +501,26 @@ vectors.
     JAVA_OPTS had vanished, so the reference failed to load libsignal.
     Recreate it with `mkdir -p`; never edit JAVA_OPTS. `pkill -f` can match
     the calling shell, so use `pkill -x`.
+- **First Layer C 1:1 exchange on staging, both directions (2026-10-23).**
+  - Reference B → our A.2: a PreKey message to the device we linked,
+    decrypted (`tools/staging receive`).
+  - Our A.2 → reference B: bundle fetch, PQXDH initiation, `PUT
+    /v1/messages` with the 409 missing-device loop. The reference printed
+    the body exactly, Unicode included, "With profile key".
+  - The sync transcript to the reference A.1 shows there as "Received
+    sync sent message".
+  - Server delivery receipts (type 5) are handled undecrypted. Confirmed:
+    the server sends queue-empty only after every delivered envelope is
+    acked (also true of unhandled ones, which we leave unacked).
+  - Test-account note: the capture runs with `--trust-new-identities
+    never` had left A's ACI key as UNTRUSTED in B's store, so B first
+    refused our message. The key was A's real identity (checked by
+    fingerprint), so `trust -a` on B fixed it.
+  - Still open for milestone 4:
+    - prekey refill (`PUT /v2/keys`) after linking;
+    - sealed send (profiles, sender certificate);
+    - a reply round trip, so both sides leave the PreKey stage;
+    - `receive` acks after caching, and receipts;
+    - registration REST;
+    - the CLI commands themselves;
+    - the deferred captures (sealed sender, sender keys, post-reply).

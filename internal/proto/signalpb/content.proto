@@ -14,6 +14,7 @@ option go_package = "github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 message AppContent {
   oneof body {
     AppDataMessage data_message = 1;
+    AppSyncMessage sync_message = 2;
     AppNullMessage null_message = 4;
     AppReceipt receipt_message = 5;
     AppTyping typing_message = 6;
@@ -91,4 +92,30 @@ message AppNullMessage {
 message AppPniSignature {
   optional bytes pni = 1;       // 16-byte raw PNI UUID
   optional bytes signature = 2; // by the PNI identity key over the ACI identity key
+}
+
+// §8: SyncMessage, only the members signal-cli-go handles so far.
+message AppSyncMessage {
+  optional AppSent sent = 1;
+  optional bytes padding = 8;
+}
+
+// §8: the sent transcript for one's own other devices.
+message AppSent {
+  optional string destination_e164 = 1;
+  optional uint64 timestamp = 2;
+  optional AppDataMessage message = 3;
+  optional uint64 expiration_start_timestamp = 4;
+  repeated AppUnidentifiedStatus unidentified_status = 5;
+  optional bool is_recipient_update = 6;
+  optional string destination_service_id = 7;
+  reserved 11;
+  optional bytes destination_service_id_binary = 12;
+}
+
+message AppUnidentifiedStatus {
+  optional bool unidentified = 2;
+  optional string destination_service_id = 3;
+  optional bytes destination_pni_identity_key = 5;
+  optional bytes destination_service_id_binary = 6;
 }

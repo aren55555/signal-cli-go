@@ -208,6 +208,7 @@ type AppContent struct {
 	// Types that are valid to be assigned to Body:
 	//
 	//	*AppContent_DataMessage
+	//	*AppContent_SyncMessage
 	//	*AppContent_NullMessage
 	//	*AppContent_ReceiptMessage
 	//	*AppContent_TypingMessage
@@ -261,6 +262,15 @@ func (x *AppContent) GetDataMessage() *AppDataMessage {
 	if x != nil {
 		if x, ok := x.Body.(*AppContent_DataMessage); ok {
 			return x.DataMessage
+		}
+	}
+	return nil
+}
+
+func (x *AppContent) GetSyncMessage() *AppSyncMessage {
+	if x != nil {
+		if x, ok := x.Body.(*AppContent_SyncMessage); ok {
+			return x.SyncMessage
 		}
 	}
 	return nil
@@ -333,6 +343,10 @@ type AppContent_DataMessage struct {
 	DataMessage *AppDataMessage `protobuf:"bytes,1,opt,name=data_message,json=dataMessage,oneof"`
 }
 
+type AppContent_SyncMessage struct {
+	SyncMessage *AppSyncMessage `protobuf:"bytes,2,opt,name=sync_message,json=syncMessage,oneof"`
+}
+
 type AppContent_NullMessage struct {
 	NullMessage *AppNullMessage `protobuf:"bytes,4,opt,name=null_message,json=nullMessage,oneof"`
 }
@@ -354,6 +368,8 @@ type AppContent_EditMessage struct {
 }
 
 func (*AppContent_DataMessage) isAppContent_Body() {}
+
+func (*AppContent_SyncMessage) isAppContent_Body() {}
 
 func (*AppContent_NullMessage) isAppContent_Body() {}
 
@@ -851,14 +867,237 @@ func (x *AppPniSignature) GetSignature() []byte {
 	return nil
 }
 
+// §8: SyncMessage, only the members signal-cli-go handles so far.
+type AppSyncMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Sent          *AppSent               `protobuf:"bytes,1,opt,name=sent" json:"sent,omitempty"`
+	Padding       []byte                 `protobuf:"bytes,8,opt,name=padding" json:"padding,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSyncMessage) Reset() {
+	*x = AppSyncMessage{}
+	mi := &file_content_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage) ProtoMessage() {}
+
+func (x *AppSyncMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *AppSyncMessage) GetSent() *AppSent {
+	if x != nil {
+		return x.Sent
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetPadding() []byte {
+	if x != nil {
+		return x.Padding
+	}
+	return nil
+}
+
+// §8: the sent transcript for one's own other devices.
+type AppSent struct {
+	state                      protoimpl.MessageState   `protogen:"open.v1"`
+	DestinationE164            *string                  `protobuf:"bytes,1,opt,name=destination_e164,json=destinationE164" json:"destination_e164,omitempty"`
+	Timestamp                  *uint64                  `protobuf:"varint,2,opt,name=timestamp" json:"timestamp,omitempty"`
+	Message                    *AppDataMessage          `protobuf:"bytes,3,opt,name=message" json:"message,omitempty"`
+	ExpirationStartTimestamp   *uint64                  `protobuf:"varint,4,opt,name=expiration_start_timestamp,json=expirationStartTimestamp" json:"expiration_start_timestamp,omitempty"`
+	UnidentifiedStatus         []*AppUnidentifiedStatus `protobuf:"bytes,5,rep,name=unidentified_status,json=unidentifiedStatus" json:"unidentified_status,omitempty"`
+	IsRecipientUpdate          *bool                    `protobuf:"varint,6,opt,name=is_recipient_update,json=isRecipientUpdate" json:"is_recipient_update,omitempty"`
+	DestinationServiceId       *string                  `protobuf:"bytes,7,opt,name=destination_service_id,json=destinationServiceId" json:"destination_service_id,omitempty"`
+	DestinationServiceIdBinary []byte                   `protobuf:"bytes,12,opt,name=destination_service_id_binary,json=destinationServiceIdBinary" json:"destination_service_id_binary,omitempty"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
+}
+
+func (x *AppSent) Reset() {
+	*x = AppSent{}
+	mi := &file_content_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSent) ProtoMessage() {}
+
+func (x *AppSent) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSent.ProtoReflect.Descriptor instead.
+func (*AppSent) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *AppSent) GetDestinationE164() string {
+	if x != nil && x.DestinationE164 != nil {
+		return *x.DestinationE164
+	}
+	return ""
+}
+
+func (x *AppSent) GetTimestamp() uint64 {
+	if x != nil && x.Timestamp != nil {
+		return *x.Timestamp
+	}
+	return 0
+}
+
+func (x *AppSent) GetMessage() *AppDataMessage {
+	if x != nil {
+		return x.Message
+	}
+	return nil
+}
+
+func (x *AppSent) GetExpirationStartTimestamp() uint64 {
+	if x != nil && x.ExpirationStartTimestamp != nil {
+		return *x.ExpirationStartTimestamp
+	}
+	return 0
+}
+
+func (x *AppSent) GetUnidentifiedStatus() []*AppUnidentifiedStatus {
+	if x != nil {
+		return x.UnidentifiedStatus
+	}
+	return nil
+}
+
+func (x *AppSent) GetIsRecipientUpdate() bool {
+	if x != nil && x.IsRecipientUpdate != nil {
+		return *x.IsRecipientUpdate
+	}
+	return false
+}
+
+func (x *AppSent) GetDestinationServiceId() string {
+	if x != nil && x.DestinationServiceId != nil {
+		return *x.DestinationServiceId
+	}
+	return ""
+}
+
+func (x *AppSent) GetDestinationServiceIdBinary() []byte {
+	if x != nil {
+		return x.DestinationServiceIdBinary
+	}
+	return nil
+}
+
+type AppUnidentifiedStatus struct {
+	state                      protoimpl.MessageState `protogen:"open.v1"`
+	Unidentified               *bool                  `protobuf:"varint,2,opt,name=unidentified" json:"unidentified,omitempty"`
+	DestinationServiceId       *string                `protobuf:"bytes,3,opt,name=destination_service_id,json=destinationServiceId" json:"destination_service_id,omitempty"`
+	DestinationPniIdentityKey  []byte                 `protobuf:"bytes,5,opt,name=destination_pni_identity_key,json=destinationPniIdentityKey" json:"destination_pni_identity_key,omitempty"`
+	DestinationServiceIdBinary []byte                 `protobuf:"bytes,6,opt,name=destination_service_id_binary,json=destinationServiceIdBinary" json:"destination_service_id_binary,omitempty"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
+}
+
+func (x *AppUnidentifiedStatus) Reset() {
+	*x = AppUnidentifiedStatus{}
+	mi := &file_content_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppUnidentifiedStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppUnidentifiedStatus) ProtoMessage() {}
+
+func (x *AppUnidentifiedStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppUnidentifiedStatus.ProtoReflect.Descriptor instead.
+func (*AppUnidentifiedStatus) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *AppUnidentifiedStatus) GetUnidentified() bool {
+	if x != nil && x.Unidentified != nil {
+		return *x.Unidentified
+	}
+	return false
+}
+
+func (x *AppUnidentifiedStatus) GetDestinationServiceId() string {
+	if x != nil && x.DestinationServiceId != nil {
+		return *x.DestinationServiceId
+	}
+	return ""
+}
+
+func (x *AppUnidentifiedStatus) GetDestinationPniIdentityKey() []byte {
+	if x != nil {
+		return x.DestinationPniIdentityKey
+	}
+	return nil
+}
+
+func (x *AppUnidentifiedStatus) GetDestinationServiceIdBinary() []byte {
+	if x != nil {
+		return x.DestinationServiceIdBinary
+	}
+	return nil
+}
+
 var File_content_proto protoreflect.FileDescriptor
 
 const file_content_proto_rawDesc = "" +
 	"\n" +
-	"\rcontent.proto\x12\vsignalcligo\"\xad\x04\n" +
+	"\rcontent.proto\x12\vsignalcligo\"\xef\x04\n" +
 	"\n" +
 	"AppContent\x12@\n" +
 	"\fdata_message\x18\x01 \x01(\v2\x1b.signalcligo.AppDataMessageH\x00R\vdataMessage\x12@\n" +
+	"\fsync_message\x18\x02 \x01(\v2\x1b.signalcligo.AppSyncMessageH\x00R\vsyncMessage\x12@\n" +
 	"\fnull_message\x18\x04 \x01(\v2\x1b.signalcligo.AppNullMessageH\x00R\vnullMessage\x12B\n" +
 	"\x0freceipt_message\x18\x05 \x01(\v2\x17.signalcligo.AppReceiptH\x00R\x0ereceiptMessage\x12?\n" +
 	"\x0etyping_message\x18\x06 \x01(\v2\x16.signalcligo.AppTypingH\x00R\rtypingMessage\x12:\n" +
@@ -917,7 +1156,24 @@ const file_content_proto_rawDesc = "" +
 	"\apadding\x18\x01 \x01(\fR\apadding\"A\n" +
 	"\x0fAppPniSignature\x12\x10\n" +
 	"\x03pni\x18\x01 \x01(\fR\x03pni\x12\x1c\n" +
-	"\tsignature\x18\x02 \x01(\fR\tsignatureB<Z:github.com/aren55555/signal-cli-go/internal/proto/signalpb"
+	"\tsignature\x18\x02 \x01(\fR\tsignature\"T\n" +
+	"\x0eAppSyncMessage\x12(\n" +
+	"\x04sent\x18\x01 \x01(\v2\x14.signalcligo.AppSentR\x04sent\x12\x18\n" +
+	"\apadding\x18\b \x01(\fR\apadding\"\xcb\x03\n" +
+	"\aAppSent\x12)\n" +
+	"\x10destination_e164\x18\x01 \x01(\tR\x0fdestinationE164\x12\x1c\n" +
+	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x125\n" +
+	"\amessage\x18\x03 \x01(\v2\x1b.signalcligo.AppDataMessageR\amessage\x12<\n" +
+	"\x1aexpiration_start_timestamp\x18\x04 \x01(\x04R\x18expirationStartTimestamp\x12S\n" +
+	"\x13unidentified_status\x18\x05 \x03(\v2\".signalcligo.AppUnidentifiedStatusR\x12unidentifiedStatus\x12.\n" +
+	"\x13is_recipient_update\x18\x06 \x01(\bR\x11isRecipientUpdate\x124\n" +
+	"\x16destination_service_id\x18\a \x01(\tR\x14destinationServiceId\x12A\n" +
+	"\x1ddestination_service_id_binary\x18\f \x01(\fR\x1adestinationServiceIdBinaryJ\x04\b\v\x10\f\"\xf5\x01\n" +
+	"\x15AppUnidentifiedStatus\x12\"\n" +
+	"\funidentified\x18\x02 \x01(\bR\funidentified\x124\n" +
+	"\x16destination_service_id\x18\x03 \x01(\tR\x14destinationServiceId\x12?\n" +
+	"\x1cdestination_pni_identity_key\x18\x05 \x01(\fR\x19destinationPniIdentityKey\x12A\n" +
+	"\x1ddestination_service_id_binary\x18\x06 \x01(\fR\x1adestinationServiceIdBinaryB<Z:github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 
 var (
 	file_content_proto_rawDescOnce sync.Once
@@ -932,38 +1188,45 @@ func file_content_proto_rawDescGZIP() []byte {
 }
 
 var file_content_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_content_proto_goTypes = []any{
-	(AppDataMessage_Flag)(0),  // 0: signalcligo.AppDataMessage.Flag
-	(AppReceipt_Kind)(0),      // 1: signalcligo.AppReceipt.Kind
-	(AppTyping_Action)(0),     // 2: signalcligo.AppTyping.Action
-	(*AppContent)(nil),        // 3: signalcligo.AppContent
-	(*AppDataMessage)(nil),    // 4: signalcligo.AppDataMessage
-	(*AppGroupContextV2)(nil), // 5: signalcligo.AppGroupContextV2
-	(*AppDelete)(nil),         // 6: signalcligo.AppDelete
-	(*AppEdit)(nil),           // 7: signalcligo.AppEdit
-	(*AppReceipt)(nil),        // 8: signalcligo.AppReceipt
-	(*AppTyping)(nil),         // 9: signalcligo.AppTyping
-	(*AppNullMessage)(nil),    // 10: signalcligo.AppNullMessage
-	(*AppPniSignature)(nil),   // 11: signalcligo.AppPniSignature
+	(AppDataMessage_Flag)(0),      // 0: signalcligo.AppDataMessage.Flag
+	(AppReceipt_Kind)(0),          // 1: signalcligo.AppReceipt.Kind
+	(AppTyping_Action)(0),         // 2: signalcligo.AppTyping.Action
+	(*AppContent)(nil),            // 3: signalcligo.AppContent
+	(*AppDataMessage)(nil),        // 4: signalcligo.AppDataMessage
+	(*AppGroupContextV2)(nil),     // 5: signalcligo.AppGroupContextV2
+	(*AppDelete)(nil),             // 6: signalcligo.AppDelete
+	(*AppEdit)(nil),               // 7: signalcligo.AppEdit
+	(*AppReceipt)(nil),            // 8: signalcligo.AppReceipt
+	(*AppTyping)(nil),             // 9: signalcligo.AppTyping
+	(*AppNullMessage)(nil),        // 10: signalcligo.AppNullMessage
+	(*AppPniSignature)(nil),       // 11: signalcligo.AppPniSignature
+	(*AppSyncMessage)(nil),        // 12: signalcligo.AppSyncMessage
+	(*AppSent)(nil),               // 13: signalcligo.AppSent
+	(*AppUnidentifiedStatus)(nil), // 14: signalcligo.AppUnidentifiedStatus
 }
 var file_content_proto_depIdxs = []int32{
 	4,  // 0: signalcligo.AppContent.data_message:type_name -> signalcligo.AppDataMessage
-	10, // 1: signalcligo.AppContent.null_message:type_name -> signalcligo.AppNullMessage
-	8,  // 2: signalcligo.AppContent.receipt_message:type_name -> signalcligo.AppReceipt
-	9,  // 3: signalcligo.AppContent.typing_message:type_name -> signalcligo.AppTyping
-	7,  // 4: signalcligo.AppContent.edit_message:type_name -> signalcligo.AppEdit
-	11, // 5: signalcligo.AppContent.pni_signature_message:type_name -> signalcligo.AppPniSignature
-	5,  // 6: signalcligo.AppDataMessage.group_v2:type_name -> signalcligo.AppGroupContextV2
-	6,  // 7: signalcligo.AppDataMessage.delete:type_name -> signalcligo.AppDelete
-	4,  // 8: signalcligo.AppEdit.data_message:type_name -> signalcligo.AppDataMessage
-	1,  // 9: signalcligo.AppReceipt.kind:type_name -> signalcligo.AppReceipt.Kind
-	2,  // 10: signalcligo.AppTyping.action:type_name -> signalcligo.AppTyping.Action
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	12, // 1: signalcligo.AppContent.sync_message:type_name -> signalcligo.AppSyncMessage
+	10, // 2: signalcligo.AppContent.null_message:type_name -> signalcligo.AppNullMessage
+	8,  // 3: signalcligo.AppContent.receipt_message:type_name -> signalcligo.AppReceipt
+	9,  // 4: signalcligo.AppContent.typing_message:type_name -> signalcligo.AppTyping
+	7,  // 5: signalcligo.AppContent.edit_message:type_name -> signalcligo.AppEdit
+	11, // 6: signalcligo.AppContent.pni_signature_message:type_name -> signalcligo.AppPniSignature
+	5,  // 7: signalcligo.AppDataMessage.group_v2:type_name -> signalcligo.AppGroupContextV2
+	6,  // 8: signalcligo.AppDataMessage.delete:type_name -> signalcligo.AppDelete
+	4,  // 9: signalcligo.AppEdit.data_message:type_name -> signalcligo.AppDataMessage
+	1,  // 10: signalcligo.AppReceipt.kind:type_name -> signalcligo.AppReceipt.Kind
+	2,  // 11: signalcligo.AppTyping.action:type_name -> signalcligo.AppTyping.Action
+	13, // 12: signalcligo.AppSyncMessage.sent:type_name -> signalcligo.AppSent
+	4,  // 13: signalcligo.AppSent.message:type_name -> signalcligo.AppDataMessage
+	14, // 14: signalcligo.AppSent.unidentified_status:type_name -> signalcligo.AppUnidentifiedStatus
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_content_proto_init() }
@@ -973,6 +1236,7 @@ func file_content_proto_init() {
 	}
 	file_content_proto_msgTypes[0].OneofWrappers = []any{
 		(*AppContent_DataMessage)(nil),
+		(*AppContent_SyncMessage)(nil),
 		(*AppContent_NullMessage)(nil),
 		(*AppContent_ReceiptMessage)(nil),
 		(*AppContent_TypingMessage)(nil),
@@ -985,7 +1249,7 @@ func file_content_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_content_proto_rawDesc), len(file_content_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   9,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
