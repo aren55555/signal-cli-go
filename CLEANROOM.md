@@ -19,6 +19,19 @@ aims to be an independent implementation that copies none of their code.
 - Both roles may run the reference binary and record its inputs and
   outputs (black-box observation).
 
+## Amendment: protobuf code generation (operator, 2026-10-23)
+
+`.proto` files for Signal's messages are written by the implementation
+role from the prose specs in `spec/` (message names, field numbers,
+types). They are **never copied** from upstream `.proto` files, which are
+part of the GPL/AGPL sources. Names and comments are our own; only the
+wire-level facts (field numbers, types, cardinality) must match, because
+interoperability requires them. Each `.proto` file cites the spec files
+it was written from. If a spec lacks a field number, the implementation
+role requests a narrower spec rather than reading upstream. The generated
+Go code comes from protoc-gen-go (`google.golang.org/protobuf`, BSD-3,
+the one permitted third-party module).
+
 ## Honest limits
 
 The implementing model's training data very likely includes signal-cli,

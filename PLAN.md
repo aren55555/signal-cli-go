@@ -1,6 +1,6 @@
 # signal-cli-go plan
 
-Clean-room, Go-standard-library-only, drop-in replacement for signal-cli
+Clean-room, Go-standard-library-only (plus one vendored module, see Decisions), drop-in replacement for signal-cli
 **v0.14.7** (JVM release). The full brief is in `PROMPT.md`; this file is the
 living plan and progress log. Read it, plus `COMPAT.md`, at the start of
 every session, and update both before ending one.
@@ -58,6 +58,19 @@ starts. Existing pieces:
 
 ## Decisions
 
+- **Brief amendment: protobuf** (operator, 2026-10-23). This amends
+  PROMPT.md section 3. `google.golang.org/protobuf` is permitted as the
+  **single** third-party module, vendored (`vendor/`, committed), pinned,
+  and built with `-mod=vendor`. ALLOWED_HOSTS gains `proxy.golang.org`
+  and `sum.golang.org` for fetching it, and `go.sum` is checked against
+  the checksum database. Signal's messages are written as `.proto` files
+  from `spec/` (never copied from upstream) and generated with protoc
+  (v36.2, installed by `tools/install-protoc`, SHA-256 pinned) and
+  protoc-gen-go (from the vendored module). Generated code is committed,
+  and CI checks that regenerating is a no-op. The hand-written
+  `internal/proto/wire` codec is replaced by the generated types and
+  survives only as a differential test. The no-dependencies repo rule
+  becomes "only this module".
 - **Module path** `github.com/aren55555/signal-cli-go`, go 1.27.3.
 - **Oracle trust**: the tarball SHA-256 is pinned from the GitHub release
   API digest. The signature is checked against key
@@ -277,3 +290,22 @@ vectors.
   bundle and message protobufs), the Double Ratchet as libsignal runs it,
   **SPQR** (see open questions), sender keys, sealed sender v1/v2, and
   the libsignal vectors for each.
+
+### 2026-10-23, session 2 (continued): milestone 3 started
+- Spec subagents launched: SPQR (`spec/protocol/spqr/`), and PQXDH,
+  Double Ratchet, sender keys, sealed sender and capture feasibility
+  (`spec/protocol/`).
+- `internal/protocol`: PQXDH and the Double Ratchet core from the
+  signal.org specs, behavioural tests first. The libsignal info strings,
+  framing and vectors are pending the spec.
+- Brief amendment (protobuf, see Decisions):
+  - Done: ALLOWED_HOSTS updated; `tools/install-protoc` (protoc v36.2,
+    SHA-256 pinned and verified).
+  - **Blocked on the operator:** restart the egress proxy so it re-reads
+    ALLOWED_HOSTS (it loads the list at startup only). Until then,
+    proxy.golang.org is unreachable and `go mod vendor` can't run.
+  - Remaining after the restart: vendoring, `-mod=vendor`, the repo-rule
+    and CI changes, `.proto` files from `spec/`, the generation check, and
+    moving `internal/proto/wire` into a differential test.
+- Layer C captures need two staging numbers plus captchas from the
+  operator (not yet provided).
