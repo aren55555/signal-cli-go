@@ -143,8 +143,9 @@ func (r *SessionRecord) promote(i int, s *SessionState) *SessionRecord {
 
 // NewInitiatorRecord runs PQXDH against a prekey bundle and returns a
 // record whose current state sends PreKeySignalMessages until the peer
-// replies (pqxdh.md §4).
-func NewInitiatorRecord(rand io.Reader, identity *curve25519.PrivateKey, localRegistrationID uint32, b *PreKeyBundle, now time.Time) (*SessionRecord, error) {
+// replies (pqxdh.md §4). local and remote decide whether this is a
+// self session.
+func NewInitiatorRecord(rand io.Reader, identity *curve25519.PrivateKey, localRegistrationID uint32, b *PreKeyBundle, now time.Time, local, remote Address) (*SessionRecord, error) {
 	init, err := InitiatePQXDH(rand, identity, b)
 	if err != nil {
 		return nil, err
@@ -155,6 +156,7 @@ func NewInitiatorRecord(rand io.Reader, identity *curve25519.PrivateKey, localRe
 	}
 	s.localRegistrationID = localRegistrationID
 	s.remoteRegistrationID = b.RegistrationID
+	s.markSelfSession(local, remote)
 	s.pending = &pendingPreKey{
 		oneTimePreKeyID: init.UsedPreKeyID,
 		signedPreKeyID:  init.UsedSignedPreKeyID,
@@ -352,7 +354,7 @@ func (r *SessionRecord) DecryptPreKey(rand io.Reader, wire []byte, localID Local
 
 	rec, used := r.matchBaseKey(pm), (*UsedPreKeys)(nil)
 	if rec == nil {
-		if rec, used, err = r.newResponderState(pm, localID, store); err != nil {
+		if rec, used, err = r.newResponderState(pm, localID, store, local, remote); err != nil {
 			return nil, nil, nil, err
 		}
 	}
@@ -386,7 +388,7 @@ func (r *SessionRecord) matchBaseKey(pm *preKeyMessage) *SessionRecord {
 
 // newResponderState builds a new current state from the message's prekeys
 // (pqxdh.md §7 steps 4-9).
-func (r *SessionRecord) newResponderState(pm *preKeyMessage, localID LocalIdentity, store PreKeyLookup) (*SessionRecord, *UsedPreKeys, error) {
+func (r *SessionRecord) newResponderState(pm *preKeyMessage, localID LocalIdentity, store PreKeyLookup, local, remote Address) (*SessionRecord, *UsedPreKeys, error) {
 	if pm.version == 3 {
 		return nil, nil, fmt.Errorf("%w: X3DH no longer supported", ErrInvalidMessage)
 	}
@@ -416,6 +418,7 @@ func (r *SessionRecord) newResponderState(pm *preKeyMessage, localID LocalIdenti
 	st := NewBobSession(secrets, spk, localID.Key.PublicKey(), pm.identityKey, pm.baseKey)
 	st.localRegistrationID = localID.RegistrationID
 	st.remoteRegistrationID = pm.registrationID
+	st.markSelfSession(local, remote)
 	used := &UsedPreKeys{
 		OneTimePreKeyID: pm.oneTimePreKeyID,
 		SignedPreKeyID:  pm.signedPreKeyID,

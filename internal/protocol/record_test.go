@@ -3,6 +3,7 @@ package protocol
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -64,7 +65,7 @@ func newDuo(t *testing.T, seed uint64) *duo {
 		trustAll: func(*curve25519.PublicKey) bool { return true }, aliceRegID: 111, bobRegID: 222}
 	d.aliceID, _ = curve25519.GeneratePrivateKey(r)
 	d.b.bundle.RegistrationID = d.bobRegID
-	rec, err := NewInitiatorRecord(d.rngA, d.aliceID, d.aliceRegID, d.b.bundle, t0)
+	rec, err := NewInitiatorRecord(d.rngA, d.aliceID, d.aliceRegID, d.b.bundle, t0, aliceAddr, bobAddr)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -243,7 +244,7 @@ func TestRecordArchiveAndPromotion(t *testing.T) {
 	d.b.oneTime, _ = curve25519.GeneratePrivateKey(r)
 	id := uint32(4)
 	d.b.bundle.PreKeyID, d.b.bundle.PreKey = &id, d.b.oneTime.PublicKey()
-	rec2, err := NewInitiatorRecord(d.rngA, d.aliceID, d.aliceRegID, d.b.bundle, t0)
+	rec2, err := NewInitiatorRecord(d.rngA, d.aliceID, d.aliceRegID, d.b.bundle, t0, aliceAddr, bobAddr)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -406,5 +407,52 @@ func TestServiceIDFromBinary(t *testing.T) {
 		if _, err := ServiceIDFromBinary(bad); err == nil {
 			t.Errorf("%x accepted", bad)
 		}
+	}
+}
+
+// TestSelfSession: a session between two devices of the same account
+// (same identity key, same service ID) has no forward-jump limit
+// (pqxdh.md §4, spqr/session.md §2). Other sessions keep the limit.
+func TestSelfSession(t *testing.T) {
+	r := testRand(65)
+	b := newBob(t, r, false)
+	// Device 1 of Bob's account opens a session to device 2: same identity.
+	me1 := Address{ServiceID: bobAddr.ServiceID, DeviceID: 1}
+	me2 := Address{ServiceID: bobAddr.ServiceID, DeviceID: 2}
+	rec, err := NewInitiatorRecord(r, b.identity, 1, b.bundle, t0, me1, me2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !rec.current.selfSession {
+		t.Fatal("initiator: not a self session")
+	}
+	var wire []byte
+	typ := 0
+	for i := range MaxForwardJumps + 2 {
+		var err error
+		rec, typ, wire, err = rec.Encrypt(r, []byte(fmt.Sprint(i)), t0, me1, me2)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	// Skip ahead 25001 messages: allowed only because this is a self
+	// session. The responder builds its state from the last prekey message.
+	got, pt, _, err := new(SessionRecord).DecryptPreKey(r, wire, LocalIdentity{Key: b.identity, RegistrationID: 1}, bobStore{b},
+		func(*curve25519.PublicKey) bool { return true }, me2, me1)
+	if err != nil || typ != MessageTypePreKey {
+		t.Fatalf("self-session jump of 25001: %v", err)
+	}
+	if !got.current.selfSession || string(pt) != fmt.Sprint(MaxForwardJumps+1) {
+		t.Errorf("responder self=%v, plaintext %q", got.current.selfSession, pt)
+	}
+
+	// Same identity but a different service ID is not a self session.
+	other := Address{ServiceID: aliceAddr.ServiceID, DeviceID: 2}
+	rec2, err := NewInitiatorRecord(r, b.identity, 1, b.bundle, t0, me1, other)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rec2.current.selfSession {
+		t.Error("different service IDs counted as a self session")
 	}
 }

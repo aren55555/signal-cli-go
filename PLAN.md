@@ -21,8 +21,8 @@ every session, and update both before ending one.
 | 0  | Bootstrap: module, justfile, CI, docs, oracle installer | done (2026-10-23) |
 | 1  | Surface inventory: CLI + JSON-RPC specs, COMPAT.md rows, account-free goldens | done (2026-10-23) |
 | 2  | Crypto primitives with Layer A vectors      | done (2026-10-23) |
-| 3  | Signal protocol core (PQXDH, ratchet, SPQR, sender keys, sealed sender) | **next** |
-| 4  | Service layer, first Layer C 1:1 exchange on staging | not started |
+| 3  | Signal protocol core (PQXDH, ratchet, SPQR, sender keys, sealed sender) | done (2026-10-23); interop captures for sealed sender, sender keys and post-reply messages deferred until milestone 4 |
+| 4  | Service layer, first Layer C 1:1 exchange on staging | **in progress** |
 | 5  | All message types, attachments, receipts, sync, linked devices | not started |
 | 6  | Groups v2 and zkgroup                        | not started |
 | 7  | Profiles, contacts, usernames, storage service, CDSI, SVR | not started |
@@ -421,3 +421,15 @@ vectors.
   - Not covered yet: sealed sender, SignalMessages after a reply, sender
     keys (they need at least 2 sender-key-capable group recipients, so a
     third account), and the reverse direction (milestone 4).
+- Self-session flag done: same identity key and same service ID mean no
+  forward-jump limit in the ratchet and SPQR (max_jump 2^32-1).
+- **Milestone 3 done** (operator decision, 2026-10-23): finish offline.
+  - Sealed sender, sender keys and post-reply interop are redone by
+    capture once our own client talks to staging (milestone 4), not with
+    a third staging number.
+  - Proven by capture-1: reference → us for session-opening messages.
+- **Milestone 4 started.** Spec subagents launched:
+  - "service API and transport": libsignal-net vs Java WebSocket, TLS
+    roots, auth, registration, prekeys, send;
+  - "message pipe, content, linking": WebSocket messages, envelope
+    acks, Content/DataMessage and padding, provisioning.

@@ -494,3 +494,19 @@ func (s *State) Epoch() uint64 {
 	}
 	return s.scka.epoch
 }
+
+// WithMaxJump returns a copy of a state with the chain's max_jump replaced,
+// for libsignal's self sessions. It applies to the negotiation record and
+// any chain already created.
+func (s *State) WithMaxJump(maxJump uint32) *State {
+	n := s.clone()
+	if n.neg != nil {
+		neg := *n.neg
+		neg.params.MaxJump = maxJump
+		n.neg = &neg
+	}
+	if n.chain != nil {
+		n.chain.maxJump = maxJump
+	}
+	return n
+}

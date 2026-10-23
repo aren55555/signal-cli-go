@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 
 	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
 	"github.com/aren55555/signal-cli-go/internal/protocol/spqr"
@@ -272,4 +273,21 @@ func (s *SessionState) seedFor(rc *receiverChain, counter uint32) (skippedSeed, 
 	seed, next := chainStep(key)
 	rc.chain = chain{key: next, index: counter + 1}
 	return skippedSeed{index: counter, seed: seed}, nil
+}
+
+// markSelfSession flags a session between two devices of one account:
+// equal identity keys and the same service ID (pqxdh.md §4). Such sessions
+// have no forward-jump limit, in the ratchet and in SPQR (max_jump
+// 2^32-1, spqr/session.md §2).
+func (s *SessionState) markSelfSession(local, remote Address) {
+	a, ok1 := serviceIDBinary(local.ServiceID)
+	b, ok2 := serviceIDBinary(remote.ServiceID)
+	if !ok1 || !ok2 || string(a) != string(b) || s.localIdentity == nil || s.remoteIdentity == nil ||
+		string(s.localIdentity.Bytes()) != string(s.remoteIdentity.Bytes()) {
+		return
+	}
+	s.selfSession = true
+	if s.pq != nil && s.pq.Epoch() == 1 { // fresh state: start over with the self-session parameters
+		s.pq = s.pq.WithMaxJump(math.MaxUint32)
+	}
 }
