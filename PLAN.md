@@ -340,3 +340,21 @@ vectors.
 - Milestone 3: SPQR spec and protocol specs committed; libsignal session
   state implemented. Next: SignalMessage / PreKeySignalMessage framing on
   the generated types, then SPQR.
+- Milestone 3 progress (later the same day):
+  - `internal/protocol`: SignalMessage / PreKeySignalMessage framing on
+    the generated types (MAC over raw bytes), and SessionRecord with
+    Encrypt, Decrypt (Sesame-style, 40 archived states) and the responder
+    DecryptPreKey flow of pqxdh.md §7. Record tests mutation-checked.
+  - `internal/crypto/kyber`: ML-KEM-768 with SPQR's split encapsulation;
+    all 100 libcrux KATs pass through both paths.
+  - **Remaining for milestone 3:**
+    - SPQR, in this order: varint, then the GF(2^16) erasure code
+      (`chunking.md`), then the chain and authenticator (`protocol.md`
+      §3–4), then the 11-state SCKA (§5–7), then the wire format
+      (`wire.md`), then wiring it into Encrypt/Decrypt (SPQR key as the
+      HKDF salt, `pq_ratchet` field 5, V1 minimum);
+    - sender keys and sealed sender v1/v2;
+    - staging captures (needs operator numbers) and the offline replay
+      test.
+  - Until SPQR is wired in, our sessions interoperate only with
+    themselves: libsignal v0.99.1 requires SPQR V1.
