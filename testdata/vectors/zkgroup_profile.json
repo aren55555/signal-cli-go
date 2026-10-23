@@ -1,0 +1,212 @@
+{
+  "source": {
+    "description": "Vectors for the zkgroup profile-key version and profile-key commitment as computed by libsignal v0.99.1 (the libsignal-client bundled with signal-cli v0.14.7). See spec/crypto/zkgroup-profile.md. All hex is lowercase; points are 32-byte RFC 9496 ristretto255 encodings; scalars are 32-byte little-endian integers reduced mod the group order.",
+    "libsignal_repository": "https://github.com/signalapp/libsignal",
+    "libsignal_tag": "v0.99.1",
+    "libsignal_commit": "97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8",
+    "provenance": {
+      "sho_hmac_sha256.upstream": "Copied as data from the unit test in rust/poksho/src/shohmacsha256.rs @ 97801d22 (the 64-byte and 65-byte outputs and the long-sequence 63-byte output).",
+      "sho_hmac_sha256.derived": "Chaining-value states computed by the spec agent from the construction in the spec (HMAC-SHA256); cv_after_label was cross-checked with openssl HMAC.",
+      "system_params.concatenated_96": "Equal byte for byte to the hardcoded 96-byte constant in rust/zkgroup/src/crypto/profile_key_commitment.rs @ 97801d22 (upstream data).",
+      "system_params (other fields)": "Computed by the spec agent with a throwaway scratch implementation of the spec (not delivered, deleted); it reproduces the upstream constant above.",
+      "cases[].version and cases[].commitment": "Computed offline by the reference distribution: jshell with class path /work/third_party/signal-cli-0.14.7/lib/* (libsignal-client-0.99.1.jar, native libsignal_jni), calling org.signal.libsignal.zkgroup.profiles.ProfileKey(bytes).getProfileKeyVersion(aci).serialize() and .getCommitment(aci).serialize() with aci = new ServiceId.Aci(UUID.fromString(...)). No network.",
+      "cases[].intermediate": "Computed by the spec agent's throwaway scratch implementation of the spec (not delivered, deleted). For every case it reproduced the jar's version and full 97-byte commitment exactly, so the intermediates are consistent with libsignal; but libsignal does not expose them, so they are not independently confirmed beyond that.",
+      "upstream_fixed_vectors": "libsignal v0.99.1 has no fixed test vectors for the profile-key version or commitment (Rust, Java, Node, Swift tests searched); its tests only check determinism."
+    }
+  },
+  "sho_hmac_sha256": [
+    {
+      "kind": "upstream",
+      "steps": "new(label='asd'); absorb_and_ratchet('asdasd'); squeeze_and_ratchet(64)",
+      "label_ascii": "asd",
+      "absorb_ascii": ["asdasd"],
+      "cv_after_label": "271c93433d6fa0638c2492714628348ff1f6ad971cd3d2163e3c5e00c5852a39",
+      "cv_after_absorb": "f39d47d3592704bbf6a6861ff8c84affd7ed444a92b6c33b276097bef3556932",
+      "squeeze_len": 64,
+      "output": "392cb9449373037fa0c11aebed69cca3b7d3bc9790878f341729c65d5506442f04986cb5c9098f277c3ea640a4dc6e90372b433a90af9aea7072eaba3398c4fe",
+      "cv_after_squeeze": "bcb222a7cec01a8841587f155c9e30a77c6f4737d0db90fd9e16491968d3d177"
+    },
+    {
+      "kind": "upstream",
+      "steps": "new(label='asd'); absorb_and_ratchet('asdasd'); squeeze_and_ratchet(65)",
+      "label_ascii": "asd",
+      "absorb_ascii": ["asdasd"],
+      "squeeze_len": 65,
+      "output": "392cb9449373037fa0c11aebed69cca3b7d3bc9790878f341729c65d5506442f04986cb5c9098f277c3ea640a4dc6e90372b433a90af9aea7072eaba3398c4fe7a"
+    },
+    {
+      "kind": "upstream",
+      "steps": "new(label=''); absorb_and_ratchet each of: 'abc', 63, 64, 65, 127, 128, 129 zero bytes (one call each); squeeze_and_ratchet 63, 64, 65, 127, 128, 129 bytes (outputs discarded); absorb_and_ratchet('def'); squeeze_and_ratchet(63)",
+      "squeeze_len": 63,
+      "output": "c5c13bcc6596c25fc4514eac9269dd6e3e57ef70f4bfb8d67fd3082ed9732d7790d8d2686f19eb2533a65c94bb8ceda0a068e1b615c81bb26e411889da9fb7"
+    }
+  ],
+  "system_params": {
+    "sho_label_ascii": "Signal_ZKGroup_20200424_Constant_ProfileKeyCommitment_SystemParams_Generate",
+    "sho_data_hex": "",
+    "cv_after_label": "f4f64f02e73a04c21f340a5e73d3f3278a050e0239caa1fcbc04c6462fb369c1",
+    "cv_after_absorbing_empty_data": "8c15cac7b7d191608cd69d60dba66a4660e9f00a985060d2b48c5da0597736bd",
+    "generators": [
+      {"name": "G_j1", "squeeze_index": 0, "sho_output_64": "86d6bd14696d4758e3db2b6156b143d2c7fe134f547adbad6a1230242cf78a5a5816917b478cb23e55684ea905f2e9139db0020388c526707ee22655ec4f923d", "point": "a8ca0bbd1148c466725860640ac53d2772b14eeae0170a38c62c7b3dd29c3e4a"},
+      {"name": "G_j2", "squeeze_index": 1, "sho_output_64": "7f9fa0bfb53206fc0d40948565a3e0870d221de014659a07a9a9f393bd2fe3b93ee14c76d6507ef3501f422ce17416e654e64aeb25dca27bb17e64c13916489e", "point": "14b9462d948f059450799f4cc2a06e55dec807735670b94a5ce80f59f1950861"},
+      {"name": "G_j3", "squeeze_index": 2, "sho_output_64": "9ab7959d70127256ce1373420e3a33e4caad1f8ee883235d3ee9539b32f4f46a4196a9948120a535018b392d63c1a86f8af5d49afc1aa965ba31363f74fd706f", "point": "b0c0f7b91f6ef9c7556093d8930a86bd36188cec740554657d92dcd86aad251c"}
+    ],
+    "concatenated_96": "a8ca0bbd1148c466725860640ac53d2772b14eeae0170a38c62c7b3dd29c3e4a14b9462d948f059450799f4cc2a06e55dec807735670b94a5ce80f59f1950861b0c0f7b91f6ef9c7556093d8930a86bd36188cec740554657d92dcd86aad251c",
+    "note": "concatenated_96 equals libsignal's hardcoded SystemParams constant (96 bytes) byte for byte."
+  },
+  "cases": [
+    {
+      "note": "Reference value from spec/service/profile.md section 2.3 (zero key). Note M4 is the identity point (MAP of 0), whose encoding is 32 zero bytes.",
+      "profile_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "aci": "00000000-0000-4000-8000-000000000001",
+      "aci_bytes": "00000000000040008000000000000001",
+      "version": "fcd0715a47cd726483fb0ff70d03b3f4c7329fe444d21cd61e36723f971b3b32",
+      "commitment": "0096763e6a327bb375976e66bcc36daea89efdc8a997ca07116a77c7b4f8d09c1eec47ab525034ea5f809e9981ff1711757e44b8a8a883a8543fa197a30a5a6f53ea1e758f4733eaf73fa8da2c579cbe4a004db75f46e6d9930ceff23945ec0803",
+      "intermediate": {
+        "sho_input_pk_aci": "000000000000000000000000000000000000000000000000000000000000000000000000000040008000000000000001",
+        "m3_sho_output_32": "53fa1846a9f0989c70961eba39547d2e47cea7208bde43dbdae0eb050bd901fb",
+        "M3": "ee5bf49113063549b97dcc69026fdac4777beff857398e3d042b535c5bf1e662",
+        "m4_masked_key": "0000000000000000000000000000000000000000000000000000000000000000",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "j3_sho_output_64": "bd829a50daff041991d982a4c973d40ac4aac029e99c296d3e949d3136faf6835701a214e43789013c7bd8b3ee5151b15bc2bed256afca69dc0a025cd231ec1f",
+        "j3_scalar_le": "448fff7c01252e5ab8260acaa5211c92ad0f3318508d7977e9fa6017c25b2600"
+      }
+    },
+    {
+      "note": "Key = libsignal TEST_ARRAY_32, ACI bytes = TEST_ARRAY_16 (constants used in libsignal's zkgroup tests; upstream asserts no values for them).",
+      "profile_key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "aci_bytes": "000102030405060708090a0b0c0d0e0f",
+      "version": "882810e3aa8809e06721dfa221f9c125ddaa58f66d058028efb1967e98136e78",
+      "commitment": "00e44b31a36cc76be0e029bc432af32387f4c4eb2835f0d48d6a60928177f8b21d520c7e2642d9d69cdc06f2cbf1f26c85e6cba007dc688b0bd32018a3dbb7ad2dfcde2ae077f59294c8d786a5d767dd0b5c5397221ef10fdfdc7469a7031f543e",
+      "intermediate": {
+        "sho_input_pk_aci": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f000102030405060708090a0b0c0d0e0f",
+        "m3_sho_output_32": "9a0374915abc4dcd4b0ae0615d3152c0fc5a12e72ba2774f8f92abc4ce87856c",
+        "M3": "e239f41bd061cffa4956073bf52c16a7f79ebeb94fa2b3f3fe3fabcc94019441",
+        "m4_masked_key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+        "M4": "aa628aeeffea9480b5feb6026280c04a019bf1adca9fa13ab5e753a65464b32a",
+        "j3_sho_output_64": "6792bd94707196a3752e0254e001a35b60d017239b9389579047ccf3b8b493de071bbeff1d3438606257413996f1f1e81f6e1cbaa93c3664ff0373880fb8c37e",
+        "j3_scalar_le": "24d228b81d333dda1ea47a1085ffa765c0955f22439540a469aabf1ccb28b407"
+      }
+    },
+    {
+      "note": "Key = libsignal TEST_ARRAY_32_1, ACI bytes = TEST_ARRAY_16: the inputs of libsignal's profile-key credential integration test (upstream asserts no values for them).",
+      "profile_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "aci_bytes": "000102030405060708090a0b0c0d0e0f",
+      "version": "038cb06e115d2be17285ffe3508a4e298992ab8206d051afa4366a16a57aaf18",
+      "commitment": "00161fd735b05ab5b7893633ba79374874537309402ca55a2bbdcfe7b98a75c723de35786d33fbe0d4d19e68b9959fe210165ae201b6bd3d3eb58116ac63c609428206909a2f508e5cdc0e3c07ec5ebae6ef71136aacec9be09b49afe0539fd254",
+      "intermediate": {
+        "sho_input_pk_aci": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283000102030405060708090a0b0c0d0e0f",
+        "m3_sho_output_32": "b52933a764d954973ea86bb72531c4f27cbf48d5ac28f0715bd7862fa134c82d",
+        "M3": "f87aa3b0dbd562f5a1a8f5236b0ce4dc92f6b0c12041060f088bf52933db3635",
+        "m4_masked_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818203",
+        "M4": "b23220e85cfd2f7fa47f6857061e356ce1868bfbe761f50668584a8962019c48",
+        "j3_sho_output_64": "5bbd3257b2f856b5e7d1398a3e8a58f6a52264ceaa7781620fd699a3222e053197c5691ee462da6cff75b65458c482d2169725ae686e6ae42edb49d35ebb2a04",
+        "j3_scalar_le": "43ab033a20c4f2feff40f254177880e45e18c406d89e7ddabb00b3fbc07d1708"
+      }
+    },
+    {
+      "note": "Same key as the previous case, different ACI: every output changes except M4.",
+      "profile_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "aci_bytes": "6465666768696a6b6c6d6e6f70717273",
+      "version": "2e25573db9beffe79bab17eadab33f4e807873a8faf95d837b4f78e845b47ccf",
+      "commitment": "00aeeadeb47df61ac557fa087032ef36791ecb719875e95d868a26cf2d4fe05313e8ee7bc9fe9823c4d261b7ceb31fedce6ca33e58da4cc337d62825b68139a8015e7c842f51808a43de39ac35c81fc33c309354a8e85dd4d42895c496cf66e073",
+      "intermediate": {
+        "sho_input_pk_aci": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182836465666768696a6b6c6d6e6f70717273",
+        "m3_sho_output_32": "96f93271bc37a71252af2ee9f179664ac26ff4674276895e3729c3ab7c5ad924",
+        "M3": "c86438c627ea08ebb30c332087205b8c32c24d22d24dae315e67e16b500f6e20",
+        "m4_masked_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818203",
+        "M4": "b23220e85cfd2f7fa47f6857061e356ce1868bfbe761f50668584a8962019c48",
+        "j3_sho_output_64": "938137935a158025b1d0188393035e807e32906b0243fcdffc640cdcff21c4536ec2b690618315400caa82c6e4033cbf6dd70c9ec9f32e275f1de932bd916fec",
+        "j3_scalar_le": "8e0400a68c3aab1fdc93d879bbe1537735a3a5703361b0d0dc123b44e6e45c04"
+      }
+    },
+    {
+      "note": "All-0xff key and ACI: exercises the M4 bit masking (byte 0 low bit, byte 31 top two bits) and the top-bit masking in MAP for M3.",
+      "profile_key": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "aci": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "aci_bytes": "ffffffffffffffffffffffffffffffff",
+      "version": "c0b01ebc1f443a34d91fc6c78e95930efe99dc798c865af6673f38827721586a",
+      "commitment": "002ae3966bcfe1b64aca63cd77620acae7e00672b010d9dcf0b210bcd54bfd454df2a5d9fa214cfe43965f916375e2b6ea027944482ff7b2505465ed0854aa40774cefdc9a743700480bfaa62ba20f8371f4e1eca5709f3a16caed5eedd207ca0a",
+      "intermediate": {
+        "sho_input_pk_aci": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "m3_sho_output_32": "7fb6c07ee868cee40ef107cd2be26aaa064bb035e6d7e28585bfaf6e9019d379",
+        "M3": "d026cefab3cd27f502eb6d54d3fc3c6b16ddb76b225cd75906d05e31cb4efe63",
+        "m4_masked_key": "feffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff3f",
+        "M4": "88b357cc52647f28c250e1c28886c64787a4890b846e96b1211e4f5eb67d1b6b",
+        "j3_sho_output_64": "1e124d3b49c02a90390ab688d64088624ea4e4d1585ea2165fee9817a3754d1f29b4b4bf0a8983f72558e2fb411788beddc10fdc911adce42e58dbd495b34aac",
+        "j3_scalar_le": "32b69696674983b51489e8f61f4b785f93393191f12cdd316790946f3ca99404"
+      }
+    },
+    {
+      "note": "Key differs from the previous case only in masked bits: M4 is identical to the previous case, while version, M3 and j3 differ.",
+      "profile_key": "feffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff3f",
+      "aci": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "aci_bytes": "ffffffffffffffffffffffffffffffff",
+      "version": "958083cd85139931981eeaad6910ab72bc60e846219fc6ae1474e5faabe30054",
+      "commitment": "0092914406f5a82466ff8ffc2f58b4f2ec0ede7d21aee6b18fab3a2bb2e5a7b354821de3244572da07d6252980954d46d45d20675a350baaee7565cb0668202447227890be83828101f509967420c0cbcca57b36686a6573a2d24d2d7e5b07c76c",
+      "intermediate": {
+        "sho_input_pk_aci": "feffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff3fffffffffffffffffffffffffffffffff",
+        "m3_sho_output_32": "4773dc5a5b7f17f3863512a8292436ce7032c671a32ec22f6bef2527955ad41f",
+        "M3": "32843b7f88c490efa077cee93d240235c2f0b39bf47485d756bfccbeee067a09",
+        "m4_masked_key": "feffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff3f",
+        "M4": "88b357cc52647f28c250e1c28886c64787a4890b846e96b1211e4f5eb67d1b6b",
+        "j3_sho_output_64": "3f074b2f43ff8656d3d3a2fdaf5ab240656df821b3dfa5bb3607877afcb7dd45d93d9cf00b0f80dfb446e3d0e71731848c1a901bf50d80df5ba7f7d3b49a2227",
+        "j3_scalar_le": "7e7f08627e542335e761ee5b757e9d91b897c53e13702711d933e557b60e1f02"
+      }
+    },
+    {
+      "note": "Arbitrary key (first access-key KAT key in libsignal profile_key.rs) and an arbitrary version-4 ACI.",
+      "profile_key": "b95042a2c2d9e5b3bb09300ee408a172facd96e91b504e043a5a023dc4cff359",
+      "aci": "5e3b0d8c-2f41-4a8e-9b6c-1d2e3f405162",
+      "aci_bytes": "5e3b0d8c2f414a8e9b6c1d2e3f405162",
+      "version": "5aab4ee916391be761fe9a9761ab60ec4f2acbbe99bded599740928c037a0257",
+      "commitment": "002ac94277e8bdb428e7bcf775c7f3fbaf0b4747e35d120b2dbaaf3ac8f517af7a02d4f36502a195c02423a1654b237cf85c1340c3bc231e8d5e9e21216532ba51ba9543c6c7f94960e7579655357c2e8bc1d01d94ccaca4d3392de6a1d1df1e79",
+      "intermediate": {
+        "sho_input_pk_aci": "b95042a2c2d9e5b3bb09300ee408a172facd96e91b504e043a5a023dc4cff3595e3b0d8c2f414a8e9b6c1d2e3f405162",
+        "m3_sho_output_32": "9522559b056d4a891e5a391dcaf216f2c664cabe276bc2721ddc3b9af7b014e4",
+        "M3": "5c3882b10a6b7203f291feadba87f5cf79485563fc64803f56ec151142dbce5b",
+        "m4_masked_key": "b85042a2c2d9e5b3bb09300ee408a172facd96e91b504e043a5a023dc4cff319",
+        "M4": "c0cb614a56f6ca3677a62a59fd09c3d171e5fcf846ca98f94709adf83d4d5212",
+        "j3_sho_output_64": "10a4eaadabffaab306858abcfc1b5fb226473a62dd93c414d6ebad423aada193f6e90d6ebcdfec58df2d62bb3039961286faf04b6406dd594da9a29dd3b759df",
+        "j3_scalar_le": "c4747771d3a47550db344cc67fdb0fa3347dfe292d8c4a422b74a25ef5d6fb00"
+      }
+    },
+    {
+      "note": "Arbitrary key (second access-key KAT key in libsignal profile_key.rs) and an arbitrary ACI.",
+      "profile_key": "26197b17e5a2c36d8c9518c35358f123c476000db6da7565c0d41f6674462c4d",
+      "aci": "a1b2c3d4-e5f6-4789-8abc-def012345678",
+      "aci_bytes": "a1b2c3d4e5f647898abcdef012345678",
+      "version": "93b3f7f9ed8f31f9d6d2bfda4eb2cf5628f2ba8d5ce20fbe6ff52991396206af",
+      "commitment": "007eba1fc5e1d5a74f182daeb6416a81e5da9726a6f96a4107ea12427e3ce86b34707827a4fdc2c7cdaa3518a7b890bf660ec78665ef1f1da4062999fe1a81987474bc969205a1cdec16bf1dc46f28535b356a7053bbf8070f25391250b8faab5d",
+      "intermediate": {
+        "sho_input_pk_aci": "26197b17e5a2c36d8c9518c35358f123c476000db6da7565c0d41f6674462c4da1b2c3d4e5f647898abcdef012345678",
+        "m3_sho_output_32": "2f2ab2228fa7ea6c89a37b3fdf92663f4b20a30b9b36e2f5813d6454e723711b",
+        "M3": "a64b2df0fba9cc5f53775ca9914c0c394ab2db04378811ec1b58af58b0d86844",
+        "m4_masked_key": "26197b17e5a2c36d8c9518c35358f123c476000db6da7565c0d41f6674462c0d",
+        "M4": "66e8d68d2fc02b6bd0c12176fa9b946a6b6e2ad979fff816e37a0acea5680049",
+        "j3_sho_output_64": "622c1b7c40a3f755accceaa1f701422ff8975bc8040946df942cb89d75d3af39918f8557e5e76edc82df957faca28380b757d1d92c0ab64cee5eb50e3e588ca4",
+        "j3_scalar_le": "29ff5d3cd2e0ce6803fbaac3aeda4238f111aa3a8842ed775c8dee7adbecf20f"
+      }
+    },
+    {
+      "note": "Key 01 00..00 80: masking turns it into the zero key, so M4 equals the identity point as in the first case, but version/M3/j3 differ from the first case.",
+      "profile_key": "0100000000000000000000000000000000000000000000000000000000000080",
+      "aci": "00000000-0000-4000-8000-000000000001",
+      "aci_bytes": "00000000000040008000000000000001",
+      "version": "4e08ddd01982f2fc29cae2a5148fd6797edb255fa5b3ff43eb9f7f17f07f66ca",
+      "commitment": "00986d1b446e36559f1c7c6480f3ed90492778efd7a523f8e939e86312613a651644ed937e35644e15610c1407414638db4b09a44826d5875e62a4dc01dfed9a604eb62c1f0ef789166c9e2c0105b02b701948318dfe5868820ae53fa65cc64c48",
+      "intermediate": {
+        "sho_input_pk_aci": "010000000000000000000000000000000000000000000000000000000000008000000000000040008000000000000001",
+        "m3_sho_output_32": "a884b953e5f399a33be4381841c59cd6c5e2e9062484ca538cd25409cd0582c1",
+        "M3": "bc4939b115411b6e005cfb07688c7284f1c77916dfd306103b481031580f430f",
+        "m4_masked_key": "0000000000000000000000000000000000000000000000000000000000000000",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "j3_sho_output_64": "c25e296f7828c1967dc387d939407e539e18ecb2ee5f6876dec555849d987721600141438f3595b4fb913fe9c7b555b7ffd64f89055117de461eccad6dfefbf6",
+        "j3_scalar_le": "2bfb720c1d4a7ad5e45223e38360a852c8107da5ae2310254eba15810c6c3e0a"
+      }
+    }
+  ]
+}
