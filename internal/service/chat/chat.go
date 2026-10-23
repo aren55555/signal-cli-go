@@ -113,7 +113,9 @@ type Conn struct {
 	nextID  uint64
 	pending map[uint64]chan *Response
 	queue   []*ServerRequest
-	wake    chan struct{}
+
+	serverTime time.Time // from the upgrade response; set before use
+	wake       chan struct{}
 }
 
 // New starts the protocol on s; the Conn owns s from now on.

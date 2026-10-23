@@ -466,3 +466,16 @@ vectors.
   black-box from the reference distribution's JNI library by fingerprint
   (CLEANROOM.md row). `ChatRoots` holds both (chat over h2), `RESTRoots`
   only the RSA root (registration REST, CDN, storage).
+- **Chat pipe** (`internal/service/chat`): request/response framing, envelope
+  delivery and acks, queue-empty, keep-alive, and `Dial`, which builds the
+  upgrade headers and maps 403, 499 and `Retry-After`.
+  `internal/service/agent` builds the agent strings.
+- **First live contact with staging (2026-10-23)**, through our own stack
+  (CONNECT proxy, TLS 1.3, embedded roots, h2 extended CONNECT,
+  protobuf framing): the unauthenticated chat socket opens and
+  `GET /v1/keepalive` answers 200 "OK" with an empty body; clock skew was
+  −17 ms. Opt-in test: `SIGNAL_LIVE_STAGING=1 go test -run Live
+  ./internal/service/chat`. Black-box observation that closes a gap in
+  transport.md: `grpc.chat.staging.signal.org` currently chains to the
+  Signal **RSA** root. Dialling with the Ed25519 root alone fails, so
+  both roots stay trusted, as in libsignal.
