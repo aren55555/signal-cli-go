@@ -200,9 +200,9 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 |---------|--------|------|---------|---------|---------|-------|
 | Registration and verification (staging) | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
 | Linking as a secondary device (provisioning) | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| Prekeys: EC, signed, Kyber last-resort | ⬜ | ⬜ | ⬜ | n/a | ⬜ | Kyber vs ML-KEM: open question |
-| PQXDH session setup | ⬜ | ⬜ | ⬜ | n/a | ⬜ | |
-| Double Ratchet | ⬜ | ⬜ | ⬜ | n/a | ⬜ | |
+| Prekeys: EC, signed, Kyber last-resort | ✅ [`pqxdh.md`](spec/protocol/pqxdh.md), [`kem.md`](spec/crypto/kem.md) | 🟡 KEM framing and bundle checks in [`internal/protocol`](internal/protocol); generation and upload are milestone 4 | 🟡 Kyber KATs, framing tests | n/a | ⬜ | |
+| PQXDH session setup | ✅ [`pqxdh.md`](spec/protocol/pqxdh.md) | 🟡 key schedule (96-byte split), asymmetric init, PreKeySignalMessage framing, responder flow (base-key match, prekey lookup, archive), in [`internal/protocol`](internal/protocol); SPQR not yet mixed in | 🟡 key schedule checked against its definition; no fixed upstream session vectors exist | n/a | ⬜ | Interop needs SPQR (libsignal requires V1) and captures |
+| Double Ratchet | ✅ [`double-ratchet.md`](spec/protocol/double-ratchet.md) | 🟡 libsignal session state, limits, MAC over raw bytes, Sesame-style record with 40 archived states, in [`internal/protocol`](internal/protocol); SPQR not yet mixed in | 🟡 `ratchet_kdf.json` (chain step, AES-CBC); behaviour tests; no fixed upstream session vectors exist | n/a | ⬜ | Interop proof waits on SPQR and the staging captures |
 | Sealed sender | ⬜ | ⬜ | ⬜ | n/a | ⬜ | |
 | Sender keys | ⬜ | ⬜ | ⬜ | n/a | ⬜ | |
 | 1:1 text | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |

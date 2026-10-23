@@ -27,6 +27,7 @@ type PQXDHSecrets struct {
 // PreKeyBundle is the responder's published keys, as fetched by the
 // initiator.
 type PreKeyBundle struct {
+	RegistrationID        uint32
 	IdentityKey           *curve25519.PublicKey
 	SignedPreKeyID        uint32
 	SignedPreKey          *curve25519.PublicKey

@@ -57,6 +57,13 @@ type SessionState struct {
 	previousCounter uint32
 	aliceBaseKey    *curve25519.PublicKey
 	selfSession     bool
+
+	localRegistrationID  uint32
+	remoteRegistrationID uint32
+	// Pending prekey info: set while the session is unacknowledged, so
+	// every outgoing message is a PreKeySignalMessage (pqxdh.md §4).
+	pending      *pendingPreKey
+	pendingKyber *pendingKyberPreKey
 }
 
 // NewAliceSession builds the initiator's state after PQXDH (pqxdh.md §4):
