@@ -33,6 +33,9 @@ type chain struct {
 type skippedSeed struct {
 	index uint32
 	seed  []byte
+	// legacy holds expanded keys from a pre-SPQR stored record (no seed);
+	// valid only for messages without an SPQR key.
+	legacy *messageKeys
 }
 
 // receiverChain is a receiving chain keyed by the remote ratchet key, with
@@ -61,8 +64,11 @@ type SessionState struct {
 	// previousCounter is libsignal's PN: the last index used on the previous
 	// sending chain (not the count), floored at 0.
 	previousCounter uint32
-	aliceBaseKey    *curve25519.PublicKey
+	aliceBaseKey    []byte // serialized; stored as raw bytes by libsignal
 	selfSession     bool
+	// hasSenderChain: libsignal counts a present but empty stored sender
+	// chain as a sender chain (ratchet_records.json).
+	hasSenderChain bool
 
 	localRegistrationID  uint32
 	remoteRegistrationID uint32
@@ -72,8 +78,12 @@ type SessionState struct {
 	pendingKyber *pendingKyberPreKey
 
 	// pq is the SPQR state (session.md). States are values: Send and
-	// Receive return new ones, so sharing it between copies is safe.
-	pq *spqr.State
+	// Receive return new ones, so sharing it between copies is safe. A
+	// loaded record keeps the raw bytes; if they fail to import, pqErr is
+	// set and the state fails when used, as in libsignal.
+	pq    *spqr.State
+	pqRaw []byte
+	pqErr error
 }
 
 // NewAliceSession builds the initiator's state after PQXDH (pqxdh.md §4):
@@ -84,7 +94,8 @@ func NewAliceSession(rand io.Reader, init *PQXDHInitiation, localIdentity, remot
 		version:        4,
 		localIdentity:  localIdentity,
 		remoteIdentity: remoteIdentity,
-		aliceBaseKey:   init.BaseKey,
+		aliceBaseKey:   init.BaseKey.Bytes(),
+		hasSenderChain: true,
 		receivers: []*receiverChain{{
 			ratchetKey: bobSignedPreKey,
 			chain:      chain{key: init.Secrets.ChainKey},
@@ -114,7 +125,8 @@ func NewBobSession(secrets *PQXDHSecrets, signedPreKey *curve25519.PrivateKey, l
 		version:        4,
 		localIdentity:  localIdentity,
 		remoteIdentity: remoteIdentity,
-		aliceBaseKey:   aliceBaseKey,
+		aliceBaseKey:   aliceBaseKey.Bytes(),
+		hasSenderChain: true,
 		rootKey:        secrets.RootKey,
 		senderRatchet:  signedPreKey,
 		sendChain:      chain{key: secrets.ChainKey},
@@ -168,23 +180,26 @@ func (s *SessionState) receiveStep(rand io.Reader, ratchetKey *curve25519.Public
 	if err != nil {
 		return nil, messageKeys{}, err
 	}
-	return t, deriveMessageKeys(seed, spqrKey), nil
+	if seed.legacy != nil {
+		return t, *seed.legacy, nil
+	}
+	return t, deriveMessageKeys(seed.seed, spqrKey), nil
 }
 
 // receiveSeed is receiveStep without the key expansion: it returns the
 // updated copy and the message-key seed, so SPQR can run in between.
-func (s *SessionState) receiveSeed(rand io.Reader, ratchetKey *curve25519.PublicKey, counter uint32) (*SessionState, []byte, error) {
+func (s *SessionState) receiveSeed(rand io.Reader, ratchetKey *curve25519.PublicKey, counter uint32) (*SessionState, skippedSeed, error) {
 	t := s.clone()
 	rc := t.findReceiver(ratchetKey)
 	if rc == nil {
 		var err error
 		if rc, err = t.dhRatchet(rand, ratchetKey); err != nil {
-			return nil, nil, err
+			return nil, skippedSeed{}, err
 		}
 	}
 	seed, err := t.seedFor(rc, counter)
 	if err != nil {
-		return nil, nil, err
+		return nil, skippedSeed{}, err
 	}
 	return t, seed, nil
 }
@@ -231,24 +246,24 @@ func (s *SessionState) dhRatchet(rand io.Reader, remote *curve25519.PublicKey) (
 
 // seedFor returns the message-key seed for counter on chain rc, using a
 // stored skipped seed or advancing the chain and storing what it skips.
-func (s *SessionState) seedFor(rc *receiverChain, counter uint32) ([]byte, error) {
+func (s *SessionState) seedFor(rc *receiverChain, counter uint32) (skippedSeed, error) {
 	i := rc.chain.index
 	if counter < i {
 		for k := len(rc.skipped) - 1; k >= 0; k-- {
 			if sk := rc.skipped[k]; sk.index == counter {
 				rc.skipped = append(rc.skipped[:k], rc.skipped[k+1:]...)
-				return sk.seed, nil
+				return sk, nil
 			}
 		}
-		return nil, fmt.Errorf("%w: counter %d, chain at %d", ErrDuplicateMessage, counter, i)
+		return skippedSeed{}, fmt.Errorf("%w: counter %d, chain at %d", ErrDuplicateMessage, counter, i)
 	}
 	if !s.selfSession && counter-i > MaxForwardJumps {
-		return nil, fmt.Errorf("protocol: message from too far into the future (counter %d, chain at %d)", counter, i)
+		return skippedSeed{}, fmt.Errorf("protocol: message from too far into the future (counter %d, chain at %d)", counter, i)
 	}
 	key := rc.chain.key
 	for idx := i; idx < counter; idx++ {
 		seed, next := chainStep(key)
-		rc.skipped = append(rc.skipped, skippedSeed{idx, seed})
+		rc.skipped = append(rc.skipped, skippedSeed{index: idx, seed: seed})
 		if len(rc.skipped) > MaxMessageKeys {
 			rc.skipped = rc.skipped[1:] // drop the oldest
 		}
@@ -256,5 +271,5 @@ func (s *SessionState) seedFor(rc *receiverChain, counter uint32) ([]byte, error
 	}
 	seed, next := chainStep(key)
 	rc.chain = chain{key: next, index: counter + 1}
-	return seed, nil
+	return skippedSeed{index: counter, seed: seed}, nil
 }

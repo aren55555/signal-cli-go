@@ -273,7 +273,7 @@ func (s *senderKeyState) seedFor(j uint32) ([]byte, error) {
 	key := s.chainKey
 	for it := i; it < j; it++ {
 		seed, next := chainStep(key)
-		s.skipped = append(s.skipped, skippedSeed{it, seed})
+		s.skipped = append(s.skipped, skippedSeed{index: it, seed: seed})
 		if len(s.skipped) > MaxMessageKeys {
 			s.skipped = s.skipped[1:]
 		}

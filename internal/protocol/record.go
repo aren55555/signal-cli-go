@@ -33,6 +33,8 @@ var (
 	ErrInvalidSignedPreKeyID = errors.New("protocol: invalid signed prekey ID")
 	ErrInvalidKyberPreKeyID  = errors.New("protocol: invalid Kyber prekey ID")
 	ErrInvalidPreKeyID       = errors.New("protocol: invalid prekey ID")
+	// ErrInvalidState reports a stored session that can't be used.
+	ErrInvalidState = errors.New("protocol: invalid session state")
 )
 
 // Address is a protocol address: a service ID (an ACI as a hyphenated
@@ -161,6 +163,9 @@ func (r *SessionRecord) Encrypt(rand io.Reader, plaintext []byte, now time.Time,
 	if cur.pending != nil && now.Sub(cur.pending.created) > MaxUnacknowledgedSessionAge {
 		return nil, 0, nil, fmt.Errorf("%w: unacknowledged session is older than 30 days", ErrSessionNotFound)
 	}
+	if cur.pqErr != nil {
+		return nil, 0, nil, fmt.Errorf("%w: %v", ErrInvalidState, cur.pqErr)
+	}
 	var pqNext *spqr.State
 	var pqMsg, pqKey []byte
 	if cur.pq != nil {
@@ -222,6 +227,9 @@ func decryptWith(st *SessionState, rand io.Reader, m *ratchetMessage, local, rem
 	if err != nil {
 		return nil, nil, err
 	}
+	if st.pqErr != nil {
+		return nil, nil, errStateMismatch // invalid state: this candidate is skipped
+	}
 	var pqKey []byte
 	if st.pq != nil {
 		// Any SPQR error makes this candidate fail (spqr/session.md §6).
@@ -229,7 +237,15 @@ func decryptWith(st *SessionState, rand io.Reader, m *ratchetMessage, local, rem
 			return nil, nil, errStateMismatch
 		}
 	}
-	keys := deriveMessageKeys(seed, pqKey)
+	var keys messageKeys
+	switch {
+	case seed.legacy == nil:
+		keys = deriveMessageKeys(seed.seed, pqKey)
+	case pqKey != nil:
+		return nil, nil, errStateMismatch // legacy keys can't take an SPQR salt
+	default:
+		keys = *seed.legacy
+	}
 	if !m.verifyMAC(keys.macKey, st.remoteIdentity, st.localIdentity) {
 		return nil, nil, errStateMismatch
 	}
@@ -339,7 +355,7 @@ func (r *SessionRecord) DecryptPreKey(rand io.Reader, wire []byte, localID Local
 func (r *SessionRecord) matchBaseKey(pm *preKeyMessage) *SessionRecord {
 	matches := func(st *SessionState) bool {
 		return st.version == pm.version && st.aliceBaseKey != nil &&
-			subtle.ConstantTimeCompare(st.aliceBaseKey.Bytes(), pm.baseKey.Bytes()) == 1
+			subtle.ConstantTimeCompare(st.aliceBaseKey, pm.baseKey.Bytes()) == 1
 	}
 	if r.current != nil && matches(r.current) {
 		return r
