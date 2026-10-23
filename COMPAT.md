@@ -235,7 +235,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | Ristretto255 | n/a (RFC 9496) | ✅ [`internal/crypto/ristretto255`](internal/crypto/ristretto255) | ✅ RFC 9496 A.1 (16 generator multiples via add, ScalarMult, ScalarBaseMult), A.2 (all 29 invalid encodings), A.3 (all 11 derivation vectors); section 4.1 constants checked against their identities | `FuzzSetCanonicalBytes` (round trip) |
 | XEdDSA / VXEdDSA | n/a (signal.org/docs) | ⬜ | ⬜ | |
 | Kyber1024 (pre-standard) and/or ML-KEM-1024 | ⬜ | ⬜ | ⬜ | |
-| Protobuf wire codec | n/a | ⬜ | ⬜ | fuzz test required |
+| Protobuf wire codec | n/a | ✅ [`internal/proto/wire`](internal/proto/wire) | ✅ varints and zigzag cross-checked against `encoding/binary`; protobuf encoding-guide examples; malformed-input table (truncation, overflow, field number, wire type, groups, depth) | `FuzzFields`: no panics, raw fields reassemble the input (unknown-field preservation). The encoding-guide example bytes were written from memory of protobuf.dev (not on the egress allowlist); the `encoding/binary` oracle is independent |
 | Attachment encryption | ⬜ | ⬜ | ⬜ | |
 | Profile encryption | ⬜ | ⬜ | ⬜ | |
 | Group master key derivation | ⬜ | ⬜ | ⬜ | |
