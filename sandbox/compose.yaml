@@ -1,0 +1,77 @@
+# signal-cli-go sandbox. See README.md for build/launch instructions.
+#
+# Two services:
+#   proxy  - allowlisting egress proxy (sandbox/proxy), on both networks.
+#   agent  - the development sandbox, on the *internal* network only. Its
+#            only path to the Internet is through `proxy`.
+name: signal-cli-go-sandbox
+
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: Containerfile
+      target: proxy
+    platform: ${SANDBOX_PLATFORM:-linux/amd64}
+    networks: [egress, agentnet]
+    volumes:
+      - ./ALLOWED_HOSTS:/etc/egress/ALLOWED_HOSTS:ro
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+    restart: unless-stopped
+
+  agent:
+    build:
+      context: .
+      dockerfile: Containerfile
+      target: sandbox
+      args:
+        AGENT_UID: ${AGENT_UID:-1000}
+        AGENT_GID: ${AGENT_GID:-1000}
+    platform: ${SANDBOX_PLATFORM:-linux/amd64}
+    depends_on: [proxy]
+    networks: [agentnet]
+    working_dir: /work
+    volumes:
+      # The repo checkout is the ONLY host path mounted.
+      - ..:/work
+      # Named volume (lives inside the container runtime, not on the host):
+      # Claude Code login + session state, Go build cache, etc.
+      - agent-home:/home/agent
+    tmpfs:
+      - /tmp:size=2g
+    environment:
+      - HTTP_PROXY=http://proxy:3128
+      - HTTPS_PROXY=http://proxy:3128
+      - http_proxy=http://proxy:3128
+      - https_proxy=http://proxy:3128
+      - NO_PROXY=localhost,127.0.0.1,::1
+      - no_proxy=localhost,127.0.0.1,::1
+      # Read by signal-cli's launcher script (not JAVA_TOOL_OPTIONS, which
+      # would print a banner on stderr and pollute golden transcripts).
+      - JAVA_OPTS=-Dhttp.proxyHost=proxy -Dhttp.proxyPort=3128 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts=localhost|127.0.0.1
+      # The entries below have no value: compose passes each one through
+      # from the operator's shell only when it is set there, and leaves it
+      # unset otherwise. Secrets are never written to disk or committed.
+      - SIGNAL_STAGING_NUMBER_A
+      - SIGNAL_STAGING_NUMBER_B
+      - SIGNAL_CAPTCHA_TOKEN
+      # Optional: API-key auth for Claude Code instead of OAuth login.
+      - ANTHROPIC_API_KEY
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 4096
+    init: true
+    stdin_open: true
+    tty: true
+    command: ["bash"]
+
+networks:
+  egress: {}
+  agentnet:
+    internal: true
+
+volumes:
+  agent-home: {}

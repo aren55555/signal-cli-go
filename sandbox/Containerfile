@@ -1,0 +1,176 @@
+# syntax=docker/dockerfile:1.7
+#
+# signal-cli-go development sandbox.
+#
+# Everything the project needs is baked in here, pinned by version and
+# SHA-256: Go, a JDK for the reference signal-cli oracle, `just`, and the
+# Claude Code binary that drives the agent session. The agent session runs
+# *inside* this image; nothing is ever installed on the host.
+#
+# Build and launch instructions: sandbox/README.md
+#
+# Why linux/amd64 by default: signal-cli 0.14.7 bundles its libsignal
+# native library for x86_64 Linux only. Building the image for amd64 lets
+# the unmodified upstream release run as a test oracle. The recipes below
+# also carry arm64 pins so the image can be built natively if an aarch64
+# libsignal library is ever supplied (see README, "Architecture").
+
+############################################################################
+# Pins. Every download below is verified against one of these checksums.
+############################################################################
+
+# debian:bookworm-slim, multi-arch index digest, last_updated 2026-10-21.
+# Source: https://hub.docker.com/v2/repositories/library/debian/tags/bookworm-slim
+ARG BASE_IMAGE=docker.io/library/debian:bookworm-slim@sha256:7ff6ba31527b9e336162fa061746c366c4b2032f4d2cff2078bea43f78efe3f8
+# Go. Source: https://go.dev/dl/?mode=json
+ARG GO_VERSION=1.27.3
+ARG GO_SHA256_AMD64=65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40
+ARG GO_SHA256_ARM64=a06e99309dbcbdca1a8ccd2282c3ee146e55930886e26b4f1193269587165f49
+
+# Eclipse Temurin JDK 25 (signal-cli 0.14.7 requires Java 25).
+# Source: https://api.adoptium.net/v3/assets/latest/25/hotspot?os=linux&image_type=jdk&vendor=eclipse
+# The aarch64 build lags the x64 build by one patch release at pin time.
+ARG JDK_RELEASE_AMD64=jdk-25.0.5+8
+ARG JDK_FILE_AMD64=OpenJDK25U-jdk_x64_linux_hotspot_25.0.5_8.tar.gz
+ARG JDK_SHA256_AMD64=68982529869257d0ee6b824ec5aa270ff8b118bb438670da0b97ebdab178d7fb
+ARG JDK_RELEASE_ARM64=jdk-25.0.4.1+1
+ARG JDK_FILE_ARM64=OpenJDK25U-jdk_aarch64_linux_hotspot_25.0.4.1_1.tar.gz
+ARG JDK_SHA256_ARM64=69df11a02cfa3ef7d7ca645e03edce6778ec090e100f6ae2b42097865730ac52
+
+# just. Source: https://github.com/casey/just/releases/download/1.59.0/SHA256SUMS
+ARG JUST_VERSION=1.59.0
+ARG JUST_SHA256_AMD64=409044617b6f06517c1035e55ca38c8c856ff8b650e41bc2aa1ef82d5903a23e
+ARG JUST_SHA256_ARM64=23871b1702bfd550fb5f901778fd4290ecf2ee034a45a889fbe96d89b188086d
+
+# Claude Code native binary (glibc build).
+# Source: https://downloads.claude.ai/claude-code-releases/2.1.309/manifest.json
+ARG CLAUDE_VERSION=2.1.309
+ARG CLAUDE_SHA256_AMD64=4d704a8aecbe038affa3000f498ae17c1b4f753add8facb8764120affc99b658
+ARG CLAUDE_SHA256_ARM64=9796dd26899337f687739a0b39a7353b639f062a3436a7b941fcf19a1b757a9b
+
+FROM ${BASE_IMAGE} AS base
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        ca-certificates curl git gnupg tar gzip xz-utils unzip zip \
+        procps less jq ripgrep file; \
+    rm -rf /var/lib/apt/lists/*
+
+############################################################################
+# Toolchains, downloaded and verified in a throwaway stage.
+############################################################################
+FROM base AS toolchains
+# Set automatically by BuildKit from --platform; must be redeclared per stage
+# and must NOT be declared globally, which would shadow it with an empty value.
+ARG TARGETARCH
+ARG GO_VERSION GO_SHA256_AMD64 GO_SHA256_ARM64
+ARG JDK_RELEASE_AMD64 JDK_FILE_AMD64 JDK_SHA256_AMD64
+ARG JDK_RELEASE_ARM64 JDK_FILE_ARM64 JDK_SHA256_ARM64
+ARG JUST_VERSION JUST_SHA256_AMD64 JUST_SHA256_ARM64
+ARG CLAUDE_VERSION CLAUDE_SHA256_AMD64 CLAUDE_SHA256_ARM64
+
+WORKDIR /dl
+RUN set -eux; \
+    case "${TARGETARCH}" in \
+      amd64) GO_SHA="${GO_SHA256_AMD64}"; \
+             JDK_REL="${JDK_RELEASE_AMD64}"; JDK_FILE="${JDK_FILE_AMD64}"; JDK_SHA="${JDK_SHA256_AMD64}"; \
+             JUST_TRIPLE=x86_64-unknown-linux-musl; JUST_SHA="${JUST_SHA256_AMD64}"; \
+             CLAUDE_PLATFORM=linux-x64; CLAUDE_SHA="${CLAUDE_SHA256_AMD64}";; \
+      arm64) GO_SHA="${GO_SHA256_ARM64}"; \
+             JDK_REL="${JDK_RELEASE_ARM64}"; JDK_FILE="${JDK_FILE_ARM64}"; JDK_SHA="${JDK_SHA256_ARM64}"; \
+             JUST_TRIPLE=aarch64-unknown-linux-musl; JUST_SHA="${JUST_SHA256_ARM64}"; \
+             CLAUDE_PLATFORM=linux-arm64; CLAUDE_SHA="${CLAUDE_SHA256_ARM64}";; \
+      *) echo "unsupported TARGETARCH=${TARGETARCH}" >&2; exit 1;; \
+    esac; \
+    \
+    # --- Go ---
+    curl -fsSLo go.tgz "https://go.dev/dl/go${GO_VERSION}.linux-${TARGETARCH}.tar.gz"; \
+    echo "${GO_SHA}  go.tgz" | sha256sum -c -; \
+    mkdir -p /out/usr/local; tar -C /out/usr/local -xzf go.tgz; \
+    \
+    # --- JDK ---
+    JDK_REL_URL="$(printf '%s' "${JDK_REL}" | sed 's/+/%2B/g')"; \
+    curl -fsSLo jdk.tgz "https://github.com/adoptium/temurin25-binaries/releases/download/${JDK_REL_URL}/${JDK_FILE}"; \
+    echo "${JDK_SHA}  jdk.tgz" | sha256sum -c -; \
+    mkdir -p /out/opt/jdk; tar -C /out/opt/jdk --strip-components=1 -xzf jdk.tgz; \
+    \
+    # --- just ---
+    curl -fsSLo just.tgz "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-${JUST_TRIPLE}.tar.gz"; \
+    echo "${JUST_SHA}  just.tgz" | sha256sum -c -; \
+    mkdir -p /out/usr/local/bin justtmp; tar -C justtmp -xzf just.tgz; \
+    install -m 0755 justtmp/just /out/usr/local/bin/just; \
+    \
+    # --- Claude Code ---
+    curl -fsSLo claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/${CLAUDE_PLATFORM}/claude"; \
+    echo "${CLAUDE_SHA}  claude" | sha256sum -c -; \
+    install -m 0755 claude /out/usr/local/bin/claude; \
+    \
+    rm -rf /dl
+
+############################################################################
+# Egress proxy: a static, stdlib-only Go binary on an empty base image.
+# Built with the same pinned Go toolchain.
+############################################################################
+FROM toolchains AS proxy-build
+COPY proxy/ /src/proxy/
+RUN set -eux; \
+    export PATH=/out/usr/local/go/bin:$PATH GOTOOLCHAIN=local GOPROXY=off; \
+    cd /src/proxy && CGO_ENABLED=0 go build -trimpath -ldflags='-s -w' -o /egress-proxy .
+
+FROM scratch AS proxy
+COPY --from=proxy-build /egress-proxy /egress-proxy
+USER 65534:65534
+ENTRYPOINT ["/egress-proxy"]
+CMD ["-listen", ":3128", "-allow", "/etc/egress/ALLOWED_HOSTS"]
+
+############################################################################
+# The sandbox the agent session runs in.
+############################################################################
+FROM base AS sandbox
+ARG TARGETARCH
+ARG GO_VERSION JDK_RELEASE_AMD64 JDK_RELEASE_ARM64 JUST_VERSION CLAUDE_VERSION
+ARG AGENT_UID=1000
+ARG AGENT_GID=1000
+
+COPY --from=toolchains /out/ /
+COPY preflight.sh /usr/local/bin/sandbox-preflight
+
+RUN set -eux; \
+    chmod 0755 /usr/local/bin/sandbox-preflight; \
+    # Login shells source /etc/profile, which resets PATH; re-add toolchains. \
+    { \
+      echo 'export PATH=/usr/local/go/bin:/opt/jdk/bin:$HOME/go/bin:$PATH'; \
+      echo 'export JAVA_HOME=/opt/jdk'; \
+    } > /etc/profile.d/10-sandbox-toolchains.sh; \
+    groupadd -g "${AGENT_GID}" agent; \
+    useradd -m -u "${AGENT_UID}" -g "${AGENT_GID}" -s /bin/bash agent; \
+    mkdir -p /work; chown agent:agent /work; \
+    case "${TARGETARCH}" in amd64) JDK_REL="${JDK_RELEASE_AMD64}";; *) JDK_REL="${JDK_RELEASE_ARM64}";; esac; \
+    { \
+      echo "signal-cli-go sandbox"; \
+      echo "arch=${TARGETARCH}"; \
+      echo "go=${GO_VERSION}"; \
+      echo "jdk=${JDK_REL}"; \
+      echo "just=${JUST_VERSION}"; \
+      echo "claude-code=${CLAUDE_VERSION}"; \
+      echo "signal-cli-oracle=0.14.7 (installed into /work/third_party by scripts in the repo)"; \
+    } > /etc/signal-cli-go-sandbox; \
+    chmod 0444 /etc/signal-cli-go-sandbox
+
+ENV PATH=/usr/local/go/bin:/opt/jdk/bin:/home/agent/go/bin:/usr/local/bin:/usr/bin:/bin \
+    JAVA_HOME=/opt/jdk \
+    GOTOOLCHAIN=local \
+    GOPROXY=off \
+    GOSUMDB=off \
+    DISABLE_AUTOUPDATER=1 \
+    CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1 \
+    SIGNAL_CLI_GO_SANDBOX=1
+
+USER agent
+WORKDIR /work
+RUN git config --global --add safe.directory /work \
+ && git config --global init.defaultBranch main
+
+CMD ["bash"]

@@ -1,0 +1,39 @@
+# Egress allowlist for the signal-cli-go sandbox.
+#
+# Enforced by sandbox/proxy (the agent container has no other route out).
+# One host per line; "*.example.com" matches proper subdomains only.
+# Adding a host requires the operator's approval. Comment why each is here.
+
+# --- Claude Code session (API + OAuth login) ---
+api.anthropic.com
+claude.ai
+console.anthropic.com
+platform.claude.com
+
+# --- Reference signal-cli 0.14.7 release download (milestone 0 installer) ---
+# Release assets on github.com redirect to the githubusercontent hosts.
+github.com
+api.github.com
+objects.githubusercontent.com
+release-assets.githubusercontent.com
+# Upstream sources and docs read by *spec* subagents (clean-room spec role).
+raw.githubusercontent.com
+
+# --- Signal staging environment (Layer C interop tests; never production) ---
+chat.staging.signal.org
+cdn-staging.signal.org
+cdn2-staging.signal.org
+cdn3-staging.signal.org
+storage-staging.signal.org
+cdsi.staging.signal.org
+svr2.staging.signal.org
+# Further staging hosts (e.g. SVR-B, backups) may be requested during
+# milestone 1's inventory once the oracle's exact endpoint list is observed.
+
+# --- Public standards and specifications (spec role, test vectors) ---
+signal.org
+www.rfc-editor.org
+datatracker.ietf.org
+csrc.nist.gov
+go.dev
+pkg.go.dev
