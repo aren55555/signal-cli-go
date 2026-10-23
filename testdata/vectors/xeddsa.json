@@ -1,0 +1,989 @@
+{
+  "source": {
+    "description": "Fixed XEd25519 signature vectors, X25519 agreement vectors and Curve25519 public-key range vectors found in libsignal v0.99.1 (the libsignal-client bundled with signal-cli v0.14.7). libsignal's XEd25519 deviates from the signal.org XEdDSA spec in how the Edwards sign bit is carried (see spec/crypto/xeddsa.md); every signature here verifies only under libsignal's rule. No upstream test fixes the 64-byte random input Z, so no vector here pins signing output; all signature vectors are verify-only. The signal.org XEdDSA document (Revision 1, 2016-10-20) contains no test vectors. Every positive signature vector below was also checked by the spec agent with OpenSSL Ed25519 verification after the Montgomery-to-Edwards conversion described in xeddsa.md; X25519 agreement and public-key derivations were checked with OpenSSL X25519.",
+    "libsignal_repository": "https://github.com/signalapp/libsignal",
+    "libsignal_tag": "v0.99.1",
+    "libsignal_commit": "97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8",
+    "files": {
+      "rust_curve25519": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/rust/core/src/curve/curve25519.rs",
+      "rust_curve": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/rust/core/src/curve.rs",
+      "java_curve25519_test": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/java/client/src/test/java/org/signal/libsignal/protocol/ecc/Curve25519Test.java",
+      "rust_sealed_sender": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/rust/protocol/src/sealed_sender.rs"
+    },
+    "conventions": "All byte strings are lowercase hex. Curve25519 private keys are 32 bytes as given upstream (libsignal clamps them on import). public_key_with_prefix = 0x05 || 32-byte Montgomery u (libsignal's serialized form); public_key_without_prefix = the 32-byte u. Signatures are 64 bytes R || S where the top bit of the final byte carries the Edwards sign bit of the signer's public key."
+  },
+  "vectors": [
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature; java Curve25519Test.testSignature (same data)",
+      "private_key": "c097248412e58bf05df487968205132794178e367637f5818f81e0e6ce73e865",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "message_note": "The message is the 33-byte serialized (0x05-prefixed) public key of Alice's ephemeral key, i.e. the same shape as a signed-prekey signature input.",
+      "random_input": null,
+      "random_input_note": "Not fixed upstream (signature was produced elsewhere with unknown Z).",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "signature_sign_bit": 1,
+      "expected_valid": true
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_0",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5ce88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 0 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_1",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de98ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 1 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_2",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88da9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 2 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_3",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca8a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 3 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_4",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a99b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 4 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_5",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89a4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 5 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_6",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4b115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 6 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_7",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a105da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 7 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_8",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115ca79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 8 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_9",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da69109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 9 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_10",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79009c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 10 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_11",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79108c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 11 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_12",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c77c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 12 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_13",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67d9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 13 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_14",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9d7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 14 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_15",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7564a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 15 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_16",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7465a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 16 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_17",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a2e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 17 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_18",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e5180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 18 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_19",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4190274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 19 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_20",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180374f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 20 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_21",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180275f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 21 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_22",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f0cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 22 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_23",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1ca8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 23 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_24",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8d63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 24 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_25",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c62c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 25 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_26",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c3984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 26 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_27",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2994e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 27 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_28",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984f286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 28 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_29",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e296dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 29 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_30",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286cfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 30 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_31",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfaede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 31 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_32",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbece82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 32 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_33",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede92deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 33 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_34",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82ceb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 34 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_35",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82dea9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 35 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_36",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9ccd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 36 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_37",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcc9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 37 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_38",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9eae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 38 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_39",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9faf0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 39 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_40",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0afbb821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 40 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_41",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfab821569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 41 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_42",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb921569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 42 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_43",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb820569b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 43 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_44",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821579b3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 44 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_45",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569a3d9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 45 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_46",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3c9001bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 46 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_47",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9101bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 47 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_48",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9000bd8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 48 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_49",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bc8130cd11d486cef047bd60b86e88",
+      "modification": "signature byte 49 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_50",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8030cd11d486cef047bd60b86e88",
+      "modification": "signature byte 50 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_51",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8131cd11d486cef047bd60b86e88",
+      "modification": "signature byte 51 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_52",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cc11d486cef047bd60b86e88",
+      "modification": "signature byte 52 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_53",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd10d486cef047bd60b86e88",
+      "modification": "signature byte 53 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_54",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d586cef047bd60b86e88",
+      "modification": "signature byte 54 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_55",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d487cef047bd60b86e88",
+      "modification": "signature byte 55 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_56",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cff047bd60b86e88",
+      "modification": "signature byte 56 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_57",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef147bd60b86e88",
+      "modification": "signature byte 57 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_58",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef046bd60b86e88",
+      "modification": "signature byte 58 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_59",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bc60b86e88",
+      "modification": "signature byte 59 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_60",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd61b86e88",
+      "modification": "signature byte 60 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_61",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b96e88",
+      "modification": "signature byte 61 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_62",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86f88",
+      "modification": "signature byte 62 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "identity_key_signs_ephemeral_key_flip_byte_63",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_signature (loop flipping bit 0 of each signature byte); java Curve25519Test.testSignature (same loop)",
+      "public_key_with_prefix": "05ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "public_key_without_prefix": "ab7e717d4a163b7d9a1d8071dfe9dcf8cdcd1cea3339b6356be84d887e322c64",
+      "message": "05edce9d9c415ca78cb7252e72c2c4a554d3eb29485a0e1d503118d1a82d99fb4a",
+      "signature": "5de88ca9a89b4a115da79109c67c9c7464a3e4180274f1cb8c63c2984e286dfbede82deb9dcd9fae0bfbb821569b3d9001bd8130cd11d486cef047bd60b86e89",
+      "modification": "signature byte 63 XOR 0x01",
+      "expected_valid": false
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "sealed_sender_server_certificate_id_2_staging_root",
+      "upstream_test": "rust/protocol/src/sealed_sender.rs KNOWN_SERVER_CERTIFICATES entry id 2 (constant data, exercised by the sealed-sender tests)",
+      "public_key_with_prefix": "058854ead3e3a8fe3a286644cd1b3538be14dfd5797653c9fd7d3d85ae2b12b926",
+      "public_key_without_prefix": "8854ead3e3a8fe3a286644cd1b3538be14dfd5797653c9fd7d3d85ae2b12b926",
+      "message": "080212210539450d63ebd0752c0fd4038b9d07a916f5e174b756d409b5ca79f4c97400631e",
+      "signature": "64c5a38b1e927497d3d4786b101a623ab34a7da3954fae126b04dba9d7a3604ed88cdc8550950f0d4a9134ceb7e19b94139151d2c3d6e1c81e9d1128aafca806",
+      "signature_sign_bit": 0,
+      "full_server_certificate_protobuf": "0a25080212210539450d63ebd0752c0fd4038b9d07a916f5e174b756d409b5ca79f4c97400631e124064c5a38b1e927497d3d4786b101a623ab34a7da3954fae126b04dba9d7a3604ed88cdc8550950f0d4a9134ceb7e19b94139151d2c3d6e1c81e9d1128aafca806",
+      "message_note": "The signed message is the value of field 1 (certificate, bytes) of the ServerCertificate protobuf; the signature is the value of field 2 (signature, 64 bytes). The public key is the sealed-sender trust root.",
+      "expected_valid": true
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "sealed_sender_server_certificate_id_3_production_root",
+      "upstream_test": "rust/protocol/src/sealed_sender.rs KNOWN_SERVER_CERTIFICATES entry id 3 (constant data, exercised by the sealed-sender tests)",
+      "public_key_with_prefix": "054918d08fbdfa83e00c29f8f8073a22ef35df2bea903aff81af03ccbc45c6e93a",
+      "public_key_without_prefix": "4918d08fbdfa83e00c29f8f8073a22ef35df2bea903aff81af03ccbc45c6e93a",
+      "message": "0803122105bc9d1d290be964810dfa7e94856480a3f7060d004c9762c24c575a1522353a5a",
+      "signature": "c11ec3c401eb0107ab38f8600e8720a63169e0e2eb8a3fae24f63099f85ea319c3c1c46d3454706ae2a679d1fee690a488adda98a2290b66c906bb60295ed781",
+      "signature_sign_bit": 1,
+      "full_server_certificate_protobuf": "0a250803122105bc9d1d290be964810dfa7e94856480a3f7060d004c9762c24c575a1522353a5a1240c11ec3c401eb0107ab38f8600e8720a63169e0e2eb8a3fae24f63099f85ea319c3c1c46d3454706ae2a679d1fee690a488adda98a2290b66c906bb60295ed781",
+      "message_note": "The signed message is the value of field 1 (certificate, bytes) of the ServerCertificate protobuf; the signature is the value of field 2 (signature, 64 bytes). The public key is the sealed-sender trust root.",
+      "expected_valid": true
+    },
+    {
+      "kind": "xeddsa_verify",
+      "name": "sealed_sender_server_certificate_test_cert",
+      "upstream_test": "rust/protocol/src/sealed_sender.rs KNOWN_SERVER_CERTIFICATES entry id 0x7357C357 (constant data, exercised by the sealed-sender tests)",
+      "public_key_with_prefix": "052fe57da347cd62431528daac5fbb290730fff684afc4cfc2ed90995f58cb3b74",
+      "public_key_without_prefix": "2fe57da347cd62431528daac5fbb290730fff684afc4cfc2ed90995f58cb3b74",
+      "private_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "private_key_note": "Upstream comment states the trust root is the public key of the all-zero private key (clamped on import); the certified key inside the message is the public key of the all-0xFF private key.",
+      "message": "08d786df9a07122105847c0d2c375234f365e660955187a3735a0f7613d1609d3a6a4d8c53aeaa5a22",
+      "signature": "e0b9ebacdfc3aa2827f7924b697784d1c25e44ca05dd433e1a38dc6382eb2730d419ca9a250b1be9d5a9463e61efd6781777a91b83c97b844d014206e2829785",
+      "signature_sign_bit": 1,
+      "full_server_certificate_protobuf": "0a2908d786df9a07122105847c0d2c375234f365e660955187a3735a0f7613d1609d3a6a4d8c53aeaa5a221240e0b9ebacdfc3aa2827f7924b697784d1c25e44ca05dd433e1a38dc6382eb2730d419ca9a250b1be9d5a9463e61efd6781777a91b83c97b844d014206e2829785",
+      "message_note": "The signed message is the value of field 1 (certificate, bytes) of the ServerCertificate protobuf; the signature is the value of field 2 (signature, 64 bytes). The public key is the sealed-sender trust root.",
+      "expected_valid": true
+    },
+    {
+      "kind": "x25519_agreement",
+      "name": "alice_bob_agreement",
+      "upstream_test": "rust/core/src/curve/curve25519.rs tests::test_agreement; java Curve25519Test.testAgreement (same data, Java uses 0x05-prefixed public keys)",
+      "alice_private_key": "c806439dc9d2c476ffed8f2580c0888d58ab406bf7ae3698879021b96bb4bf59",
+      "alice_public_key_with_prefix": "051bb75966f2e93a3691dfff942bb2a466a1c08b8d78ca3f4d6df8b8bfa2e4ee28",
+      "alice_public_key_without_prefix": "1bb75966f2e93a3691dfff942bb2a466a1c08b8d78ca3f4d6df8b8bfa2e4ee28",
+      "bob_private_key": "b03b34c33a1c44f225b662d2bf4859b8135411fa7b0386d45fb75dc5b91b4466",
+      "bob_public_key_with_prefix": "05653614993d2b15ee9e5fd3d86ce719ef4ec1daae1886a87b3f5fa9565a27a22f",
+      "bob_public_key_without_prefix": "653614993d2b15ee9e5fd3d86ce719ef4ec1daae1886a87b3f5fa9565a27a22f",
+      "shared_secret": "325f239328941ced6e673b86ba41017448e99b649a9c3806c1dd7ca4c477e629"
+    },
+    {
+      "kind": "x25519_public_key_derivation",
+      "name": "all_zero_private_key",
+      "upstream_test": "rust/protocol/src/sealed_sender.rs KNOWN_SERVER_CERTIFICATES test-cert comment (relationship stated upstream; value verified with OpenSSL X25519)",
+      "private_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "public_key_with_prefix": "052fe57da347cd62431528daac5fbb290730fff684afc4cfc2ed90995f58cb3b74",
+      "public_key_without_prefix": "2fe57da347cd62431528daac5fbb290730fff684afc4cfc2ed90995f58cb3b74"
+    },
+    {
+      "kind": "x25519_public_key_derivation",
+      "name": "all_ff_private_key",
+      "upstream_test": "rust/protocol/src/sealed_sender.rs KNOWN_SERVER_CERTIFICATES test-cert comment (relationship stated upstream; value verified with OpenSSL X25519)",
+      "private_key": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "public_key_with_prefix": "05847c0d2c375234f365e660955187a3735a0f7613d1609d3a6a4d8c53aeaa5a22",
+      "public_key_without_prefix": "847c0d2c375234f365e660955187a3735a0f7613d1609d3a6a4d8c53aeaa5a22"
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "zero",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_with_the_high_bit_set_are_out_of_range",
+      "public_key_without_prefix": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expected_in_range": true,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_with_the_high_bit_set_are_out_of_range",
+      "public_key_without_prefix": "0000000000000000000000000000000000000000000000000000000000000080",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_256_minus_1",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_with_the_high_bit_set_are_out_of_range",
+      "public_key_without_prefix": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_1",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_2",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "feffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_3",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "fdffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_4",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "fcffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_5",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "fbffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_6",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "faffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_7",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "f9ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_8",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "f8ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_9",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "f7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_10",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "f6ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_11",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "f5ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_12",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "f4ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_13",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "f3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_14",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "f2ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_15",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "f1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_16",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "f0ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_17",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "efffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_18",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "eeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_19",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "edffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": false,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    },
+    {
+      "kind": "montgomery_u_range_check",
+      "name": "two_to_255_minus_20",
+      "upstream_test": "rust/core/src/curve.rs tests::keys_above_the_prime_modulus_are_out_of_range",
+      "public_key_without_prefix": "ecffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "expected_in_range": true,
+      "note": "Range half of libsignal's is_canonical check on a PQXDH initiator base key: u must be < 2^255 - 19 with bit 255 clear. The torsion-freeness half has only randomized upstream tests."
+    }
+  ]
+}
