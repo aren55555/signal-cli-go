@@ -383,3 +383,28 @@ func TestPeerWithoutSPQR(t *testing.T) {
 		t.Errorf("message without SPQR: %v, want ErrDecryptionFailed", err)
 	}
 }
+
+func TestServiceIDFromBinary(t *testing.T) {
+	aci, _ := serviceIDBinary(aliceAddr.ServiceID)
+	for _, c := range []struct {
+		in   []byte
+		want string
+	}{
+		{aci[1:], aliceAddr.ServiceID},
+		{aci, aliceAddr.ServiceID},
+		{append([]byte{0x01}, aci[1:]...), "PNI:" + aliceAddr.ServiceID},
+	} {
+		if got, err := ServiceIDFromBinary(c.in); err != nil || got != c.want {
+			t.Errorf("%x: %q, %v", c.in, got, err)
+		}
+		// And back.
+		if b, ok := serviceIDBinary(c.want); !ok || !bytes.Equal(b[1:], aci[1:]) {
+			t.Errorf("%q does not convert back", c.want)
+		}
+	}
+	for _, bad := range [][]byte{nil, make([]byte, 15), append([]byte{0x02}, aci[1:]...)} {
+		if _, err := ServiceIDFromBinary(bad); err == nil {
+			t.Errorf("%x accepted", bad)
+		}
+	}
+}

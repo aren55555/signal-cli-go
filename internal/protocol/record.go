@@ -62,6 +62,22 @@ func serviceIDBinary(id string) (b []byte, ok bool) {
 	return append([]byte{kind}, raw...), true
 }
 
+// ServiceIDFromBinary converts a binary service ID from an envelope to its
+// string form: 16 bytes are a bare ACI UUID; 17 bytes are a kind byte
+// (0x00 ACI, 0x01 PNI) and the UUID. Staging fills only these binary
+// envelope fields, not the string ones (observed in captures).
+func ServiceIDFromBinary(b []byte) (string, error) {
+	switch {
+	case len(b) == 16:
+		return formatUUID(b), nil
+	case len(b) == 17 && b[0] == 0x00:
+		return formatUUID(b[1:]), nil
+	case len(b) == 17 && b[0] == 0x01:
+		return "PNI:" + formatUUID(b[1:]), nil
+	}
+	return "", fmt.Errorf("protocol: invalid binary service ID (%d bytes)", len(b))
+}
+
 // addressBinding is the 36-byte SignalMessage field 6: sender service ID,
 // sender device, recipient service ID, recipient device
 // (double-ratchet.md §4). ok is false if either name is not a service ID.

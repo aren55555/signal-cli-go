@@ -398,3 +398,26 @@ vectors.
   - Export the needed keys with a JVM tool over the bundled sqlite-jdbc
     driver, then scrub and store the result under `testdata/`. The Go
     replay test decrypts everything offline with the loaders above.
+- **Capture-1 (staging, 2026-10-23): first interop evidence.**
+  - Setup: both staging accounts were registered with the reference
+    signal-cli (operator captchas and SMS codes); B enabled unrestricted
+    unidentified sender; A sent 4 texts to B by phone number; B was
+    snapshotted, then ran one `receive --trust-new-identities never`.
+    Everything is in `.data/capture-1/` (gitignored: live staging keys
+    and numbers).
+  - Result: `TestCaptureReplay` (opt-in, `SIGNAL_CAPTURE_DIR`) decrypts
+    all 4 envelopes offline: PQXDH with Kyber1024, the triple ratchet
+    with SPQR, the MAC and the address binding, against the reference
+    client.
+  - Findings:
+    - Addressed by number, the messages go to B's **PNI**: PNI identity
+      and prekeys (`account_id_type` 1).
+    - Staging fills only the **binary** service-ID envelope fields
+      (`ServiceIDFromBinary` added).
+    - A sent **unsealed** (type 3) despite B's unrestricted UD setting,
+      so sealed sender is still unproven by capture.
+    - The reference JVM with `LANG` unset turned non-ASCII arguments into
+      U+FFFD, so future oracle runs must set `LANG=C.UTF-8`.
+  - Not covered yet: sealed sender, SignalMessages after a reply, sender
+    keys (they need at least 2 sender-key-capable group recipients, so a
+    third account), and the reverse direction (milestone 4).
