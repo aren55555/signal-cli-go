@@ -12,6 +12,9 @@ import (
 	"strings"
 	"testing"
 
+	"google.golang.org/protobuf/proto"
+
+	"github.com/aren55555/signal-cli-go/internal/content"
 	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 )
@@ -119,6 +122,7 @@ func TestCaptureReplay(t *testing.T) {
 		}
 		records[remote] = rec
 
+		checkCaptureContent(t, pt, e.GetClientTimestamp())
 		trimmed := bytes.TrimRight(pt, "\x00")
 		if len(trimmed) == 0 || trimmed[len(trimmed)-1] != 0x80 {
 			t.Errorf("envelope %d: plaintext lacks the 0x80 padding boundary", e.GetClientTimestamp())
@@ -305,4 +309,38 @@ func loadCachedEnvelopes(t *testing.T, root string) []*signalpb.ServiceEnvelope 
 	}
 	sort.Slice(envs, func(i, j int) bool { return envs[i].GetClientTimestamp() < envs[j].GetClientTimestamp() })
 	return envs
+}
+
+// checkCaptureContent parses a captured plaintext as the Content of a
+// plain text message and checks it against spec/service/content.md §9:
+// the DataMessage timestamp equals the envelope's, signal-cli sends its
+// 32-byte profile key, requiredProtocolVersion (0) and
+// expireTimerVersion, and no flags.
+func checkCaptureContent(t *testing.T, pt []byte, envelopeTimestamp uint64) {
+	t.Helper()
+	body, ok := content.Unpad(pt)
+	if !ok {
+		t.Errorf("envelope %d: malformed padding", envelopeTimestamp)
+		return
+	}
+	var c signalpb.AppContent
+	if err := proto.Unmarshal(body, &c); err != nil {
+		t.Errorf("envelope %d: Content: %v", envelopeTimestamp, err)
+		return
+	}
+	dm := c.GetDataMessage()
+	switch {
+	case dm == nil:
+		t.Errorf("envelope %d: no DataMessage", envelopeTimestamp)
+	case dm.GetTimestamp() != envelopeTimestamp:
+		t.Errorf("envelope %d: DataMessage timestamp %d", envelopeTimestamp, dm.GetTimestamp())
+	case len(dm.GetProfileKey()) != 32:
+		t.Errorf("envelope %d: profile key of %d bytes", envelopeTimestamp, len(dm.GetProfileKey()))
+	case dm.RequiredProtocolVersion == nil || dm.GetRequiredProtocolVersion() != 0:
+		t.Errorf("envelope %d: requiredProtocolVersion %v", envelopeTimestamp, dm.RequiredProtocolVersion)
+	case dm.ExpireTimerVersion == nil:
+		t.Errorf("envelope %d: no expireTimerVersion", envelopeTimestamp)
+	case dm.Flags != nil:
+		t.Errorf("envelope %d: flags %d on a plain text message", envelopeTimestamp, dm.GetFlags())
+	}
 }

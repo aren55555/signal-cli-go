@@ -1,0 +1,94 @@
+// Signal's application content, the padded plaintext inside session
+// ciphertexts. Written from spec/service/content.md §3-6, never copied
+// from upstream. Only the fields signal-cli-go handles so far are
+// declared; everything else is kept as unknown fields and survives
+// re-encoding.
+syntax = "proto2";
+
+package signalcligo;
+
+option go_package = "github.com/aren55555/signal-cli-go/internal/proto/signalpb";
+
+// The top-level plaintext (§3). At most one of the oneof members is set;
+// fields 7 and 10 may accompany any of them.
+message AppContent {
+  oneof body {
+    AppDataMessage data_message = 1;
+    AppNullMessage null_message = 4;
+    AppReceipt receipt_message = 5;
+    AppTyping typing_message = 6;
+    bytes decryption_error_message = 8; // serialized DecryptionFailureReport
+    AppEdit edit_message = 11;
+  }
+  optional bytes sender_key_distribution_message = 7;
+  optional AppPniSignature pni_signature_message = 10;
+}
+
+// §4.1.
+message AppDataMessage {
+  optional string body = 1;
+  optional uint32 flags = 4;
+  optional uint32 expire_timer = 5;
+  optional bytes profile_key = 6;
+  optional uint64 timestamp = 7; // must equal the envelope's client timestamp
+  optional uint32 required_protocol_version = 12;
+  optional bool is_view_once = 14;
+  optional AppGroupContextV2 group_v2 = 15;
+  optional AppDelete delete = 17;
+  optional uint32 expire_timer_version = 23;
+
+  enum Flag {
+    EXPIRATION_TIMER_UPDATE = 2;
+    PROFILE_KEY_UPDATE = 4;
+    FORWARD = 8;
+  }
+}
+
+message AppGroupContextV2 {
+  optional bytes master_key = 1;
+  optional uint32 revision = 2;
+  optional bytes group_change = 3;
+}
+
+message AppDelete {
+  optional uint64 target_sent_timestamp = 1;
+}
+
+// §3, field 11.
+message AppEdit {
+  optional uint64 target_sent_timestamp = 1;
+  optional AppDataMessage data_message = 2;
+}
+
+// §5.1. The type must be present, even for DELIVERY.
+message AppReceipt {
+  enum Kind {
+    DELIVERY = 0;
+    READ = 1;
+    VIEWED = 2;
+  }
+  optional Kind kind = 1;
+  repeated uint64 timestamps = 2; // unpacked
+}
+
+// §5.2. The action must be present, even for STARTED.
+message AppTyping {
+  enum Action {
+    STARTED = 0;
+    STOPPED = 1;
+  }
+  optional uint64 timestamp = 1;
+  optional Action action = 2;
+  optional bytes group_id = 3;
+}
+
+// §6. The padding is opaque and ignored by receivers.
+message AppNullMessage {
+  optional bytes padding = 1;
+}
+
+// §3, field 10.
+message AppPniSignature {
+  optional bytes pni = 1;       // 16-byte raw PNI UUID
+  optional bytes signature = 2; // by the PNI identity key over the ACI identity key
+}
