@@ -1,0 +1,31 @@
+{
+  "source": {
+    "description": "Padded-length assertions for the Signal transport padding of serialized Content (Content bytes, then 0x80, then zero bytes; padded length = ceil((L+2)/80)*80 - 1). The ranges are the fixed assertions of PushTransportDetailsTest (all-zero input messages of each length in the range must pad to the given length). The boundary cases are derived directly from those ranges and the formula in spec/service/content.md section 2; they are not separate upstream vectors. The unpadding_cases are likewise illustrative, derived from the stripping rule in PushTransportDetails.java, not taken from an upstream test. Upstream has no byte-level padding vectors.",
+    "repository": "https://github.com/Turasa/libsignal-service-java",
+    "tag": "v2.15.3_unofficial_151",
+    "commit": "66956cb4a0394d50cee3590209baf58312084a44",
+    "files": {
+      "test": "lib/libsignal-service/src/test/java/org/whispersystems/signalservice/api/push/PushTransportDetailsTest.kt",
+      "implementation": "lib/libsignal-service/src/main/java/org/whispersystems/signalservice/internal/push/PushTransportDetails.java"
+    },
+    "spec": "spec/service/content.md",
+    "conventions": "input_length_min/max are inclusive. padded_length is the length of the buffer handed to the session cipher. The byte at offset input_length is 0x80; all later bytes are 0x00."
+  },
+  "upstream_ranges": [
+    { "input_length_min": 0, "input_length_max": 78, "padded_length": 79 },
+    { "input_length_min": 79, "input_length_max": 158, "padded_length": 159 },
+    { "input_length_min": 159, "input_length_max": 238, "padded_length": 239 }
+  ],
+  "derived_cases": [
+    { "input_length": 0, "padded_length": 79, "zero_bytes_after_terminator": 78 },
+    { "input_length": 78, "padded_length": 79, "zero_bytes_after_terminator": 0 },
+    { "input_length": 79, "padded_length": 159, "zero_bytes_after_terminator": 79 },
+    { "input_length": 158, "padded_length": 159, "zero_bytes_after_terminator": 0 },
+    { "input_length": 239, "padded_length": 319, "zero_bytes_after_terminator": 79 }
+  ],
+  "unpadding_cases": [
+    { "note": "Strip trailing 0x00 then require 0x80; content is the prefix before it.", "padded_hex": "0a02686980000000", "content_hex": "0a026869" },
+    { "note": "No zero bytes after the terminator is valid.", "padded_hex": "0a02686980", "content_hex": "0a026869" },
+    { "note": "Malformed: last non-zero byte is not 0x80; signal-service-java keeps the whole buffer unstripped.", "padded_hex": "0a0268690100", "content_hex": "0a0268690100" }
+  ]
+}
