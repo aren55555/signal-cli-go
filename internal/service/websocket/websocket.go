@@ -25,6 +25,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/aren55555/signal-cli-go/internal/service/tunnel"
 )
 
 var (
@@ -187,17 +189,9 @@ type Conn struct {
 	closed bool
 }
 
-// EnvProxy returns the proxy for rawURL from HTTPS_PROXY / HTTP_PROXY /
-// NO_PROXY, as net/http does (ws maps to http, wss to https).
-func EnvProxy(rawURL string) (*url.URL, error) {
-	u, err := url.Parse(rawURL)
-	if err != nil {
-		return nil, err
-	}
-	probe := *u
-	probe.Scheme = map[string]string{"ws": "http", "wss": "https"}[u.Scheme]
-	return http.ProxyFromEnvironment(&http.Request{URL: &probe})
-}
+// EnvProxy returns the proxy for rawURL from the environment; see
+// tunnel.EnvProxy.
+func EnvProxy(rawURL string) (*url.URL, error) { return tunnel.EnvProxy(rawURL) }
 
 // Dial opens a WebSocket connection to a ws:// or wss:// URL.
 func Dial(ctx context.Context, rawURL string, opts Options) (*Conn, error) {
@@ -214,7 +208,7 @@ func Dial(ctx context.Context, rawURL string, opts Options) (*Conn, error) {
 		host = net.JoinHostPort(u.Hostname(), map[bool]string{true: "443", false: "80"}[secure])
 	}
 
-	raw, err := dialTCP(ctx, host, opts.Proxy)
+	raw, err := tunnel.Dial(ctx, host, opts.Proxy)
 	if err != nil {
 		return nil, err
 	}
@@ -282,54 +276,6 @@ func Dial(ctx context.Context, rawURL string, opts Options) (*Conn, error) {
 		limit = 16 << 20
 	}
 	return &Conn{r: br, w: conn, closeFn: conn.Close, maxMessage: limit}, nil
-}
-
-// dialTCP connects to host directly or through an HTTP CONNECT proxy.
-func dialTCP(ctx context.Context, host string, proxy *url.URL) (net.Conn, error) {
-	var d net.Dialer
-	if proxy == nil {
-		return d.DialContext(ctx, "tcp", host)
-	}
-	paddr := proxy.Host
-	if proxy.Port() == "" {
-		paddr = net.JoinHostPort(proxy.Hostname(), "80")
-	}
-	c, err := d.DialContext(ctx, "tcp", paddr)
-	if err != nil {
-		return nil, err
-	}
-	if dl, has := ctx.Deadline(); has {
-		c.SetDeadline(dl)
-	}
-	req := &http.Request{Method: http.MethodConnect, URL: &url.URL{Opaque: host}, Host: host, Header: http.Header{}}
-	if err := req.Write(c); err != nil {
-		c.Close()
-		return nil, err
-	}
-	// Read the CONNECT response byte by byte up to the blank line, so no
-	// tunnelled bytes are buffered away.
-	resp, err := http.ReadResponse(bufio.NewReaderSize(&oneByte{c}, 16), req)
-	if err != nil {
-		c.Close()
-		return nil, fmt.Errorf("websocket: proxy: %w", err)
-	}
-	if resp.StatusCode != http.StatusOK {
-		c.Close()
-		return nil, fmt.Errorf("websocket: proxy refused CONNECT %s: %s", host, resp.Status)
-	}
-	c.SetDeadline(time.Time{})
-	return c, nil
-}
-
-// oneByte reads at most one byte per call, so a bufio.Reader over it
-// never reads past what it is asked for.
-type oneByte struct{ r io.Reader }
-
-func (o *oneByte) Read(p []byte) (int, error) {
-	if len(p) > 1 {
-		p = p[:1]
-	}
-	return o.r.Read(p)
 }
 
 func (c *Conn) writeControl(op opcode, payload []byte) error {
