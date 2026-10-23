@@ -231,7 +231,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 
 | Primitive | Spec'd | Impl | Layer A | Notes |
 |-----------|--------|------|---------|-------|
-| edwards25519 field and group | n/a (RFC 8032) | ⬜ | ⬜ | |
+| edwards25519 field and group | n/a (RFC 8032) | ✅ [`internal/crypto/edwards25519`](internal/crypto/edwards25519) | ✅ RFC 8032 §7.1 (all 5 Ed25519 vectors), RFC 7748 §5.2, §6.1 and the 1,000-iteration chain, RFC 9496 A.4 sqrt-ratio; cross-checked against `crypto/ed25519`, `crypto/ecdh` and `math/big` | RFC 7748 1,000,000-iteration chain not run (minutes); `FuzzSetBytes` for strict decoding. Constant-time by construction (masks, fixed windows); Go gives no codegen guarantee, same as the stdlib |
 | Ristretto255 | n/a (RFC 9496) | ⬜ | ⬜ | |
 | XEdDSA / VXEdDSA | n/a (signal.org/docs) | ⬜ | ⬜ | |
 | Kyber1024 (pre-standard) and/or ML-KEM-1024 | ⬜ | ⬜ | ⬜ | |
