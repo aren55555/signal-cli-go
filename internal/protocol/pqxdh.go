@@ -16,10 +16,13 @@ import (
 // string (spec/crypto/kem.md).
 const pqxdhInfo = "WhisperText_X25519_SHA-256_CRYSTALS-KYBER-1024"
 
-// PQXDHSecretSize is the length of SK taken from the key schedule. The
-// specification's KDF produces 32 bytes; HKDF output is prefix-stable, so
-// a longer libsignal split only appends to it.
-const PQXDHSecretSize = 32
+// PQXDHSecrets is the 96-byte key-schedule output, split as libsignal
+// splits it (spec/protocol/pqxdh.md §3).
+type PQXDHSecrets struct {
+	RootKey  []byte // bytes 0..31
+	ChainKey []byte // bytes 32..63: a ready-made chain on Bob's signed prekey
+	PQRKey   []byte // bytes 64..95: the SPQR auth-key seed
+}
 
 // PreKeyBundle is the responder's published keys, as fetched by the
 // initiator.
@@ -38,7 +41,7 @@ type PreKeyBundle struct {
 // PQXDHInitiation is the initiator's result: the shared secret and what
 // the initial message must carry.
 type PQXDHInitiation struct {
-	SharedSecret       []byte
+	Secrets            *PQXDHSecrets
 	BaseKey            *curve25519.PublicKey // EK_A
 	BaseKeyPrivate     *curve25519.PrivateKey
 	KyberCiphertext    []byte // serialized, with the 0x08 type byte
@@ -47,11 +50,16 @@ type PQXDHInitiation struct {
 	UsedKyberPreKeyID  uint32
 }
 
-// pqxdhKDF is the specification's KDF: HKDF-SHA256 with IKM = 32 bytes of
-// 0xFF || km, a zero salt, and the info string.
-func pqxdhKDF(km []byte) ([]byte, error) {
+// pqxdhKDF is the key schedule: HKDF-SHA256 with IKM = 32 bytes of 0xFF ||
+// km, no salt, the info string, and 96 bytes of output (the specification
+// takes 32; libsignal takes three keys at once).
+func pqxdhKDF(km []byte) (*PQXDHSecrets, error) {
 	ikm := append(bytes.Repeat([]byte{0xff}, 32), km...)
-	return hkdf.Key(sha256.New, ikm, make([]byte, sha256.Size), pqxdhInfo, PQXDHSecretSize)
+	out, err := hkdf.Key(sha256.New, ikm, nil, pqxdhInfo, 96)
+	if err != nil {
+		return nil, err
+	}
+	return &PQXDHSecrets{RootKey: out[:32], ChainKey: out[32:64], PQRKey: out[64:]}, nil
 }
 
 // InitiatePQXDH runs the initiator side (section 3.3): verify both prekey
@@ -99,12 +107,12 @@ func InitiatePQXDH(rand io.Reader, identity *curve25519.PrivateKey, b *PreKeyBun
 		}
 		km = append(km, s...)
 	}
-	sk, err := pqxdhKDF(append(km, ss...))
+	secrets, err := pqxdhKDF(append(km, ss...))
 	if err != nil {
 		return nil, err
 	}
 	return &PQXDHInitiation{
-		SharedSecret:       sk,
+		Secrets:            secrets,
 		BaseKey:            ek.PublicKey(),
 		BaseKeyPrivate:     ek,
 		KyberCiphertext:    ct,
@@ -124,10 +132,11 @@ type PQXDHResponderKeys struct {
 	KyberPreKey  *KEMSecretKey
 }
 
-// RespondPQXDH runs the responder side (section 3.4) and returns SK. As in
+// RespondPQXDH runs the responder side (section 3.4) and returns the
+// key-schedule output. As in
 // libsignal, the initiator's base key must be canonical (in range and
 // torsion-free) before anything is computed.
-func RespondPQXDH(keys PQXDHResponderKeys, theirIdentity, baseKey *curve25519.PublicKey, kyberCiphertext []byte) ([]byte, error) {
+func RespondPQXDH(keys PQXDHResponderKeys, theirIdentity, baseKey *curve25519.PublicKey, kyberCiphertext []byte) (*PQXDHSecrets, error) {
 	if !curve25519.IsCanonical(baseKey.U()) {
 		return nil, errors.New("protocol: incoming base key is invalid")
 	}

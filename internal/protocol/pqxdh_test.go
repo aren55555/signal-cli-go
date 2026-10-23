@@ -56,7 +56,7 @@ func newBob(t *testing.T, r *rand.ChaCha8, withOneTime bool) *bob {
 	return b
 }
 
-func (b *bob) respond(t *testing.T, alice *curve25519.PublicKey, res *PQXDHInitiation) ([]byte, error) {
+func (b *bob) respond(t *testing.T, alice *curve25519.PublicKey, res *PQXDHInitiation) (*PQXDHSecrets, error) {
 	t.Helper()
 	keys := PQXDHResponderKeys{
 		Identity:     b.identity,
@@ -76,14 +76,11 @@ func TestPQXDHAgreement(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if len(res.SharedSecret) != PQXDHSecretSize {
-			t.Fatalf("secret length %d", len(res.SharedSecret))
-		}
 		got, err := b.respond(t, alice.PublicKey(), res)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if !bytes.Equal(got, res.SharedSecret) {
+		if !bytes.Equal(got.RootKey, res.Secrets.RootKey) || !bytes.Equal(got.ChainKey, res.Secrets.ChainKey) || !bytes.Equal(got.PQRKey, res.Secrets.PQRKey) {
 			t.Errorf("one-time prekey %v: secrets differ", withOneTime)
 		}
 		if res.UsedPreKeyID != b.bundle.PreKeyID || res.UsedSignedPreKeyID != 7 || res.UsedKyberPreKeyID != 9 {
@@ -92,11 +89,11 @@ func TestPQXDHAgreement(t *testing.T) {
 	}
 }
 
-// TestPQXDHKeySchedule recomputes SK from its definition in the PQXDH
-// specification (signal.org, revision 3, section 2.2 and 3.3) with the
-// libsignal parameters from spec/crypto/kem.md: curve25519, SHA-256,
-// F = 32 bytes of 0xFF, zero salt, info
-// "WhisperText_X25519_SHA-256_CRYSTALS-KYBER-1024", and DH1..DH4 order.
+// TestPQXDHKeySchedule recomputes the key schedule from spec/protocol/pqxdh.md
+// §2-3 (PQXDH revision 3 with libsignal's parameters): IKM = 32 bytes of
+// 0xFF || DH1 || DH2 || DH3 || DH4 || SS, HKDF-SHA256 with no salt, info
+// "WhisperText_X25519_SHA-256_CRYSTALS-KYBER-1024", 96 bytes split into root
+// key, chain key and SPQR seed.
 func TestPQXDHKeySchedule(t *testing.T) {
 	r := testRand(2)
 	b := newBob(t, r, true)
@@ -132,12 +129,13 @@ func TestPQXDHKeySchedule(t *testing.T) {
 	km = append(km, dh(ek, b.bundle.SignedPreKey)...)
 	km = append(km, dh(ek, b.bundle.PreKey)...)
 	km = append(km, ss...)
-	want, err := hkdf.Key(sha256.New, km, make([]byte, 32), "WhisperText_X25519_SHA-256_CRYSTALS-KYBER-1024", PQXDHSecretSize)
+	want, err := hkdf.Key(sha256.New, km, nil, "WhisperText_X25519_SHA-256_CRYSTALS-KYBER-1024", 96)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.Equal(res.SharedSecret, want) {
-		t.Errorf("SK = %x, want %x", res.SharedSecret, want)
+	got := append(append(bytes.Clone(res.Secrets.RootKey), res.Secrets.ChainKey...), res.Secrets.PQRKey...)
+	if !bytes.Equal(got, want) {
+		t.Errorf("key schedule = %x, want %x", got, want)
 	}
 }
 
@@ -191,7 +189,7 @@ func TestPQXDHResponderChecks(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if bytes.Equal(got, res.SharedSecret) {
+	if bytes.Equal(got.RootKey, res.Secrets.RootKey) {
 		t.Error("tampered ciphertext gave the same secret")
 	}
 }
