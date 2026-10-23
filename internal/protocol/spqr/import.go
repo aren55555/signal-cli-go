@@ -273,7 +273,7 @@ func importSCKA(v1 *signalpb.SpqrV1) (*scka, error) {
 	case *signalpb.SpqrV1_EkReceivedCt1Sampled:
 		if err = encdec(st.EkReceivedCt1Sampled); err == nil {
 			if s, f, err = core(ed.Core, esLen, ekLen, ct1Len); err == nil {
-				s.kind, s.ct1 = ekReceivedCt1Sampled, f[2]
+				s.kind, s.ct1, s.ekPayload = ekReceivedCt1Sampled, f[2], f[1]
 				if s.enc, err = kyber.ResumeEncapsulationMLKEM768(f[0], nil, f[2]); err == nil {
 					// This implementation computes c2 when the ek payload
 					// completes, so do it now from the stored payload.

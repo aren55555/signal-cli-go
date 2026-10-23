@@ -307,3 +307,35 @@ func parseMessage(b []byte) (*message, error) {
 	}
 	return m, nil
 }
+
+// toCoefficients returns the coefficients (lowest degree first) of the
+// polynomial through pts, via Newton's divided differences.
+func toCoefficients(pts []point) []uint16 {
+	n := len(pts)
+	dd := make([]uint16, n)
+	for i, p := range pts {
+		dd[i] = p.y
+	}
+	for k := 1; k < n; k++ {
+		for i := n - 1; i >= k; i-- {
+			dd[i] = gfMul(dd[i]^dd[i-1], gfInv(pts[i].x^pts[i-k].x))
+		}
+	}
+	// Horner in Newton form: poly = dd[n-1]; poly = poly*(x - x_k) + dd[k].
+	poly := make([]uint16, n)
+	if n == 0 {
+		return poly
+	}
+	poly[0] = dd[n-1]
+	deg := 0
+	for k := n - 2; k >= 0; k-- {
+		// multiply by (x + x_k)
+		for d := deg + 1; d >= 1; d-- {
+			poly[d] = poly[d-1] ^ gfMul(poly[d], pts[k].x)
+		}
+		poly[0] = gfMul(poly[0], pts[k].x)
+		deg++
+		poly[0] ^= dd[k]
+	}
+	return poly
+}

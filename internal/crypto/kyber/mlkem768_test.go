@@ -201,3 +201,21 @@ func TestIssue1275Repair(t *testing.T) {
 		t.Error("an unrecognizable state was changed")
 	}
 }
+
+func TestEncapsulationStateExport(t *testing.T) {
+	ek, _, _ := GenerateKeyMLKEM768(bytes.Repeat([]byte{8}, 64))
+	hk := sha3.Sum256(ek)
+	hdr := append(bytes.Clone(ek[EKPayloadSizeMLKEM768:]), hk[:]...)
+	enc, ct1, _, _ := StartEncapsulationMLKEM768(hdr, bytes.Repeat([]byte{1}, 32))
+	want, _ := enc.Finish(ek[:EKPayloadSizeMLKEM768])
+	resumed, err := ResumeEncapsulationMLKEM768(enc.State(), nil, ct1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := resumed.Finish(ek[:EKPayloadSizeMLKEM768]); !bytes.Equal(got, want) {
+		t.Error("c2 from the exported state differs")
+	}
+	if !bytes.Equal(resumed.State(), enc.State()) {
+		t.Error("state does not round-trip")
+	}
+}

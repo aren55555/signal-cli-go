@@ -250,3 +250,19 @@ func encapsulationState(hdr, m []byte) []byte {
 	}
 	return append(out, m...)
 }
+
+// State returns the split encapsulation in libcrux's 2080-byte state
+// format, for storing a session mid-epoch.
+func (e *IncrementalEncapsulation) State() []byte {
+	if e.es != nil {
+		return append([]byte(nil), e.es...)
+	}
+	return encapsulationState(e.hdr, e.m)
+}
+
+// Header returns the stored header, or nil if the encapsulation was
+// resumed without one.
+func (e *IncrementalEncapsulation) Header() []byte { return e.hdr }
+
+// Ct1 returns the c1 already produced.
+func (e *IncrementalEncapsulation) Ct1() []byte { return e.ct1 }

@@ -309,6 +309,7 @@ func (s *scka) receive(m *message) (*epochSecret, error) {
 			if ack {
 				s.startCt2()
 			} else {
+				s.ekPayload = payload // stored with the state (state.md §2)
 				s.kind = ekReceivedCt1Sampled
 			}
 		case ack:
