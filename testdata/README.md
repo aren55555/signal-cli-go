@@ -20,3 +20,12 @@ phone number, captcha token, or key. Scrub recordings to these values:
 | UUID / ACI    | `00000000-0000-4000-8000-0000000000NN`        |
 | captcha       | `<CAPTCHA>`                                   |
 | timestamps    | see normalization rules in `internal/difftest` |
+
+## Full Kyber1024 KATs (optional)
+
+`vectors/kyber1024_kat.json` holds the first 10 of the 100 official
+round-3 KATs. To run all 100, download NIST's `Kyber-Round3.zip` (URL and
+SHA-256 in that file's `source` block), extract
+`KAT/kyber1024/PQCkemKAT_3168.rsp`, and run
+`KYBER1024_KAT_RSP=/path/to/PQCkemKAT_3168.rsp go test ./internal/crypto/kyber -run FullKAT`.
+The test checks the file's pinned SHA-256 before using it.
