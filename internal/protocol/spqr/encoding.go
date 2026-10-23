@@ -93,6 +93,10 @@ func checkStreamLen(l int) error {
 // P_15(c), big-endian, so chunks below n are the string itself.
 type encoder struct {
 	pts [polys][]point
+	// coeffs, when set, holds each polynomial's coefficients (lowest
+	// degree first) instead of points: the form libsignal stores once an
+	// encoder has produced a parity chunk (state.md §2).
+	coeffs *[polys][]uint16
 }
 
 func newEncoder(data []byte) (*encoder, error) {
@@ -108,6 +112,16 @@ func newEncoder(data []byte) (*encoder, error) {
 }
 
 func (e *encoder) chunk(c uint16) (out [chunkSize]byte) {
+	if e.coeffs != nil {
+		for j, cs := range e.coeffs {
+			var y uint16 // Horner's rule
+			for k := len(cs) - 1; k >= 0; k-- {
+				y = gfMul(y, c) ^ cs[k]
+			}
+			binary.BigEndian.PutUint16(out[2*j:], y)
+		}
+		return out
+	}
 	for j, pts := range e.pts {
 		var y uint16
 		switch {

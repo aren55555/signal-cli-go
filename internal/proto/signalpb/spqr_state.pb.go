@@ -597,8 +597,9 @@ func (x *SpqrCore) GetF5() []byte {
 }
 
 // The two layouts of a chunked SCKA state (state.md §2): field 2 is an
-// encoder in most states but a decoder in HeaderReceived and
-// Ct1Acknowledged, so each state is decoded with the layout it uses.
+// encoder in most states but a decoder in NoHeaderReceived,
+// HeaderReceived and Ct1Acknowledged, so each state is decoded with the
+// layout it uses.
 type SpqrChunkedEncDec struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Core          *SpqrCore              `protobuf:"bytes,1,opt,name=core,proto3" json:"core,omitempty"`

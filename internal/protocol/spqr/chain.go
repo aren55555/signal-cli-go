@@ -94,15 +94,21 @@ type chain struct {
 }
 
 func newChain(authKey []byte, a2b bool, maxJump, maxOOO uint32) *chain {
+	c := newChainParams(a2b, maxJump, maxOOO)
+	c.appendLink(0, hkdfKey(zeroSalt, authKey, labelChainStart, 96))
+	return c
+}
+
+// newChainParams returns an empty chain with the parameters (0 meaning
+// the library default).
+func newChainParams(a2b bool, maxJump, maxOOO uint32) *chain {
 	if maxJump == 0 {
 		maxJump = defaultMaxJump
 	}
 	if maxOOO == 0 {
 		maxOOO = defaultMaxOOO
 	}
-	c := &chain{a2b: a2b, maxJump: maxJump, maxOOO: maxOOO}
-	c.appendLink(0, hkdfKey(zeroSalt, authKey, labelChainStart, 96))
-	return c
+	return &chain{a2b: a2b, maxJump: maxJump, maxOOO: maxOOO}
 }
 
 // appendLink splits 96 bytes into next_root and the A2B and B2A seeds.
