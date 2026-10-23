@@ -111,9 +111,9 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | `--scrub-log` | ✅ | ⬜ | n/a | ⬜ | n/a | |
 | `-d`, `--data-dir`, `-c`, `--config` | ✅ | ⬜ | n/a | ⬜ | n/a | |
 | `-a`, `--account`, `-u`, `--username` | ✅ | ⬜ | n/a | ⬜ | n/a | |
-| `--dbus` | ✅ | ⬜ | n/a | ⬜ | n/a | D-Bus client mode: likely excluded with `daemon --dbus`; operator to confirm |
-| `--dbus-system` | ✅ | ⬜ | n/a | ⬜ | n/a | as `--dbus` |
-| `--bus-name` | ✅ | ⬜ | n/a | ⬜ | n/a | as `--dbus` |
+| `--dbus` | ✅ | deferred | n/a | deferred | n/a | **deferred**: D-Bus client mode, revisit after milestone 9 (PLAN.md) |
+| `--dbus-system` | ✅ | deferred | n/a | deferred | n/a | **deferred**, as `--dbus` |
+| `--bus-name` | ✅ | deferred | n/a | deferred | n/a | **deferred**, as `--dbus` |
 | `-o`, `--output` | ✅ | ⬜ | n/a | ⬜ | n/a | |
 | `--service-environment` | ✅ | ⬜ | n/a | ⬜ | n/a | |
 | `--trust-new-identities` | ✅ | ⬜ | n/a | ⬜ | n/a | |

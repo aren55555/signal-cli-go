@@ -28,7 +28,7 @@ every session, and update both before ending one.
 | 7  | Profiles, contacts, usernames, storage service, CDSI, SVR | not started |
 | 8  | Daemon parity (HTTP/SSE, socket, TCP); Layer B fully green | not started |
 | 9  | CLI parity                                   | not started |
-| 9b | Revisit deferred items (voice calls) | not started |
+| 9b | Revisit deferred items (voice calls, D-Bus client mode) | not started |
 | 10 | Stretch goal: import an existing signal-cli data dir | not started |
 
 Milestone 2 does not start until the operator has reviewed this file and
@@ -65,6 +65,11 @@ starts. Existing pieces:
   `listCalls`, `subscribeCallEvents`, `unsubscribeCallEvents`) with a
   documented error rather than implementing them. Deferred rows do not
   count toward "100%" until they are revisited.
+- **D-Bus client mode: deferred** (operator, 2026-10-23). The CLI's
+  `--dbus`, `--dbus-system` and `--bus-name` (which drive a running daemon
+  over D-Bus) are handled like voice calls: excluded for now, revisited in
+  milestone 9b, interim documented error, COMPAT.md rows marked `deferred`.
+  `daemon --dbus` stays excluded by PROMPT.md.
 - **Proxy support**: all egress goes through `HTTPS_PROXY`. Our HTTP and
   WebSocket clients must support HTTP CONNECT proxies from day one, or
   Layer C cannot run.
@@ -128,9 +133,6 @@ starts. Existing pieces:
 - **Staging hosts**: `sandbox/ALLOWED_HOSTS` may need more staging hosts
   once the oracle is observed (milestone 1). Each addition needs operator
   approval.
-- **D-Bus client mode** (`--dbus`, `--dbus-system`, `--bus-name`): PROMPT.md
-  excludes `daemon --dbus`. Is the CLI's D-Bus client mode excluded too?
-  **Operator to confirm.**
 - **License**: undecided. See `CLEANROOM.md`.
 
 ## Progress log
@@ -161,3 +163,5 @@ starts. Existing pieces:
   before milestone 2.
 - Operator decision: voice calls deferred until after milestone 9
   (12 COMPAT.md rows marked `deferred`; milestone 9b added).
+- Operator decision: D-Bus client mode deferred to milestone 9b
+  (3 global-option rows in COMPAT.md marked `deferred`).
