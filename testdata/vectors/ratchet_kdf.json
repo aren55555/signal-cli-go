@@ -1,0 +1,64 @@
+{
+  "source": {
+    "description": "Fixed Double Ratchet KDF and cipher vectors from libsignal v0.99.1. The chain-key vector is the Rust unit test test_chain_key_derivation in rust/protocol/src/ratchet/keys.rs: message keys are derived with no SPQR salt (generate_keys(None)), i.e. HKDF-SHA256 with absent salt. Upstream asserts only cipher_key, mac_key, next_chain_key and the indices; the spec agent recomputed all of them with OpenSSL (HMAC-SHA256 with one-byte data 0x01/0x02, then HKDF-SHA256 info 'WhisperMessageKeys', 80 bytes) and they matched. The message-key seed and the IV were not asserted upstream; they come from that OpenSSL recomputation and are marked derived. The AES-256-CBC vector is the Rust unit test aes_cbc_test in rust/crypto/src/aes_cbc.rs (the cipher used for 1:1 and sender-key messages); the spec agent re-checked the ciphertext with OpenSSL. No upstream test fixes a root-key (WhisperRatchet) step or a SignalMessage MAC.",
+    "libsignal_repository": "https://github.com/signalapp/libsignal",
+    "libsignal_tag": "v0.99.1",
+    "libsignal_commit": "97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8",
+    "files": {
+      "rust_ratchet_keys": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/rust/protocol/src/ratchet/keys.rs",
+      "rust_aes_cbc": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/rust/crypto/src/aes_cbc.rs"
+    },
+    "spec": "spec/protocol/double-ratchet.md sections 3 and 13"
+  },
+  "vectors": [
+    {
+      "kind": "chain_key_step",
+      "name": "ratchet/keys.rs test_chain_key_derivation",
+      "chain_key": "8ab72d6f4cc5ac0d387eaf463378ddb28edd07385b1cb01250c715982e7ad48f",
+      "chain_index": 0,
+      "spqr_salt": null,
+      "expected_cipher_key": "bf51e9d75e0e31031051f82a2491ffc084fa298b7793bd9db620056febf45217",
+      "expected_mac_key": "c6c77d6a73a354337a56435e34607dfe48e3ace14e77314dc6abc172e7a7030b",
+      "expected_next_chain_key": "28e8f8fee54b801eef7c5cfb2f17f32c7b334485bbb70fac6ec10342a246d15d",
+      "expected_message_counter": 0,
+      "expected_next_chain_index": 1,
+      "derived_by_spec_agent": {
+        "message_key_seed_hmac_0x01": "fae95235beda3d2e00b41cf2e655dada2405b4388cae0d251a51bcd2ebdd2e40",
+        "hkdf_80_byte_output": "bf51e9d75e0e31031051f82a2491ffc084fa298b7793bd9db620056febf45217c6c77d6a73a354337a56435e34607dfe48e3ace14e77314dc6abc172e7a7030bafa8207986b692a116d4b40bbff72d6c",
+        "iv": "afa8207986b692a116d4b40bbff72d6c"
+      }
+    },
+    {
+      "kind": "aes_256_cbc_pkcs7",
+      "name": "aes_cbc.rs aes_cbc_test, encrypt and decrypt",
+      "key": "4e22eb16d964779994222e82192ce9f747da72dc4abe49dfdeeb71d0ffe3796e",
+      "iv": "6f8a557ddc0a140c878063a6d5f31d3d",
+      "plaintext": "30736294a124482a4159",
+      "expected_ciphertext": "dd3f573ab4508b9ed0e45e0baf5608f3"
+    },
+    {
+      "kind": "aes_256_cbc_pkcs7_decrypt_error",
+      "name": "aes_cbc.rs aes_cbc_test: decrypting the recovered plaintext (10 bytes, not a multiple of 16) must fail",
+      "key": "4e22eb16d964779994222e82192ce9f747da72dc4abe49dfdeeb71d0ffe3796e",
+      "iv": "6f8a557ddc0a140c878063a6d5f31d3d",
+      "ciphertext": "30736294a124482a4159",
+      "expected": "error"
+    },
+    {
+      "kind": "aes_256_cbc_pkcs7_decrypt_error",
+      "name": "aes_cbc.rs aes_cbc_test: decrypting the ciphertext with the ciphertext itself as IV yields invalid padding and must fail",
+      "key": "4e22eb16d964779994222e82192ce9f747da72dc4abe49dfdeeb71d0ffe3796e",
+      "iv": "dd3f573ab4508b9ed0e45e0baf5608f3",
+      "ciphertext": "dd3f573ab4508b9ed0e45e0baf5608f3",
+      "expected": "error"
+    },
+    {
+      "kind": "aes_256_cbc_pkcs7_decrypt",
+      "name": "aes_cbc.rs aes_cbc_test: flipping the IV's top bit flips the first plaintext byte",
+      "key": "4e22eb16d964779994222e82192ce9f747da72dc4abe49dfdeeb71d0ffe3796e",
+      "iv": "ef8a557ddc0a140c878063a6d5f31d3d",
+      "ciphertext": "dd3f573ab4508b9ed0e45e0baf5608f3",
+      "expected_plaintext": "b0736294a124482a4159"
+    }
+  ]
+}

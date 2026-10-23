@@ -1,0 +1,136 @@
+{
+  "source": {
+    "description": "Sealed Sender v2 (multi-recipient) SentMessage parsing vectors from libsignal v0.99.1's server-side Java tests. A SentMessage is what a sending client uploads; the server parses it and delivers to each recipient a ReceivedMessage formed as the byte 0x22, that recipient's 48 bytes of key material (C || AT), then the shared bytes (ephemeral public key || AEAD ciphertext). The key material and shared bytes in these fixtures are filler (0xaa/0xbb/0x99 runs), so these vectors test layout parsing and fan-out only, not cryptography. Hex fields in 'input' are the upstream fixture parts concatenated in the order the test lists them. Device lists are [device_id, registration_id] pairs with the has-more bit already masked off (registration id = low 14 bits). 'expected_error' strings are descriptive, not upstream error texts. See spec/protocol/sealed-sender.md.",
+    "libsignal_repository": "https://github.com/signalapp/libsignal",
+    "libsignal_tag": "v0.99.1",
+    "libsignal_commit": "97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8",
+    "files": {
+      "java_server_test": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java",
+      "rust_parser": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/rust/protocol/src/sealed_sender.rs",
+      "rust_tests": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/rust/protocol/tests/sealed_sender.rs"
+    },
+    "not_included": "Upstream also has two generated stress cases (wayTooManyRecipients, wayTooManyExcludedRecipients): version 0x22, recipient count 25000 encoded as varint a8c301, then for i in 0..24999 a 16-byte UUID of 14 zero bytes followed by (i & 0xff) and ((i >> 8) & 0xff), then either '0111aa' plus 48 zero bytes (recipient case) or a single 0x00 (excluded case), then 48 zero bytes of shared data. Both must parse, yielding 25000 recipients or 25000 excluded recipients. They are described here rather than expanded. The Rust test parse_empty_multi_recipient_sealed_sender (empty input must fail) is included as the last vector."
+  },
+  "vectors": [
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "aci_only_simple",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java simpleAciOnly",
+      "input": "22039d0652a3dcc34d11975f74d61598733f0111aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaae80f7bbe5b94471ebd8c2173654ea3d10111bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbe80f7bbe5b94471ebd8c2173654ea3d10333bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb99999999999999999999999999999999999999999999999999999999999999999999",
+      "expected_recipients": [{"service_id_fixed_width": "009d0652a3dcc34d11975f74d61598733f", "devices": [[1, 4522]], "received_message": "22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999"}, {"service_id_fixed_width": "00e80f7bbe5b94471ebd8c2173654ea3d1", "devices": [[1, 4539], [3, 13243]], "received_message": "22bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb99999999999999999999999999999999999999999999999999999999999999999999"}],
+      "expected_excluded_recipients": []
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "aci_only_repeated_recipient",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java aciOnlyWithRepeatedRecipient",
+      "input": "22039d0652a3dcc34d11975f74d61598733f0111aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaae80f7bbe5b94471ebd8c2173654ea3d10111bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb9d0652a3dcc34d11975f74d61598733f0333aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999",
+      "expected_recipients": [{"service_id_fixed_width": "009d0652a3dcc34d11975f74d61598733f", "devices": [[1, 4522], [3, 13226]], "received_message": "22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999"}, {"service_id_fixed_width": "00e80f7bbe5b94471ebd8c2173654ea3d1", "devices": [[1, 4539]], "received_message": "22bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb99999999999999999999999999999999999999999999999999999999999999999999"}],
+      "expected_excluded_recipients": []
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "service_ids_simple",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java simpleServiceIds",
+      "input": "2303009d0652a3dcc34d11975f74d61598733f0111aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa01e80f7bbe5b94471ebd8c2173654ea3d10111bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb01e80f7bbe5b94471ebd8c2173654ea3d10333bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb99999999999999999999999999999999999999999999999999999999999999999999",
+      "expected_recipients": [{"service_id_fixed_width": "009d0652a3dcc34d11975f74d61598733f", "devices": [[1, 4522]], "received_message": "22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999"}, {"service_id_fixed_width": "01e80f7bbe5b94471ebd8c2173654ea3d1", "devices": [[1, 4539], [3, 13243]], "received_message": "22bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb99999999999999999999999999999999999999999999999999999999999999999999"}],
+      "expected_excluded_recipients": []
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "service_ids_repeated_recipient",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java serviceIdsWithRepeatedRecipient",
+      "input": "2303009d0652a3dcc34d11975f74d61598733f0111aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa01e80f7bbe5b94471ebd8c2173654ea3d10111bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb009d0652a3dcc34d11975f74d61598733f0333aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999",
+      "expected_recipients": [{"service_id_fixed_width": "009d0652a3dcc34d11975f74d61598733f", "devices": [[1, 4522], [3, 13226]], "received_message": "22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999"}, {"service_id_fixed_width": "01e80f7bbe5b94471ebd8c2173654ea3d1", "devices": [[1, 4539]], "received_message": "22bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb99999999999999999999999999999999999999999999999999999999999999999999"}],
+      "expected_excluded_recipients": []
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "repeat_devices_not_diagnosed",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java repeatDevicesAreNotDiagnosed",
+      "input": "2303009d0652a3dcc34d11975f74d61598733f0111aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa009d0652a3dcc34d11975f74d61598733f0333aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa009d0652a3dcc34d11975f74d61598733f0333ffaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999",
+      "expected_recipients": [{"service_id_fixed_width": "009d0652a3dcc34d11975f74d61598733f", "devices": [[1, 4522], [3, 13226], [3, 13311]], "received_message": "22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999"}],
+      "expected_excluded_recipients": []
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "compact_device_list",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java serviceIdsWithCompactDeviceList",
+      "input": "2302009d0652a3dcc34d11975f74d61598733f0111aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa01e80f7bbe5b94471ebd8c2173654ea3d10191bb0333bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb99999999999999999999999999999999999999999999999999999999999999999999",
+      "expected_recipients": [{"service_id_fixed_width": "009d0652a3dcc34d11975f74d61598733f", "devices": [[1, 4522]], "received_message": "22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999"}, {"service_id_fixed_width": "01e80f7bbe5b94471ebd8c2173654ea3d1", "devices": [[1, 4539], [3, 13243]], "received_message": "22bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb99999999999999999999999999999999999999999999999999999999999999999999"}],
+      "expected_excluded_recipients": []
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "compact_device_list_repeated_recipient",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java serviceIdsWithCompactDeviceListAndRepeatedRecipient",
+      "input": "2303009d0652a3dcc34d11975f74d61598733f0191aa0333aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa01e80f7bbe5b94471ebd8c2173654ea3d10111bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb009d0652a3dcc34d11975f74d61598733f0505aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999",
+      "expected_recipients": [{"service_id_fixed_width": "009d0652a3dcc34d11975f74d61598733f", "devices": [[1, 4522], [3, 13226], [5, 1450]], "received_message": "22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999"}, {"service_id_fixed_width": "01e80f7bbe5b94471ebd8c2173654ea3d1", "devices": [[1, 4539]], "received_message": "22bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb99999999999999999999999999999999999999999999999999999999999999999999"}],
+      "expected_excluded_recipients": []
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "excluded_recipients",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java serviceIdsWithExcludedRecipients",
+      "input": "2304009d0652a3dcc34d11975f74d61598733f0191aa0333aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa003f0f4734e3314434bd4f6d8f6ea6dcc70001e80f7bbe5b94471ebd8c2173654ea3d10111bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb005d0881426fd74dbdaf00fdda1b3ce9880099999999999999999999999999999999999999999999999999999999999999999999",
+      "expected_recipients": [{"service_id_fixed_width": "009d0652a3dcc34d11975f74d61598733f", "devices": [[1, 4522], [3, 13226]], "received_message": "22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999"}, {"service_id_fixed_width": "01e80f7bbe5b94471ebd8c2173654ea3d1", "devices": [[1, 4539]], "received_message": "22bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb99999999999999999999999999999999999999999999999999999999999999999999"}],
+      "expected_excluded_recipients": ["003f0f4734e3314434bd4f6d8f6ea6dcc7", "005d0881426fd74dbdaf00fdda1b3ce988"]
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "rejects_repeated_excluded",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java rejectsRepeatedExcludedRecipients",
+      "input": "2303009d0652a3dcc34d11975f74d61598733f0191aa0333aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa003f0f4734e3314434bd4f6d8f6ea6dcc700003f0f4734e3314434bd4f6d8f6ea6dcc70099999999999999999999999999999999999999999999999999999999999999999999",
+      "expected_error": "invalid message (recipient redundantly encoded as empty)"
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "rejects_excluded_after_regular",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java rejectsExcludedAfterRegular",
+      "input": "2302009d0652a3dcc34d11975f74d61598733f0191aa0333aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa009d0652a3dcc34d11975f74d61598733f0099999999999999999999999999999999999999999999999999999999999999999999",
+      "expected_error": "invalid message (recipient redundantly encoded as empty)"
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "rejects_regular_after_excluded",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java rejectsRegularAfterExcluded",
+      "input": "2302009d0652a3dcc34d11975f74d61598733f00009d0652a3dcc34d11975f74d61598733f0191aa0333aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999",
+      "expected_error": "invalid message (recipient redundantly encoded as empty)"
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "rejects_device_id_zero_in_multi_device_list",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java rejectsDeviceIdZeroInMultiDeviceList",
+      "input": "2301009d0652a3dcc34d11975f74d61598733f0191aa00aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa99999999999999999999999999999999999999999999999999999999999999999999",
+      "expected_error": "invalid message (device id 0 after a has-more flag)"
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "rejects_version_0x11",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java rejectsUnknownVersions",
+      "input": "11",
+      "expected_error": "unknown sealed sender version"
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "rejects_version_0x2f",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java rejectsUnknownVersions",
+      "input": "2f",
+      "expected_error": "unknown sealed sender version"
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "rejects_version_0x77",
+      "upstream_test": "java/server/src/test/java/org/signal/libsignal/protocol/SealedSenderMultiRecipientMessageTest.java rejectsUnknownVersions",
+      "input": "77",
+      "expected_error": "unknown sealed sender version"
+    },
+    {
+      "kind": "ssv2_sent_message_parse",
+      "name": "rejects_empty_input",
+      "upstream_test": "rust/protocol/tests/sealed_sender.rs parse_empty_multi_recipient_sealed_sender",
+      "input": "",
+      "expected_error": "invalid sealed sender message (empty)"
+    }
+  ]
+}

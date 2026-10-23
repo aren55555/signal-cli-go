@@ -1,0 +1,74 @@
+{
+  "source": {
+    "description": "Fixed sealed-sender certificate data: the trust roots configured in signal-cli v0.14.7, libsignal v0.99.1's built-in KNOWN_SERVER_CERTIFICATES table, and the three fixed SenderCertificate fixtures in libsignal's sealed_sender.rs unit tests. All public keys are 33-byte serialized Curve25519 keys (0x05 prefix). Signatures are libsignal XEd25519 (see spec/crypto/xeddsa.md); the three known-server-certificate signatures also appear as verify vectors in xeddsa.json. Upstream asserts: each known server certificate validates under its listed trust root, and each sender-certificate fixture validates under the test trust root at time 31336 ms. The outcomes at times 31337 and 31338 are NOT asserted upstream for these fixtures; they follow from the expiry rule in sealed_sender.rs (a certificate is expired only when the validation time is strictly greater than 'expires') and are marked 'derived_from_rule'. The spec agent did not re-verify the signatures independently. See spec/protocol/sealed-sender.md.",
+    "libsignal_repository": "https://github.com/signalapp/libsignal",
+    "libsignal_tag": "v0.99.1",
+    "libsignal_commit": "97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8",
+    "signal_cli_repository": "https://github.com/AsamK/signal-cli",
+    "signal_cli_tag": "v0.14.7",
+    "signal_cli_commit": "b01b6b370dc063599a1a2b9fde0f5ff4e2d78fe8",
+    "files": {
+      "rust_sealed_sender": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/rust/protocol/src/sealed_sender.rs",
+      "proto": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/rust/protocol/src/proto/sealed_sender.proto",
+      "signal_cli_live_config": "https://github.com/AsamK/signal-cli/blob/b01b6b370dc063599a1a2b9fde0f5ff4e2d78fe8/lib/src/main/java/org/asamk/signal/manager/config/LiveConfig.java",
+      "signal_cli_staging_config": "https://github.com/AsamK/signal-cli/blob/b01b6b370dc063599a1a2b9fde0f5ff4e2d78fe8/lib/src/main/java/org/asamk/signal/manager/config/StagingConfig.java"
+    }
+  },
+  "vectors": [
+    {"kind": "trust_root", "name": "signal_cli_production_root_1", "environment": "production", "source_file": "signal_cli_live_config (UNIDENTIFIED_SENDER_TRUST_ROOT)", "base64": "BXu6QIKVz5MA8gstzfOgRQGqyLqOwNKHL6INkv3IHWMF", "public_key": "057bba408295cf9300f20b2dcdf3a04501aac8ba8ec0d2872fa20d92fdc81d6305"},
+    {"kind": "trust_root", "name": "signal_cli_production_root_2", "environment": "production", "source_file": "signal_cli_live_config (UNIDENTIFIED_SENDER_TRUST_ROOT2); same key as libsignal's trust root for known server certificate id 3", "base64": "BUkY0I+9+oPgDCn4+Ac6Iu813yvqkDr/ga8DzLxFxuk6", "public_key": "054918d08fbdfa83e00c29f8f8073a22ef35df2bea903aff81af03ccbc45c6e93a"},
+    {"kind": "trust_root", "name": "signal_cli_staging_root_1", "environment": "staging", "source_file": "signal_cli_staging_config (UNIDENTIFIED_SENDER_TRUST_ROOT)", "base64": "BbqY1DzohE4NUZoVF+L18oUPrK3kILllLEJh2UnPSsEx", "public_key": "05ba98d43ce8844e0d519a1517e2f5f2850facade420b9652c4261d949cf4ac131"},
+    {"kind": "trust_root", "name": "signal_cli_staging_root_2", "environment": "staging", "source_file": "signal_cli_staging_config (UNIDENTIFIED_SENDER_TRUST_ROOT2); same key as libsignal's trust root for known server certificate id 2", "base64": "BYhU6tPjqP46KGZEzRs1OL4U39V5dlPJ/X09ha4rErkm", "public_key": "058854ead3e3a8fe3a286644cd1b3538be14dfd5797653c9fd7d3d85ae2b12b926"},
+    {"kind": "trust_root", "name": "libsignal_test_root", "environment": "test only", "source_file": "rust_sealed_sender (KNOWN_SERVER_CERTIFICATES entry 0x7357C357)", "base64": "BS/lfaNHzWJDFSjarF+7KQcw//aEr8TPwu2QmV9Yyzt0", "public_key": "052fe57da347cd62431528daac5fbb290730fff684afc4cfc2ed90995f58cb3b74", "private_key": "0000000000000000000000000000000000000000000000000000000000000000", "note": "Public key of the all-zero private key (clamped on import). Never trusted by a real client."},
+    {"kind": "known_server_certificate", "name": "known_id_2_staging", "upstream_test": "rust_sealed_sender verify_known_certificates", "id": 2, "trust_root": "058854ead3e3a8fe3a286644cd1b3538be14dfd5797653c9fd7d3d85ae2b12b926", "serialized": "0a25080212210539450d63ebd0752c0fd4038b9d07a916f5e174b756d409b5ca79f4c97400631e124064c5a38b1e927497d3d4786b101a623ab34a7da3954fae126b04dba9d7a3604ed88cdc8550950f0d4a9134ceb7e19b94139151d2c3d6e1c81e9d1128aafca806", "parsed": {"certificate": "080212210539450d63ebd0752c0fd4038b9d07a916f5e174b756d409b5ca79f4c97400631e", "signature": "64c5a38b1e927497d3d4786b101a623ab34a7da3954fae126b04dba9d7a3604ed88cdc8550950f0d4a9134ceb7e19b94139151d2c3d6e1c81e9d1128aafca806", "key_id": 2, "key": "0539450d63ebd0752c0fd4038b9d07a916f5e174b756d409b5ca79f4c97400631e"}, "expected_valid": true},
+    {"kind": "known_server_certificate", "name": "known_id_3_production", "upstream_test": "rust_sealed_sender verify_known_certificates", "id": 3, "trust_root": "054918d08fbdfa83e00c29f8f8073a22ef35df2bea903aff81af03ccbc45c6e93a", "serialized": "0a250803122105bc9d1d290be964810dfa7e94856480a3f7060d004c9762c24c575a1522353a5a1240c11ec3c401eb0107ab38f8600e8720a63169e0e2eb8a3fae24f63099f85ea319c3c1c46d3454706ae2a679d1fee690a488adda98a2290b66c906bb60295ed781", "parsed": {"certificate": "0803122105bc9d1d290be964810dfa7e94856480a3f7060d004c9762c24c575a1522353a5a", "signature": "c11ec3c401eb0107ab38f8600e8720a63169e0e2eb8a3fae24f63099f85ea319c3c1c46d3454706ae2a679d1fee690a488adda98a2290b66c906bb60295ed781", "key_id": 3, "key": "05bc9d1d290be964810dfa7e94856480a3f7060d004c9762c24c575a1522353a5a"}, "expected_valid": true},
+    {"kind": "known_server_certificate", "name": "known_id_7357c357_test", "upstream_test": "rust_sealed_sender verify_known_certificates", "id": 1935131479, "id_hex": "7357c357", "trust_root": "052fe57da347cd62431528daac5fbb290730fff684afc4cfc2ed90995f58cb3b74", "serialized": "0a2908d786df9a07122105847c0d2c375234f365e660955187a3735a0f7613d1609d3a6a4d8c53aeaa5a221240e0b9ebacdfc3aa2827f7924b697784d1c25e44ca05dd433e1a38dc6382eb2730d419ca9a250b1be9d5a9463e61efd6781777a91b83c97b844d014206e2829785", "parsed": {"certificate": "08d786df9a07122105847c0d2c375234f365e660955187a3735a0f7613d1609d3a6a4d8c53aeaa5a22", "signature": "e0b9ebacdfc3aa2827f7924b697784d1c25e44ca05dd433e1a38dc6382eb2730d419ca9a250b1be9d5a9463e61efd6781777a91b83c97b844d014206e2829785", "key_id": 1935131479, "key": "05847c0d2c375234f365e660955187a3735a0f7613d1609d3a6a4d8c53aeaa5a22"}, "server_private_key": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "expected_valid": true},
+    {
+      "kind": "sender_certificate",
+      "name": "embedded_signer_uuid_string_with_unknown_field",
+      "upstream_test": "rust_sealed_sender test_lossless_round_trip",
+      "trust_root": "052fe57da347cd62431528daac5fbb290730fff684afc4cfc2ed90995f58cb3b74",
+      "certificate": "100119697a0000000000002221056c9d1f8deb82b9a898f9c277a1b74989ec009afb5c0acb5e8e69e3d5ca29d6322a690a2508011221053b03ca070e6f6b2f271d32f27321689cdf4e59b106c10b58fbe15063ed868a5a124024bc92954e52ad1a105b5bda85c9db410dcfeb42a671b45a523b3a46e9594a8bde0efc671d8e8e046b32c67f59b80a46ffdf24071850779bc21325107902af89322461616161616161612d373030302d313165622d623332612d333362386138613438376136ba3e136372617368696e6720726967687420646f776e",
+      "signature": "a22d8f86f5d00794f319add821e342c6ffffb6b34f741e569f8b321ab0255f2d1757ecf648e53a3602cae8f09b3fc80dcf27534d67efd272b6739afc31f75c8c",
+      "serialized_sender_certificate": "0ad501100119697a0000000000002221056c9d1f8deb82b9a898f9c277a1b74989ec009afb5c0acb5e8e69e3d5ca29d6322a690a2508011221053b03ca070e6f6b2f271d32f27321689cdf4e59b106c10b58fbe15063ed868a5a124024bc92954e52ad1a105b5bda85c9db410dcfeb42a671b45a523b3a46e9594a8bde0efc671d8e8e046b32c67f59b80a46ffdf24071850779bc21325107902af89322461616161616161612d373030302d313165622d623332612d333362386138613438376136ba3e136372617368696e6720726967687420646f776e1240a22d8f86f5d00794f319add821e342c6ffffb6b34f741e569f8b321ab0255f2d1757ecf648e53a3602cae8f09b3fc80dcf27534d67efd272b6739afc31f75c8c",
+      "expected_fields": {"sender_uuid": "aaaaaaaa-7000-11eb-b32a-33b8a8a487a6", "sender_uuid_encoding": "uuidString (field 6)", "sender_e164": null, "sender_device": 1, "expires": 31337, "identity_key": "056c9d1f8deb82b9a898f9c277a1b74989ec009afb5c0acb5e8e69e3d5ca29d632", "signer": "embedded (field 5)", "signer_server_certificate": "0a2508011221053b03ca070e6f6b2f271d32f27321689cdf4e59b106c10b58fbe15063ed868a5a124024bc92954e52ad1a105b5bda85c9db410dcfeb42a671b45a523b3a46e9594a8bde0efc671d8e8e046b32c67f59b80a46ffdf24071850779bc21325107902af89", "signer_key_id": 1, "signer_key": "053b03ca070e6f6b2f271d32f27321689cdf4e59b106c10b58fbe15063ed868a5a"},
+      "unknown_field_note": "The certificate ends with field 999 (tag bytes ba3e, wire type 2) holding the string 'crashing right down'. Parsers must skip it, and the signature covers it because it is computed over the raw certificate bytes.",
+      "validation": [
+        {"validation_time": 31336, "expected_valid": true, "basis": "asserted upstream"},
+        {"validation_time": 31337, "expected_valid": true, "basis": "derived_from_rule"},
+        {"validation_time": 31338, "expected_valid": false, "basis": "derived_from_rule"}
+      ]
+    },
+    {
+      "kind": "sender_certificate",
+      "name": "embedded_signer_uuid_bytes",
+      "upstream_test": "rust_sealed_sender test_uuid_bytes_representation",
+      "trust_root": "052fe57da347cd62431528daac5fbb290730fff684afc4cfc2ed90995f58cb3b74",
+      "certificate": "100119697a000000000000222105e083a8ce423d1c1955174107a85a6a7f3bcbf566723624077f75eafe8e0a07752a690a25080112210507a24397ae27d06fa76d2f02cfb5546e0b23a7e0c3670c1eb1e73b135a8e1e4d12407d127509ae1f5e9dcaa511793d3e94350dcb269e4ca54500da6e1f4dc13d95940c15badef019edfe8666315500c54e4489d4b83f6ce79c7f65c9772a1a83d88c3a10aaaaaaaa700011ebb32a33b8a8a487a6",
+      "signature": "755c428e9bf6ba367152f1e545834649b4e8f70df8383a352a953fdb774862af5d42fab573fc52b90ad47c331c36f93b1a4fa7a2504917d895452ffe7f44bd0e",
+      "serialized_sender_certificate": "0aab01100119697a000000000000222105e083a8ce423d1c1955174107a85a6a7f3bcbf566723624077f75eafe8e0a07752a690a25080112210507a24397ae27d06fa76d2f02cfb5546e0b23a7e0c3670c1eb1e73b135a8e1e4d12407d127509ae1f5e9dcaa511793d3e94350dcb269e4ca54500da6e1f4dc13d95940c15badef019edfe8666315500c54e4489d4b83f6ce79c7f65c9772a1a83d88c3a10aaaaaaaa700011ebb32a33b8a8a487a61240755c428e9bf6ba367152f1e545834649b4e8f70df8383a352a953fdb774862af5d42fab573fc52b90ad47c331c36f93b1a4fa7a2504917d895452ffe7f44bd0e",
+      "expected_fields": {"sender_uuid": "aaaaaaaa-7000-11eb-b32a-33b8a8a487a6", "sender_uuid_encoding": "uuidBytes (field 7), 16 raw bytes, reported as the lowercase hyphenated string", "sender_e164": null, "sender_device": 1, "expires": 31337, "identity_key": "05e083a8ce423d1c1955174107a85a6a7f3bcbf566723624077f75eafe8e0a0775", "signer": "embedded (field 5)", "signer_server_certificate": "0a25080112210507a24397ae27d06fa76d2f02cfb5546e0b23a7e0c3670c1eb1e73b135a8e1e4d12407d127509ae1f5e9dcaa511793d3e94350dcb269e4ca54500da6e1f4dc13d95940c15badef019edfe8666315500c54e4489d4b83f6ce79c7f65c9772a1a83d88c", "signer_key_id": 1, "signer_key": "0507a24397ae27d06fa76d2f02cfb5546e0b23a7e0c3670c1eb1e73b135a8e1e4d"},
+      "validation": [
+        {"validation_time": 31336, "expected_valid": true, "basis": "asserted upstream"},
+        {"validation_time": 31337, "expected_valid": true, "basis": "derived_from_rule"},
+        {"validation_time": 31338, "expected_valid": false, "basis": "derived_from_rule"}
+      ]
+    },
+    {
+      "kind": "sender_certificate",
+      "name": "referenced_signer_known_id_7357c357",
+      "upstream_test": "rust_sealed_sender test_known_server_cert",
+      "trust_root": "052fe57da347cd62431528daac5fbb290730fff684afc4cfc2ed90995f58cb3b74",
+      "certificate": "100119697a000000000000222105d75b13e15c7700079dd226f51e5a790ba395e819e88a74d0cf5cedfad8b4334840d786df9a07322461616161616161612d373030302d313165622d623332612d333362386138613438376136",
+      "signature": "e62667bce627caed56ca2ab309b6ae7bc890a30a7482c0e1fd77ec9c3b7528abfd45c8c42b240509a71d973ef5e0f1dbd2685fe01410f0fdbaa8fb247a67e08f",
+      "serialized_sender_certificate": "0a5a100119697a000000000000222105d75b13e15c7700079dd226f51e5a790ba395e819e88a74d0cf5cedfad8b4334840d786df9a07322461616161616161612d373030302d313165622d623332612d3333623861386134383761361240e62667bce627caed56ca2ab309b6ae7bc890a30a7482c0e1fd77ec9c3b7528abfd45c8c42b240509a71d973ef5e0f1dbd2685fe01410f0fdbaa8fb247a67e08f",
+      "expected_fields": {"sender_uuid": "aaaaaaaa-7000-11eb-b32a-33b8a8a487a6", "sender_uuid_encoding": "uuidString (field 6)", "sender_e164": null, "sender_device": 1, "expires": 31337, "identity_key": "05d75b13e15c7700079dd226f51e5a790ba395e819e88a74d0cf5cedfad8b43348", "signer": "reference by id (field 8) = 1935131479 (0x7357C357), resolved from the known-server-certificate table", "signer_key": "05847c0d2c375234f365e660955187a3735a0f7613d1609d3a6a4d8c53aeaa5a22"},
+      "field_order_note": "Fields appear on the wire in the order 2, 3, 4, 8, 6. Parsers must not assume ascending field order.",
+      "validation": [
+        {"validation_time": 31336, "expected_valid": true, "basis": "asserted upstream"},
+        {"validation_time": 31337, "expected_valid": true, "basis": "derived_from_rule"},
+        {"validation_time": 31338, "expected_valid": false, "basis": "derived_from_rule"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "source": {
+    "description": "Fixed vectors for symmetric primitives used by sealed sender in libsignal v0.99.1. libsignal's only fixed vector here is the AES-256-CTR unit test in rust/protocol/src/crypto.rs. That CTR mode starts from an all-zero 16-byte counter block and increments the last 4 bytes as a big-endian 32-bit counter; for inputs shorter than 2^32 blocks this equals ordinary AES-256-CTR with a zero 128-bit IV. Sealed sender v1 uses it, followed by a 10-byte truncated HMAC-SHA256, which this vector does not cover. The spec agent reproduced the ciphertext with 'openssl enc -aes-256-ctr' and a zero IV. Every other sealed-sender test upstream (v1 and v2 encrypt/decrypt, HKDF steps, AES-GCM-SIV) uses freshly generated keys and randomness, so no fixed end-to-end ciphertext exists upstream. Implementations should test v1/v2 by round trip, by these primitive vectors, and against captures from the reference binary.",
+    "libsignal_repository": "https://github.com/signalapp/libsignal",
+    "libsignal_tag": "v0.99.1",
+    "libsignal_commit": "97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8",
+    "files": {
+      "rust_crypto": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/rust/protocol/src/crypto.rs"
+    }
+  },
+  "vectors": [
+    {
+      "kind": "aes_256_ctr_zero_nonce",
+      "name": "aes_ctr_test",
+      "upstream_test": "rust/protocol/src/crypto.rs test::aes_ctr_test",
+      "key": "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4",
+      "initial_counter_block": "00000000000000000000000000000000",
+      "plaintext": "0000000000000000000000000000000000000000000000000000000000000000000000",
+      "ciphertext": "e568f68194cf76d6174d4cc04310a85491151e5d0b7a1f1bc0d7acd0ae3e51e4170e23"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "source": {
+    "description": "Fixed serialized-message vectors for the 1:1 message family in libsignal v0.99.1. The only fixed bytes upstream are in Java PlaintextContentTest: a DecryptionErrorMessage for a SenderKey original (so no ratchet key), timestamp 1640995200000 ms, original sender device 8, wrapped in PlaintextContent (ciphertext message type 8). Upstream asserts the PlaintextContent body (everything after the 0xC0 identifier byte); the full serialized form with the leading 0xC0 follows from the layout in spec/protocol/double-ratchet.md section 11 and is marked derived. libsignal has NO fixed SignalMessage or PreKeySignalMessage vectors: the Rust, Java, Node and Swift serialization tests (e.g. protocol.rs test_signal_message_serialize_deserialize) use random keys and random ciphertext and only round-trip.",
+    "libsignal_repository": "https://github.com/signalapp/libsignal",
+    "libsignal_tag": "v0.99.1",
+    "libsignal_commit": "97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8",
+    "files": {
+      "java_plaintext_content_test": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/java/client/src/test/java/org/signal/libsignal/protocol/PlaintextContentTest.java",
+      "rust_protocol": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/rust/protocol/src/protocol.rs",
+      "service_proto": "https://github.com/signalapp/libsignal/blob/97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8/rust/protocol/src/proto/service.proto"
+    },
+    "spec": "spec/protocol/double-ratchet.md section 11"
+  },
+  "vectors": [
+    {
+      "kind": "decryption_error_message_in_plaintext_content",
+      "name": "PlaintextContentTest.testRoundTripSerialization",
+      "original_message_type": 7,
+      "original_timestamp_ms": 1640995200000,
+      "original_sender_device_id": 8,
+      "expected_decryption_error_message": "1080b8be97e12f1808",
+      "expected_plaintext_content_body": "42091080b8be97e12f180880",
+      "derived_by_spec_agent": {
+        "full_serialized_plaintext_content": "c042091080b8be97e12f180880"
+      }
+    },
+    {
+      "kind": "plaintext_content_parse_error",
+      "name": "PlaintextContentTest.testDeserializationRejectsGarbage: empty input",
+      "serialized": "",
+      "expected": "error: message too short (Java InvalidMessageException)"
+    },
+    {
+      "kind": "plaintext_content_parse_error",
+      "name": "PlaintextContentTest.testDeserializationRejectsGarbage: first byte 00 instead of C0",
+      "serialized": "00",
+      "expected": "error: unrecognized message version (Java InvalidVersionException)"
+    }
+  ]
+}
