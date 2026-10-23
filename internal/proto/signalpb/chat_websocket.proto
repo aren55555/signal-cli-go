@@ -1,0 +1,35 @@
+// The chat WebSocket's framing messages. Written from
+// spec/service/pipe.md §3, never copied from upstream. Every binary frame
+// on the chat socket holds one ChatWebSocketMessage.
+syntax = "proto2";
+
+package signalcligo;
+
+option go_package = "github.com/aren55555/signal-cli-go/internal/proto/signalpb";
+
+message ChatWebSocketMessage {
+  enum Type {
+    UNKNOWN = 0;
+    REQUEST = 1;
+    RESPONSE = 2;
+  }
+  optional Type type = 1;
+  optional ChatWebSocketRequest request = 2;
+  optional ChatWebSocketResponse response = 3;
+}
+
+message ChatWebSocketRequest {
+  optional string verb = 1;
+  optional string path = 2;
+  optional bytes body = 3;
+  optional uint64 id = 4;
+  repeated string headers = 5; // "name: value"
+}
+
+message ChatWebSocketResponse {
+  optional uint64 id = 1;
+  optional uint32 status = 2;
+  optional string message = 3;
+  optional bytes body = 4;
+  repeated string headers = 5;
+}
