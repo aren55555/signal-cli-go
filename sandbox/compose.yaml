@@ -49,9 +49,11 @@ services:
       - https_proxy=http://proxy:3128
       - NO_PROXY=localhost,127.0.0.1,::1
       - no_proxy=localhost,127.0.0.1,::1
+      # java.io.tmpdir: /tmp is noexec and libsignal's JNI library is unpacked
+      # into the JVM temp dir; the justfile creates the directory.
       # Read by signal-cli's launcher script (not JAVA_TOOL_OPTIONS, which
       # would print a banner on stderr and pollute golden transcripts).
-      - JAVA_OPTS=-Dhttp.proxyHost=proxy -Dhttp.proxyPort=3128 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts=localhost|127.0.0.1
+      - JAVA_OPTS=-Dhttp.proxyHost=proxy -Dhttp.proxyPort=3128 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts=localhost|127.0.0.1 -Djava.io.tmpdir=/home/agent/.cache/jvmtmp
       # The entries below have no value: compose passes each one through
       # from the operator's shell only when it is set there, and leaves it
       # unset otherwise. Secrets are never written to disk or committed.

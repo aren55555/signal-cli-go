@@ -47,9 +47,15 @@ ci: fmt-check check-no-deps vet test-race
 install-oracle: _gotmp
     go run ./tools/install-oracle
 
-# Run the reference signal-cli (test oracle) with arguments
+# Run the reference signal-cli (test oracle) with arguments.
+# /tmp is noexec, so the JVM must unpack libsignal elsewhere
 oracle *args:
-    {{oracle_dir}}/bin/signal-cli {{args}}
+    @mkdir -p ~/.cache/jvmtmp
+    JAVA_OPTS="${JAVA_OPTS:-} -Djava.io.tmpdir=$HOME/.cache/jvmtmp" {{oracle_dir}}/bin/signal-cli {{args}}
 
 _gotmp:
     @mkdir -p "$GOTMPDIR"
+
+# Re-record golden transcripts from the reference signal-cli (sandbox only)
+record-golden: _gotmp
+    go test ./internal/difftest -run 'Golden' -count=1 -record -v

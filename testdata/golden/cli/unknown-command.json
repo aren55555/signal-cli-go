@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "unknown-command",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "frobnicate"
+    ],
+    "note": "argument-parse error"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli [-h] [--version] [-v] [--log-file LOG_FILE] [--scrub-log]\n                  [-d DATA_DIR] [-a ACCOUNT] [--bus-name GLOBAL-BUS-NAME]\n                  [-o {plain-text,json}]\n                  [--service-environment {live,staging}]\n                  [--trust-new-identities {always,on-first-use,never}]\n                  [--disable-send-log] [--dbus | --dbus-system]\n                  {acceptCall,addDevice,addStickerPack,block,daemon,deleteLocalAccountData,finishChangeNumber,getAttachment,getAvatar,getSticker,getUserStatus,hangupCall,joinGroup,jsonRpc,link,listAccounts,listCalls,listContacts,listDevices,listGroups,listIdentities,listStickerPacks,quitGroup,receive,register,rejectCall,remoteDelete,removeContact,removeDevice,removePin,send,sendAdminDelete,sendContacts,sendMessageRequestResponse,sendPaymentNotification,sendPinMessage,sendPollCreate,sendPollTerminate,sendPollVote,sendReaction,sendReceipt,sendStory,sendSyncRequest,sendTyping,sendUnpinMessage,setPin,startCall,startChangeNumber,submitRateLimitChallenge,trust,unblock,unregister,updateAccount,updateConfiguration,updateContact,updateDevice,updateGroup,updateProfile,uploadStickerPack,verify,version}\n                  ...\nsignal-cli: error: invalid choice:  'frobnicate' (choose from 'acceptCall',\n'addDevice',         'addStickerPack',          'block',          'daemon',\n'deleteLocalAccountData',      'finishChangeNumber',       'getAttachment',\n'getAvatar',  'getSticker',  'getUserStatus',   'hangupCall',  'joinGroup',\n'jsonRpc',    'link',    'listAccounts',    'listCalls',    'listContacts',\n'listDevices',    'listGroups',    'listIdentities',    'listStickerPacks',\n'quitGroup',   'receive',    'register',    'rejectCall',   'remoteDelete',\n'removeContact', 'removeDevice',  'removePin',  'send',  'sendAdminDelete',\n'sendContacts',  'sendMessageRequestResponse',   'sendPaymentNotification',\n'sendPinMessage',  'sendPollCreate',  'sendPollTerminate',  'sendPollVote',\n'sendReaction',     'sendReceipt',      'sendStory',     'sendSyncRequest',\n'sendTyping',       'sendUnpinMessage',        'setPin',       'startCall',\n'startChangeNumber',   'submitRateLimitChallenge',    'trust',   'unblock',\n'unregister',  'updateAccount',   'updateConfiguration',   'updateContact',\n'updateDevice',   'updateGroup',    'updateProfile',   'uploadStickerPack',\n'verify', 'version')\n",
+    "exitCode": 1
+  }
+}

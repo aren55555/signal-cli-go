@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "send-no-account",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "-m",
+      "hi",
+      "+12025550100"
+    ],
+    "note": "account required, none exists"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "No local users found, you first need to register or link an account\n",
+    "exitCode": 1
+  }
+}

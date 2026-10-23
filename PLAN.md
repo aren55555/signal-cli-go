@@ -66,6 +66,12 @@ starts. Existing pieces:
   somewhere else. The justfile sets it to `~/.cache/gotmp`, inside the
   `agent-home` volume. A plain `go test` outside `just` needs
   `GOTMPDIR` exported.
+- The reference signal-cli unpacks libsignal JNI into the JVM temp dir,
+  which defaults to `/tmp`. From noexec `/tmp` it fails with "Missing
+  required native library dependency: libsignal-client", and the output
+  looks plausible but is wrong. `just oracle`, `internal/difftest`, and
+  (after a relaunch) `compose.yaml` set `-Djava.io.tmpdir=~/.cache/jvmtmp`.
+  Recording refuses any output that contains that error.
 - `go test -race` needs cgo and gcc. Commit `4cf161f` adds `gcc` and
   `libc6-dev` to the image. **Until the operator rebuilds**, `just ci`
   and `just test-race` fail locally; GitHub CI is unaffected.
@@ -105,3 +111,7 @@ starts. Existing pieces:
   `--version` runs.
 - Milestone 1 started: spec subagents launched for the CLI and JSON-RPC
   surface inventory.
+- `internal/difftest`: CLI golden harness. Scenarios in
+  `testdata/golden/cli/scenarios.json`, record with `just record-golden`,
+  replay in `go test`. Not-yet-matching scenarios are listed in `PENDING`
+  (they run, and an unexpected match fails). Nine seed goldens recorded.

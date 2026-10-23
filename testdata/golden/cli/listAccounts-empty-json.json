@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "listAccounts-empty-json",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--output",
+      "json",
+      "listAccounts"
+    ],
+    "note": "no accounts, json"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "[]\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

@@ -1,0 +1,11 @@
+# Scenarios known not to match signal-cli 0.14.7 yet. They still run;
+# a match while listed here fails the test, so remove names as features land.
+version
+no-args
+help
+unknown-command
+unknown-flag
+bad-output-value
+listAccounts-empty
+listAccounts-empty-json
+send-no-account

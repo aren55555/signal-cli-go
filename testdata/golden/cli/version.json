@@ -1,0 +1,15 @@
+{
+  "scenario": {
+    "name": "version",
+    "args": [
+      "--version"
+    ],
+    "note": "global --version"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "signal-cli 0.14.7\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

@@ -1,0 +1,11 @@
+[
+  {"name": "version", "args": ["--version"], "note": "global --version"},
+  {"name": "no-args", "args": ["--config", "{{CONFIG}}"], "note": "no subcommand"},
+  {"name": "help", "args": ["--config", "{{CONFIG}}", "--help"], "note": "top-level help"},
+  {"name": "unknown-command", "args": ["--config", "{{CONFIG}}", "frobnicate"], "note": "argument-parse error"},
+  {"name": "unknown-flag", "args": ["--config", "{{CONFIG}}", "--frobnicate", "listAccounts"], "note": "argument-parse error"},
+  {"name": "bad-output-value", "args": ["--config", "{{CONFIG}}", "--output", "xml", "listAccounts"], "note": "invalid choice"},
+  {"name": "listAccounts-empty", "args": ["--config", "{{CONFIG}}", "listAccounts"], "note": "no accounts, plain-text"},
+  {"name": "listAccounts-empty-json", "args": ["--config", "{{CONFIG}}", "--output", "json", "listAccounts"], "note": "no accounts, json"},
+  {"name": "send-no-account", "args": ["--config", "{{CONFIG}}", "send", "-m", "hi", "+12025550100"], "note": "account required, none exists"}
+]
