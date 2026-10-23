@@ -479,3 +479,11 @@ vectors.
   transport.md: `grpc.chat.staging.signal.org` currently chains to the
   Signal **RSA** root. Dialling with the Ed25519 root alone fails, so
   both roots stay trusted, as in libsignal.
+- **Linking chosen for the first authenticated identity** (operator,
+  2026-10-23). Our client links as a secondary device of account A, so it
+  needs no new number, and the reference's state for A and B is left
+  alone. Done so far: the provisioning and device-name ciphers (oracle
+  tests) and the provisioning socket (`internal/service/provision`). Live
+  on staging, the socket hands out a 16-byte URL-safe base64 address over
+  plain TLS. That also confirms what transport.md only inferred:
+  `chat.staging.signal.org` chains to the Signal RSA root.
