@@ -1,0 +1,67 @@
+// Signal protocol messages exchanged between clients. Written from the
+// prose specs, never copied from upstream .proto files (CLEANROOM.md):
+//   spec/protocol/double-ratchet.md §4 and §11, spec/protocol/pqxdh.md §5,
+//   spec/protocol/sender-keys.md.
+// Each message's serialized form is preceded by a version byte (and, for
+// some, followed by a MAC or signature); that framing lives in
+// internal/protocol, not here. Fields the specs call required are checked
+// there too, so every field is optional at this level.
+syntax = "proto2";
+
+package signalcligo;
+
+option go_package = "github.com/aren55555/signal-cli-go/internal/proto/signalpb";
+
+// One Double Ratchet message (ciphertext message type 2).
+// double-ratchet.md §4.
+message RatchetMessage {
+  optional bytes ratchet_key = 1;      // sender's ratchet public key, 33 bytes
+  optional uint32 counter = 2;         // index of the sending-chain key used
+  optional uint32 previous_counter = 3; // libsignal's PN (ignored on receive)
+  optional bytes ciphertext = 4;       // AES-256-CBC output
+  optional bytes pq_ratchet = 5;       // SPQR message bytes, omitted when empty
+  optional bytes addresses = 6;        // 36-byte sender/recipient binding
+}
+
+// The session-opening message (ciphertext message type 3). pqxdh.md §5.
+message PreKeyRatchetMessage {
+  optional uint32 one_time_pre_key_id = 1; // absent when no one-time prekey was used; 0 is a valid ID
+  optional bytes base_key = 2;             // initiator's base public key, 33 bytes
+  optional bytes identity_key = 3;         // initiator's identity public key, 33 bytes
+  optional bytes ratchet_message = 4;      // a whole serialized RatchetMessage with its framing
+  optional uint32 registration_id = 5;
+  optional uint32 signed_pre_key_id = 6;
+  optional uint32 kyber_pre_key_id = 7;
+  optional bytes kyber_ciphertext = 8;     // 1569 bytes: 0x08 then the Kyber ciphertext
+}
+
+// A group message encrypted with a sender key. sender-keys.md.
+message GroupSenderMessage {
+  optional bytes distribution_id = 1; // 16-byte UUID, big-endian
+  optional uint32 chain_id = 2;
+  optional uint32 iteration = 3;      // iteration whose key encrypted this message
+  optional bytes ciphertext = 4;
+}
+
+// Hands a sender key to a group member. sender-keys.md.
+message GroupSenderKeyHandoff {
+  optional bytes distribution_id = 1; // 16-byte UUID, big-endian
+  optional uint32 chain_id = 2;
+  optional uint32 iteration = 3;      // the next iteration the sender will use
+  optional bytes chain_key = 4;       // 32-byte chain key at that iteration
+  optional bytes signing_key = 5;     // 33-byte signing public key
+}
+
+// Sent (unencrypted, inside PlaintextContent) when a message could not be
+// decrypted. double-ratchet.md §11.
+message DecryptionFailureReport {
+  optional bytes ratchet_key = 1;  // the failed message's ratchet key; absent for group messages
+  optional uint64 timestamp = 2;   // milliseconds
+  optional uint32 device_id = 3;
+}
+
+// The body of a PlaintextContent message (type 8): the one field of the
+// service-level content message that double-ratchet.md §11 specifies.
+message PlaintextContentBody {
+  optional bytes decryption_failure_report = 8; // serialized DecryptionFailureReport
+}

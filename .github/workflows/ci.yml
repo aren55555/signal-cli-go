@@ -7,22 +7,41 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-24.04
+    env:
+      # Build only from vendor/ (google.golang.org/protobuf, the one
+      # permitted module; see PLAN.md, Decisions).
+      GOFLAGS: -mod=vendor
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
           cache: false
-      - name: no module dependencies
+      - name: only the permitted module
+        run: go test ./internal/repocheck -run 'TestOnlyAllowedModule|TestRequiresParser' -count=1
+      - name: vendor/ matches the checksum-verified module
+        env:
+          GOFLAGS: -mod=mod
+          GOPROXY: https://proxy.golang.org
+          GOSUMDB: sum.golang.org
         run: |
-          if grep -nE '^\s*require\b' go.mod sandbox/proxy/go.mod; then exit 1; fi
-          test ! -e go.sum
+          go mod vendor
+          git diff --exit-code -- vendor go.mod go.sum
+          test -z "$(git status --porcelain --untracked-files=all -- vendor)"
       - name: gofmt
-        run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+        run: |
+          files=$(git ls-files '*.go' | grep -v '^vendor/')
+          test -z "$(gofmt -l $files)" || { gofmt -l $files; exit 1; }
       - name: vet
         run: go vet ./...
       - name: test (race)
         run: go test -race ./...
+      - name: regenerating protobuf code is a no-op
+        run: |
+          go run ./tools/install-protoc
+          bash tools/proto-check/check.sh third_party/protoc-36.2/bin/protoc
       - name: egress proxy
         working-directory: sandbox/proxy
+        env:
+          GOFLAGS: ""
         run: go vet ./... && go test -race ./...

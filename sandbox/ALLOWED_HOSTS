@@ -43,10 +43,3 @@ datatracker.ietf.org
 csrc.nist.gov
 go.dev
 pkg.go.dev
-
-# --- Go module mirror (operator-approved 2026-10-23) ---
-# Only for `go mod vendor` of google.golang.org/protobuf, the single permitted
-# third-party module. The image keeps GOPROXY=off; builds use vendor/. These
-# two lines can be removed again once vendor/ is committed.
-proxy.golang.org
-sum.golang.org

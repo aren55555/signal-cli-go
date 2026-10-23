@@ -1,0 +1,65 @@
+// Sealed-sender (unidentified delivery) messages and certificates. Written
+// from spec/protocol/sealed-sender.md §3, never copied from upstream. Fields
+// the spec calls required are checked in internal/protocol.
+syntax = "proto2";
+
+package signalcligo;
+
+option go_package = "github.com/aren55555/signal-cli-go/internal/proto/signalpb";
+
+// A server key signed by a trust root. §3.1.
+message ServerCert {
+  optional bytes body = 1;      // serialized ServerCert.Body
+  optional bytes signature = 2; // XEd25519 by a trust root over body
+
+  message Body {
+    optional uint32 key_id = 1;
+    optional bytes public_key = 2; // 33-byte Curve25519 public key
+  }
+}
+
+// The sender's identity, signed by a server key. §3.2.
+message SenderCert {
+  optional bytes body = 1;      // serialized SenderCert.Body
+  optional bytes signature = 2; // XEd25519 by the server cert's key over body
+
+  message Body {
+    optional string phone_number = 1;
+    optional uint32 device_id = 2;  // 1..127
+    optional fixed64 expires = 3;   // milliseconds since the Unix epoch
+    optional bytes identity_key = 4; // 33 bytes
+    oneof signer {
+      bytes server_cert = 5;        // an embedded serialized ServerCert
+      uint32 known_server_cert_id = 8; // a built-in server certificate
+    }
+    oneof sender_aci {
+      string aci_string = 6;        // hyphenated UUID
+      bytes aci_bytes = 7;          // 16 raw bytes
+    }
+  }
+}
+
+// The v1 sealed-sender envelope, after its version byte. §3.3.
+message SealedEnvelope {
+  optional bytes ephemeral_public = 1; // 33 bytes
+  optional bytes encrypted_static = 2; // 33-byte AES-CTR ciphertext + 10-byte MAC
+  optional bytes encrypted_body = 3;   // encrypted SealedContent + 10-byte MAC
+}
+
+// The sealed plaintext of both v1 and v2. §3.4.
+message SealedContent {
+  enum Kind {
+    // libsignal rejects any other value, so this enum is closed.
+    PREKEY_MESSAGE = 1;
+    MESSAGE = 2;
+    SENDERKEY_MESSAGE = 7;
+    PLAINTEXT_CONTENT = 8;
+  }
+  optional Kind kind = 1;
+  optional bytes sender_cert = 2;   // serialized SenderCert
+  optional bytes content = 3;       // the inner message, with its framing
+  // 0 default (written by omission), 1 resendable, 2 implicit. A uint32,
+  // not an enum, because libsignal keeps unknown values.
+  optional uint32 content_hint = 4;
+  optional bytes group_id = 5;
+}

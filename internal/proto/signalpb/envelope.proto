@@ -1,0 +1,31 @@
+// The service envelope as signal-cli caches it in msg-cache/ (after a
+// 4-byte version and 8-byte timestamp header). Written from
+// spec/protocol/capture.md §3, never copied from upstream.
+syntax = "proto2";
+
+package signalcligo;
+
+option go_package = "github.com/aren55555/signal-cli-go/internal/proto/signalpb";
+
+message ServiceEnvelope {
+  // 0 unknown, 1 double ratchet, 3 prekey message, 5 server delivery
+  // receipt, 6 unidentified sender, 8 plaintext content. A uint32 so
+  // unknown types survive parsing.
+  optional uint32 type = 1;
+  optional uint64 client_timestamp = 5;
+  optional uint32 source_device_id = 7;
+  optional bytes content = 8;            // the ciphertext the protocol layer decrypts
+  optional string server_guid = 9;
+  optional uint64 server_timestamp = 10;
+  optional string source_service_id = 11;
+  optional bool ephemeral = 12;
+  optional string destination_service_id = 13;
+  optional bool urgent = 14;
+  optional string updated_pni = 15;
+  optional bool story = 16;
+  optional bytes report_spam_token = 17;
+  optional bytes source_service_id_binary = 19;
+  optional bytes destination_service_id_binary = 20;
+  optional bytes server_guid_binary = 21;
+  optional bytes updated_pni_binary = 22;
+}

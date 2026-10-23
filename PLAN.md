@@ -49,7 +49,11 @@ starts. Existing pieces:
 - `internal/crypto/curve25519`: Signal key encoding, X25519, XEd25519,
   the PQXDH base-key check
 - `internal/crypto/kyber`: round-3 Kyber1024 (PQXDH prekeys)
-- `internal/proto/wire`: protobuf wire codec
+- `internal/proto/signalpb`: hand-written `.proto` files (from `spec/`) and
+  the generated Go types; `just proto-gen` regenerates, `just proto-check`
+  (and CI) fails on drift. The old hand-written codec lives on in its
+  `_test.go` files as a differential oracle.
+- `vendor/`: google.golang.org/protobuf v1.36.12, the one permitted module
 - `internal/testvec`: loads `testdata/vectors/*.json` in tests
 - `tools/rfcvectors`: extracts RFC 8032, 7748 and 9496 vectors from the
   RFC texts
@@ -125,6 +129,12 @@ starts. Existing pieces:
 - The git identity (Aren Patel <git@arenpatel.com>, the identity in
   history) is set in `.git/config`, so plain `git commit` works. No
   `-c` overrides are needed.
+- The image sets `GOPROXY=off` and `GOSUMDB=off`, and the justfile sets
+  `GOFLAGS=-mod=vendor`. To change the vendored module (deliberately), run
+  `GOFLAGS=-mod=mod GOPROXY=https://proxy.golang.org GOSUMDB=sum.golang.org go get …`
+  and then `go mod vendor`, and update the pin in `internal/repocheck`.
+  The egress proxy reads ALLOWED_HOSTS at startup only, so host changes
+  need a proxy restart.
 - In this Claude Code build, `grep` in the agent shell is a wrapper
   function that fails with `unknown option '-G'`. Use `command grep`.
 
@@ -309,3 +319,24 @@ vectors.
     moving `internal/proto/wire` into a differential test.
 - Layer C captures need two staging numbers plus captchas from the
   operator (not yet provided).
+- Proxy restarted by the operator (2026-10-23). Protobuf amendment
+  completed:
+  - google.golang.org/protobuf v1.36.12 vendored (go.sum only has its
+    own two lines). protoc-gen-go comes from a `tool` directive.
+  - `.proto` files for the wire messages, sealed sender, storage records
+    and the msg-cache envelope, written from `spec/`.
+  - Vector tests pass against the libsignal vectors: prekey and session
+    records, decryption-error content, and sealed-sender and server
+    certificates. Re-encoding is byte-exact and keeps an unknown field.
+  - Differential test plus `FuzzDecodersAgree` against the old codec:
+    3.4M execs, one finding. protobuf-go normalizes non-minimal tag
+    varints in unknown fields, so **MACs and signatures must always be
+    checked over raw received bytes**.
+  - CI: single-module rule; a `go mod vendor` re-run against the proxy
+    must be a no-op; protoc regeneration must be a no-op.
+  - Housekeeping: commit 1dae000 also picked up a duplicate host-added
+    ALLOWED_HOSTS block (the host was editing at the same moment). The
+    host removed it, and the removal is committed with this change.
+- Milestone 3: SPQR spec and protocol specs committed; libsignal session
+  state implemented. Next: SignalMessage / PreKeySignalMessage framing on
+  the generated types, then SPQR.

@@ -4,7 +4,11 @@
 # /tmp is noexec in the sandbox; build test binaries in the agent volume.
 export GOTMPDIR := env("GOTMPDIR", env("HOME", "/home/agent") / ".cache/gotmp")
 
+# Build only from vendor/ (google.golang.org/protobuf, the one permitted module).
+export GOFLAGS := "-mod=vendor"
+
 oracle_dir := "third_party/signal-cli-0.14.7"
+protoc := "third_party/protoc-36.2/bin/protoc"
 
 [private]
 default:
@@ -22,9 +26,9 @@ build: _gotmp
 vet: _gotmp
     go vet ./...
 
-# Fail if gofmt would change anything
+# Fail if gofmt would change anything (vendor/ excluded)
 fmt-check:
-    @test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+    @test -z "$(gofmt -l $(git ls-files '*.go' | command grep -v '^vendor/'))" || { gofmt -l $(git ls-files '*.go' | command grep -v '^vendor/'); exit 1; }
 
 # Offline tests (Layer A + replayed Layer B)
 test: _gotmp
@@ -34,14 +38,12 @@ test: _gotmp
 test-race: _gotmp
     go test -race ./...
 
-# Fail if go.mod has any require lines or a go.sum exists
-check-no-deps:
-    @! command grep -nE '^\s*require\b' go.mod sandbox/proxy/go.mod
-    @test ! -e go.sum
-    @echo "no module dependencies"
+# Fail unless google.golang.org/protobuf (pinned, vendored) is the only module dependency
+check-deps: _gotmp
+    go test ./internal/repocheck -run 'TestOnlyAllowedModule|TestRequiresParser' -count=1
 
 # Everything CI runs
-ci: fmt-check check-no-deps vet test-race
+ci: fmt-check check-deps vet test-race proto-check
 
 # Download and verify the reference signal-cli 0.14.7 into third_party/
 install-oracle: _gotmp
@@ -63,3 +65,13 @@ record-golden: _gotmp
 # Download and verify protoc into third_party/ (for proto-gen)
 install-protoc: _gotmp
     go run ./tools/install-protoc
+
+# Regenerate internal/proto/signalpb from its .proto files
+proto-gen: _gotmp
+    @test -x {{protoc}} || { echo "protoc missing: run 'just install-protoc'"; exit 1; }
+    go build -o third_party/bin/protoc-gen-go google.golang.org/protobuf/cmd/protoc-gen-go
+    {{protoc}} --plugin=protoc-gen-go=third_party/bin/protoc-gen-go -I internal/proto/signalpb --go_out=internal/proto/signalpb --go_opt=paths=source_relative internal/proto/signalpb/*.proto
+
+# Fail if regenerating the protobuf code would change anything
+proto-check: _gotmp
+    bash tools/proto-check/check.sh {{protoc}}

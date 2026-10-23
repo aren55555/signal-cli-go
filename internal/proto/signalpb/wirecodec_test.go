@@ -1,12 +1,16 @@
-// Package wire implements the protobuf binary wire format: varints,
-// fixed-width values, length-delimited values, and tags. Message types are
-// written by hand on top of it.
+// This file is the hand-written protobuf wire codec that the project used
+// before the protobuf amendment (PLAN.md, Decisions). It is kept only as an
+// independent oracle for differential tests of the generated code, which
+// is why it lives in a _test.go file and is never compiled into the binary.
+//
+// Original description: varints, fixed-width values, length-delimited
+// values, and tags.
 //
 // Decoding is for untrusted input: every length is checked against the
 // buffer, varints are limited to 10 bytes, and group nesting is limited to
 // MaxDepth. Parsed fields keep their raw bytes so messages can preserve
 // unknown fields by appending them back unchanged.
-package wire
+package signalpb
 
 import (
 	"encoding/binary"

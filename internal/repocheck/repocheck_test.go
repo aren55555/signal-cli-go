@@ -1,9 +1,9 @@
 // Package repocheck holds tests that enforce repository-wide rules from
-// PROMPT.md: no third-party modules, and no secrets in testdata/.
+// PROMPT.md as amended (PLAN.md, Decisions): no third-party module except
+// the vendored google.golang.org/protobuf, and no secrets in testdata/.
 package repocheck
 
 import (
-	"bufio"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -14,14 +14,54 @@ import (
 
 const repoRoot = "../.."
 
-// TestGoModHasNoRequires enforces the standard-library-only rule.
-func TestGoModHasNoRequires(t *testing.T) {
+// The one permitted third-party module (brief amendment, 2026-10-23),
+// pinned so that any upgrade is a deliberate edit here.
+const (
+	allowedModule  = "google.golang.org/protobuf"
+	allowedVersion = "v1.36.12"
+)
+
+// requires returns the "module version" pairs of a go.mod's require
+// directives, in both the single-line and the block form.
+func requires(gomod string) []string {
+	var out []string
+	inBlock := false
+	for _, line := range strings.Split(gomod, "\n") {
+		line = strings.TrimSpace(line)
+		if i := strings.Index(line, "//"); i >= 0 {
+			line = strings.TrimSpace(line[:i])
+		}
+		switch {
+		case inBlock && line == ")":
+			inBlock = false
+		case inBlock && line != "":
+			out = append(out, strings.Join(strings.Fields(line)[:2], " "))
+		case line == "require (":
+			inBlock = true
+		case strings.HasPrefix(line, "require "):
+			out = append(out, strings.Join(strings.Fields(line)[1:3], " "))
+		}
+	}
+	return out
+}
+
+func TestRequiresParser(t *testing.T) {
+	mod := "module x\n\nrequire a.b/c v1.0.0 // indirect\nrequire (\n\td.e/f v2.0.0\n\t// comment\n\tg.h/i v3.0.0 // indirect\n)\n"
+	got := strings.Join(requires(mod), ",")
+	if want := "a.b/c v1.0.0,d.e/f v2.0.0,g.h/i v3.0.0"; got != want {
+		t.Errorf("requires = %q, want %q", got, want)
+	}
+}
+
+// TestOnlyAllowedModule enforces the dependency rule on every go.mod,
+// go.sum and vendor/modules.txt.
+func TestOnlyAllowedModule(t *testing.T) {
 	var mods []string
 	err := filepath.WalkDir(repoRoot, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if d.IsDir() && (d.Name() == ".git" || d.Name() == "third_party") {
+		if d.IsDir() && (d.Name() == ".git" || d.Name() == "third_party" || d.Name() == "vendor") {
 			return filepath.SkipDir
 		}
 		if d.Name() == "go.mod" {
@@ -32,24 +72,46 @@ func TestGoModHasNoRequires(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(mods) == 0 {
-		t.Fatal("no go.mod found")
-	}
+	root := filepath.Join(repoRoot, "go.mod")
+	want := allowedModule + " " + allowedVersion
 	for _, mod := range mods {
-		f, err := os.Open(mod)
+		data, err := os.ReadFile(mod)
 		if err != nil {
 			t.Fatal(err)
 		}
-		sc := bufio.NewScanner(f)
-		for n := 1; sc.Scan(); n++ {
-			if line := strings.TrimSpace(sc.Text()); strings.HasPrefix(line, "require") {
-				t.Errorf("%s:%d: %q: third-party modules are not allowed", mod, n, line)
+		reqs := requires(string(data))
+		if filepath.Clean(mod) == filepath.Clean(root) {
+			if len(reqs) != 1 || reqs[0] != want {
+				t.Errorf("%s requires %q; exactly %q is allowed", mod, reqs, want)
 			}
+		} else if len(reqs) != 0 {
+			t.Errorf("%s requires %q; only the root module may require %s", mod, reqs, allowedModule)
 		}
-		f.Close()
 	}
-	if _, err := os.Stat(filepath.Join(repoRoot, "go.sum")); err == nil {
-		t.Error("go.sum exists; there must be no module dependencies")
+
+	sum, err := os.ReadFile(filepath.Join(repoRoot, "go.sum"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, line := range strings.Split(strings.TrimSpace(string(sum)), "\n") {
+		f := strings.Fields(line)
+		if len(f) != 3 || f[0] != allowedModule || !strings.HasPrefix(f[1], allowedVersion) {
+			t.Errorf("go.sum: unexpected line %q", line)
+		}
+	}
+
+	vend, err := os.ReadFile(filepath.Join(repoRoot, "vendor", "modules.txt"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var vendored []string
+	for _, line := range strings.Split(string(vend), "\n") {
+		if m, ok := strings.CutPrefix(line, "# "); ok {
+			vendored = append(vendored, m)
+		}
+	}
+	if len(vendored) != 1 || vendored[0] != want {
+		t.Errorf("vendor/modules.txt lists %q; exactly %q is allowed", vendored, want)
 	}
 }
 
