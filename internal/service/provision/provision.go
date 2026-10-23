@@ -89,7 +89,7 @@ func Open(ctx context.Context, ep Endpoint) (*Session, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newSession(c, defaultTiming), nil
+	return NewSession(c), nil
 }
 
 func newSession(s Socket, t timing) *Session {
@@ -266,3 +266,6 @@ func ParseLinkURL(raw string) (address string, pub *curve25519.PublicKey, err er
 	}
 	return address, pub, nil
 }
+
+// NewSession runs the provisioning protocol on an already open socket.
+func NewSession(s Socket) *Session { return newSession(s, defaultTiming) }

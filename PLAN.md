@@ -487,3 +487,17 @@ vectors.
   on staging, the socket hands out a 16-byte URL-safe base64 address over
   plain TLS. That also confirms what transport.md only inferred:
   `chat.staging.signal.org` chains to the Signal RSA root.
+- **Linked live (2026-10-23).** `go run ./tools/staging link -data
+  .data/go-a` with the reference's `addDevice --uri` on A made
+  signal-cli-go **device 2 of A**. The reference's `listDevices` shows its
+  name as "cli", decrypted from our device-name ciphertext, so that cipher
+  interoperates. As A.2, `tools/staging probe` opens the authenticated
+  socket (h2, Basic `aci.2`) and receives a queued PreKey envelope
+  (type 3), left unacked. Observation for pipe.md: while that envelope
+  stayed unacked, no queue-empty arrived within 60 s. That points to the
+  server sending queue-empty only after deliveries are acked; still to
+  confirm.
+  - Operational notes: the JVM temp dir `~/.cache/jvmtmp` named in
+    JAVA_OPTS had vanished, so the reference failed to load libsignal.
+    Recreate it with `mkdir -p`; never edit JAVA_OPTS. `pkill -f` can match
+    the calling shell, so use `pkill -x`.
