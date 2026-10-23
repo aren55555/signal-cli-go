@@ -94,7 +94,15 @@ func (s *Sender) timestamp() uint64 {
 // multi-device, the sent transcript to our other devices. It returns the
 // message timestamp.
 func (s *Sender) SendText(ctx context.Context, recipientACI, text string) (uint64, error) {
-	ts := s.timestamp()
+	return s.SendTextAt(ctx, recipientACI, text, 0, true)
+}
+
+// SendTextAt is SendText with a given timestamp (0: a new one), so one
+// message to several recipients shares it, and with the urgent flag.
+func (s *Sender) SendTextAt(ctx context.Context, recipientACI, text string, ts uint64, urgent bool) (uint64, error) {
+	if ts == 0 {
+		ts = s.timestamp()
+	}
 	dm := &signalpb.AppDataMessage{
 		ExpireTimerVersion:      proto.Uint32(1),
 		ProfileKey:              s.Acct.Data.ProfileKey,
@@ -108,9 +116,9 @@ func (s *Sender) SendText(ctx context.Context, recipientACI, text string) (uint6
 	if err != nil {
 		return 0, err
 	}
-	needsSync, unidentified, err := s.send(ctx, recipientACI, c, ts, true, protocol.ContentHintResendable)
+	needsSync, unidentified, err := s.send(ctx, recipientACI, c, ts, urgent, protocol.ContentHintResendable)
 	if err != nil {
-		return 0, err
+		return ts, err
 	}
 	if needsSync || s.Acct.Data.DeviceID != 1 {
 		if err := s.sendTranscript(ctx, recipientACI, dm, ts, unidentified); err != nil {

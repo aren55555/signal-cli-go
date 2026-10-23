@@ -415,6 +415,7 @@ type Recipient struct {
 	ProfileKey   []byte   `json:"profileKey,omitempty"`
 	Profile      *Profile `json:"profile,omitempty"`
 	Unregistered bool     `json:"unregistered,omitempty"`
+	Number       string   `json:"number,omitempty"`
 }
 
 type recipientsDoc struct {
