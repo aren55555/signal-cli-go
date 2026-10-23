@@ -27,7 +27,7 @@ func link(args []string) {
 
 	proxy := envProxy(provision.StagingHost).Proxy
 	l := &manager.Linker{
-		Root: store.Open(*data),
+		Root: store.Open(filepath.Join(*data, "data")),
 		REST: rest.New(rest.Config{Proxy: proxy}),
 		OpenSocket: func(ctx context.Context) (*provision.Session, error) {
 			return provision.Open(ctx, provision.Endpoint{Proxy: proxy})
