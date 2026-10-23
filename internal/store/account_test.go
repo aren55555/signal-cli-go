@@ -74,3 +74,25 @@ func TestAccountLifecycle(t *testing.T) {
 		t.Errorf("after delete: %v", err)
 	}
 }
+
+func TestRecipients(t *testing.T) {
+	r := Open(t.TempDir())
+	a, err := r.Create("+15555550100", EnvStaging)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a.Recipients["x"] = Recipient{ProfileKey: []byte{1}, Profile: &Profile{LastUpdate: 5, AccessMode: AccessEnabled}}
+	if err := a.SaveRecipients(); err != nil {
+		t.Fatal(err)
+	}
+	path := a.Path()
+	a.Close()
+	b, err := r.Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer b.Close()
+	if rc := b.Recipients["x"]; string(rc.ProfileKey) != "\x01" || rc.Profile.AccessMode != AccessEnabled {
+		t.Errorf("reloaded %+v", rc)
+	}
+}

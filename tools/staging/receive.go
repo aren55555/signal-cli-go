@@ -75,6 +75,9 @@ func receive(args []string) {
 			fmt.Printf("envelope type %d from device %d: %v (not acked)\n", env.GetType(), env.GetSourceDeviceId(), err)
 			continue
 		}
+		if err := manager.ApplyContent(a, m, time.Now()); err != nil {
+			log.Fatalf("store: %v", err)
+		}
 		if err := r.Ack(); err != nil {
 			log.Fatalf("ack: %v", err)
 		}
@@ -83,8 +86,8 @@ func receive(args []string) {
 			continue
 		}
 		self := m.Sender.ServiceID == a.Data.ACI
-		fmt.Printf("envelope type %d, sealed=%v, from %s device %d, %d-byte content: %s\n",
-			env.GetType(), m.Sealed, map[bool]string{true: "self", false: "peer"}[self], m.Sender.DeviceID, len(m.Content), describe(m.Content))
+		fmt.Printf("envelope type %d, sealed=%v, from %s device %d, %d-byte content: %s, profile key stored: %v, to PNI: %v, inner type %d\n",
+			env.GetType(), m.Sealed, map[bool]string{true: "self", false: "peer"}[self], m.Sender.DeviceID, len(m.Content), describe(m.Content), len(a.Recipients[m.Sender.ServiceID].ProfileKey) == 32, m.ToPNI, m.InnerType)
 	}
 }
 

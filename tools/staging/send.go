@@ -34,9 +34,19 @@ func send(args []string) {
 		log.Fatalf("connect: %s", mask(err.Error()))
 	}
 	defer c.Close()
-	ts, err := (&manager.Sender{Acct: a, Chat: c}).SendText(ctx, *to, *msg)
+	u, err := chat.Dial(ctx, chat.Endpoint{Proxy: envProxy(chat.StagingHost).Proxy})
+	if err != nil {
+		log.Fatalf("connect (unauthenticated): %v", err)
+	}
+	defer u.Close()
+	sender := &manager.Sender{Acct: a, Chat: c, Unauth: u}
+	ts, err := sender.SendText(ctx, *to, *msg)
 	if err != nil {
 		log.Fatalf("send: %s", mask(err.Error()))
 	}
-	fmt.Println(ts)
+	sealed := "unsealed"
+	if p := a.Recipients[*to].Profile; p != nil && p.AccessMode != "UNKNOWN" && p.AccessMode != "DISABLED" {
+		sealed = "sealed (access " + p.AccessMode + ")"
+	}
+	fmt.Println(ts, sealed)
 }

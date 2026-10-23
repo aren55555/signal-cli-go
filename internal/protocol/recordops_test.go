@@ -5,7 +5,7 @@ import "testing"
 func TestArchiveAndInitiate(t *testing.T) {
 	d := newDuo(t, 90)
 	typ, wire := d.aliceSend(t, "old session", t0)
-	if d.alice.RemoteRegistrationID() != d.bobRegID || !d.alice.HasCurrent() {
+	if d.alice.RemoteRegistrationID() != d.bobRegID || !d.alice.HasCurrent() || !d.alice.Unacknowledged() {
 		t.Fatalf("registration ID %d", d.alice.RemoteRegistrationID())
 	}
 	archived := d.alice.ArchiveCurrent()
@@ -25,5 +25,17 @@ func TestArchiveAndInitiate(t *testing.T) {
 	// Bob still decrypts the message from the archived session.
 	if got, err := d.bobReceive(t, typ, wire); err != nil || got != "old session" {
 		t.Errorf("bob: %q, %v", got, err)
+	}
+}
+
+func TestUnacknowledgedClearsOnReply(t *testing.T) {
+	d := newDuo(t, 91)
+	typ, wire := d.aliceSend(t, "hi", t0)
+	if _, err := d.bobReceive(t, typ, wire); err != nil {
+		t.Fatal(err)
+	}
+	d.aliceReceive(t, d.bobSend(t, "reply"))
+	if d.alice.Unacknowledged() {
+		t.Error("still unacknowledged after a reply")
 	}
 }

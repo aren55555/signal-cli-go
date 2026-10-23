@@ -239,3 +239,5 @@ func TestServerDeliveryReceipt(t *testing.T) {
 		t.Error("a receipt changed state")
 	}
 }
+
+func bobAddrFor() protocol.Address { return protocol.Address{ServiceID: bobACI, DeviceID: 1} }

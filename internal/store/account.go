@@ -162,8 +162,9 @@ type Account struct {
 	lock       *FileLock
 	Data       AccountData
 	Keys       KeysData
-	Sessions   map[string][]byte   // "aci:<address>.<device>" -> SessionRecord
-	Identities map[string]Identity // service ID -> identity
+	Sessions   map[string][]byte    // "aci:<address>.<device>" -> SessionRecord
+	Identities map[string]Identity  // service ID -> identity
+	Recipients map[string]Recipient // ACI -> recipient
 }
 
 // Path is the account's directory name within the root.
@@ -197,7 +198,7 @@ func (r *Root) Create(number, env string) (*Account, error) {
 	if err != nil {
 		return nil, err
 	}
-	a := &Account{root: r, path: path, lock: lock, Sessions: map[string][]byte{}, Identities: map[string]Identity{}}
+	a := &Account{root: r, path: path, lock: lock, Sessions: map[string][]byte{}, Identities: map[string]Identity{}, Recipients: map[string]Recipient{}}
 	a.Data = AccountData{Environment: env, Number: number,
 		ACIKeys: PreKeyState{ActiveSignedPreKeyID: -1, ActiveLastResortKyberID: -1},
 		PNIKeys: PreKeyState{ActiveSignedPreKeyID: -1, ActiveLastResortKyberID: -1}}
@@ -252,6 +253,9 @@ func (r *Root) Load(path string) (*Account, error) {
 	a.Sessions, a.Identities = s.Sessions, ids.Identities
 	if a.Sessions == nil {
 		a.Sessions = map[string][]byte{}
+	}
+	if err := a.loadRecipients(); err != nil {
+		return fail(err)
 	}
 	if a.Identities == nil {
 		a.Identities = map[string]Identity{}
@@ -321,3 +325,51 @@ func (r *Root) Delete(a *Account) error {
 
 // Dir is the account directory's full path.
 func (a *Account) Dir() string { return filepath.Join(a.root.dir, a.path) }
+
+// Unidentified-access modes of a stored profile (spec/service/send.md §3).
+const (
+	AccessUnknown      = "UNKNOWN"
+	AccessDisabled     = "DISABLED"
+	AccessEnabled      = "ENABLED"
+	AccessUnrestricted = "UNRESTRICTED"
+)
+
+// Profile is what we keep of a fetched profile.
+type Profile struct {
+	LastUpdate   int64    `json:"lastUpdate"` // ms; set on failed fetches too
+	AccessMode   string   `json:"accessMode"`
+	Capabilities []string `json:"capabilities,omitempty"`
+}
+
+// Recipient is what we know about a peer, keyed by ACI.
+type Recipient struct {
+	ProfileKey   []byte   `json:"profileKey,omitempty"`
+	Profile      *Profile `json:"profile,omitempty"`
+	Unregistered bool     `json:"unregistered,omitempty"`
+}
+
+type recipientsDoc struct {
+	Version    int                  `json:"version"`
+	Recipients map[string]Recipient `json:"recipients"`
+}
+
+const recipientsVersion = 1
+
+var recipientsMigrations = Migrations{}
+
+// SaveRecipients writes recipients.json.
+func (a *Account) SaveRecipients() error {
+	return WriteJSON(a.file("recipients.json"), &recipientsDoc{Version: recipientsVersion, Recipients: a.Recipients})
+}
+
+func (a *Account) loadRecipients() error {
+	var d recipientsDoc
+	if err := ReadJSON(a.file("recipients.json"), recipientsVersion, recipientsMigrations, &d); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	a.Recipients = d.Recipients
+	if a.Recipients == nil {
+		a.Recipients = map[string]Recipient{}
+	}
+	return nil
+}

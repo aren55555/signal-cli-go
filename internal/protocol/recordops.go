@@ -39,3 +39,15 @@ func (r *SessionRecord) RemoteRegistrationID() uint32 {
 	}
 	return r.current.remoteRegistrationID
 }
+
+// RemoteIdentity is the peer's identity key in the current state, or nil.
+func (r *SessionRecord) RemoteIdentity() *curve25519.PublicKey {
+	if r.current == nil {
+		return nil
+	}
+	return r.current.remoteIdentity
+}
+
+// Unacknowledged reports whether the current state still sends PreKey
+// messages (the peer has not replied on it yet).
+func (r *SessionRecord) Unacknowledged() bool { return r.current != nil && r.current.pending != nil }

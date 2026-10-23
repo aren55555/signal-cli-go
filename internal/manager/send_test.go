@@ -41,10 +41,39 @@ type fakeChat struct {
 	delivered []delivery
 	requests  []string
 	puts      []string
+	putVia    []string
+	// sealed sender
+	profiles   map[string]string // aci -> unversioned profile JSON
+	cert       []byte
+	accessKeys map[string][]byte // dest -> the access key the server accepts
+	sealed401  bool              // answer sealed PUTs with 401
+	root       *curve25519.PrivateKey
 }
 
 func (f *fakeChat) Request(ctx context.Context, verb, path string, headers []chat.Header, body []byte) (*chat.Response, error) {
-	f.requests = append(f.requests, verb+" "+path)
+	return f.handle(false, verb, path, headers, body)
+}
+
+// unauthChat is the unauthenticated socket of the same fake server.
+type unauthChat struct{ f *fakeChat }
+
+func (u unauthChat) Request(ctx context.Context, verb, path string, headers []chat.Header, body []byte) (*chat.Response, error) {
+	return u.f.handle(true, verb, path, headers, body)
+}
+
+func (f *fakeChat) handle(unauth bool, verb, path string, headers []chat.Header, body []byte) (*chat.Response, error) {
+	via := "auth"
+	if unauth {
+		via = "unauth"
+	}
+	f.requests = append(f.requests, via+" "+verb+" "+path)
+	if verb == "PUT" && strings.HasPrefix(path, "/v1/messages/") {
+		f.puts = append(f.puts, string(body))
+		f.putVia = append(f.putVia, via)
+	}
+	if r := f.special(unauth, verb, path, headers); r != nil {
+		return r, nil
+	}
 	switch {
 	case verb == "GET" && strings.HasPrefix(path, "/v2/keys/"):
 		parts := strings.Split(strings.TrimPrefix(path, "/v2/keys/"), "/")
@@ -81,7 +110,6 @@ func (f *fakeChat) Request(ctx context.Context, verb, path string, headers []cha
 		return &chat.Response{Status: 200, Body: out}, nil
 
 	case verb == "PUT" && strings.HasPrefix(path, "/v1/messages/"):
-		f.puts = append(f.puts, string(body))
 		dest := strings.TrimSuffix(strings.TrimPrefix(path, "/v1/messages/"), "?story=false")
 		var req struct {
 			Destination string `json:"destination"`
@@ -130,9 +158,16 @@ func (f *fakeChat) Request(ctx context.Context, verb, path string, headers []cha
 			if err != nil {
 				f.t.Errorf("content not padded standard base64: %v", err)
 			}
-			env := &signalpb.ServiceEnvelope{Type: proto.Uint32(m.Type), SourceServiceIdBinary: uuidBytes(f.sender), SourceDeviceId: proto.Uint32(f.senderDev),
+			env := &signalpb.ServiceEnvelope{Type: proto.Uint32(m.Type), SourceServiceIdBinary: uuidBytes(f.sender), SourceDeviceId: proto.Uint32(f.senderDev), ServerTimestamp: proto.Uint64(1),
 				DestinationServiceIdBinary: uuidBytes(dest), Content: wire, ClientTimestamp: proto.Uint64(req.Timestamp)}
-			msg, err := (&Decryptor{Acct: d.acct}).Decrypt(env)
+			if m.Type == 6 {
+				env.SourceServiceIdBinary, env.SourceDeviceId = nil, nil
+			}
+			dec := &Decryptor{Acct: d.acct}
+			if f.root != nil {
+				dec.Roots = []*curve25519.PublicKey{f.root.PublicKey()}
+			}
+			msg, err := dec.Decrypt(env)
 			if err != nil {
 				f.t.Errorf("device %s.%d cannot decrypt: %v", dest, m.DestinationDeviceID, err)
 				continue
@@ -208,11 +243,46 @@ func TestSendText(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, r := range fc.requests {
-		if strings.HasPrefix(r, "GET /v2/keys") {
+		if strings.Contains(r, "GET /v2/keys") {
 			t.Errorf("second send fetched %s", r)
 		}
 	}
 	if len(fc.puts) != 2 || len(fc.delivered) != 3 {
 		t.Errorf("second send: %d PUTs, %d deliveries", len(fc.puts), len(fc.delivered))
 	}
+}
+
+// special handles profiles, certificates and the unauthenticated
+// socket's access check; nil means "not special".
+func (f *fakeChat) special(unauth bool, verb, path string, headers []chat.Header) *chat.Response {
+	switch {
+	case !unauth && verb == "GET" && path == "/v1/certificate/delivery?includeE164=false":
+		if f.cert == nil {
+			return &chat.Response{Status: 500}
+		}
+		b, _ := json.Marshal(map[string]string{"certificate": base64.StdEncoding.EncodeToString(f.cert)})
+		return &chat.Response{Status: 200, Body: b}
+	case verb == "GET" && strings.HasPrefix(path, "/v1/profile/"):
+		if unauth {
+			return &chat.Response{Status: 401}
+		}
+		p, ok := f.profiles[strings.TrimPrefix(path, "/v1/profile/")]
+		if !ok {
+			return &chat.Response{Status: 404}
+		}
+		return &chat.Response{Status: 200, Body: []byte(p)}
+	case unauth:
+		var key string
+		for _, h := range headers {
+			if h.Name == "unidentified-access-key" {
+				key = h.Value
+			}
+		}
+		dest := strings.SplitN(strings.TrimPrefix(strings.TrimPrefix(path, "/v2/keys/"), "/v1/messages/"), "/", 2)[0]
+		dest = strings.TrimSuffix(dest, "?story=false")
+		if key == "" || key != base64.StdEncoding.EncodeToString(f.accessKeys[dest]) || (f.sealed401 && verb == "PUT") {
+			return &chat.Response{Status: 401}
+		}
+	}
+	return nil
 }

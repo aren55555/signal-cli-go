@@ -36,6 +36,7 @@ var (
 	ErrUnregistered      = errors.New("unregistered user")
 	ErrNoValidBundles    = errors.New("no valid prekey bundles")
 	ErrConflictsUnsolved = errors.New("Failed to resolve conflicts after 4 attempts!")
+	errAccessRejected    = errors.New("unidentified access rejected")
 )
 
 // SendStatusError is a send answered with an unexpected status.
@@ -54,6 +55,12 @@ type Sender struct {
 	Now  func() time.Time
 
 	lastTS uint64
+
+	// Unauth is the unauthenticated socket for sealed sends; nil sends
+	// everything unsealed.
+	Unauth      Requester
+	cert        []byte
+	certExpires uint64
 }
 
 func (s *Sender) rand() io.Reader {
@@ -101,12 +108,12 @@ func (s *Sender) SendText(ctx context.Context, recipientACI, text string) (uint6
 	if err != nil {
 		return 0, err
 	}
-	needsSync, err := s.send(ctx, recipientACI, c, ts, true)
+	needsSync, unidentified, err := s.send(ctx, recipientACI, c, ts, true)
 	if err != nil {
 		return 0, err
 	}
 	if needsSync || s.Acct.Data.DeviceID != 1 {
-		if err := s.sendTranscript(ctx, recipientACI, dm, ts); err != nil {
+		if err := s.sendTranscript(ctx, recipientACI, dm, ts, unidentified); err != nil {
 			return ts, fmt.Errorf("sent, but the sync transcript failed: %w", err)
 		}
 	}
@@ -115,7 +122,7 @@ func (s *Sender) SendText(ctx context.Context, recipientACI, text string) (uint6
 
 // sendTranscript sends SyncMessage.Sent to our other devices (content.md
 // §8), with 1..512 random padding bytes.
-func (s *Sender) sendTranscript(ctx context.Context, dest string, dm *signalpb.AppDataMessage, ts uint64) error {
+func (s *Sender) sendTranscript(ctx context.Context, dest string, dm *signalpb.AppDataMessage, ts uint64, unidentified bool) error {
 	var n [2]byte
 	if _, err := io.ReadFull(s.rand(), n[:]); err != nil {
 		return err
@@ -128,14 +135,14 @@ func (s *Sender) sendTranscript(ctx context.Context, dest string, dm *signalpb.A
 		DestinationServiceId: proto.String(dest),
 		Timestamp:            proto.Uint64(ts),
 		Message:              dm,
-		UnidentifiedStatus:   []*signalpb.AppUnidentifiedStatus{{DestinationServiceId: proto.String(dest), Unidentified: proto.Bool(false)}},
+		UnidentifiedStatus:   []*signalpb.AppUnidentifiedStatus{{DestinationServiceId: proto.String(dest), Unidentified: proto.Bool(unidentified)}},
 		IsRecipientUpdate:    proto.Bool(false),
 	}
 	c, err := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_SyncMessage{SyncMessage: &signalpb.AppSyncMessage{Sent: sent, Padding: padding}}})
 	if err != nil {
 		return err
 	}
-	_, err = s.send(ctx, s.Acct.Data.ACI, c, ts, false)
+	_, _, err = s.send(ctx, s.Acct.Data.ACI, c, ts, false)
 	return err
 }
 
@@ -203,12 +210,20 @@ func (s *Sender) trusted(dest string, key *curve25519.PublicKey) bool {
 
 // fetchBundles fetches dest's bundles (device "*" or a number, keys.md
 // §4) and builds a session with every returned device except ourselves.
-func (s *Sender) fetchBundles(ctx context.Context, dest, device string) error {
-	r, err := s.Chat.Request(ctx, "GET", "/v2/keys/"+dest+"/"+device, nil, nil)
+func (s *Sender) fetchBundles(ctx context.Context, dest, device string, acc *access) error {
+	var r *chat.Response
+	var err error
+	if acc != nil {
+		r, err = s.Unauth.Request(ctx, "GET", "/v2/keys/"+dest+"/"+device, []chat.Header{acc.header()}, nil)
+	} else {
+		r, err = s.Chat.Request(ctx, "GET", "/v2/keys/"+dest+"/"+device, nil, nil)
+	}
 	if err != nil {
 		return err
 	}
 	switch {
+	case r.Status == 401 && acc != nil:
+		return errAccessRejected
 	case r.Status == 404:
 		return ErrUnregistered
 	case r.Status != 200:
@@ -307,15 +322,22 @@ type outgoingMessages struct {
 	Urgent      bool              `json:"urgent"`
 }
 
-// send runs the send loop of send.md §5 for one destination (an ACI) and
-// returns the response's needsSync.
-func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uint64, urgent bool) (bool, error) {
+// send runs the send loop of send.md §5 for one destination (an ACI). It
+// returns the response's needsSync and whether the message went out
+// sealed and was accepted on the unauthenticated socket.
+func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uint64, urgent bool) (needsSync, unidentified bool, err error) {
 	self := dest == s.Acct.Data.ACI
 	padded := content.Pad(plaintext)
+	acc := s.accessFor(ctx, dest)
+	defer func() {
+		if err == nil && !unidentified && !self {
+			s.downgrade(dest)
+		}
+	}()
 	for attempt := 0; attempt < 4; attempt++ {
 		recs, err := s.sessions(dest)
 		if err != nil {
-			return false, err
+			return false, false, err
 		}
 		// Targets: device 1 plus every device with a session (§4.1); for
 		// ourselves, never the sending device.
@@ -327,18 +349,29 @@ func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uin
 			targets = slices.DeleteFunc(targets, func(id uint32) bool { return id == uint32(s.Acct.Data.DeviceID) })
 		}
 		if _, ok := recs[1]; !ok && !(self && s.Acct.Data.DeviceID == 1) {
-			if err := s.fetchBundles(ctx, dest, "*"); err != nil {
-				return false, err
+			err := s.fetchBundles(ctx, dest, "*", acc)
+			if errors.Is(err, errAccessRejected) {
+				acc = nil // the next attempt is fully unsealed (§3.3)
+				continue
+			}
+			if err != nil {
+				return false, false, err
 			}
 			if recs, err = s.sessions(dest); err != nil {
-				return false, err
+				return false, false, err
 			}
 		}
 		slices.Sort(targets)
 		if self && len(targets) == 0 {
-			return false, nil // no other devices known
+			return false, false, nil // no other devices known
 		}
 
+		var identity *curve25519.PrivateKey
+		if acc != nil {
+			if identity, err = curve25519.NewPrivateKey(s.Acct.Data.ACIIdentity.Private); err != nil {
+				return false, false, err
+			}
+		}
 		body := outgoingMessages{Destination: dest, Timestamp: ts, Messages: []outgoingMessage{}, Online: false, Urgent: urgent}
 		for _, id := range targets {
 			rec := recs[id]
@@ -348,28 +381,54 @@ func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uin
 			remote := protocol.Address{ServiceID: dest, DeviceID: id}
 			next, typ, wire, err := rec.Encrypt(s.rand(), padded, s.now(), s.local(), remote)
 			if err != nil {
-				return false, err
+				return false, false, err
 			}
 			envType := envCiphertext
 			if typ == protocol.MessageTypePreKey {
 				envType = envPreKeyBundle
 			}
+			if acc != nil {
+				kind := protocol.SealedContentMessage
+				if typ == protocol.MessageTypePreKey {
+					kind = protocol.SealedContentPreKey
+				}
+				usmc := protocol.EncodeSealedContent(kind, acc.cert, wire, protocol.ContentHintResendable, nil)
+				if wire, err = protocol.SealV1(s.rand(), identity, next.RemoteIdentity(), usmc); err != nil {
+					return false, false, err
+				}
+				envType = envUnidentified
+			}
 			body.Messages = append(body.Messages, outgoingMessage{Type: envType, DestinationDeviceID: id,
 				DestinationRegistrationID: next.RemoteRegistrationID(), Content: base64.StdEncoding.EncodeToString(wire)})
 			if err := s.saveSession(dest, id, next); err != nil {
-				return false, err
+				return false, false, err
 			}
 		}
 		if err := s.Acct.SaveSessions(); err != nil {
-			return false, err
+			return false, false, err
+		}
+		if self && len(body.Messages) == 0 {
+			return false, false, nil // no other device to tell
 		}
 		b, err := api.Marshal(body)
 		if err != nil {
-			return false, err
+			return false, false, err
 		}
-		r, err := s.Chat.Request(ctx, "PUT", "/v1/messages/"+dest+"?story=false", jsonHeader, b)
+		path := "/v1/messages/" + dest + "?story=false"
+		var r *chat.Response
+		sealedPut := acc != nil
+		if sealedPut {
+			r, err = s.Unauth.Request(ctx, "PUT", path, append(append([]chat.Header{}, jsonHeader...), acc.header()), b)
+			if err == nil && r.Status == 401 {
+				// Repeated unchanged on the authenticated socket (§3.3).
+				sealedPut = false
+				r, err = s.Chat.Request(ctx, "PUT", path, jsonHeader, b)
+			}
+		} else {
+			r, err = s.Chat.Request(ctx, "PUT", path, jsonHeader, b)
+		}
 		if err != nil {
-			return false, err
+			return false, false, err
 		}
 		switch r.Status {
 		case 200:
@@ -377,26 +436,29 @@ func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uin
 				NeedsSync bool `json:"needsSync"`
 			}
 			json.Unmarshal(r.Body, &ok)
-			return ok.NeedsSync, nil
+			return ok.NeedsSync, sealedPut, nil
+		case 401:
+			return false, false, fmt.Errorf("authorization failed")
 		case 404:
-			return false, ErrUnregistered
+			return false, false, ErrUnregistered
 		case 409:
 			var mm struct {
 				Missing []uint32 `json:"missingDevices"`
 				Extra   []uint32 `json:"extraDevices"`
 			}
 			if err := json.Unmarshal(r.Body, &mm); err != nil {
-				return false, fmt.Errorf("409 body: %w", err)
+				return false, false, fmt.Errorf("409 body: %w", err)
 			}
 			if err := s.archive(dest, mm.Extra); err != nil {
-				return false, err
+				return false, false, err
 			}
 			if self && len(mm.Missing) == 0 && len(body.Messages) == len(mm.Extra) {
-				return false, nil // our other devices are gone
+				return false, false, nil // our other devices are gone
 			}
 			for _, id := range mm.Missing {
-				if err := s.fetchBundles(ctx, dest, strconv.Itoa(int(id))); err != nil {
-					return false, err
+				// Always on the authenticated socket (keys.md §4.1).
+				if err := s.fetchBundles(ctx, dest, strconv.Itoa(int(id)), nil); err != nil {
+					return false, false, err
 				}
 			}
 		case 410:
@@ -404,16 +466,16 @@ func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uin
 				Stale []uint32 `json:"staleDevices"`
 			}
 			if err := json.Unmarshal(r.Body, &st); err != nil {
-				return false, fmt.Errorf("410 body: %w", err)
+				return false, false, fmt.Errorf("410 body: %w", err)
 			}
 			if err := s.archive(dest, st.Stale); err != nil {
-				return false, err
+				return false, false, err
 			}
 		default:
-			return false, &SendStatusError{Status: r.Status}
+			return false, false, &SendStatusError{Status: r.Status}
 		}
 	}
-	return false, ErrConflictsUnsolved
+	return false, false, ErrConflictsUnsolved
 }
 
 // archive archives our current sessions with dest's devices.

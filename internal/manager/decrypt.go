@@ -35,6 +35,7 @@ type Message struct {
 	ToPNI           bool // addressed to our PNI
 	Sealed          bool
 	ServerReceipt   bool   // a server delivery receipt: no content
+	InnerType       int    // 3 PreKey or 1 Whisper, after unsealing
 	Content         []byte // the unpadded Content protobuf
 	ClientTimestamp uint64
 	ServerTimestamp uint64
@@ -161,6 +162,7 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 		}
 	}
 
+	m.InnerType = kind
 	key := sessionKey(m.ToPNI, m.Sender)
 	rec := new(protocol.SessionRecord)
 	if b, ok := a.Sessions[key]; ok {
