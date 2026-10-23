@@ -33,8 +33,13 @@ cdn3-staging.signal.org
 storage-staging.signal.org
 cdsi.staging.signal.org
 svr2.staging.signal.org
-# Further staging hosts (e.g. SVR-B, backups) may be requested during
-# milestone 1's inventory once the oracle's exact endpoint list is observed.
+# Operator-approved 2026-10-23: named by libsignal's native library; unknown
+# whether signal-cli 0.14.7 uses them, allowed so registration cannot stall.
+grpc.chat.staging.signal.org
+svrb.staging.signal.org
+# Operator-approved 2026-10-23: any further staging endpoint. Deliberately NOT
+# *.signal.org, which would open production (chat.signal.org, cdn.signal.org).
+*.staging.signal.org
 
 # --- Public standards and specifications (spec role, test vectors) ---
 signal.org
