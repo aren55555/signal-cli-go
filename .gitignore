@@ -1,0 +1,7 @@
+# Reference signal-cli, its downloads and data dirs (test oracle only).
+/third_party/
+# Local build output.
+/bin/
+/signal-cli-go
+# Scratch data directories for local runs.
+/.data/
