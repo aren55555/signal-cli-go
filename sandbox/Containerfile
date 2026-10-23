@@ -55,7 +55,8 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         ca-certificates curl git gnupg tar gzip xz-utils unzip zip \
-        procps less jq ripgrep file; \
+        procps less jq ripgrep file \
+        gcc libc6-dev; \
     rm -rf /var/lib/apt/lists/*
 
 ############################################################################
@@ -159,11 +160,15 @@ RUN set -eux; \
     } > /etc/signal-cli-go-sandbox; \
     chmod 0444 /etc/signal-cli-go-sandbox
 
+# GOTMPDIR: /tmp is a noexec tmpfs, so `go test` must build its binaries
+# elsewhere. The directory lives in the agent-home volume; the justfile
+# creates it (an existing volume hides anything baked in at build time).
 ENV PATH=/usr/local/go/bin:/opt/jdk/bin:/home/agent/go/bin:/usr/local/bin:/usr/bin:/bin \
     JAVA_HOME=/opt/jdk \
     GOTOOLCHAIN=local \
     GOPROXY=off \
     GOSUMDB=off \
+    GOTMPDIR=/home/agent/.cache/gotmp \
     DISABLE_AUTOUPDATER=1 \
     CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1 \
     SIGNAL_CLI_GO_SANDBOX=1

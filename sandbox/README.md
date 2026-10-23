@@ -27,6 +27,7 @@ Everything is pinned by version **and** SHA-256 in `Containerfile`:
 | Temurin JDK | 25 (25.0.5+8 on amd64)     | signal-cli 0.14.7 requires Java 25           |
 | just        | 1.59.0                     | task runner (`just` lists recipes)           |
 | Claude Code | 2.1.309                    | the agent session, auto-update disabled      |
+| gcc, libc6-dev | Debian bookworm | only for `go test -race`; project code stays cgo-free |
 
 The reference `signal-cli` 0.14.7 is **not** baked in. Milestone 0 adds a
 repo script that downloads it into the gitignored `third_party/` directory,

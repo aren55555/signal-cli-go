@@ -6,6 +6,7 @@ set -u
 fail=0
 ok()   { printf '  ok    %s\n' "$1"; }
 bad()  { printf '  FAIL  %s\n' "$1"; fail=1; }
+warn() { printf '  WARN  %s\n' "$1"; }
 
 echo "signal-cli-go sandbox preflight"
 
@@ -31,6 +32,7 @@ if [ "$(id -u)" != "0" ]; then ok "running as non-root uid $(id -u)"; else bad "
 if command -v go >/dev/null 2>&1; then ok "$(go version)"; else bad "go toolchain missing"; fi
 if command -v java >/dev/null 2>&1; then ok "java $(java -version 2>&1 | head -n1)"; else bad "java missing"; fi
 if command -v just >/dev/null 2>&1; then ok "$(just --version)"; else bad "just missing"; fi
+if command -v gcc >/dev/null 2>&1; then ok "gcc present (needed by go test -race)"; else warn "gcc missing: go test -race unavailable; rebuild the image"; fi
 
 # The only route out must be the allowlisting proxy.
 if [ -n "${HTTPS_PROXY:-}" ]; then
