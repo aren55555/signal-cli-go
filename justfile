@@ -59,3 +59,7 @@ _gotmp:
 # Re-record golden transcripts from the reference signal-cli (sandbox only)
 record-golden: _gotmp
     go test ./internal/difftest -run Golden -count=1 -record -v -timeout 30m
+
+# Download and verify protoc into third_party/ (for proto-gen)
+install-protoc: _gotmp
+    go run ./tools/install-protoc
