@@ -4,7 +4,7 @@
 //
 // Supported: RFC 8032 section 7.1 (Ed25519), RFC 7748 sections 5.2 and 6.1
 // (X25519), RFC 9496 appendix A (ristretto255), RFC 8452 appendix C
-// (AES-GCM-SIV).
+// (AES-GCM-SIV), RFC 7541 appendices B and C (HPACK).
 //
 // Usage (from the repo root, with the RFC text downloaded from
 // https://www.rfc-editor.org/rfc/rfcNNNN.txt):
@@ -13,6 +13,8 @@
 //	go run ./tools/rfcvectors -rfc 7748 -in rfc7748.txt > testdata/vectors/rfc7748_x25519.json
 //	go run ./tools/rfcvectors -rfc 9496 -in rfc9496.txt > testdata/vectors/rfc9496_ristretto255.json
 //	go run ./tools/rfcvectors -rfc 8452 -in rfc8452.txt > testdata/vectors/rfc8452_aes_gcm_siv.json
+//	go run ./tools/rfcvectors -rfc 7541 -in rfc7541.txt > testdata/vectors/rfc7541_hpack.json
+//	go run ./tools/rfcvectors -rfc 7541 -hpack-huffman-go -in rfc7541.txt | gofmt > internal/service/h2/hpack_tables.go
 package main
 
 import (
@@ -35,9 +37,12 @@ type source struct {
 	Tool     string `json:"tool"`
 }
 
+var huffmanGo *bool
+
 func main() {
 	num := flag.Int("rfc", 0, "RFC number: 8032, 7748 or 9496")
 	in := flag.String("in", "", "path to the RFC plain text")
+	huffmanGo = flag.Bool("hpack-huffman-go", false, "for RFC 7541: write Appendices A and B as Go tables instead of the vectors")
 	flag.Parse()
 
 	if err := run(*num, *in); err != nil {
@@ -74,6 +79,12 @@ func run(num int, in string) error {
 	case 8452:
 		src.Sections = "Appendix C"
 		out, err = parse8452(src, lines)
+	case 7541:
+		if *huffmanGo {
+			return writeHuffmanGo(src, lines)
+		}
+		src.Sections = "Appendix C"
+		out, err = parse7541(src, lines)
 	default:
 		return fmt.Errorf("unsupported RFC %d", num)
 	}
@@ -549,4 +560,243 @@ func parse8452(src source, lines []string) (any, error) {
 		Source  source         `json:"source"`
 		Vectors []gcmSIVVector `json:"vectors"`
 	}{src, vs}, nil
+}
+
+// RFC 7541 (HPACK).
+
+type hpackStep struct {
+	Headers    [][2]string `json:"headers"`
+	Encoded    string      `json:"encoded"`
+	EntrySizes []int       `json:"dynamic_table_entry_sizes"`
+	TableSize  int         `json:"dynamic_table_size"`
+}
+
+type hpackSequence struct {
+	Name           string      `json:"name"`
+	Representation string      `json:"representation,omitempty"`
+	Huffman        bool        `json:"huffman"`
+	TableSizeLimit int         `json:"table_size_limit"`
+	Steps          []hpackStep `json:"steps"`
+}
+
+var (
+	hpackEntry     = regexp.MustCompile(`^\[\s*\d+\]\s+\(s\s*=\s*(\d+)\)`)
+	hpackTableSize = regexp.MustCompile(`^Table size:\s*(\d+)$`)
+)
+
+// splitHeader splits "name: value"; names may start with ':'.
+func splitHeader(l string) ([2]string, error) {
+	i := strings.Index(l[1:], ": ")
+	if i < 0 {
+		return [2]string{}, fmt.Errorf("bad header line %q", l)
+	}
+	return [2]string{l[:i+1], l[i+3:]}, nil
+}
+
+// parseHPACKSteps reads the examples between from and to, one step per
+// subsection heading.
+func parseHPACKSteps(lines []string, from, to string) ([]hpackStep, error) {
+	body, err := section(lines, from, to)
+	if err != nil {
+		return nil, err
+	}
+	var steps []hpackStep
+	var cur *hpackStep
+	mode := ""
+	for _, l := range body {
+		t := strings.TrimSpace(l)
+		switch {
+		case t == "Header list to encode:":
+			steps = append(steps, hpackStep{})
+			cur, mode = &steps[len(steps)-1], "headers"
+			continue
+		case t == "Hex dump of encoded data:":
+			mode = "hex"
+			continue
+		case strings.HasPrefix(t, "Decoding process:"), strings.HasPrefix(t, "Decoded header list:"), strings.HasPrefix(t, "Dynamic Table"):
+			mode = ""
+			continue
+		}
+		if cur == nil {
+			continue
+		}
+		switch mode {
+		case "headers":
+			if t == "" {
+				continue
+			}
+			h, err := splitHeader(t)
+			if err != nil {
+				return nil, err
+			}
+			cur.Headers = append(cur.Headers, h)
+		case "hex":
+			if t == "" && cur.Encoded == "" {
+				continue // the blank line before the first hex row
+			}
+			left, _, ok := strings.Cut(t, "|")
+			if !ok {
+				mode = ""
+				continue
+			}
+			cur.Encoded += strings.ReplaceAll(strings.TrimSpace(left), " ", "")
+		default:
+			if m := hpackEntry.FindStringSubmatch(t); m != nil {
+				n, _ := strconv.Atoi(m[1])
+				cur.EntrySizes = append(cur.EntrySizes, n)
+			} else if m := hpackTableSize.FindStringSubmatch(t); m != nil {
+				cur.TableSize, _ = strconv.Atoi(m[1])
+			}
+		}
+	}
+	return steps, nil
+}
+
+func parse7541(src source, lines []string) (any, error) {
+	var seqs []hpackSequence
+	for _, c := range []struct{ from, to, name, rep string }{
+		{"C.2.1.  ", "C.2.2.  ", "C.2.1", "literal with incremental indexing"},
+		{"C.2.2.  ", "C.2.3.  ", "C.2.2", "literal without indexing"},
+		{"C.2.3.  ", "C.2.4.  ", "C.2.3", "literal never indexed"},
+		{"C.2.4.  ", "C.3.  ", "C.2.4", "indexed"},
+	} {
+		steps, err := parseHPACKSteps(lines, c.from, c.to)
+		if err != nil {
+			return nil, err
+		}
+		seqs = append(seqs, hpackSequence{Name: c.name, Representation: c.rep, TableSizeLimit: 4096, Steps: steps})
+	}
+	for _, c := range []struct {
+		from, to, name string
+		huffman        bool
+		limit          int
+	}{
+		{"C.3.  ", "C.4.  ", "C.3", false, 4096},
+		{"C.4.  ", "C.5.  ", "C.4", true, 4096},
+		{"C.5.  ", "C.6.  ", "C.5", false, 256},
+		{"C.6.  ", "Acknowledgments", "C.6", true, 256},
+	} {
+		steps, err := parseHPACKSteps(lines, c.from, c.to)
+		if err != nil {
+			return nil, err
+		}
+		seqs = append(seqs, hpackSequence{Name: c.name, Huffman: c.huffman, TableSizeLimit: c.limit, Steps: steps})
+	}
+	for _, s := range seqs {
+		want := 1
+		if len(s.Name) == 3 {
+			want = 3
+		}
+		if len(s.Steps) != want {
+			return nil, fmt.Errorf("%s: %d steps, want %d", s.Name, len(s.Steps), want)
+		}
+		for i, st := range s.Steps {
+			if err := checkHex(st.Encoded, -1, fmt.Sprintf("%s step %d", s.Name, i)); err != nil {
+				return nil, err
+			}
+			if st.Encoded == "" {
+				return nil, fmt.Errorf("%s step %d: no encoded data found", s.Name, i)
+			}
+			sum := 0
+			for _, n := range st.EntrySizes {
+				sum += n
+			}
+			if sum != st.TableSize || len(st.Headers) == 0 {
+				return nil, fmt.Errorf("%s step %d: entry sizes add to %d, table size %d, %d headers", s.Name, i, sum, st.TableSize, len(st.Headers))
+			}
+		}
+	}
+	return struct {
+		Source    source          `json:"source"`
+		Sequences []hpackSequence `json:"sequences"`
+	}{src, seqs}, nil
+}
+
+var huffmanRow = regexp.MustCompile(`\(\s*(\d+)\)\s+\|([01|]+)\s+([0-9a-f]+)\s+\[\s*(\d+)\]`)
+
+// writeHuffmanGo prints RFC 7541 Appendix B as a Go table, checking each
+// row's bit string against its hex code and length.
+func writeHuffmanGo(src source, lines []string) error {
+	body, err := section(lines, "Appendix B.", "Appendix C.")
+	if err != nil {
+		return err
+	}
+	type row struct {
+		code uint32
+		bits int
+	}
+	var rows []row
+	for _, l := range body {
+		m := huffmanRow.FindStringSubmatch(l)
+		if m == nil {
+			continue
+		}
+		sym, _ := strconv.Atoi(m[1])
+		if sym != len(rows) {
+			return fmt.Errorf("symbol %d out of order", sym)
+		}
+		bitStr := strings.ReplaceAll(m[2], "|", "")
+		code, err := strconv.ParseUint(m[3], 16, 32)
+		if err != nil {
+			return err
+		}
+		n, _ := strconv.Atoi(m[4])
+		fromBits, err := strconv.ParseUint(bitStr, 2, 32)
+		if err != nil || len(bitStr) != n || fromBits != code {
+			return fmt.Errorf("symbol %d: bits %q, hex %s, len %d disagree", sym, bitStr, m[3], n)
+		}
+		rows = append(rows, row{uint32(code), n})
+	}
+	if len(rows) != 257 {
+		return fmt.Errorf("found %d Huffman codes, want 257", len(rows))
+	}
+	fmt.Printf("// Code generated by %s -hpack-huffman-go from %s Appendices A and B\n", src.Tool, src.Document)
+	fmt.Printf("// (%s, sha256 %s). DO NOT EDIT.\n\npackage h2\n\n", src.URL, src.SHA256)
+	fmt.Println("// huffmanCodes[sym] is the HPACK Huffman code for symbol sym (256 is EOS),")
+	fmt.Println("// aligned to the least significant bit, and huffmanLengths[sym] its length.")
+	fmt.Println("var huffmanCodes = [257]uint32{")
+	for i, r := range rows {
+		fmt.Printf("\t%#x, // %d\n", r.code, i)
+	}
+	fmt.Println("}\n\nvar huffmanLengths = [257]uint8{")
+	for i := 0; i < len(rows); i += 16 {
+		fmt.Print("\t")
+		for j := i; j < i+16 && j < len(rows); j++ {
+			fmt.Printf("%d, ", rows[j].bits)
+		}
+		fmt.Println()
+	}
+	fmt.Println("}")
+	return writeStaticTableGo(lines)
+}
+
+var staticRow = regexp.MustCompile(`^\|\s*(\d+)\s*\|\s*(\S+)\s*\|\s*(.*?)\s*\|$`)
+
+// writeStaticTableGo prints RFC 7541 Appendix A, the 61-entry static table.
+func writeStaticTableGo(lines []string) error {
+	body, err := section(lines, "Appendix A.", "Appendix B.")
+	if err != nil {
+		return err
+	}
+	var entries [][2]string
+	for _, l := range body {
+		m := staticRow.FindStringSubmatch(strings.TrimSpace(l))
+		if m == nil {
+			continue
+		}
+		if n, _ := strconv.Atoi(m[1]); n != len(entries)+1 {
+			return fmt.Errorf("static table index %d out of order", n)
+		}
+		entries = append(entries, [2]string{m[2], m[3]})
+	}
+	if len(entries) != 61 {
+		return fmt.Errorf("found %d static table entries, want 61", len(entries))
+	}
+	fmt.Println("\n// staticTable is RFC 7541 Appendix A; index i+1 is staticTable[i].")
+	fmt.Println("var staticTable = [61][2]string{")
+	for _, e := range entries {
+		fmt.Printf("\t{%q, %q},\n", e[0], e[1])
+	}
+	fmt.Println("}")
+	return nil
 }
