@@ -38,6 +38,19 @@ var (
 	ErrClosed = errors.New("websocket: connection closed")
 )
 
+// CloseError is a close frame from the server; it matches ErrClosed.
+// Code is 0 when the frame carried no status code.
+type CloseError struct {
+	Code   int
+	Reason string
+}
+
+func (e *CloseError) Error() string {
+	return fmt.Sprintf("websocket: closed by server with code %d %q", e.Code, e.Reason)
+}
+
+func (e *CloseError) Is(target error) bool { return target == ErrClosed }
+
 type opcode byte
 
 const (
@@ -179,6 +192,7 @@ type Options struct {
 
 // Conn is a client WebSocket connection. Read and Write may be used from
 // different goroutines; neither may be used concurrently with itself.
+// Close may be called at any time, including during a Read.
 type Conn struct {
 	r          *bufio.Reader
 	w          io.Writer
@@ -187,6 +201,26 @@ type Conn struct {
 
 	wmu    sync.Mutex
 	closed bool
+
+	readMu   sync.Mutex // held while reading frames, by Read or by Close
+	doneOnce sync.Once
+	done     chan struct{} // closed when the reader sees the end of the connection
+}
+
+// readDone returns the channel closed once a reader has seen the server's
+// close frame or the end of the transport.
+func (c *Conn) readDone() chan struct{} {
+	c.doneOnce.Do(func() { c.done = make(chan struct{}) })
+	return c.done
+}
+
+func (c *Conn) markDone() {
+	ch := c.readDone()
+	select {
+	case <-ch:
+	default:
+		close(ch)
+	}
 }
 
 // EnvProxy returns the proxy for rawURL from the environment; see
@@ -303,8 +337,11 @@ func (c *Conn) Write(msg []byte) error {
 }
 
 // Read returns the next data message, answering pings on the way. A close
-// from the server is answered and reported as ErrClosed.
+// from the server is answered and reported as a *CloseError (matching
+// ErrClosed).
 func (c *Conn) Read() ([]byte, error) {
+	c.readMu.Lock()
+	defer c.readMu.Unlock()
 	var msg []byte
 	inMessage := false
 	for {
@@ -314,6 +351,7 @@ func (c *Conn) Read() ([]byte, error) {
 			closed := c.closed
 			c.wmu.Unlock()
 			if closed {
+				c.markDone()
 				return nil, ErrClosed
 			}
 			return nil, err
@@ -333,8 +371,14 @@ func (c *Conn) Read() ([]byte, error) {
 				_ = c.writeLocked(opClose, f.payload)
 			}
 			c.wmu.Unlock()
+			c.markDone()
 			c.closeFn()
-			return nil, ErrClosed
+			ce := &CloseError{}
+			if len(f.payload) >= 2 {
+				ce.Code = int(binary.BigEndian.Uint16(f.payload))
+				ce.Reason = string(f.payload[2:])
+			}
+			return nil, ce
 		case opText, opBinary:
 			if inMessage {
 				return nil, fmt.Errorf("%w: new message inside a fragmented one", ErrProtocol)
@@ -356,7 +400,8 @@ func (c *Conn) Read() ([]byte, error) {
 }
 
 // Close sends a normal-closure frame, waits briefly for the server's
-// close, and closes the connection.
+// close, and closes the connection. If a Read is in progress, that Read
+// sees the server's close; otherwise Close reads for it.
 func (c *Conn) Close() error {
 	c.wmu.Lock()
 	if c.closed {
@@ -367,20 +412,22 @@ func (c *Conn) Close() error {
 	err := c.writeLocked(opClose, []byte{0x03, 0xe8}) // 1000: normal closure
 	c.wmu.Unlock()
 	if err == nil {
-		// Wait briefly for the server's close frame; closing the transport
-		// below unblocks the reader if it never comes.
-		done := make(chan struct{})
-		go func() {
-			defer close(done)
-			for {
-				f, rerr := readFrame(c.r, c.maxMessage, false)
-				if rerr != nil || f.op == opClose {
-					return
+		if c.readMu.TryLock() {
+			// No reader: read until the server's close. Closing the
+			// transport below unblocks this if it never comes.
+			go func() {
+				defer c.readMu.Unlock()
+				for {
+					f, rerr := readFrame(c.r, c.maxMessage, false)
+					if rerr != nil || f.op == opClose {
+						c.markDone()
+						return
+					}
 				}
-			}
-		}()
+			}()
+		}
 		select {
-		case <-done:
+		case <-c.readDone():
 		case <-time.After(2 * time.Second):
 		}
 	}

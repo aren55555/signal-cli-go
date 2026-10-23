@@ -321,3 +321,58 @@ func FuzzReadFrame(f *testing.F) {
 		}
 	})
 }
+
+// pipeConn is a client Conn over net.Pipe; the returned reader and conn
+// are the server end.
+func pipeConn(t *testing.T) (*Conn, net.Conn, *bufio.Reader) {
+	t.Helper()
+	cli, srv := net.Pipe()
+	t.Cleanup(func() { cli.Close(); srv.Close() })
+	return &Conn{r: bufio.NewReader(cli), w: cli, closeFn: cli.Close, maxMessage: 1 << 20}, srv, bufio.NewReader(srv)
+}
+
+// TestCloseCode: the server's close code reaches the caller (Signal uses
+// 4401 and 4409, spec/service/transport.md §3.5) and the close is echoed.
+func TestCloseCode(t *testing.T) {
+	c, srv, br := pipeConn(t)
+	go writeFrame(srv, true, opClose, []byte{0x11, 0x39, 'e', 'l', 's', 'e'}, nil) // 4409
+	echoed := make(chan frame, 1)
+	go func() { f, _ := readFrame(br, 1<<20, true); echoed <- f }()
+	_, err := c.Read()
+	var ce *CloseError
+	if !errors.Is(err, ErrClosed) || !errors.As(err, &ce) || ce.Code != 4409 || ce.Reason != "else" {
+		t.Fatalf("Read: %v", err)
+	}
+	if f := <-echoed; f.op != opClose || !bytes.Equal(f.payload[:2], []byte{0x11, 0x39}) {
+		t.Errorf("echoed %+v", f)
+	}
+	if _, err := c.Read(); !errors.Is(err, ErrClosed) {
+		t.Errorf("Read after close: %v", err)
+	}
+}
+
+// TestCloseWhileReading: Close while another goroutine is blocked in Read
+// must not read the connection concurrently (run with -race), and both
+// calls finish once the server answers the close.
+func TestCloseWhileReading(t *testing.T) {
+	c, srv, br := pipeConn(t)
+	readErr := make(chan error, 1)
+	go func() { _, err := c.Read(); readErr <- err }()
+	time.Sleep(20 * time.Millisecond) // let Read block
+	go func() {
+		f, err := readFrame(br, 1<<20, true)
+		if err == nil && f.op == opClose {
+			writeFrame(srv, true, opClose, f.payload, nil)
+		}
+	}()
+	start := time.Now()
+	if err := c.Close(); err != nil {
+		t.Errorf("Close: %v", err)
+	}
+	if d := time.Since(start); d > time.Second {
+		t.Errorf("Close took %v; the server's close was not noticed", d)
+	}
+	if err := <-readErr; !errors.Is(err, ErrClosed) {
+		t.Errorf("Read: %v", err)
+	}
+}
