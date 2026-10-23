@@ -82,6 +82,30 @@ starts. Existing pieces:
 - In this Claude Code build, `grep` in the agent shell is a wrapper
   function that fails with `unknown option '-G'`. Use `command grep`.
 
+## Facts from the milestone 1 inventory that shape the implementation
+
+- Help and parse-error text wrap at `$COLUMNS`, else the terminal width,
+  else 75, with fully justified lines. Goldens pin `COLUMNS=80`; widths
+  75 and 80 both need tests.
+- With `LANG` unset, non-ASCII characters in help print as `?`. Goldens pin
+  `C.UTF-8`.
+- Some JSON objects (send results, joinGroup and quitGroup) come out in a
+  different key order on each JVM run, so difftest needs semantic JSON
+  comparison for those. Byte comparison is fine elsewhere.
+- Long options accept any unambiguous prefix; for a repeated option the
+  last value wins; when several required options are missing, only the
+  last-declared one is reported.
+- Where the man page and the binary disagree (config-file merging, the
+  `receive` timeout of 3 s rather than 5 s), the binary wins.
+- JSON-RPC: requests run concurrently on stream transports, so responses
+  can come back out of order. HTTP errors are 200 with a JSON-RPC error,
+  except 415, 405, 404, 421 and 400 as listed in `transports.md`.
+- **Safety**: any oracle command that gets past local validation
+  contacts Signal, and production is the default environment. Live
+  oracle runs must pass `--service-environment staging`, and the egress
+  allowlist must keep excluding production hosts. (It blocked one
+  accidental production `register` attempt on 2026-10-23.)
+
 ## Open questions and risks
 
 - **Kyber vs ML-KEM**: confirm which KEM each libsignal 0.14.7-bundled
@@ -101,6 +125,9 @@ starts. Existing pieces:
   `subscribeCallEvents`/`unsubscribeCallEvents`, see `docs/CALL_TUNNEL.md`).
   **Operator decision needed**: implement them, or return a documented
   error? COMPAT.md flags those rows.
+- **D-Bus client mode** (`--dbus`, `--dbus-system`, `--bus-name`): PROMPT.md
+  excludes `daemon --dbus`. Is the CLI's D-Bus client mode excluded too?
+  **Operator to confirm.**
 - **License**: undecided. See `CLEANROOM.md`.
 
 ## Progress log
@@ -121,3 +148,11 @@ starts. Existing pieces:
   `testdata/golden/cli/scenarios.json`, record with `just record-golden`,
   replay in `go test`. Not-yet-matching scenarios are listed in `PENDING`
   (they run, and an unexpected match fails). Nine seed goldens recorded.
+- Both spec subagents finished: `spec/surface/jsonrpc/` (64 methods)
+  and `spec/surface/cli/` (61 subcommands, 14 global options). They are
+  logged in CLEANROOM.md, and COMPAT.md has the full row list (draft).
+- **Next**: turn the account-free cases in `spec/surface/cli/observations.md`
+  and `spec/surface/jsonrpc/observations.md` into difftest scenarios and
+  record them. That needs a JSON-RPC harness (HTTP, socket, TCP) and
+  semantic JSON comparison. Then show the operator PLAN.md and COMPAT.md
+  before milestone 2.

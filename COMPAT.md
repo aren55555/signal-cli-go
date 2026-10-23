@@ -6,7 +6,7 @@ is stated in the Notes column.
 
 Legend: ✅ done · 🟡 partial (see notes) · ⬜ not started · n/a not applicable
 
-**Status: draft.** JSON-RPC rows are filled in from `spec/surface/jsonrpc/`; transport, error and zero-account behavior was observed on the binary. CLI rows are pending the CLI inventory.
+**Status: draft.** JSON-RPC rows are filled in from `spec/surface/jsonrpc/`; transport, error and zero-account behavior was observed on the binary. CLI rows are filled in from `spec/surface/cli/`.
 
 ## JSON-RPC daemon (priority 1)
 
@@ -100,11 +100,97 @@ Spec: [`transports.md`](spec/surface/jsonrpc/transports.md), [`errors.md`](spec/
 
 ### Global flags and output modes
 
-_Rows pending the milestone 1 inventory._
+Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations: [`observations.md`](spec/surface/cli/observations.md).
+
+| Feature | Spec'd | Impl | Layer A | Layer B | Layer C | Notes |
+|---------|--------|------|---------|---------|---------|-------|
+| `-h`, `--help` | ✅ | ⬜ | n/a | ⬜ | n/a | |
+| `--version` | ✅ | ⬜ | n/a | ⬜ | n/a | |
+| `-v`, `--verbose` | ✅ | ⬜ | n/a | ⬜ | n/a | |
+| `--log-file` | ✅ | ⬜ | n/a | ⬜ | n/a | |
+| `--scrub-log` | ✅ | ⬜ | n/a | ⬜ | n/a | |
+| `-d`, `--data-dir`, `-c`, `--config` | ✅ | ⬜ | n/a | ⬜ | n/a | |
+| `-a`, `--account`, `-u`, `--username` | ✅ | ⬜ | n/a | ⬜ | n/a | |
+| `--dbus` | ✅ | ⬜ | n/a | ⬜ | n/a | D-Bus client mode: likely excluded with `daemon --dbus`; operator to confirm |
+| `--dbus-system` | ✅ | ⬜ | n/a | ⬜ | n/a | as `--dbus` |
+| `--bus-name` | ✅ | ⬜ | n/a | ⬜ | n/a | as `--dbus` |
+| `-o`, `--output` | ✅ | ⬜ | n/a | ⬜ | n/a | |
+| `--service-environment` | ✅ | ⬜ | n/a | ⬜ | n/a | |
+| `--trust-new-identities` | ✅ | ⬜ | n/a | ⬜ | n/a | |
+| `--disable-send-log` | ✅ | ⬜ | n/a | ⬜ | n/a | |
+| Help layout (width 75 or `$COLUMNS`, fully justified; leading logging-parser block) | ✅ | ⬜ | n/a | 🟡 | n/a | goldens: `help` only so far |
+| Parse errors (usage + `signal-cli: error:`, `Did you mean:`, prefix abbreviation, exit 1) | ✅ | ⬜ | n/a | 🟡 | n/a | goldens: `no-args`, `unknown-*`, `bad-output-value` |
+| Exit codes 0–6 | 🟡 | ⬜ | n/a | 🟡 | ⬜ | 4/5/6 known from source only |
+| Config file (`SIGNAL_CLI_CONFIG`, per-user file, unknown keys rejected) | ✅ | ⬜ | n/a | ⬜ | n/a | binary differs from man page; binary is authoritative |
+| Logging to stderr (`-v` levels, `--log-file`, `--scrub-log`) | 🟡 | ⬜ | n/a | ⬜ | n/a | subcommand `-v` also enables global verbose |
 
 ### Subcommands
 
-_Rows pending the milestone 1 inventory._
+61 subcommands. `startLink`/`finishLink` are JSON-RPC only. Success output needs a registered account and is so far known only from source.
+
+| Command | Spec'd | Impl | Layer A | Layer B | Layer C | Notes |
+|---------|--------|------|---------|---------|---------|-------|
+| [`acceptCall`](spec/surface/cli/acceptCall.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; **calls: scope question, see PLAN.md** |
+| [`addDevice`](spec/surface/cli/addDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`addStickerPack`](spec/surface/cli/addStickerPack.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`block`](spec/surface/cli/block.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`daemon`](spec/surface/cli/daemon.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`deleteLocalAccountData`](spec/surface/cli/deleteLocalAccountData.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; registration command |
+| [`finishChangeNumber`](spec/surface/cli/finishChangeNumber.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`getAttachment`](spec/surface/cli/getAttachment.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`getAvatar`](spec/surface/cli/getAvatar.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`getSticker`](spec/surface/cli/getSticker.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`getUserStatus`](spec/surface/cli/getUserStatus.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`hangupCall`](spec/surface/cli/hangupCall.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; **calls: scope question, see PLAN.md** |
+| [`joinGroup`](spec/surface/cli/joinGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`jsonRpc`](spec/surface/cli/jsonRpc.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; json only |
+| [`link`](spec/surface/cli/link.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; provisioning (-a forbidden); plain-text only |
+| [`listAccounts`](spec/surface/cli/listAccounts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`listCalls`](spec/surface/cli/listCalls.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; **calls: scope question, see PLAN.md** |
+| [`listContacts`](spec/surface/cli/listContacts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`listDevices`](spec/surface/cli/listDevices.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`listGroups`](spec/surface/cli/listGroups.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`listIdentities`](spec/surface/cli/listIdentities.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`listStickerPacks`](spec/surface/cli/listStickerPacks.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`quitGroup`](spec/surface/cli/quitGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`receive`](spec/surface/cli/receive.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`register`](spec/surface/cli/register.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; registration command |
+| [`rejectCall`](spec/surface/cli/rejectCall.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; **calls: scope question, see PLAN.md** |
+| [`remoteDelete`](spec/surface/cli/remoteDelete.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`removeContact`](spec/surface/cli/removeContact.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`removeDevice`](spec/surface/cli/removeDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`removePin`](spec/surface/cli/removePin.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`send`](spec/surface/cli/send.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendAdminDelete`](spec/surface/cli/sendAdminDelete.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendContacts`](spec/surface/cli/sendContacts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendMessageRequestResponse`](spec/surface/cli/sendMessageRequestResponse.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendPaymentNotification`](spec/surface/cli/sendPaymentNotification.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendPinMessage`](spec/surface/cli/sendPinMessage.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendPollCreate`](spec/surface/cli/sendPollCreate.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendPollTerminate`](spec/surface/cli/sendPollTerminate.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendPollVote`](spec/surface/cli/sendPollVote.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendReaction`](spec/surface/cli/sendReaction.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendReceipt`](spec/surface/cli/sendReceipt.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendStory`](spec/surface/cli/sendStory.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendSyncRequest`](spec/surface/cli/sendSyncRequest.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendTyping`](spec/surface/cli/sendTyping.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendUnpinMessage`](spec/surface/cli/sendUnpinMessage.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`setPin`](spec/surface/cli/setPin.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`startCall`](spec/surface/cli/startCall.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; **calls: scope question, see PLAN.md** |
+| [`startChangeNumber`](spec/surface/cli/startChangeNumber.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`submitRateLimitChallenge`](spec/surface/cli/submitRateLimitChallenge.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`trust`](spec/surface/cli/trust.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`unblock`](spec/surface/cli/unblock.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`unregister`](spec/surface/cli/unregister.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`updateAccount`](spec/surface/cli/updateAccount.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`updateConfiguration`](spec/surface/cli/updateConfiguration.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`updateContact`](spec/surface/cli/updateContact.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`updateDevice`](spec/surface/cli/updateDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`updateGroup`](spec/surface/cli/updateGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`updateProfile`](spec/surface/cli/updateProfile.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`uploadStickerPack`](spec/surface/cli/uploadStickerPack.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`verify`](spec/surface/cli/verify.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; registration command |
+| [`version`](spec/surface/cli/version.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 
 ## Protocol and interop (priority 3)
 
