@@ -247,6 +247,7 @@ func (l *Linker) finish(ctx context.Context, pm *signalpb.ProvisionMessage, pass
 		return nil, fmt.Errorf("server assigned device ID %q", resp.DeviceID)
 	}
 	d.DeviceID = int(devID)
+	d.DeviceName = req.AccountAttributes.Name
 	d.Registered = true
 
 	acct, err := l.Root.Create(number, store.EnvStaging)

@@ -56,23 +56,26 @@ type PreKeyState struct {
 
 // AccountData is account.json.
 type AccountData struct {
-	Version            int         `json:"version"`
-	Environment        string      `json:"environment"`
-	Number             string      `json:"number"`
-	ACI                string      `json:"aci,omitempty"`
-	PNI                string      `json:"pni,omitempty"`
-	DeviceID           int         `json:"deviceId"`
-	Password           string      `json:"password"`
-	Registered         bool        `json:"registered"`
-	ACIIdentity        KeyPair     `json:"aciIdentity"`
-	PNIIdentity        KeyPair     `json:"pniIdentity"`
-	ACIRegistrationID  uint32      `json:"aciRegistrationId"`
-	PNIRegistrationID  uint32      `json:"pniRegistrationId"`
-	ProfileKey         []byte      `json:"profileKey,omitempty"`
-	AccountEntropyPool string      `json:"accountEntropyPool,omitempty"`
-	MediaRootBackupKey []byte      `json:"mediaRootBackupKey,omitempty"`
-	ACIKeys            PreKeyState `json:"aciKeys"`
-	PNIKeys            PreKeyState `json:"pniKeys"`
+	Version                        int         `json:"version"`
+	Environment                    string      `json:"environment"`
+	Number                         string      `json:"number"`
+	ACI                            string      `json:"aci,omitempty"`
+	PNI                            string      `json:"pni,omitempty"`
+	DeviceID                       int         `json:"deviceId"`
+	Password                       string      `json:"password"`
+	Registered                     bool        `json:"registered"`
+	ACIIdentity                    KeyPair     `json:"aciIdentity"`
+	PNIIdentity                    KeyPair     `json:"pniIdentity"`
+	ACIRegistrationID              uint32      `json:"aciRegistrationId"`
+	PNIRegistrationID              uint32      `json:"pniRegistrationId"`
+	ProfileKey                     []byte      `json:"profileKey,omitempty"`
+	AccountEntropyPool             string      `json:"accountEntropyPool,omitempty"`
+	MediaRootBackupKey             []byte      `json:"mediaRootBackupKey,omitempty"`
+	DeviceName                     string      `json:"deviceName,omitempty"` // encrypted, unpadded base64 (linked devices)
+	UnrestrictedUnidentifiedAccess bool        `json:"unrestrictedUnidentifiedAccess,omitempty"`
+	Unlisted                       bool        `json:"unlisted,omitempty"`
+	ACIKeys                        PreKeyState `json:"aciKeys"`
+	PNIKeys                        PreKeyState `json:"pniKeys"`
 }
 
 // StoredKey is a serialized prekey record with its bookkeeping.

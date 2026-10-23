@@ -24,7 +24,7 @@ func mask(s string) string { return digits.ReplaceAllString(s, "<NUMBER>") }
 func main() {
 	log.SetFlags(0)
 	if len(os.Args) < 2 {
-		log.Fatal("usage: staging link|probe|receive|send [flags]")
+		log.Fatal("usage: staging link|check|probe|receive|send [flags]")
 	}
 	cmd, args := os.Args[1], os.Args[2:]
 	switch cmd {
@@ -34,6 +34,8 @@ func main() {
 		receive(args)
 	case "send":
 		send(args)
+	case "check":
+		check(args)
 	case "probe":
 		probe(args)
 	default:

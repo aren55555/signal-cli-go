@@ -5,6 +5,8 @@ package api
 
 import (
 	"bytes"
+	"crypto/aes"
+	"crypto/cipher"
 	"encoding/base64"
 	"encoding/json"
 	"strings"
@@ -104,4 +106,53 @@ type LinkResponse struct {
 	UUID     string      `json:"uuid"`
 	PNI      string      `json:"pni"`
 	DeviceID json.Number `json:"deviceId"` // a number; tolerated as a string
+}
+
+// UnidentifiedAccessKey derives the 16-byte access key from a profile key
+// (api.md §5.1): AES-256-GCM over 16 zero bytes, zero nonce, tag dropped.
+func UnidentifiedAccessKey(profileKey []byte) []byte {
+	block, err := aes.NewCipher(profileKey)
+	if err != nil {
+		return nil
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil
+	}
+	return gcm.Seal(nil, make([]byte, 12), make([]byte, 16), nil)[:16]
+}
+
+// AccountAttributes is the account-attributes object (registration.md
+// §4.2): null members emitted, byte arrays in padded base64.
+type AccountAttributes struct {
+	SignalingKey                   *string      `json:"signalingKey"`
+	RegistrationID                 uint32       `json:"registrationId"`
+	Voice                          bool         `json:"voice"`
+	Video                          bool         `json:"video"`
+	FetchesMessages                bool         `json:"fetchesMessages"`
+	RegistrationLock               *string      `json:"registrationLock"`
+	UnidentifiedAccessKey          []byte       `json:"unidentifiedAccessKey"`
+	UnrestrictedUnidentifiedAccess bool         `json:"unrestrictedUnidentifiedAccess"`
+	DiscoverableByPhoneNumber      bool         `json:"discoverableByPhoneNumber"`
+	Capabilities                   Capabilities `json:"capabilities"`
+	Name                           *string      `json:"name"`
+	PNIRegistrationID              uint32       `json:"pniRegistrationId"`
+	RecoveryPassword               *string      `json:"recoveryPassword"`
+}
+
+// PrimaryDeviceCapabilities is signal-cli's set for a primary device.
+var PrimaryDeviceCapabilities = Capabilities{Storage: true, VersionedExpirationTimer: true, SPQR: true}
+
+// PreKeyUpload is the body of PUT /v2/keys (keys.md §2.2).
+type PreKeyUpload struct {
+	PreKeys            []PreKeyEntity       `json:"preKeys"`
+	SignedPreKey       *SignedPreKeyEntity  `json:"signedPreKey"`
+	PqLastResortPreKey *SignedPreKeyEntity  `json:"pqLastResortPreKey"`
+	PqPreKeys          []SignedPreKeyEntity `json:"pqPreKeys"`
+}
+
+// PreKeyCounts is the answer to GET /v2/keys?identity=….
+type PreKeyCounts struct {
+	Count   int `json:"count"`
+	PqCount int `json:"pqCount"`
 }

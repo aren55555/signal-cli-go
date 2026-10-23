@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"strings"
 	"testing"
@@ -78,5 +79,36 @@ func TestDecodeBase64Lenient(t *testing.T) {
 	}
 	if got, err := DecodeBase64("YQ"); err != nil || string(got) != "a" {
 		t.Errorf("unpadded: %q, %v", got, err)
+	}
+}
+
+// TestUnidentifiedAccessKey: api.md §5.1 test value.
+func TestUnidentifiedAccessKey(t *testing.T) {
+	if got := hex.EncodeToString(UnidentifiedAccessKey(make([]byte, 32))); got != "cea7403d4d606b6e074ec5d3baf39d18" {
+		t.Errorf("UAK %s", got)
+	}
+}
+
+// TestAccountAttributesJSON: registration.md §4.2, null members emitted,
+// in this order.
+func TestAccountAttributesJSON(t *testing.T) {
+	b, _ := Marshal(AccountAttributes{RegistrationID: 1234, FetchesMessages: true, UnidentifiedAccessKey: make([]byte, 16),
+		DiscoverableByPhoneNumber: true, Capabilities: LinkedDeviceCapabilities, Name: ptr("bmFtZQ"), PNIRegistrationID: 5678})
+	want := `{"signalingKey":null,"registrationId":1234,"voice":false,"video":false,"fetchesMessages":true,"registrationLock":null,` +
+		`"unidentifiedAccessKey":"AAAAAAAAAAAAAAAAAAAAAA==","unrestrictedUnidentifiedAccess":false,"discoverableByPhoneNumber":true,` +
+		`"capabilities":{"storage":true,"versionedExpirationTimer":true,"attachmentBackfill":true,"spqr":true,"usernameChangeSyncMessage":true},` +
+		`"name":"bmFtZQ","pniRegistrationId":5678,"recoveryPassword":null}`
+	if string(b) != want {
+		t.Errorf("got\n%s\nwant\n%s", b, want)
+	}
+}
+
+func ptr[T any](v T) *T { return &v }
+
+// TestPreKeyUploadJSON: keys.md §2.2, nulls emitted.
+func TestPreKeyUploadJSON(t *testing.T) {
+	b, _ := Marshal(PreKeyUpload{PreKeys: []PreKeyEntity{{KeyID: 3, PublicKey: "k"}}})
+	if want := `{"preKeys":[{"keyId":3,"publicKey":"k"}],"signedPreKey":null,"pqLastResortPreKey":null,"pqPreKeys":null}`; string(b) != want {
+		t.Errorf("got %s", b)
 	}
 }
