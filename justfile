@@ -26,9 +26,11 @@ build: _gotmp
 vet: _gotmp
     go vet ./...
 
-# Fail if gofmt would change anything (vendor/ excluded)
+# Fail if gofmt would change anything (vendor/ excluded). Fails loudly if
+# git lists no Go files (an empty or torn index), instead of letting gofmt
+# wait on stdin.
 fmt-check:
-    @test -z "$(gofmt -l $(git ls-files '*.go' | command grep -v '^vendor/'))" || { gofmt -l $(git ls-files '*.go' | command grep -v '^vendor/'); exit 1; }
+    @files=$(git ls-files '*.go' | command grep -v '^vendor/'); test -n "$files" || { echo "fmt-check: git lists no Go files (empty index? run git reset)"; exit 1; }; out=$(gofmt -l $files); test -z "$out" || { echo "$out"; exit 1; }
 
 # Offline tests (Layer A + replayed Layer B)
 test: _gotmp

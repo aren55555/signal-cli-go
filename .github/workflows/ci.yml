@@ -31,6 +31,7 @@ jobs:
       - name: gofmt
         run: |
           files=$(git ls-files '*.go' | grep -v '^vendor/')
+          test -n "$files" || { echo "no Go files listed"; exit 1; }
           test -z "$(gofmt -l $files)" || { gofmt -l $files; exit 1; }
       - name: vet
         run: go vet ./...

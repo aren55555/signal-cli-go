@@ -433,3 +433,22 @@ vectors.
     roots, auth, registration, prekeys, send;
   - "message pipe, content, linking": WebSocket messages, envelope
     acks, Content/DataMessage and padding, provisioning.
+- **Incident (2026-10-23, 21:41–21:45 UTC):** a host-side `git status`
+  poll tore `.git/index` while the main session committed "content:
+  transport padding", so that commit (`aa514f4`) recorded an empty tree.
+  The host redid it as `667daf2` with the full working tree. That commit
+  also contains the then-uncommitted `content.proto`, its generated code,
+  the capture-test content checks, and three spec drafts (reviewed
+  afterwards; CLEANROOM.md row). History before `1b9c377` is untouched.
+  - Consequences: `just fmt-check` and the CI gofmt step now fail loudly
+    on an empty file list instead of hanging on stdin. Before committing,
+    check that the index lists files; on a stale-index error, run
+    `git reset` first (operator instruction).
+- Milestone 4 specs are all in `spec/service/`. **Transport:** the chat
+  sockets go through libsignal-net as a WebSocket inside HTTP/2 extended
+  CONNECT (TLS 1.3, ALPN h2) to `grpc.chat.staging.signal.org`, trusting
+  only Signal's roots compiled into libsignal. Registration and
+  verification go over plain HTTPS REST to `chat.staging.signal.org`,
+  trusting signal-cli's `whisper.store`. Provisioning is a plain TLS
+  WebSocket. Go's stdlib has no HTTP/2 extended-CONNECT client, so that
+  layer needs designing (next).
