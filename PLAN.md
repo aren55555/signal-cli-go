@@ -358,3 +358,14 @@ vectors.
       test.
   - Until SPQR is wired in, our sessions interoperate only with
     themselves: libsignal v0.99.1 requires SPQR V1.
+- SPQR done and wired in (same day): `internal/protocol/spqr` (erasure
+  code, varints, V1 messages, chain, authenticator, 11-state SCKA, top
+  level) and the triple ratchet in `internal/protocol`. Our sessions now
+  follow libsignal v0.99.1 end to end, from what the specs and vectors can
+  show. The interop proof still needs the staging captures.
+  - Known gap: self-session (own other device) unlimited jump isn't set
+    yet; it needs the addresses at session creation.
+  - **Remaining for milestone 3:** sender keys; sealed sender v1/v2;
+    loading signal-cli's stored records (StoredSession plus SPQR state
+    per `spqr/state.md`) for the capture replay; the captures themselves
+    (operator numbers) and the offline replay test.
