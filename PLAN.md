@@ -452,3 +452,13 @@ vectors.
   trusting signal-cli's `whisper.store`. Provisioning is a plain TLS
   WebSocket. Go's stdlib has no HTTP/2 extended-CONNECT client, so that
   layer needs designing (next).
+- **HTTP/2 transport built in-repo.** Go's `net/http` implements extended
+  CONNECT internally, but every exported client path rejects the
+  `:protocol` pseudo-header, so `internal/service/h2` is a minimal client:
+  HPACK (RFC 7541, all Appendix C vectors), framing, flow control and
+  extended CONNECT (RFC 9113, RFC 8441). It is tested against Go's own
+  HTTP/2 server, re-executed with `GODEBUG=http2xconnect=1`, plus a
+  scripted peer for send-side flow control (the stdlib server's windows
+  are too large to expose overruns) and fuzzing of the frame and HPACK
+  decoders. `websocket.DialH2` layers RFC 6455 framing on an h2 stream;
+  `authorization` is sent as a never-indexed header.
