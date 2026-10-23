@@ -95,6 +95,12 @@ starts. Existing pieces:
 - **Staging hosts**: `sandbox/ALLOWED_HOSTS` may need more staging hosts
   once the oracle is observed (milestone 1). Each addition needs operator
   approval.
+- **Voice calls**: PROMPT.md says calls are out of scope "because
+  signal-cli doesn't support them". But 0.14.7 does expose call methods
+  (`startCall`, `acceptCall`, `hangupCall`, `rejectCall`, `listCalls`,
+  `subscribeCallEvents`/`unsubscribeCallEvents`, see `docs/CALL_TUNNEL.md`).
+  **Operator decision needed**: implement them, or return a documented
+  error? COMPAT.md flags those rows.
 - **License**: undecided. See `CLEANROOM.md`.
 
 ## Progress log

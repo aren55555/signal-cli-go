@@ -6,27 +6,32 @@ is stated in the Notes column.
 
 Legend: ✅ done · 🟡 partial (see notes) · ⬜ not started · n/a not applicable
 
-**Status: draft.** The CLI and JSON-RPC rows come from the milestone 1
-surface inventory (`spec/surface/`) and are not filled in yet.
+**Status: draft.** JSON-RPC rows are filled in from `spec/surface/jsonrpc/`; transport, error and zero-account behavior was observed on the binary. CLI rows are pending the CLI inventory.
 
 ## JSON-RPC daemon (priority 1)
 
 ### Transports and endpoints
 
+Spec: [`transports.md`](spec/surface/jsonrpc/transports.md), [`errors.md`](spec/surface/jsonrpc/errors.md), [`notifications.md`](spec/surface/jsonrpc/notifications.md). Raw observations: [`observations.md`](spec/surface/jsonrpc/observations.md).
+
 | Feature | Spec'd | Impl | Layer A | Layer B | Layer C | Notes |
 |---------|--------|------|---------|---------|---------|-------|
-| `daemon --http`: `POST /api/v1/rpc` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| `daemon --http`: SSE `GET /api/v1/events` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| `daemon --http`: `GET /api/v1/check` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| `daemon --socket` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| `daemon --tcp` | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
+| `daemon --http`: `POST /api/v1/rpc` | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | |
+| `daemon --http`: SSE `GET /api/v1/events` | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | |
+| `daemon --http`: `GET /api/v1/check` | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | |
+| `daemon --socket` | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | |
+| `daemon --tcp` | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | |
 | `daemon --dbus` | n/a | n/a | n/a | n/a | n/a | excluded by PROMPT.md |
-| Malformed JSON / invalid request errors | ⬜ | ⬜ | ⬜ | ⬜ | n/a | |
-| Unknown method error | ⬜ | ⬜ | ⬜ | ⬜ | n/a | |
+| Malformed JSON / invalid request errors | ✅ | ⬜ | ⬜ | ⬜ | n/a | |
+| Unknown method error | ✅ | ⬜ | ⬜ | ⬜ | n/a | |
 
 ### Methods
 
-_Rows pending the milestone 1 inventory._
+64 methods (spec: [`spec/surface/jsonrpc/methods/index.md`](spec/surface/jsonrpc/methods/index.md)). Layer A is n/a for methods: they are covered by Layer B and C.
+
+| Method | Spec'd | Impl | Layer A | Layer B | Layer C | Notes |
+|--------|--------|------|---------|---------|---------|-------|
+
 
 ## CLI (priority 2)
 
