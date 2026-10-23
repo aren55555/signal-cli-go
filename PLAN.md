@@ -20,7 +20,7 @@ every session, and update both before ending one.
 |----|---------------------------------------------|--------|
 | 0  | Bootstrap: module, justfile, CI, docs, oracle installer | done (2026-10-23) |
 | 1  | Surface inventory: CLI + JSON-RPC specs, COMPAT.md rows, account-free goldens | done (2026-10-23) |
-| 2  | Crypto primitives with Layer A vectors      | **next** |
+| 2  | Crypto primitives with Layer A vectors      | **in progress** |
 | 3  | Signal protocol core (PQXDH, ratchet, sender keys, sealed sender) | not started |
 | 4  | Service layer, first Layer C 1:1 exchange on staging | not started |
 | 5  | All message types, attachments, receipts, sync, linked devices | not started |
@@ -86,12 +86,11 @@ starts. Existing pieces:
   (after a relaunch) `compose.yaml` set `-Djava.io.tmpdir=~/.cache/jvmtmp`.
   Recording refuses any output that contains that error.
 - `go test -race` needs cgo and gcc. Commit `4cf161f` adds `gcc` and
-  `libc6-dev` to the image. **Until the operator rebuilds**, `just ci`
-  and `just test-race` fail locally; GitHub CI is unaffected.
-- The repo has no git identity configured, and the README says the
-  operator sets it from the host. Until then, commits use
-  `git -c user.name=… -c user.email=…` with the identity already in
-  history.
+  `libc6-dev` to the image. The operator rebuilt it on 2026-10-23, and
+  `just ci` (with `-race`) passes locally.
+- The git identity (Aren Patel <git@arenpatel.com>, the identity in
+  history) is set in `.git/config`, so plain `git commit` works. No
+  `-c` overrides are needed.
 - In this Claude Code build, `grep` in the agent shell is a wrapper
   function that fails with `unknown option '-G'`. Use `command grep`.
 
