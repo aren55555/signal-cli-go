@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs013--oplain-text_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-oplain-text",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "signal-cli 0.14.7\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

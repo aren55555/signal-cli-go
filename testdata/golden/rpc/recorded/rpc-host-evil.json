@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "rpc-host-evil",
+    "transport": "http",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json",
+      "Host: evil.example"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 421 ",
+    "headers": [
+      "Content-length: 0"
+    ]
+  }
+}

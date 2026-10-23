@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs038--d_nonexistent_x_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-d",
+      "/nonexistent/x",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "Failed to read local accounts list\n",
+    "exitCode": 3
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "scenario": {
+    "name": "cfgfile-xdg",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "XDG_CONFIG_HOME": "{{SCRATCH}}/xdg"
+    },
+    "files": {
+      "{{SCRATCH}}/xdg/signal-cli/config.json": "{\"output\":\"json\"}"
+    },
+    "note": "per-user config via XDG_CONFIG_HOME"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "{\"version\":\"0.14.7\"}\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

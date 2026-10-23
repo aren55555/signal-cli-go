@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs218-addDevice_--uri",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "addDevice",
+      "--uri"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli addDevice [-h] --uri URI\nsignal-cli: error: argument --uri: expected one argument\n",
+    "exitCode": 1
+  }
+}

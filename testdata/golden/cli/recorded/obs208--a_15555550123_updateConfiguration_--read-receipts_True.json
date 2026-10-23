@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs208--a_15555550123_updateConfiguration_--read-receipts_True",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "updateConfiguration",
+      "--read-receipts",
+      "True"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "User +15555550123 is not registered.\n",
+    "exitCode": 1
+  }
+}

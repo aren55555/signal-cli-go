@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs330-trust_-a_-v_123_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "trust",
+      "-a",
+      "-v",
+      "123",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "<TIMESTAMP> [main] DEBUG org.asamk.signal.util.IOUtils - XDG_RUNTIME_DIR not set, falling back to temp dir\nusage: signal-cli trust [-h] [-a | -v VERIFIED_SAFETY_NUMBER] recipient\nsignal-cli:   error:    argument    -v/--verified-safety-number/--verified-\nfingerprint: not allowed with argument -a/--trust-all-known-keys\n",
+    "exitCode": 1
+  }
+}

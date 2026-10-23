@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs200--a_15555550123_updateAccount_--number-sharing_TRUE",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "updateAccount",
+      "--number-sharing",
+      "TRUE"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "User +15555550123 is not registered.\n",
+    "exitCode": 1
+  }
+}

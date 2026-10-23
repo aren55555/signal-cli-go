@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs030---log-file_SCRATCH_lf.txt_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--log-file",
+      "{{SCRATCH}}/lf.txt",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "signal-cli 0.14.7\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

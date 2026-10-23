@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs159-sendPinMessage_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPinMessage",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli sendPinMessage [-h] [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] [--note-to-self]\n                  [--notify-self] [-d PIN_DURATION] -a TARGET_AUTHOR\n                  -t TARGET_TIMESTAMP [--story] [recipient [recipient ...]]\n\npositional arguments:\n  recipient              Specify the recipients' phone number.\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -g [GROUP_ID [GROUP_ID ...]], --group-id [GROUP_ID [GROUP_ID ...]], --group [GROUP_ID [GROUP_ID ...]]\n                         Specify the recipient group ID.\n  -u [USERNAME [USERNAME ...]], --username [USERNAME [USERNAME ...]]\n                         Specify the recipient username or username link.\n  --note-to-self         Send the pin message to self.\n  --notify-self          If  self  is  part  of  recipients/groups  send  a\n                         normal message, not a sync message.\n  -d PIN_DURATION, --pin-duration PIN_DURATION\n                         Specify the pin duration  in  seconds.  Use -1 for\n                         forever.\n  -a TARGET_AUTHOR, --target-author TARGET_AUTHOR\n                         Specify the number of  the  author  of the message\n                         to pin.\n  -t TARGET_TIMESTAMP, --target-timestamp TARGET_TIMESTAMP\n                         Specify the timestamp of the message to pin.\n  --story                Pin a story instead of a normal message\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

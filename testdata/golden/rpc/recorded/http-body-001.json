@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "http-body-001",
+    "transport": "http",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "not json"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 200 OK",
+    "headers": [
+      "Content-type: application/json",
+      "Content-length: 289"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32700,\"message\":\"Unrecognized token 'not': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 1]\",\"data\":null},\"id\":null}"
+  }
+}

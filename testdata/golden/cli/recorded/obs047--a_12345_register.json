@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs047--a_12345_register",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "12345",
+      "register"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "Invalid account (phone number), make sure you include the country code.\n",
+    "exitCode": 1
+  }
+}

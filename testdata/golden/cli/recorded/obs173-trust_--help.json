@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs173-trust_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "trust",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli trust [-h] [-a | -v VERIFIED_SAFETY_NUMBER] recipient\n\npositional arguments:\n  recipient              Specify the phone  number,  for  which  to set the\n                         trust.\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -a, --trust-all-known-keys\n                         Trust all known keys of  this  user, only use this\n                         for testing.\n  -v VERIFIED_SAFETY_NUMBER, --verified-safety-number VERIFIED_SAFETY_NUMBER, --verified-fingerprint VERIFIED_SAFETY_NUMBER\n                         Specify the safety  number  of  the  key, only use\n                         this  option  if  you  have  verified  the  safety\n                         number.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

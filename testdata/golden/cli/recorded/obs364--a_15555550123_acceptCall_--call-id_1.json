@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs364--a_15555550123_acceptCall_--call-id_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "acceptCall",
+      "--call-id",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "User +15555550123 is not registered.\n",
+    "exitCode": 1
+  }
+}

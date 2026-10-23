@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs031---scrub-log_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--scrub-log",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "signal-cli 0.14.7\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

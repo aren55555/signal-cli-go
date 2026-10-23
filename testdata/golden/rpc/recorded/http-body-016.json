@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "http-body-016",
+    "transport": "http",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":[1]}"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 200 OK",
+    "headers": [
+      "Content-type: application/json",
+      "Content-length: 544"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32600,\"message\":\"Problem deserializing property 'id' (expected type: [simple type, class com.fasterxml.jackson.databind.node.ValueNode]; actual type: `com.fasterxml.jackson.databind.node.ArrayNode`), problem: Can not set com.fasterxml.jackson.databind.node.ValueNode field org.asamk.signal.jsonrpc.JsonRpcRequest.id to com.fasterxml.jackson.databind.node.ArrayNode\\n at [Source: UNKNOWN; byte offset: #UNKNOWN] (through reference chain: org.asamk.signal.jsonrpc.JsonRpcRequest[\\\"id\\\"])\",\"data\":null},\"id\":null}"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs164-sendReceipt_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli sendReceipt [-h]\n                  -t TARGET_TIMESTAMP [TARGET_TIMESTAMP ...]\n                  [--type {read,viewed}] recipient\n\npositional arguments:\n  recipient              Specify the sender's phone number.\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -t TARGET_TIMESTAMP [TARGET_TIMESTAMP ...], --target-timestamp TARGET_TIMESTAMP [TARGET_TIMESTAMP ...]\n                         Specify the timestamp of the  messages for which a\n                         receipt should be sent.\n  --type {read,viewed}   Specify  the  receipt   type   (default   is  read\n                         receipt).\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

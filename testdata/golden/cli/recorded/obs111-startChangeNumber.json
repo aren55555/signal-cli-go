@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs111-startChangeNumber",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "startChangeNumber"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli startChangeNumber [-h] [-v] [--captcha CAPTCHA] number\nsignal-cli: error: too few arguments\n",
+    "exitCode": 1
+  }
+}

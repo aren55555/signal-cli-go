@@ -22,15 +22,24 @@ import (
 	"time"
 )
 
-// ConfigPlaceholder in a scenario's args is replaced by a fresh, empty
-// config directory for each run.
-const ConfigPlaceholder = "{{CONFIG}}"
+// Placeholders in a scenario's args, env values, file paths and file
+// contents. Each run gets a fresh, empty config directory and a separate
+// scratch directory (for config files, log files and the like).
+const (
+	ConfigPlaceholder  = "{{CONFIG}}"
+	ScratchPlaceholder = "{{SCRATCH}}"
+)
 
 // Scenario is one CLI invocation.
 type Scenario struct {
 	Name  string   `json:"name"`
 	Args  []string `json:"args"`
 	Stdin string   `json:"stdin,omitempty"`
+	// Env adds to or overrides the base environment (see scenarioEnv).
+	Env map[string]string `json:"env,omitempty"`
+	// Files are written before the run: path -> content. Paths must start
+	// with a placeholder.
+	Files map[string]string `json:"files,omitempty"`
 	// Note says what the scenario covers, for humans reading goldens.
 	Note string `json:"note,omitempty"`
 }
@@ -49,18 +58,40 @@ type Golden struct {
 	Result   Result   `json:"result"`
 }
 
-// Run executes bin with the scenario's args in a fresh config directory
-// and returns the normalized result.
+// Run executes bin with the scenario in fresh config and scratch
+// directories and returns the normalized result.
 func Run(ctx context.Context, bin string, sc Scenario) (Result, error) {
 	cfg, err := os.MkdirTemp(scratchDir(), "difftest-config-")
 	if err != nil {
 		return Result{}, err
 	}
 	defer os.RemoveAll(cfg)
+	scratch, err := os.MkdirTemp(scratchDir(), "difftest-scratch-")
+	if err != nil {
+		return Result{}, err
+	}
+	defer os.RemoveAll(scratch)
 
+	expand := strings.NewReplacer(ConfigPlaceholder, cfg, ScratchPlaceholder, scratch).Replace
+	for p, content := range sc.Files {
+		if !strings.HasPrefix(p, ConfigPlaceholder+"/") && !strings.HasPrefix(p, ScratchPlaceholder+"/") {
+			return Result{}, fmt.Errorf("%s: file path %q must start with a placeholder", sc.Name, p)
+		}
+		path := expand(p)
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			return Result{}, err
+		}
+		if err := os.WriteFile(path, []byte(expand(content)), 0o644); err != nil {
+			return Result{}, err
+		}
+	}
 	args := make([]string, len(sc.Args))
 	for i, a := range sc.Args {
-		args[i] = strings.ReplaceAll(a, ConfigPlaceholder, cfg)
+		args[i] = expand(a)
+	}
+	env := scenarioEnv(scratch)
+	for k, v := range sc.Env {
+		env = append(env, k+"="+expand(v)) // later entries win
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
@@ -70,28 +101,27 @@ func Run(ctx context.Context, bin string, sc Scenario) (Result, error) {
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-	cmd.Env = scenarioEnv()
+	cmd.Env = env
 
 	err = cmd.Run()
 	code := 0
 	var exitErr *exec.ExitError
 	switch {
+	case ctx.Err() != nil:
+		return Result{}, fmt.Errorf("%s: timed out", sc.Name)
 	case errors.As(err, &exitErr):
 		code = exitErr.ExitCode()
 	case err != nil:
 		return Result{}, fmt.Errorf("%s: %w", sc.Name, err)
 	}
-	if ctx.Err() != nil {
-		return Result{}, fmt.Errorf("%s: timed out", sc.Name)
-	}
 	return Result{
-		Stdout:   Normalize(stdout.String(), cfg),
-		Stderr:   Normalize(stderr.String(), cfg),
+		Stdout:   Normalize(stdout.String(), cfg, scratch),
+		Stderr:   Normalize(stderr.String(), cfg, scratch),
 		ExitCode: code,
 	}, nil
 }
 
-// scratchDir is where per-run config dirs go. /tmp is noexec in the
+// scratchDir is where per-run directories go. /tmp is noexec in the
 // sandbox, which is fine for data, but GOTMPDIR keeps everything in one
 // place when it is set.
 func scratchDir() string {
@@ -101,11 +131,15 @@ func scratchDir() string {
 	return os.TempDir()
 }
 
-// scenarioEnv is a minimal, stable environment so locale, terminal width
-// and the operator's secrets never leak into a run.
-func scenarioEnv() []string {
-	env := []string{"LANG=C.UTF-8", "LC_ALL=C.UTF-8", "TZ=UTC", "COLUMNS=80", "TERM=dumb"}
-	for _, k := range []string{"PATH", "HOME", "JAVA_HOME",
+// scenarioEnv is a minimal, stable environment so the operator's locale,
+// config files and secrets never leak into a run. COLUMNS is left unset:
+// with no terminal, signal-cli wraps help at 75 columns, which is what
+// scripts and integrations see. Scenarios that test other widths set it.
+// HOME points into the scratch dir so no per-user config file is read.
+func scenarioEnv(scratch string) []string {
+	env := []string{"LANG=C.UTF-8", "LC_ALL=C.UTF-8", "TZ=UTC", "TERM=dumb",
+		"HOME=" + filepath.Join(scratch, "home")}
+	for _, k := range []string{"PATH", "JAVA_HOME",
 		"HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "NO_PROXY", "no_proxy"} {
 		if v, ok := os.LookupEnv(k); ok {
 			env = append(env, k+"="+v)
@@ -150,11 +184,14 @@ var normalizers = []normalizer{
 	},
 }
 
-// Normalize replaces the per-run config dir with <CONFIG> and then applies
-// the documented normalizers.
-func Normalize(s, configDir string) string {
+// Normalize replaces the per-run config and scratch dirs with <CONFIG> and
+// <SCRATCH>, then applies the documented normalizers.
+func Normalize(s, configDir, scratchDir string) string {
 	if configDir != "" {
 		s = strings.ReplaceAll(s, configDir, "<CONFIG>")
+	}
+	if scratchDir != "" {
+		s = strings.ReplaceAll(s, scratchDir, "<SCRATCH>")
 	}
 	for _, n := range normalizers {
 		s = n.re.ReplaceAllString(s, n.to)
@@ -212,13 +249,17 @@ func GoldenPath(dir string, sc Scenario) string {
 	return filepath.Join(dir, sc.Name+".json")
 }
 
-// WriteGolden writes g crash-safely (temp file, fsync, rename).
+// WriteGolden writes g crash-safely.
 func WriteGolden(path string, g Golden) error {
 	data, err := json.MarshalIndent(g, "", "  ")
 	if err != nil {
 		return err
 	}
-	data = append(data, '\n')
+	return writeFileAtomic(path, append(data, '\n'))
+}
+
+// writeFileAtomic writes via a temp file, fsync and rename.
+func writeFileAtomic(path string, data []byte) error {
 	tmp, err := os.CreateTemp(filepath.Dir(path), ".golden-*")
 	if err != nil {
 		return err

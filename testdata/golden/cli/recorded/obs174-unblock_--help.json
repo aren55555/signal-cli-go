@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs174-unblock_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "unblock",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli unblock [-h] [-g [GROUP_ID [GROUP_ID ...]]]\n                  [recipient [recipient ...]]\n\npositional arguments:\n  recipient              Contact number\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -g [GROUP_ID [GROUP_ID ...]], --group-id [GROUP_ID [GROUP_ID ...]], --group [GROUP_ID [GROUP_ID ...]]\n                         Group ID\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

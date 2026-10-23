@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs275-sendReaction_-e_x_-a_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReaction",
+      "-e",
+      "x",
+      "-a",
+      "+1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendReaction [-h] [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] [--note-to-self]\n                  [--notify-self] -e EMOJI -a TARGET_AUTHOR\n                  -t TARGET_TIMESTAMP [-r] [--story]\n                  [recipient [recipient ...]]\nsignal-cli: error: argument -t/--target-timestamp is required\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "http-body-040",
+    "transport": "http",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":{\"account\":\"+15555550123\"},\"id\":23}"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 200 OK",
+    "headers": [
+      "Content-type: application/json",
+      "Content-length: 106"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32602,\"message\":\"Specified account does not exist\",\"data\":null},\"id\":23}"
+  }
+}

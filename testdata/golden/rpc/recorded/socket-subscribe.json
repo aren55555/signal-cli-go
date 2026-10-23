@@ -1,0 +1,15 @@
+{
+  "scenario": {
+    "name": "socket-subscribe",
+    "transport": "socket",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)",
+    "send": "{\"jsonrpc\":\"2.0\",\"method\":\"subscribeReceive\",\"id\":1}\n{\"jsonrpc\":\"2.0\",\"method\":\"listAccounts\",\"id\":2}\n"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "messages": [
+      "{\"jsonrpc\":\"2.0\",\"result\":8,\"id\":1}",
+      "{\"jsonrpc\":\"2.0\",\"result\":[],\"id\":2}"
+    ]
+  }
+}

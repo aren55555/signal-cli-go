@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs113-trust",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "trust"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli trust [-h] [-a | -v VERIFIED_SAFETY_NUMBER] recipient\nsignal-cli: error: too few arguments\n",
+    "exitCode": 1
+  }
+}

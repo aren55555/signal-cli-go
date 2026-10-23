@@ -1,0 +1,23 @@
+{
+  "scenario": {
+    "name": "cfgfile-unknown-key",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/unk.json"
+    },
+    "files": {
+      "{{SCRATCH}}/unk.json": "{\"unknownKey\":1}"
+    },
+    "note": "unknown config key is an error"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "Failed to parse configuration file(s): Unrecognized field \"unknownKey\" (class org.asamk.signal.GlobalConfig), not marked as ignorable (12 known properties: \"logFile\", \"output\", \"verbose\", \"dataDir\", \"trustNewIdentities\", \"scrubLog\", \"busName\", \"dbus\", \"account\", \"serviceEnvironment\", \"disableSendLog\", \"dbusSystem\")\n at [Source: UNKNOWN; byte offset: #UNKNOWN] (through reference chain: org.asamk.signal.GlobalConfig[\"unknownKey\"])\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "events-unknown-account",
+    "transport": "http",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)",
+    "method": "GET",
+    "path": "/api/v1/events?account=%2B15555550123",
+    "streamForMs": 1000
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 400 Bad Request",
+    "headers": [
+      "Content-length: 0"
+    ]
+  }
+}

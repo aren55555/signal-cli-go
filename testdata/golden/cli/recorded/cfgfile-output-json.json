@@ -1,0 +1,23 @@
+{
+  "scenario": {
+    "name": "cfgfile-output-json",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/out.json"
+    },
+    "files": {
+      "{{SCRATCH}}/out.json": "{\"output\":\"json\"}"
+    },
+    "note": "SIGNAL_CLI_CONFIG sets output"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "{\"version\":\"0.14.7\"}\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

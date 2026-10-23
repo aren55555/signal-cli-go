@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs296-receive_-t_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "receive",
+      "-t",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli receive [-h] [-t TIMEOUT] [--max-messages MAX_MESSAGES]\n                  [--ignore-attachments] [--ignore-stories]\n                  [--ignore-avatars] [--ignore-stickers]\n                  [--send-read-receipts]\nsignal-cli: error:  argument  -t/--timeout:  could  not  convert  'abc'  to\nnumber (double precision)\n",
+    "exitCode": 1
+  }
+}

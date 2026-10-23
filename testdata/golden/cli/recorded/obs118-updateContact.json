@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs118-updateContact",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateContact"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli updateContact [-h] [-n NAME] [--given-name GIVEN_NAME]\n                  [--family-name FAMILY_NAME]\n                  [--nick-given-name NICK_GIVEN_NAME]\n                  [--nick-family-name NICK_FAMILY_NAME] [--note NOTE]\n                  [-e EXPIRATION] recipient\nsignal-cli: error: too few arguments\n",
+    "exitCode": 1
+  }
+}

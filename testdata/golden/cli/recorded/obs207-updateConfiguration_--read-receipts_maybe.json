@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs207-updateConfiguration_--read-receipts_maybe",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateConfiguration",
+      "--read-receipts",
+      "maybe"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "No local users found, you first need to register or link an account\n",
+    "exitCode": 1
+  }
+}

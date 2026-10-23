@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs251-sendAdminDelete_-t_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete",
+      "-t",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendAdminDelete [-h] [-g GROUP_ID [GROUP_ID ...]]\n                  [--notify-self] -a TARGET_AUTHOR -t TARGET_TIMESTAMP\n                  [--story]\nsignal-cli: error: argument -a/--target-author is required\n",
+    "exitCode": 1
+  }
+}

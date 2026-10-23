@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs359-startCall_15555550199_15555550198",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "startCall",
+      "+15555550199",
+      "+15555550198"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli startCall [-h] recipient\nsignal-cli: error: unrecognized arguments: '+15555550198'\n",
+    "exitCode": 1
+  }
+}

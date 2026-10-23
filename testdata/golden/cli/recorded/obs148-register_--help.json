@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs148-register_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "register",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli register [-h] [-v] [--captcha CAPTCHA] [--reregister]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --voice            The verification should  be  done  over voice, not\n                         SMS.\n  --captcha CAPTCHA      The  captcha  token,   required   if  registration\n                         failed with a captcha required error.\n  --reregister           Register even if account is already registered\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

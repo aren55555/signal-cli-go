@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "http-body-036",
+    "transport": "http",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"nope\"}"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 201 Created",
+    "headers": [
+      "Content-length: 0"
+    ]
+  }
+}

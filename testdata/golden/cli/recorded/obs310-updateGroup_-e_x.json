@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs310-updateGroup_-e_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateGroup",
+      "-e",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli updateGroup [-h] [-g GROUP_ID] [-n NAME] [-d DESCRIPTION]\n                  [-a AVATAR] [-m [MEMBER [MEMBER ...]]]\n                  [-r [REMOVE_MEMBER [REMOVE_MEMBER ...]]]\n                  [--admin [ADMIN [ADMIN ...]]]\n                  [--remove-admin [REMOVE_ADMIN [REMOVE_ADMIN ...]]]\n                  [--ban [BAN [BAN ...]]] [--unban [UNBAN [UNBAN ...]]]\n                  [--reset-link]\n                  [--link {enabled,enabled-with-approval,disabled}]\n                  [--set-permission-add-member {every-member,only-admins}]\n                  [--set-permission-edit-details {every-member,only-admins}]\n                  [--set-permission-send-messages {every-member,only-admins}]\n                  [-e EXPIRATION] [--member-label-emoji MEMBER_LABEL_EMOJI]\n                  [--member-label MEMBER_LABEL]\nsignal-cli: error:  argument  -e/--expiration:  could  not  convert  'x' to\ninteger (32 bits)\n",
+    "exitCode": 1
+  }
+}

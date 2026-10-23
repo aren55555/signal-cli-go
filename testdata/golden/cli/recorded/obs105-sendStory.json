@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs105-sendStory",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendStory"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendStory [-h] -a ATTACHMENT [--no-replies] [-g GROUP_ID]\nsignal-cli: error: argument -a/--attachment is required\n",
+    "exitCode": 1
+  }
+}

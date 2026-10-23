@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs092-removeDevice",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeDevice"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli removeDevice [-h] -d DEVICE_ID\nsignal-cli: error: argument -d/--device-id/--deviceId is required\n",
+    "exitCode": 1
+  }
+}

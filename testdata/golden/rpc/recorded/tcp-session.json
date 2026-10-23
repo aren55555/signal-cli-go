@@ -1,0 +1,37 @@
+{
+  "scenario": {
+    "name": "tcp-session",
+    "transport": "tcp",
+    "note": "spec/surface/jsonrpc/observations.md section 5, one connection",
+    "send": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}\nnot json\n\n   \n[]\n42\nnull\n{}\n{\"jsonrpc\":\"2.0\",\"method\":\"version\"}\n{\"jsonrpc\":\"2.0\",\"method\":\"nope\",\"id\":2}\n[{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":3},{\"jsonrpc\":\"2.0\",\"method\":\"version\"}]\n[{\"jsonrpc\":\"2.0\",\"method\":\"version\"}]\n{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":4} {\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":5}\n{\"jsonrpc\":\"2.0\",\"result\":{},\"id\":9}\n{\"jsonrpc\":\"2.0\",\"method\":\"subscribeReceive\",\"id\":6}\n{\"jsonrpc\":\"2.0\",\"method\":\"subscribeReceive\",\"id\":7}\n{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeReceive\",\"params\":{\"subscription\":999},\"id\":8}\n{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeReceive\",\"id\":10}\n{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeReceive\",\"params\":[1],\"id\":11}\n{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeReceive\",\"params\":{},\"id\":12}\n{\"jsonrpc\":\"2.0\",\"method\":\"subscribeCallEvents\",\"id\":13}\n{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeCallEvents\",\"id\":14}\n{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeCallEvents\",\"params\":{\"subscription\":\"abc\"},\"id\":15}\n{\"jsonrpc\":\"2.0\",\"method\":\"listAccounts\",\"id\":16}\n{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":\"crlf\"}\r\n{\"jsonrpc\":\"2.0\",\n\"method\":\"version\",\"id\":\"split\"}\n"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "messages": [
+      "{\"jsonrpc\":\"2.0\",\"result\":{\"version\":\"0.14.7\"},\"id\":1}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32700,\"message\":\"Unrecognized token 'not': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 1]\",\"data\":null},\"id\":null}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32700,\"message\":\"Empty input line\",\"data\":null},\"id\":null}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32700,\"message\":\"Empty input line\",\"data\":null},\"id\":null}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32600,\"message\":\"invalid request\",\"data\":null},\"id\":null}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32600,\"message\":\"unexpected type: NUMBER\",\"data\":null},\"id\":null}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32600,\"message\":\"unexpected type: NULL\",\"data\":null},\"id\":null}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32600,\"message\":\"only jsonrpc version 2.0 is supported\",\"data\":null},\"id\":null}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32601,\"message\":\"Method not implemented\",\"data\":null},\"id\":2}",
+      "{\"jsonrpc\":\"2.0\",\"result\":{\"version\":\"0.14.7\"},\"id\":4}",
+      "[{\"jsonrpc\":\"2.0\",\"result\":{\"version\":\"0.14.7\"},\"id\":3}]",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32700,\"message\":\"Unexpected end-of-input within/between Object entries\\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 18]\",\"data\":null},\"id\":null}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32600,\"message\":\"unexpected type: STRING\",\"data\":null},\"id\":null}",
+      "{\"jsonrpc\":\"2.0\",\"result\":4,\"id\":6}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-1,\"message\":\"Unknown subscription id\",\"data\":null},\"id\":11}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-1,\"message\":\"Unknown subscription id\",\"data\":null},\"id\":15}",
+      "{\"jsonrpc\":\"2.0\",\"result\":{\"version\":\"0.14.7\"},\"id\":\"crlf\"}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-1,\"message\":\"Unknown subscription id\",\"data\":null},\"id\":8}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-1,\"message\":\"Missing subscription parameter with subscription id\",\"data\":null},\"id\":10}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-1,\"message\":\"Missing subscription parameter with subscription id\",\"data\":null},\"id\":14}",
+      "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32603,\"message\":\"Cannot invoke \\\"com.fasterxml.jackson.databind.JsonNode.asInt()\\\" because the return value of \\\"com.fasterxml.jackson.databind.node.ObjectNode.get(String)\\\" is null (NullPointerException)\",\"data\":null},\"id\":12}",
+      "{\"jsonrpc\":\"2.0\",\"result\":6,\"id\":13}",
+      "{\"jsonrpc\":\"2.0\",\"result\":5,\"id\":7}",
+      "{\"jsonrpc\":\"2.0\",\"result\":[],\"id\":16}"
+    ]
+  }
+}

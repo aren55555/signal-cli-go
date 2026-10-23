@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs318-listIdentities_-n",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listIdentities",
+      "-n"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli listIdentities [-h] [-n NUMBER]\nsignal-cli: error: argument -n/--number: expected one argument\n",
+    "exitCode": 1
+  }
+}

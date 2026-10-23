@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs326-removeContact_1_2",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeContact",
+      "+1",
+      "+2"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli removeContact [-h] [--hide | --forget] recipient\nsignal-cli: error: unrecognized arguments: '+2'\n",
+    "exitCode": 1
+  }
+}

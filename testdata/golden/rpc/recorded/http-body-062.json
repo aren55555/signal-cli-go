@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "http-body-062",
+    "transport": "http",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listAccounts\",\"params\":[],\"id\":11}"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 200 OK",
+    "headers": [
+      "Content-type: application/json",
+      "Content-length: 262"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32600,\"message\":\"Cannot deserialize value of type `java.util.LinkedHashMap\u003cjava.lang.String,java.lang.Object\u003e` from Array value (token `JsonToken.START_ARRAY`)\\n at [Source: UNKNOWN; byte offset: #UNKNOWN]\",\"data\":null},\"id\":11}"
+  }
+}

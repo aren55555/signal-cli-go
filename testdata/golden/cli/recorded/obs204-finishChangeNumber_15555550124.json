@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs204-finishChangeNumber_15555550124",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "finishChangeNumber",
+      "+15555550124"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli finishChangeNumber [-h] -v VERIFICATION_CODE [-p PIN]\n                  number\nsignal-cli: error: argument -v/--verification-code is required\n",
+    "exitCode": 1
+  }
+}

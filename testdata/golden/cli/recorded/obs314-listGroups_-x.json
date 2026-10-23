@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs314-listGroups_-x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listGroups",
+      "-x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli listGroups [-h] [-d] [-g [GROUP_ID [GROUP_ID ...]]]\nsignal-cli: error: unrecognized arguments: '-x'\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs190-verify_1_2",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "verify",
+      "1",
+      "2"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli verify [-h] [-p PIN] verification_code\nsignal-cli: error: unrecognized arguments: '2'\n",
+    "exitCode": 1
+  }
+}

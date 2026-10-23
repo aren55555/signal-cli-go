@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs137-jsonRpc_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "jsonRpc",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli jsonRpc [-h] [--ignore-attachments] [--ignore-stories]\n                  [--ignore-avatars] [--ignore-stickers]\n                  [--send-read-receipts]\n                  [--receive-mode {on-start,on-connection,manual}]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  --ignore-attachments   Don’t download attachments of received messages.\n  --ignore-stories       Don’t receive story messages from the server.\n  --ignore-avatars       Don't download avatars of received messages.\n  --ignore-stickers      Don't download sticker packs of received messages.\n  --send-read-receipts   Send read receipts for  all incoming data messages\n                         (in addition to the default delivery receipts)\n  --receive-mode {on-start,on-connection,manual}\n                         Specify when to start receiving messages.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "scenario": {
+    "name": "obs250--a_15555550123_-o_json_send_-m_hi_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "-o",
+      "json",
+      "send",
+      "-m",
+      "hi",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "User +15555550123 is not registered.\n",
+    "exitCode": 1
+  }
+}

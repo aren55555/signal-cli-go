@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs109-setPin",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "setPin"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli setPin [-h] pin\nsignal-cli: error: too few arguments\n",
+    "exitCode": 1
+  }
+}

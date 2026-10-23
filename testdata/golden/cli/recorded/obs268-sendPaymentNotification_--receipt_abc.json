@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs268-sendPaymentNotification_--receipt_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPaymentNotification",
+      "--receipt",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendPaymentNotification [-h] --receipt RECEIPT\n                  [--note NOTE] recipient\nsignal-cli: error: too few arguments\n",
+    "exitCode": 1
+  }
+}

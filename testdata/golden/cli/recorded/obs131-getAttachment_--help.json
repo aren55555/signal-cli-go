@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs131-getAttachment_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAttachment",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli getAttachment [-h] --id ID (--recipient RECIPIENT |\n                  -g GROUP_ID)\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  --id ID                The ID of the attachment file.\n  --recipient RECIPIENT  Sender of the attachment\n  -g GROUP_ID, --group-id GROUP_ID\n                         Group in which the attachment was received\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

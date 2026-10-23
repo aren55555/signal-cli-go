@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs110-startCall",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "startCall"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli startCall [-h] recipient\nsignal-cli: error: too few arguments\n",
+    "exitCode": 1
+  }
+}

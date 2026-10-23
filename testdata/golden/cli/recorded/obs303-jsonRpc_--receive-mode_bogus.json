@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs303-jsonRpc_--receive-mode_bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "jsonRpc",
+      "--receive-mode",
+      "bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli jsonRpc [-h] [--ignore-attachments] [--ignore-stories]\n                  [--ignore-avatars] [--ignore-stickers]\n                  [--send-read-receipts]\n                  [--receive-mode {on-start,on-connection,manual}]\nsignal-cli: error:  argument  --receive-mode:  could  not  convert  'bogus'\n(choose from {on-start,on-connection,manual})\n",
+    "exitCode": 1
+  }
+}

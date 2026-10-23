@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "obs257-sendPollCreate_-o_a_b",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollCreate",
+      "-o",
+      "a",
+      "b"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendPollCreate [-h] [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] [--note-to-self]\n                  [--notify-self] -q QUESTION [--no-multi]\n                  -o OPTION [OPTION ...] [recipient [recipient ...]]\nsignal-cli: error: argument -q/--question is required\n",
+    "exitCode": 1
+  }
+}

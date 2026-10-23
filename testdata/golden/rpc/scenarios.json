@@ -1,0 +1,1702 @@
+[
+  {
+    "name": "check-get",
+    "transport": "http",
+    "method": "GET",
+    "path": "/api/v1/check",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "check-post",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/check",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "check-head",
+    "transport": "http",
+    "method": "HEAD",
+    "path": "/api/v1/check",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "check-trailing-slash",
+    "transport": "http",
+    "method": "GET",
+    "path": "/api/v1/check/",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "check-query",
+    "transport": "http",
+    "method": "GET",
+    "path": "/api/v1/check?x=1",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "check-no-host",
+    "transport": "http",
+    "method": "GET",
+    "path": "/api/v1/check",
+    "noHost": true,
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "check-evil-host",
+    "transport": "http",
+    "method": "GET",
+    "path": "/api/v1/check",
+    "headers": [
+      "Host: evil.example"
+    ],
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-get",
+    "transport": "http",
+    "method": "GET",
+    "path": "/api/v1/rpc",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-put",
+    "transport": "http",
+    "method": "PUT",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-ct-empty",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type:"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-ct-text",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: text/plain"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-ct-missing",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-ct-charset",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json; charset=utf-8"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-ct-json-rpc",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json-rpc"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-ct-uppercase",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: Application/JSON"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-trailing-slash",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc/",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-near-miss",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpcx",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-query",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc?foo=bar",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "path-root",
+    "transport": "http",
+    "method": "GET",
+    "path": "/",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "path-api-v1",
+    "transport": "http",
+    "method": "GET",
+    "path": "/api/v1/",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "path-unknown",
+    "transport": "http",
+    "method": "GET",
+    "path": "/api/v1/unknown",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-host-evil",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json",
+      "Host: evil.example"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-host-localhost",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json",
+      "Host: localhost:{{PORT}}"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-host-ipv6",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json",
+      "Host: [::1]"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "rpc-no-host",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "noHost": true,
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "events-get",
+    "transport": "http",
+    "method": "GET",
+    "path": "/api/v1/events",
+    "streamForMs": 2000,
+    "note": "SSE headers; zero accounts so no events arrive in 2s"
+  },
+  {
+    "name": "events-unknown-account",
+    "transport": "http",
+    "method": "GET",
+    "path": "/api/v1/events?account=%2B15555550123",
+    "streamForMs": 1000,
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "events-empty-account",
+    "transport": "http",
+    "method": "GET",
+    "path": "/api/v1/events?account=",
+    "streamForMs": 1000,
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "events-post",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/events",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "tcp-version",
+    "transport": "tcp",
+    "send": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}\n",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "socket-version",
+    "transport": "socket",
+    "send": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}\n",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "tcp-session",
+    "transport": "tcp",
+    "note": "spec/surface/jsonrpc/observations.md section 5, one connection",
+    "send": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}\nnot json\n\n   \n[]\n42\nnull\n{}\n{\"jsonrpc\":\"2.0\",\"method\":\"version\"}\n{\"jsonrpc\":\"2.0\",\"method\":\"nope\",\"id\":2}\n[{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":3},{\"jsonrpc\":\"2.0\",\"method\":\"version\"}]\n[{\"jsonrpc\":\"2.0\",\"method\":\"version\"}]\n{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":4} {\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":5}\n{\"jsonrpc\":\"2.0\",\"result\":{},\"id\":9}\n{\"jsonrpc\":\"2.0\",\"method\":\"subscribeReceive\",\"id\":6}\n{\"jsonrpc\":\"2.0\",\"method\":\"subscribeReceive\",\"id\":7}\n{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeReceive\",\"params\":{\"subscription\":999},\"id\":8}\n{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeReceive\",\"id\":10}\n{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeReceive\",\"params\":[1],\"id\":11}\n{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeReceive\",\"params\":{},\"id\":12}\n{\"jsonrpc\":\"2.0\",\"method\":\"subscribeCallEvents\",\"id\":13}\n{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeCallEvents\",\"id\":14}\n{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeCallEvents\",\"params\":{\"subscription\":\"abc\"},\"id\":15}\n{\"jsonrpc\":\"2.0\",\"method\":\"listAccounts\",\"id\":16}\n{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":\"crlf\"}\r\n{\"jsonrpc\":\"2.0\",\n\"method\":\"version\",\"id\":\"split\"}\n"
+  },
+  {
+    "name": "socket-subscribe",
+    "transport": "socket",
+    "send": "{\"jsonrpc\":\"2.0\",\"method\":\"subscribeReceive\",\"id\":1}\n{\"jsonrpc\":\"2.0\",\"method\":\"listAccounts\",\"id\":2}\n",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "tcp-cr-only",
+    "transport": "tcp",
+    "send": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":\"cr\"}\r",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "tcp-no-newline",
+    "transport": "tcp",
+    "send": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)"
+  },
+  {
+    "name": "http-body-001",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "not json",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-002",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-003",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "   ",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-004",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "[]",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-005",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "42",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-006",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "\"str\"",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-007",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "null",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-008",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-009",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"id\":5}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-010",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"1.0\",\"method\":\"version\",\"id\":6}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-011",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"method\":\"version\",\"id\":7}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-012",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\"}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-013",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":\"abc\"}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-014",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":null}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-015",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1.5}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-016",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":[1]}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-017",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":{\"a\":1}}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-018",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":null,\"id\":8}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-019",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":[],\"id\":9}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-020",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":\"x\",\"id\":10}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-021",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":{\"foo\":1},\"id\":11}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-022",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":123,\"id\":12}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-023",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":13,\"extra\":true}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-024",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":2.0,\"method\":\"version\",\"id\":14}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-025",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":15} trailing",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-026",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":16}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-027",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "[{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1},{\"jsonrpc\":\"2.0\",\"method\":\"listAccounts\",\"id\":2}]",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-028",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "[{\"jsonrpc\":\"2.0\",\"method\":\"version\"}]",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-029",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "[{\"jsonrpc\":\"2.0\",\"method\":\"version\"},{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":3}]",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-030",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "[1,2]",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-031",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "[{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1},\"x\",{\"jsonrpc\":\"1.0\",\"method\":\"version\",\"id\":4},{\"jsonrpc\":\"2.0\",\"method\":\"nope\",\"id\":5}]",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-032",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "[[]]",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-033",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "[{\"jsonrpc\":\"2.0\",\"result\":1,\"id\":1}]",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-034",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"result\":1,\"id\":1}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-035",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":1,\"message\":\"x\"},\"id\":1}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-036",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"nope\"}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-037",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"send\",\"id\":20}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-038",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"send\",\"params\":{\"account\":\"+15555550123\"},\"id\":21}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-039",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"send\",\"params\":{\"account\":null},\"id\":22}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-040",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":{\"account\":\"+15555550123\"},\"id\":23}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-041",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listAccounts\",\"params\":{\"account\":\"+15555550123\"},\"id\":24}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-042",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"subscribeReceive\",\"id\":25}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-043",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeReceive\",\"id\":26}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-044",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeReceive\",\"params\":{\"subscription\":999},\"id\":27}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-045",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"subscribeCallEvents\",\"id\":28}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-046",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeCallEvents\",\"params\":[0],\"id\":29}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-047",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"link\",\"id\":30}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-048",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"daemon\",\"id\":31}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-049",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"jsonRpc\",\"id\":32}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-050",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listContacts\",\"params\":{\"account\":\"+15555550123\"},\"id\":33}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-051",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"VERSION\",\"id\":34}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-052",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"list-accounts\",\"id\":35}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-053",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-054",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":{},\"id\":2}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-055",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":null,\"id\":3}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-056",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":[],\"id\":4}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-057",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":{\"account\":\"+15555550123\"},\"id\":5}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-058",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":{\"account\":null},\"id\":6}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-059",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":{\"foo\":1},\"id\":7}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-060",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":{\"account\":\"8a5f0e4b-1b2c-4d3e-9f00-123456789abc\"},\"id\":8}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-061",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listAccounts\",\"id\":10}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-062",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listAccounts\",\"params\":[],\"id\":11}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-063",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listAccounts\",\"params\":{\"account\":\"+15555550123\"},\"id\":12}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-064",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listAccounts\",\"params\":[1,2],\"id\":13}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "http-body-065",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"params\":\"x\",\"id\":14}",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)"
+  },
+  {
+    "name": "method-noparams-acceptCall",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"acceptCall\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-addDevice",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"addDevice\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-addStickerPack",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"addStickerPack\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-block",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"block\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-deleteLocalAccountData",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"deleteLocalAccountData\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-finishChangeNumber",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"finishChangeNumber\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-getAttachment",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"getAttachment\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-getAvatar",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"getAvatar\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-getSticker",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"getSticker\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-getUserStatus",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"getUserStatus\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-hangupCall",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"hangupCall\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-joinGroup",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"joinGroup\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-listAccounts",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listAccounts\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-listCalls",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listCalls\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-listContacts",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listContacts\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-listDevices",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listDevices\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-listGroups",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listGroups\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-listIdentities",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listIdentities\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-listStickerPacks",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listStickerPacks\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-quitGroup",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"quitGroup\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-receive",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"receive\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-register",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"register\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-rejectCall",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"rejectCall\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-remoteDelete",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"remoteDelete\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-removeContact",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"removeContact\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-removeDevice",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"removeDevice\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-removePin",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"removePin\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-send",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"send\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendAdminDelete",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendAdminDelete\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendContacts",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendContacts\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendMessageRequestResponse",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendMessageRequestResponse\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendPaymentNotification",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendPaymentNotification\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendPinMessage",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendPinMessage\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendPollCreate",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendPollCreate\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendPollTerminate",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendPollTerminate\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendPollVote",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendPollVote\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendReaction",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendReaction\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendReceipt",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendReceipt\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendStory",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendStory\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendSyncRequest",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendSyncRequest\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendTyping",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendTyping\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-sendUnpinMessage",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"sendUnpinMessage\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-setPin",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"setPin\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-startCall",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"startCall\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-startChangeNumber",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"startChangeNumber\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-submitRateLimitChallenge",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"submitRateLimitChallenge\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-subscribeCallEvents",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"subscribeCallEvents\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-subscribeReceive",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"subscribeReceive\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-trust",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"trust\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-unblock",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"unblock\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-unregister",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"unregister\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-unsubscribeCallEvents",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeCallEvents\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-unsubscribeReceive",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"unsubscribeReceive\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-updateAccount",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"updateAccount\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-updateConfiguration",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"updateConfiguration\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-updateContact",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"updateContact\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-updateDevice",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"updateDevice\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-updateGroup",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"updateGroup\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-updateProfile",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"updateProfile\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-uploadStickerPack",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"uploadStickerPack\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-verify",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"verify\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  },
+  {
+    "name": "method-noparams-version",
+    "transport": "http",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}",
+    "note": "every method with zero accounts and no params"
+  }
+]

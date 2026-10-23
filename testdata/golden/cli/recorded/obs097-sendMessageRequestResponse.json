@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs097-sendMessageRequestResponse",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendMessageRequestResponse"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendMessageRequestResponse [-h]\n                  [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] --type {accept,delete}\n                  [recipient [recipient ...]]\nsignal-cli: error: argument --type is required\n",
+    "exitCode": 1
+  }
+}

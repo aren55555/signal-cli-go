@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "obs197-updateAccount_-u_x_--delete-username",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateAccount",
+      "-u",
+      "x",
+      "--delete-username"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli updateAccount [-h] [-n DEVICE_NAME]\n                  [--unrestricted-unidentified-sender {true,false}]\n                  [--discoverable-by-number {true,false}]\n                  [--number-sharing {true,false}] [-u USERNAME |\n                  --delete-username]\nsignal-cli: error: argument --delete-username: not  allowed with argument -\nu/--username\n",
+    "exitCode": 1
+  }
+}

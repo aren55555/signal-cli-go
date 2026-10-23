@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs168-sendUnpinMessage_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendUnpinMessage",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli sendUnpinMessage [-h] [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] [--note-to-self]\n                  [--notify-self] -a TARGET_AUTHOR -t TARGET_TIMESTAMP\n                  [--story] [recipient [recipient ...]]\n\npositional arguments:\n  recipient              Specify the recipients' phone number.\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -g [GROUP_ID [GROUP_ID ...]], --group-id [GROUP_ID [GROUP_ID ...]], --group [GROUP_ID [GROUP_ID ...]]\n                         Specify the recipient group ID.\n  -u [USERNAME [USERNAME ...]], --username [USERNAME [USERNAME ...]]\n                         Specify the recipient username or username link.\n  --note-to-self         Send the unpin message to self.\n  --notify-self          If  self  is  part  of  recipients/groups  send  a\n                         normal message, not a sync message.\n  -a TARGET_AUTHOR, --target-author TARGET_AUTHOR\n                         Specify the number of  the  author  of the message\n                         to unpin.\n  -t TARGET_TIMESTAMP, --target-timestamp TARGET_TIMESTAMP\n                         Specify the timestamp of the message to unpin.\n  --story                Unpin a story instead of a normal message\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

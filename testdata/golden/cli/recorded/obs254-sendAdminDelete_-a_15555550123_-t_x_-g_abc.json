@@ -1,0 +1,23 @@
+{
+  "scenario": {
+    "name": "obs254-sendAdminDelete_-a_15555550123_-t_x_-g_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete",
+      "-a",
+      "+15555550123",
+      "-t",
+      "x",
+      "-g",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendAdminDelete [-h] [-g GROUP_ID [GROUP_ID ...]]\n                  [--notify-self] -a TARGET_AUTHOR -t TARGET_TIMESTAMP\n                  [--story]\nsignal-cli: error: argument  -t/--target-timestamp:  could  not convert 'x'\nto integer (64 bits)\n",
+    "exitCode": 1
+  }
+}

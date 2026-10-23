@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs171-startChangeNumber_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "startChangeNumber",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli startChangeNumber [-h] [-v] [--captcha CAPTCHA] number\n\npositional arguments:\n  number                 The new phone number in E164 format.\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --voice            The verification should  be  done  over voice, not\n                         SMS.\n  --captcha CAPTCHA      The  captcha  token,  required  if  change  number\n                         failed with a captcha required error.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

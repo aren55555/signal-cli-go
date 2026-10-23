@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs040--o_json_listAccounts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "json",
+      "listAccounts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "[]\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

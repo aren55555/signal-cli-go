@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs344-addStickerPack_--uri",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "addStickerPack",
+      "--uri"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli addStickerPack [-h] --uri URI [URI ...]\nsignal-cli: error: argument --uri: expected 1 argument(s)\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs162-sendPollVote_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollVote",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli sendPollVote [-h] [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] [--note-to-self]\n                  [--notify-self] [--poll-author POLL_AUTHOR]\n                  --poll-timestamp POLL_TIMESTAMP\n                  [-o [OPTION [OPTION ...]]] --vote-count VOTE_COUNT\n                  [recipient [recipient ...]]\n\npositional arguments:\n  recipient              Specify the recipients' phone number.\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -g [GROUP_ID [GROUP_ID ...]], --group-id [GROUP_ID [GROUP_ID ...]], --group [GROUP_ID [GROUP_ID ...]]\n                         Specify the recipient group ID.\n  -u [USERNAME [USERNAME ...]], --username [USERNAME [USERNAME ...]]\n                         Specify the recipient username or username link.\n  --note-to-self         Send the message to self\n  --notify-self          If  self  is  part  of  recipients/groups  send  a\n                         normal message, not a sync message.\n  --poll-author POLL_AUTHOR\n                         Specify the  number  of  the  author  of  the poll\n                         message.\n  --poll-timestamp POLL_TIMESTAMP\n                         Specify  the  timestamp   of   the  original  poll\n                         message.\n  -o [OPTION [OPTION ...]], --option [OPTION [OPTION ...]]\n                         The option indexes of the poll to vote for\n  --vote-count VOTE_COUNT\n                         Specify the number of  this  vote (increase by one\n                         for every time you vote).\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs233-updateDevice_-d_x_-n_y",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateDevice",
+      "-d",
+      "x",
+      "-n",
+      "y"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli updateDevice [-h] -d DEVICE_ID -n DEVICE_NAME\nsignal-cli: error: argument  -d/--device-id/--deviceId:  could  not convert\n'x' to integer (32 bits)\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs231-updateDevice_-d_2",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateDevice",
+      "-d",
+      "2"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli updateDevice [-h] -d DEVICE_ID -n DEVICE_NAME\nsignal-cli: error: argument -n/--device-name is required\n",
+    "exitCode": 1
+  }
+}

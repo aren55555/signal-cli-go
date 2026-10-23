@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs215-link_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "link",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli link [-h] [-n NAME]\nsignal-cli: error: unrecognized arguments: 'extra'\n",
+    "exitCode": 1
+  }
+}

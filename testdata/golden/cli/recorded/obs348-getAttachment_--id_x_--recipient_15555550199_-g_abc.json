@@ -1,0 +1,23 @@
+{
+  "scenario": {
+    "name": "obs348-getAttachment_--id_x_--recipient_15555550199_-g_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAttachment",
+      "--id",
+      "x",
+      "--recipient",
+      "+15555550199",
+      "-g",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli getAttachment [-h] --id ID (--recipient RECIPIENT |\n                  -g GROUP_ID)\nsignal-cli: error: argument  -g/--group-id:  not  allowed  with argument --\nrecipient\n",
+    "exitCode": 1
+  }
+}

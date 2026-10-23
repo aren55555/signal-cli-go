@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs270-sendPaymentNotification_--receipt_abc_15555550199_1555555019",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPaymentNotification",
+      "--receipt",
+      "abc",
+      "+15555550199",
+      "+15555550198"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendPaymentNotification [-h] --receipt RECEIPT\n                  [--note NOTE] recipient\nsignal-cli: error: unrecognized arguments: '+15555550198'\n",
+    "exitCode": 1
+  }
+}

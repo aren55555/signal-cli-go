@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs089-rejectCall",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "rejectCall"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli rejectCall [-h] --call-id CALL_ID\nsignal-cli: error: argument --call-id is required\n",
+    "exitCode": 1
+  }
+}

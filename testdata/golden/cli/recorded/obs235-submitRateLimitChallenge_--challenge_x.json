@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs235-submitRateLimitChallenge_--challenge_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "submitRateLimitChallenge",
+      "--challenge",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli submitRateLimitChallenge [-h] --challenge CHALLENGE\n                  --captcha CAPTCHA\nsignal-cli: error: argument --captcha is required\n",
+    "exitCode": 1
+  }
+}

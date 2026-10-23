@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "obs323-updateContact_1_-e_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateContact",
+      "+1",
+      "-e",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli updateContact [-h] [-n NAME] [--given-name GIVEN_NAME]\n                  [--family-name FAMILY_NAME]\n                  [--nick-given-name NICK_GIVEN_NAME]\n                  [--nick-family-name NICK_FAMILY_NAME] [--note NOTE]\n                  [-e EXPIRATION] recipient\nsignal-cli: error:  argument  -e/--expiration:  could  not  convert  'x' to\ninteger (32 bits)\n",
+    "exitCode": 1
+  }
+}

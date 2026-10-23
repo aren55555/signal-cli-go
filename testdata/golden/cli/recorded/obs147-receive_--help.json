@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs147-receive_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "receive",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli receive [-h] [-t TIMEOUT] [--max-messages MAX_MESSAGES]\n                  [--ignore-attachments] [--ignore-stories]\n                  [--ignore-avatars] [--ignore-stickers]\n                  [--send-read-receipts]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -t TIMEOUT, --timeout TIMEOUT\n                         Number  of  seconds  to   wait  for  new  messages\n                         (negative values disable timeout)\n  --max-messages MAX_MESSAGES\n                         Maximum number  of  messages  to  receive,  before\n                         returning.\n  --ignore-attachments   Don’t download attachments of received messages.\n  --ignore-stories       Don’t receive story messages from the server.\n  --ignore-avatars       Don't download avatars of received messages.\n  --ignore-stickers      Don't download sticker packs of received messages.\n  --send-read-receipts   Send read receipts for  all incoming data messages\n                         (in addition to the default delivery receipts)\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

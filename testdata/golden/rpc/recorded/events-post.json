@@ -1,0 +1,16 @@
+{
+  "scenario": {
+    "name": "events-post",
+    "transport": "http",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)",
+    "method": "POST",
+    "path": "/api/v1/events"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 405 Method Not Allowed",
+    "headers": [
+      "Content-length: 0"
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs351-getAvatar_-c_15555550199_-p_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAvatar",
+      "-c",
+      "+15555550199",
+      "-p",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli getAvatar [-h] (-c CONTACT | -p PROFILE | -g GROUP_ID)\nsignal-cli: error: argument -p/--profile:  not  allowed with argument -c/--\ncontact\n",
+    "exitCode": 1
+  }
+}

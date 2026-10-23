@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs086-quitGroup",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "quitGroup"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli quitGroup [-h] -g GROUP_ID [--delete]\n                  [--admin [ADMIN [ADMIN ...]]]\nsignal-cli: error: argument -g/--group-id/--group is required\n",
+    "exitCode": 1
+  }
+}

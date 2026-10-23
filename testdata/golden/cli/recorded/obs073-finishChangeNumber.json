@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs073-finishChangeNumber",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "finishChangeNumber"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli finishChangeNumber [-h] -v VERIFICATION_CODE [-p PIN]\n                  number\nsignal-cli: error: too few arguments\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs292-sendUnpinMessage_-a_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendUnpinMessage",
+      "-a",
+      "+1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendUnpinMessage [-h] [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] [--note-to-self]\n                  [--notify-self] -a TARGET_AUTHOR -t TARGET_TIMESTAMP\n                  [--story] [recipient [recipient ...]]\nsignal-cli: error: argument -t/--target-timestamp is required\n",
+    "exitCode": 1
+  }
+}

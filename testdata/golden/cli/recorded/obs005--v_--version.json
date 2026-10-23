@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs005--v_--version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-v",
+      "--version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "signal-cli 0.14.7\n",
+    "stderr": "\u003cTIMESTAMP\u003e [main] DEBUG org.asamk.signal.util.IOUtils - XDG_RUNTIME_DIR not set, falling back to temp dir\n",
+    "exitCode": 0
+  }
+}

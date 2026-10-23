@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs135-hangupCall_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "hangupCall",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli hangupCall [-h] --call-id CALL_ID\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  --call-id CALL_ID      The call ID to hang up.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

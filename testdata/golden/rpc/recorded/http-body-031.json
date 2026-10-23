@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "http-body-031",
+    "transport": "http",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "[{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1},\"x\",{\"jsonrpc\":\"1.0\",\"method\":\"version\",\"id\":4},{\"jsonrpc\":\"2.0\",\"method\":\"nope\",\"id\":5}]"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 200 OK",
+    "headers": [
+      "Content-type: application/json",
+      "Content-length: 581"
+    ],
+    "body": "[{\"jsonrpc\":\"2.0\",\"result\":{\"version\":\"0.14.7\"},\"id\":1},{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32600,\"message\":\"Cannot construct instance of `org.asamk.signal.jsonrpc.JsonRpcRequest` (although at least one Creator exists): no String-argument constructor/factory method to deserialize from String value ('x')\\n at [Source: UNKNOWN; byte offset: #UNKNOWN]\",\"data\":null},\"id\":null},{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32600,\"message\":\"only jsonrpc version 2.0 is supported\",\"data\":null},\"id\":4},{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32601,\"message\":\"Method not implemented\",\"data\":null},\"id\":5}]"
+  }
+}

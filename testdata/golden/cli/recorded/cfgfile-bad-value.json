@@ -1,0 +1,23 @@
+{
+  "scenario": {
+    "name": "cfgfile-bad-value",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/badval.json"
+    },
+    "files": {
+      "{{SCRATCH}}/badval.json": "{\"output\":\"xml\"}"
+    },
+    "note": "invalid output value in config"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "Failed to parse configuration file(s): Cannot construct instance of `org.asamk.signal.OutputType`, problem: Invalid output type: xml\n at [Source: UNKNOWN; byte offset: #UNKNOWN] (through reference chain: org.asamk.signal.GlobalConfig[\"output\"])\n",
+    "exitCode": 1
+  }
+}

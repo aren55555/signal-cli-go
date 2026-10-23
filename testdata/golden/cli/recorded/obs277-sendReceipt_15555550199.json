@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs277-sendReceipt_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendReceipt [-h]\n                  -t TARGET_TIMESTAMP [TARGET_TIMESTAMP ...]\n                  [--type {read,viewed}] recipient\nsignal-cli: error: argument -t/--target-timestamp is required\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs101-sendPollTerminate",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollTerminate"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendPollTerminate [-h] [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] [--note-to-self]\n                  [--notify-self] --poll-timestamp POLL_TIMESTAMP\n                  [recipient [recipient ...]]\nsignal-cli: error: argument --poll-timestamp is required\n",
+    "exitCode": 1
+  }
+}

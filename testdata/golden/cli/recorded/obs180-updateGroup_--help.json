@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs180-updateGroup_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateGroup",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli updateGroup [-h] [-g GROUP_ID] [-n NAME] [-d DESCRIPTION]\n                  [-a AVATAR] [-m [MEMBER [MEMBER ...]]]\n                  [-r [REMOVE_MEMBER [REMOVE_MEMBER ...]]]\n                  [--admin [ADMIN [ADMIN ...]]]\n                  [--remove-admin [REMOVE_ADMIN [REMOVE_ADMIN ...]]]\n                  [--ban [BAN [BAN ...]]] [--unban [UNBAN [UNBAN ...]]]\n                  [--reset-link]\n                  [--link {enabled,enabled-with-approval,disabled}]\n                  [--set-permission-add-member {every-member,only-admins}]\n                  [--set-permission-edit-details {every-member,only-admins}]\n                  [--set-permission-send-messages {every-member,only-admins}]\n                  [-e EXPIRATION] [--member-label-emoji MEMBER_LABEL_EMOJI]\n                  [--member-label MEMBER_LABEL]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -g GROUP_ID, --group-id GROUP_ID, --group GROUP_ID\n                         Specify the group ID.\n  -n NAME, --name NAME   Specify the new group name.\n  -d DESCRIPTION, --description DESCRIPTION\n                         Specify the new group description.\n  -a AVATAR, --avatar AVATAR\n                         Specify a new group avatar image file\n  -m [MEMBER [MEMBER ...]], --member [MEMBER [MEMBER ...]]\n                         Specify one or more members to add to the group\n  -r [REMOVE_MEMBER [REMOVE_MEMBER ...]], --remove-member [REMOVE_MEMBER [REMOVE_MEMBER ...]]\n                         Specify one or  more  members  to  remove from the\n                         group\n  --admin [ADMIN [ADMIN ...]]\n                         Specify one or more members to make a group admin\n  --remove-admin [REMOVE_ADMIN [REMOVE_ADMIN ...]]\n                         Specify one or more members  to remove group admin\n                         privileges\n  --ban [BAN [BAN ...]]  Specify one or more  members  to  ban from joining\n                         the group\n  --unban [UNBAN [UNBAN ...]]\n                         Specify one or  more  members  to  remove from the\n                         ban list\n  --reset-link           Reset group link and create new link password\n  --link {enabled,enabled-with-approval,disabled}\n                         Set  group  link  state,  with  or  without  admin\n                         approval\n  --set-permission-add-member {every-member,only-admins}\n                         Set permission to add new group members\n  --set-permission-edit-details {every-member,only-admins}\n                         Set permission to edit group details\n  --set-permission-send-messages {every-member,only-admins}\n                         Set permission to send messages\n  -e EXPIRATION, --expiration EXPIRATION\n                         Set expiration time of messages (seconds)\n  --member-label-emoji MEMBER_LABEL_EMOJI\n                         Specify the emoji for the member label.\n  --member-label MEMBER_LABEL\n                         Specify the string for the member label.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

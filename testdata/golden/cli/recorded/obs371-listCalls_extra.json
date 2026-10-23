@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs371-listCalls_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listCalls",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli listCalls [-h]\nsignal-cli: error: unrecognized arguments: 'extra'\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs232-updateDevice_-n_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateDevice",
+      "-n",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli updateDevice [-h] -d DEVICE_ID -n DEVICE_NAME\nsignal-cli: error: argument -d/--device-id/--deviceId is required\n",
+    "exitCode": 1
+  }
+}

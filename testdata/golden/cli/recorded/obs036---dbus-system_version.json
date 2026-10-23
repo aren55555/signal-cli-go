@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs036---dbus-system_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--dbus-system",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "Dbus client failed: Cannot Resolve Session Bus Address: MachineId file can not be found\n",
+    "exitCode": 2
+  }
+}

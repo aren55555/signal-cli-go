@@ -19,8 +19,8 @@ every session, and update both before ending one.
 | #  | Milestone                                   | Status |
 |----|---------------------------------------------|--------|
 | 0  | Bootstrap: module, justfile, CI, docs, oracle installer | done (2026-10-23) |
-| 1  | Surface inventory: CLI + JSON-RPC specs, COMPAT.md rows, account-free goldens | **in progress** |
-| 2  | Crypto primitives with Layer A vectors      | not started |
+| 1  | Surface inventory: CLI + JSON-RPC specs, COMPAT.md rows, account-free goldens | done (2026-10-23) |
+| 2  | Crypto primitives with Layer A vectors      | **next** |
 | 3  | Signal protocol core (PQXDH, ratchet, sender keys, sealed sender) | not started |
 | 4  | Service layer, first Layer C 1:1 exchange on staging | not started |
 | 5  | All message types, attachments, receipts, sync, linked devices | not started |
@@ -31,8 +31,7 @@ every session, and update both before ending one.
 | 9b | Revisit deferred items (voice calls, D-Bus client mode) | not started |
 | 10 | Stretch goal: import an existing signal-cli data dir | not started |
 
-Milestone 2 does not start until the operator has reviewed this file and
-the first draft of `COMPAT.md`.
+The operator reviewed this file and the first COMPAT.md draft on 2026-10-23.
 
 ## Architecture
 
@@ -99,8 +98,9 @@ starts. Existing pieces:
 ## Facts from the milestone 1 inventory that shape the implementation
 
 - Help and parse-error text wrap at `$COLUMNS`, else the terminal width,
-  else 75, with fully justified lines. Goldens pin `COLUMNS=80`; widths
-  75 and 80 both need tests.
+  else 75, with fully justified lines. Goldens leave `COLUMNS` unset
+  (width 75, what scripts see); `*-columns-80` and `*-columns-120`
+  scenarios cover other widths.
 - With `LANG` unset, non-ASCII characters in help print as `?`. Goldens pin
   `C.UTF-8`.
 - Some JSON objects (send results, joinGroup and quitGroup) come out in a
@@ -133,6 +133,14 @@ starts. Existing pieces:
 - **Staging hosts**: `sandbox/ALLOWED_HOSTS` may need more staging hosts
   once the oracle is observed (milestone 1). Each addition needs operator
   approval.
+- **Java-specific error text** (milestone 8): many JSON-RPC errors carry
+  Jackson parser messages with Java class names (for example
+  `Cannot construct instance of `org.asamk.signal.jsonrpc.JsonRpcRequest``).
+  Strict byte parity means reproducing those strings. The goldens keep
+  them verbatim. Decide in milestone 8 whether to match them exactly or to
+  relax the comparison to code plus `data` for those cases, documented as a
+  normalization. Verbose `-v` log lines (upstream logger names) raise the
+  same question for the CLI.
 - **License**: undecided. See `CLEANROOM.md`.
 
 ## Progress log
@@ -165,3 +173,19 @@ starts. Existing pieces:
   (12 COMPAT.md rows marked `deferred`; milestone 9b added).
 - Operator decision: D-Bus client mode deferred to milestone 9b
   (3 global-option rows in COMPAT.md marked `deferred`).
+- Milestone 1 done. Account-free goldens:
+  - CLI: 355 scenarios (`testdata/golden/cli/`). 329 are generated from
+    `spec/surface/cli/observations.md` by `tools/obs2scenarios`; 26 are
+    hand-written (setup cases: config files, a two-account data dir;
+    wrap widths; seeds).
+  - JSON-RPC: 162 scenarios (`testdata/golden/rpc/`). HTTP paths, verbs,
+    Content-Type and Host handling, `/check`, SSE headers, every
+    request-parsing body from the observations, TCP and socket sessions,
+    and every method with zero accounts and no params. `startLink` and
+    `finishLink` are excluded because they would contact Signal.
+  - All 517 are in PENDING. Exit codes of all 329 generated CLI scenarios
+    match the spec agent's observations. Re-recording a CLI subset was
+    byte-identical; JSON-RPC re-records differ only in batch and stream
+    order, which the comparison ignores (tested).
+  - Recording takes about 5 minutes (CLI, 4 JVMs in parallel) plus 20 s
+    (JSON-RPC).

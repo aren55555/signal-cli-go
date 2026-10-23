@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs050--a_15555550123_listAccounts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "listAccounts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "Command only works in multi-account mode\n",
+    "exitCode": 1
+  }
+}

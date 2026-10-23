@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs158-sendPaymentNotification_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPaymentNotification",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli sendPaymentNotification [-h] --receipt RECEIPT\n                  [--note NOTE] recipient\n\npositional arguments:\n  recipient              Specify the recipient's phone number.\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  --receipt RECEIPT      The base64 encoded receipt blob.\n  --note NOTE            Specify a note for the payment notification.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "scenario": {
+    "name": "two-accounts-send",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "-m",
+      "x",
+      "+15555550199"
+    ],
+    "files": {
+      "{{CONFIG}}/data/accounts.json": "{\n  \"accounts\" : [ {\n    \"path\" : \"111111\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550111\",\n    \"uuid\" : null\n  }, {\n    \"path\" : \"222222\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550122\",\n    \"uuid\" : null\n  } ],\n  \"version\" : 2\n}\n"
+    },
+    "note": "two accounts, no -a"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "Multiple users found, you need to specify an account (phone number) with -a\n",
+    "exitCode": 1
+  }
+}

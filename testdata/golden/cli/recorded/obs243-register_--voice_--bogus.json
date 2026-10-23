@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs243-register_--voice_--bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "register",
+      "--voice",
+      "--bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli register [-h] [-v] [--captcha CAPTCHA] [--reregister]\nsignal-cli: error: unrecognized arguments: '--bogus'\n",
+    "exitCode": 1
+  }
+}

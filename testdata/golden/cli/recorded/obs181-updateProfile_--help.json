@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs181-updateProfile_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateProfile",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli updateProfile [-h] [--given-name GIVEN_NAME]\n                  [--family-name FAMILY_NAME] [--about ABOUT]\n                  [--about-emoji ABOUT_EMOJI]\n                  [--mobile-coin-address MOBILE_COIN_ADDRESS]\n                  [--avatar AVATAR | --remove-avatar]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  --given-name GIVEN_NAME, --name GIVEN_NAME\n                         New profile (given) name\n  --family-name FAMILY_NAME\n                         New profile family name (optional)\n  --about ABOUT          New profile about text\n  --about-emoji ABOUT_EMOJI\n                         New profile about emoji\n  --mobile-coin-address MOBILE_COIN_ADDRESS, --mobilecoin-address MOBILE_COIN_ADDRESS\n                         New  MobileCoin  address  (Base64  encoded  public\n                         address)\n  --avatar AVATAR        Path to new profile avatar\n  --remove-avatar\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

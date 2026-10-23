@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs242-register_-v_--bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "register",
+      "-v",
+      "--bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "\u003cTIMESTAMP\u003e [main] DEBUG org.asamk.signal.util.IOUtils - XDG_RUNTIME_DIR not set, falling back to temp dir\nusage: signal-cli register [-h] [-v] [--captcha CAPTCHA] [--reregister]\nsignal-cli: error: unrecognized arguments: '--bogus'\n",
+    "exitCode": 1
+  }
+}

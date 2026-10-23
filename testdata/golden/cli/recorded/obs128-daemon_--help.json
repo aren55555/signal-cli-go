@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs128-daemon_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "daemon",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli daemon [-h] [--dbus] [--dbus-system]\n                  [--bus-name BUS_NAME] [--socket [SOCKET]] [--tcp [TCP]]\n                  [--http [HTTP]] [--no-receive-stdout]\n                  [--receive-mode {on-start,on-connection,manual}]\n                  [--ignore-attachments] [--ignore-stories]\n                  [--ignore-avatars] [--ignore-stickers]\n                  [--send-read-receipts]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  --dbus                 Expose a DBus interface on the user bus.\n  --dbus-system, --system\n                         Expose a DBus interface on the system bus.\n  --bus-name BUS_NAME    Specify the D-Bus bus name to connect to.\n  --socket [SOCKET]      Expose a  JSON-RPC  interface  on  a  UNIX  socket\n                         (default $XDG_RUNTIME_DIR/signal-cli/socket).\n  --tcp [TCP]            Expose  a  JSON-RPC  interface  on  a  TCP  socket\n                         (default localhost:7583).\n  --http [HTTP]          Expose  a  JSON-RPC  interface  as  http  endpoint\n                         (default localhost:8080).\n  --no-receive-stdout    Don’t print received messages to stdout.\n  --receive-mode {on-start,on-connection,manual}\n                         Specify when to start receiving messages.\n  --ignore-attachments   Don’t download attachments of received messages.\n  --ignore-stories       Don’t receive story messages from the server.\n  --ignore-avatars       Don't download avatars of received messages.\n  --ignore-stickers      Don't download sticker packs of received messages.\n  --send-read-receipts   Send read receipts for  all incoming data messages\n                         (in addition to the default delivery receipts)\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

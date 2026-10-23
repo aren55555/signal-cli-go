@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "obs320-updateProfile_--avatar_a_--remove-avatar",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateProfile",
+      "--avatar",
+      "a",
+      "--remove-avatar"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli updateProfile [-h] [--given-name GIVEN_NAME]\n                  [--family-name FAMILY_NAME] [--about ABOUT]\n                  [--about-emoji ABOUT_EMOJI]\n                  [--mobile-coin-address MOBILE_COIN_ADDRESS]\n                  [--avatar AVATAR | --remove-avatar]\nsignal-cli: error: argument --remove-avatar:  not  allowed with argument --\navatar\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "scenario": {
+    "name": "cfgfile-xdg-shadowed",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/pt.json",
+      "XDG_CONFIG_HOME": "{{SCRATCH}}/xdg"
+    },
+    "files": {
+      "{{SCRATCH}}/pt.json": "{\"output\":\"PLAIN_TEXT\"}",
+      "{{SCRATCH}}/xdg/signal-cli/config.json": "{\"output\":\"json\"}"
+    },
+    "note": "XDG file not read when SIGNAL_CLI_CONFIG is set"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "signal-cli 0.14.7\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

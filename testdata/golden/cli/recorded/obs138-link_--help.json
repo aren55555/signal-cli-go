@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs138-link_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "link",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli link [-h] [-n NAME]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -n NAME, --name NAME   Specify a name to describe this new device.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

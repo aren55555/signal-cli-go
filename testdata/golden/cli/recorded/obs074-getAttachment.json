@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs074-getAttachment",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAttachment"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli getAttachment [-h] --id ID (--recipient RECIPIENT |\n                  -g GROUP_ID)\nsignal-cli: error: argument --id is required\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs290-sendReceipt_-t_1_2_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "-t",
+      "1",
+      "2",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendReceipt [-h]\n                  -t TARGET_TIMESTAMP [TARGET_TIMESTAMP ...]\n                  [--type {read,viewed}] recipient\nsignal-cli: error: too few arguments\n",
+    "exitCode": 1
+  }
+}

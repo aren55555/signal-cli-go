@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs132-getAvatar_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAvatar",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli getAvatar [-h] (-c CONTACT | -p PROFILE | -g GROUP_ID)\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -c CONTACT, --contact CONTACT\n                         Get a contact avatar\n  -p PROFILE, --profile PROFILE\n                         Get a profile avatar\n  -g GROUP_ID, --group-id GROUP_ID\n                         Get a group avatar\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

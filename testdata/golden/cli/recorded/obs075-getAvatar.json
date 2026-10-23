@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs075-getAvatar",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAvatar"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli getAvatar [-h] (-c CONTACT | -p PROFILE | -g GROUP_ID)\nsignal-cli: error: one  of  the  arguments  -c/--contact -p/--profile -g/--\ngroup-id is required\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs316-listContacts_--blocked",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listContacts",
+      "--blocked"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli listContacts [-h] [-a] [--blocked {true,false}]\n                  [--name NAME] [--detailed] [--internal]\n                  [recipient [recipient ...]]\nsignal-cli: error: argument --blocked: expected one argument\n",
+    "exitCode": 1
+  }
+}

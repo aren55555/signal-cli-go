@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs362-acceptCall_--call-id_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "acceptCall",
+      "--call-id",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli acceptCall [-h] --call-id CALL_ID\nsignal-cli: error: argument --call-id: could  not  convert 'abc' to integer\n(64 bits)\n",
+    "exitCode": 1
+  }
+}

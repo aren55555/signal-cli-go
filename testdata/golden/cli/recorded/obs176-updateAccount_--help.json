@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs176-updateAccount_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateAccount",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli updateAccount [-h] [-n DEVICE_NAME]\n                  [--unrestricted-unidentified-sender {true,false}]\n                  [--discoverable-by-number {true,false}]\n                  [--number-sharing {true,false}] [-u USERNAME |\n                  --delete-username]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -n DEVICE_NAME, --device-name DEVICE_NAME\n                         Specify a name to describe this device.\n  --unrestricted-unidentified-sender {true,false}\n                         Enable if  anyone  should  be  able  to  send  you\n                         unidentified sender messages.\n  --discoverable-by-number {true,false}\n                         Enable/disable   if   the    account   should   be\n                         discoverable by phone number\n  --number-sharing {true,false}\n                         Indicates if Signal should  share its phone number\n                         when sending a message.\n  -u USERNAME, --username USERNAME\n                         Specify a  username  that  can  then  be  used  to\n                         contact this account.\n  --delete-username      Delete the username associated with this account.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

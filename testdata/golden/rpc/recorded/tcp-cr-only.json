@@ -1,0 +1,14 @@
+{
+  "scenario": {
+    "name": "tcp-cr-only",
+    "transport": "tcp",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)",
+    "send": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":\"cr\"}\r"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "messages": [
+      "{\"jsonrpc\":\"2.0\",\"result\":{\"version\":\"0.14.7\"},\"id\":\"cr\"}"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs238-version_--bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version",
+      "--bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli version [-h]\nsignal-cli: error: unrecognized arguments: '--bogus'\n",
+    "exitCode": 1
+  }
+}

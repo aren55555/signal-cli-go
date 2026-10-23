@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs133-getSticker_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getSticker",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli getSticker [-h] --pack-id PACK_ID --sticker-id STICKER_ID\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  --pack-id PACK_ID      The ID of the sticker pack.\n  --sticker-id STICKER_ID\n                         The ID of the sticker.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs366-hangupCall_--call-id_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "hangupCall",
+      "--call-id",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli hangupCall [-h] --call-id CALL_ID\nsignal-cli: error: argument --call-id:  could  not  convert  'x' to integer\n(64 bits)\n",
+    "exitCode": 1
+  }
+}

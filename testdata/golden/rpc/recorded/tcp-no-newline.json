@@ -1,0 +1,10 @@
+{
+  "scenario": {
+    "name": "tcp-no-newline",
+    "transport": "tcp",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)",
+    "send": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {}
+}

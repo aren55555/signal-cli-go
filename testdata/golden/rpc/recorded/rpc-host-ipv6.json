@@ -1,0 +1,23 @@
+{
+  "scenario": {
+    "name": "rpc-host-ipv6",
+    "transport": "http",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json",
+      "Host: [::1]"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 200 OK",
+    "headers": [
+      "Content-type: application/json",
+      "Content-length: 54"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"result\":{\"version\":\"0.14.7\"},\"id\":1}"
+  }
+}

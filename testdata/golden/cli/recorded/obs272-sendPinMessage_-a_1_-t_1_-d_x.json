@@ -1,0 +1,23 @@
+{
+  "scenario": {
+    "name": "obs272-sendPinMessage_-a_1_-t_1_-d_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPinMessage",
+      "-a",
+      "+1",
+      "-t",
+      "1",
+      "-d",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendPinMessage [-h] [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] [--note-to-self]\n                  [--notify-self] [-d PIN_DURATION] -a TARGET_AUTHOR\n                  -t TARGET_TIMESTAMP [--story] [recipient [recipient ...]]\nsignal-cli: error: argument  -d/--pin-duration:  could  not  convert 'x' to\ninteger (32 bits)\n",
+    "exitCode": 1
+  }
+}

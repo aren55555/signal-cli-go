@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs006---version_bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--version",
+      "bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "signal-cli 0.14.7\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

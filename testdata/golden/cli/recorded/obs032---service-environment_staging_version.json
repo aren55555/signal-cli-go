@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs032---service-environment_staging_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--service-environment",
+      "staging",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "signal-cli 0.14.7\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

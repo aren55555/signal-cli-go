@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs182-uploadStickerPack_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "uploadStickerPack",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli uploadStickerPack [-h] path\n\npositional arguments:\n  path                   The path  of  the  manifest.json  or  a  zip  file\n                         containing the sticker pack you wish to upload.\n\nnamed arguments:\n  -h, --help             show this help message and exit\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

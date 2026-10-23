@@ -1,0 +1,16 @@
+{
+  "scenario": {
+    "name": "check-get",
+    "transport": "http",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)",
+    "method": "GET",
+    "path": "/api/v1/check"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 200 OK",
+    "headers": [
+      "Content-length: 0"
+    ]
+  }
+}

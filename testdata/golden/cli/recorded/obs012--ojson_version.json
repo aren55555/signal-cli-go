@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs012--ojson_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-ojson",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "{\"version\":\"0.14.7\"}\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

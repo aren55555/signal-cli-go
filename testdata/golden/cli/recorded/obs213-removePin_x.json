@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs213-removePin_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removePin",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli removePin [-h]\nsignal-cli: error: unrecognized arguments: 'x'\n",
+    "exitCode": 1
+  }
+}

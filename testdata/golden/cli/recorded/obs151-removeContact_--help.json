@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs151-removeContact_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeContact",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli removeContact [-h] [--hide | --forget] recipient\n\npositional arguments:\n  recipient              Contact number\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  --hide                 Hide the contact  in  the  contact  list, but keep\n                         the data.\n  --forget               Delete all  data  associated  with  this  contact,\n                         including identity keys and sessions.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

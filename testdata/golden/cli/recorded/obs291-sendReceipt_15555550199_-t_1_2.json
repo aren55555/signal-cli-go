@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs291-sendReceipt_15555550199_-t_1_2",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "+15555550199",
+      "-t",
+      "1",
+      "2"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "No local users found, you first need to register or link an account\n",
+    "exitCode": 1
+  }
+}

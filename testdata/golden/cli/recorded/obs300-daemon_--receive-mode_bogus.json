@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs300-daemon_--receive-mode_bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "daemon",
+      "--receive-mode",
+      "bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli daemon [-h] [--dbus] [--dbus-system]\n                  [--bus-name BUS_NAME] [--socket [SOCKET]] [--tcp [TCP]]\n                  [--http [HTTP]] [--no-receive-stdout]\n                  [--receive-mode {on-start,on-connection,manual}]\n                  [--ignore-attachments] [--ignore-stories]\n                  [--ignore-avatars] [--ignore-stickers]\n                  [--send-read-receipts]\nsignal-cli: error:  argument  --receive-mode:  could  not  convert  'bogus'\n(choose from {on-start,on-connection,manual})\n",
+    "exitCode": 1
+  }
+}

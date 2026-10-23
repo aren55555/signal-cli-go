@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs259-sendPollVote_--poll-timestamp_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollVote",
+      "--poll-timestamp",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendPollVote [-h] [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] [--note-to-self]\n                  [--notify-self] [--poll-author POLL_AUTHOR]\n                  --poll-timestamp POLL_TIMESTAMP\n                  [-o [OPTION [OPTION ...]]] --vote-count VOTE_COUNT\n                  [recipient [recipient ...]]\nsignal-cli: error: argument --vote-count is required\n",
+    "exitCode": 1
+  }
+}

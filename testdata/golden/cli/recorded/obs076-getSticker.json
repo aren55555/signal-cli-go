@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs076-getSticker",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getSticker"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli getSticker [-h] --pack-id PACK_ID --sticker-id STICKER_ID\nsignal-cli: error: argument --sticker-id is required\n",
+    "exitCode": 1
+  }
+}

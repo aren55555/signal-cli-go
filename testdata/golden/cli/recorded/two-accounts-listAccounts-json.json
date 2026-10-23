@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "two-accounts-listAccounts-json",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "json",
+      "listAccounts"
+    ],
+    "files": {
+      "{{CONFIG}}/data/accounts.json": "{\n  \"accounts\" : [ {\n    \"path\" : \"111111\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550111\",\n    \"uuid\" : null\n  }, {\n    \"path\" : \"222222\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550122\",\n    \"uuid\" : null\n  } ],\n  \"version\" : 2\n}\n"
+    },
+    "note": "two unregistered accounts, json"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "[]\n",
+    "stderr": "WARN  MultiAccountManager - Ignoring +15555550111: User is not registered. (NotRegisteredException)\nWARN  MultiAccountManager - Ignoring +15555550122: User is not registered. (NotRegisteredException)\n",
+    "exitCode": 0
+  }
+}

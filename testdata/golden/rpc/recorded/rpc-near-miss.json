@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "rpc-near-miss",
+    "transport": "http",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)",
+    "method": "POST",
+    "path": "/api/v1/rpcx",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"version\",\"id\":1}"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 404 Not Found",
+    "headers": [
+      "Content-length: 0"
+    ]
+  }
+}

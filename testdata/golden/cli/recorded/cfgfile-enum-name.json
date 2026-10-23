@@ -1,0 +1,23 @@
+{
+  "scenario": {
+    "name": "cfgfile-enum-name",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/pt.json"
+    },
+    "files": {
+      "{{SCRATCH}}/pt.json": "{\"output\":\"PLAIN_TEXT\"}"
+    },
+    "note": "enum constant spelling in config"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "signal-cli 0.14.7\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

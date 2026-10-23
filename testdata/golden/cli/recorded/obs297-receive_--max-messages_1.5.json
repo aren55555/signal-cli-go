@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs297-receive_--max-messages_1.5",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "receive",
+      "--max-messages",
+      "1.5"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli receive [-h] [-t TIMEOUT] [--max-messages MAX_MESSAGES]\n                  [--ignore-attachments] [--ignore-stories]\n                  [--ignore-avatars] [--ignore-stickers]\n                  [--send-read-receipts]\nsignal-cli: error: argument  --max-messages:  could  not  convert  '1.5' to\ninteger (32 bits)\n",
+    "exitCode": 1
+  }
+}

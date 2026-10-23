@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "obs325-removeContact_--hide_--forget_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeContact",
+      "--hide",
+      "--forget",
+      "+1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli removeContact [-h] [--hide | --forget] recipient\nsignal-cli: error: argument --forget: not allowed with argument --hide\n",
+    "exitCode": 1
+  }
+}

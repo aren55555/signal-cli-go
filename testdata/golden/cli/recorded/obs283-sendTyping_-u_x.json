@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs283-sendTyping_-u_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendTyping",
+      "-u",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendTyping [-h] [-g [GROUP_ID [GROUP_ID ...]]] [-s]\n                  [recipient [recipient ...]]\nsignal-cli: error: unrecognized arguments: '-u'\n",
+    "exitCode": 1
+  }
+}

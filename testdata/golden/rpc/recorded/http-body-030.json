@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "http-body-030",
+    "transport": "http",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "[1,2]"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 200 OK",
+    "headers": [
+      "Content-type: application/json",
+      "Content-length: 635"
+    ],
+    "body": "[{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32600,\"message\":\"Cannot construct instance of `org.asamk.signal.jsonrpc.JsonRpcRequest` (although at least one Creator exists): no int/Int-argument constructor/factory method to deserialize from Number value (1)\\n at [Source: UNKNOWN; byte offset: #UNKNOWN]\",\"data\":null},\"id\":null},{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32600,\"message\":\"Cannot construct instance of `org.asamk.signal.jsonrpc.JsonRpcRequest` (although at least one Creator exists): no int/Int-argument constructor/factory method to deserialize from Number value (2)\\n at [Source: UNKNOWN; byte offset: #UNKNOWN]\",\"data\":null},\"id\":null}]"
+  }
+}

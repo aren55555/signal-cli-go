@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs054--o_plain-text_jsonRpc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "plain-text",
+      "jsonRpc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "Command doesn't support output type plain-text\n",
+    "exitCode": 1
+  }
+}

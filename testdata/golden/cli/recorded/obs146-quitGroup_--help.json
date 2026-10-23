@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs146-quitGroup_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "quitGroup",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli quitGroup [-h] -g GROUP_ID [--delete]\n                  [--admin [ADMIN [ADMIN ...]]]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -g GROUP_ID, --group-id GROUP_ID, --group GROUP_ID\n                         Specify the recipient group ID.\n  --delete               Delete local group data  completely after quitting\n                         group.\n  --admin [ADMIN [ADMIN ...]]\n                         Specify one  or  more  members  to  make  a  group\n                         admin,  required  if  you're  currently  the  only\n                         admin.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

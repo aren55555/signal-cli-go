@@ -1,11 +1,329 @@
 [
-  {"name": "version", "args": ["--version"], "note": "global --version"},
-  {"name": "no-args", "args": ["--config", "{{CONFIG}}"], "note": "no subcommand"},
-  {"name": "help", "args": ["--config", "{{CONFIG}}", "--help"], "note": "top-level help"},
-  {"name": "unknown-command", "args": ["--config", "{{CONFIG}}", "frobnicate"], "note": "argument-parse error"},
-  {"name": "unknown-flag", "args": ["--config", "{{CONFIG}}", "--frobnicate", "listAccounts"], "note": "argument-parse error"},
-  {"name": "bad-output-value", "args": ["--config", "{{CONFIG}}", "--output", "xml", "listAccounts"], "note": "invalid choice"},
-  {"name": "listAccounts-empty", "args": ["--config", "{{CONFIG}}", "listAccounts"], "note": "no accounts, plain-text"},
-  {"name": "listAccounts-empty-json", "args": ["--config", "{{CONFIG}}", "--output", "json", "listAccounts"], "note": "no accounts, json"},
-  {"name": "send-no-account", "args": ["--config", "{{CONFIG}}", "send", "-m", "hi", "+12025550100"], "note": "account required, none exists"}
+  {
+    "name": "version",
+    "args": [
+      "--version"
+    ],
+    "note": "global --version"
+  },
+  {
+    "name": "no-args",
+    "args": [
+      "--config",
+      "{{CONFIG}}"
+    ],
+    "note": "no subcommand"
+  },
+  {
+    "name": "help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--help"
+    ],
+    "note": "top-level help"
+  },
+  {
+    "name": "unknown-command",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "frobnicate"
+    ],
+    "note": "argument-parse error"
+  },
+  {
+    "name": "unknown-flag",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--frobnicate",
+      "listAccounts"
+    ],
+    "note": "argument-parse error"
+  },
+  {
+    "name": "bad-output-value",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--output",
+      "xml",
+      "listAccounts"
+    ],
+    "note": "invalid choice"
+  },
+  {
+    "name": "listAccounts-empty",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listAccounts"
+    ],
+    "note": "no accounts, plain-text"
+  },
+  {
+    "name": "listAccounts-empty-json",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--output",
+      "json",
+      "listAccounts"
+    ],
+    "note": "no accounts, json"
+  },
+  {
+    "name": "send-no-account",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "-m",
+      "hi",
+      "+12025550100"
+    ],
+    "note": "account required, none exists"
+  },
+  {
+    "name": "two-accounts-listContacts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listContacts"
+    ],
+    "files": {
+      "{{CONFIG}}/data/accounts.json": "{\n  \"accounts\" : [ {\n    \"path\" : \"111111\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550111\",\n    \"uuid\" : null\n  }, {\n    \"path\" : \"222222\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550122\",\n    \"uuid\" : null\n  } ],\n  \"version\" : 2\n}\n"
+    },
+    "note": "two unregistered accounts: account selection fails"
+  },
+  {
+    "name": "two-accounts-listAccounts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listAccounts"
+    ],
+    "files": {
+      "{{CONFIG}}/data/accounts.json": "{\n  \"accounts\" : [ {\n    \"path\" : \"111111\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550111\",\n    \"uuid\" : null\n  }, {\n    \"path\" : \"222222\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550122\",\n    \"uuid\" : null\n  } ],\n  \"version\" : 2\n}\n"
+    },
+    "note": "two unregistered accounts, plain-text"
+  },
+  {
+    "name": "two-accounts-listAccounts-json",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "json",
+      "listAccounts"
+    ],
+    "files": {
+      "{{CONFIG}}/data/accounts.json": "{\n  \"accounts\" : [ {\n    \"path\" : \"111111\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550111\",\n    \"uuid\" : null\n  }, {\n    \"path\" : \"222222\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550122\",\n    \"uuid\" : null\n  } ],\n  \"version\" : 2\n}\n"
+    },
+    "note": "two unregistered accounts, json"
+  },
+  {
+    "name": "two-accounts-send",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "-m",
+      "x",
+      "+15555550199"
+    ],
+    "files": {
+      "{{CONFIG}}/data/accounts.json": "{\n  \"accounts\" : [ {\n    \"path\" : \"111111\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550111\",\n    \"uuid\" : null\n  }, {\n    \"path\" : \"222222\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550122\",\n    \"uuid\" : null\n  } ],\n  \"version\" : 2\n}\n"
+    },
+    "note": "two accounts, no -a"
+  },
+  {
+    "name": "cfgfile-output-json",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/out.json"
+    },
+    "files": {
+      "{{SCRATCH}}/out.json": "{\"output\":\"json\"}"
+    },
+    "note": "SIGNAL_CLI_CONFIG sets output"
+  },
+  {
+    "name": "cfgfile-account",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/acct.json"
+    },
+    "files": {
+      "{{SCRATCH}}/acct.json": "{\"account\":\"+15555550123\"}"
+    },
+    "note": "account key accepted, no effect"
+  },
+  {
+    "name": "cfgfile-malformed",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/bad.json"
+    },
+    "files": {
+      "{{SCRATCH}}/bad.json": "{bad"
+    },
+    "note": "malformed config file"
+  },
+  {
+    "name": "cfgfile-bad-value",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/badval.json"
+    },
+    "files": {
+      "{{SCRATCH}}/badval.json": "{\"output\":\"xml\"}"
+    },
+    "note": "invalid output value in config"
+  },
+  {
+    "name": "cfgfile-unknown-key",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/unk.json"
+    },
+    "files": {
+      "{{SCRATCH}}/unk.json": "{\"unknownKey\":1}"
+    },
+    "note": "unknown config key is an error"
+  },
+  {
+    "name": "cfgfile-enum-name",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/pt.json"
+    },
+    "files": {
+      "{{SCRATCH}}/pt.json": "{\"output\":\"PLAIN_TEXT\"}"
+    },
+    "note": "enum constant spelling in config"
+  },
+  {
+    "name": "cfgfile-xdg",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "XDG_CONFIG_HOME": "{{SCRATCH}}/xdg"
+    },
+    "files": {
+      "{{SCRATCH}}/xdg/signal-cli/config.json": "{\"output\":\"json\"}"
+    },
+    "note": "per-user config via XDG_CONFIG_HOME"
+  },
+  {
+    "name": "cfgfile-xdg-shadowed",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "XDG_CONFIG_HOME": "{{SCRATCH}}/xdg",
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/pt.json"
+    },
+    "files": {
+      "{{SCRATCH}}/xdg/signal-cli/config.json": "{\"output\":\"json\"}",
+      "{{SCRATCH}}/pt.json": "{\"output\":\"PLAIN_TEXT\"}"
+    },
+    "note": "XDG file not read when SIGNAL_CLI_CONFIG is set"
+  },
+  {
+    "name": "cfgfile-xdg-cli-override",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "plain-text",
+      "version"
+    ],
+    "env": {
+      "XDG_CONFIG_HOME": "{{SCRATCH}}/xdg"
+    },
+    "files": {
+      "{{SCRATCH}}/xdg/signal-cli/config.json": "{\"output\":\"json\"}"
+    },
+    "note": "command line overrides config file"
+  },
+  {
+    "name": "help-columns-80",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--help"
+    ],
+    "env": {
+      "COLUMNS": "80"
+    },
+    "note": "help wrap width from COLUMNS"
+  },
+  {
+    "name": "help-columns-120",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--help"
+    ],
+    "env": {
+      "COLUMNS": "120"
+    },
+    "note": "help wrap width from COLUMNS"
+  },
+  {
+    "name": "send-help-columns-80",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "--help"
+    ],
+    "env": {
+      "COLUMNS": "80"
+    },
+    "note": "subcommand help wrap width from COLUMNS"
+  },
+  {
+    "name": "unknown-command-columns-120",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "frobnicate"
+    ],
+    "env": {
+      "COLUMNS": "120"
+    },
+    "note": "parse-error usage wrap width from COLUMNS"
+  }
 ]

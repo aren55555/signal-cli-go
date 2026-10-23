@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs219--a_15555550123_addDevice_--uri_sgnl_linkdevice_uuid=x_pub_ke",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "addDevice",
+      "--uri",
+      "sgnl://linkdevice?uuid=x&pub_key=y"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "User +15555550123 is not registered.\n",
+    "exitCode": 1
+  }
+}

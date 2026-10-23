@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs034---trust-new-identities_always_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--trust-new-identities",
+      "always",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "signal-cli 0.14.7\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

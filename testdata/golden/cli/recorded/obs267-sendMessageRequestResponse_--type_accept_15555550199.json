@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "obs267-sendMessageRequestResponse_--type_accept_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendMessageRequestResponse",
+      "--type",
+      "accept",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "No local users found, you first need to register or link an account\n",
+    "exitCode": 1
+  }
+}

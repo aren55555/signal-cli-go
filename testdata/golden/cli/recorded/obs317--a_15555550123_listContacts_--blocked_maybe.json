@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs317--a_15555550123_listContacts_--blocked_maybe",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "listContacts",
+      "--blocked",
+      "maybe"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "User +15555550123 is not registered.\n",
+    "exitCode": 1
+  }
+}

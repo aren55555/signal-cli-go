@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "obs284-sendTyping_-s_extra_--bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendTyping",
+      "-s",
+      "extra",
+      "--bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendTyping [-h] [-g [GROUP_ID [GROUP_ID ...]]] [-s]\n                  [recipient [recipient ...]]\nsignal-cli: error: unrecognized arguments: '--bogus'\n\nDid you mean:\n\t--group\n",
+    "exitCode": 1
+  }
+}

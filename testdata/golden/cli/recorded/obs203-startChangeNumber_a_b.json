@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs203-startChangeNumber_a_b",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "startChangeNumber",
+      "a",
+      "b"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli startChangeNumber [-h] [-v] [--captcha CAPTCHA] number\nsignal-cli: error: unrecognized arguments: 'b'\n",
+    "exitCode": 1
+  }
+}

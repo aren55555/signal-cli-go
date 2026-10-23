@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs165-sendStory_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendStory",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli sendStory [-h] -a ATTACHMENT [--no-replies] [-g GROUP_ID]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -a ATTACHMENT, --attachment ATTACHMENT\n                         Specify the file path  to  the  image  or video to\n                         post as a story.\n  --no-replies           Disable replies on this story.\n  -g GROUP_ID, --group-id GROUP_ID\n                         Specify a group  to  post  the  story  to. Without\n                         this, posts to My Story.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

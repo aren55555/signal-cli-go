@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "obs253-sendAdminDelete_-a_15555550123_-t_1_-g",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete",
+      "-a",
+      "+15555550123",
+      "-t",
+      "1",
+      "-g"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendAdminDelete [-h] [-g GROUP_ID [GROUP_ID ...]]\n                  [--notify-self] -a TARGET_AUTHOR -t TARGET_TIMESTAMP\n                  [--story]\nsignal-cli: error: argument -g/--group-id/--group: expected 1 argument(s)\n",
+    "exitCode": 1
+  }
+}

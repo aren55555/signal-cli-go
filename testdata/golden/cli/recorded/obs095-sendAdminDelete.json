@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs095-sendAdminDelete",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendAdminDelete [-h] [-g GROUP_ID [GROUP_ID ...]]\n                  [--notify-self] -a TARGET_AUTHOR -t TARGET_TIMESTAMP\n                  [--story]\nsignal-cli: error: argument -t/--target-timestamp is required\n",
+    "exitCode": 1
+  }
+}

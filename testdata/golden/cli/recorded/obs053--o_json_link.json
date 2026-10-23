@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs053--o_json_link",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "json",
+      "link"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "Command doesn't support output type json\n",
+    "exitCode": 1
+  }
+}

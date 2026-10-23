@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs340-uploadStickerPack_a_b",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "uploadStickerPack",
+      "a",
+      "b"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli uploadStickerPack [-h] path\nsignal-cli: error: unrecognized arguments: 'b'\n",
+    "exitCode": 1
+  }
+}

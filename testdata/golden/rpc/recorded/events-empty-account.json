@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "events-empty-account",
+    "transport": "http",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)",
+    "method": "GET",
+    "path": "/api/v1/events?account=",
+    "streamForMs": 1000
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 200 OK",
+    "headers": [
+      "Transfer-encoding: chunked",
+      "Content-type: text/event-stream"
+    ]
+  }
+}

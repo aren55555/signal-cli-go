@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs205-finishChangeNumber_-v_123",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "finishChangeNumber",
+      "-v",
+      "123"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "\u003cTIMESTAMP\u003e [main] DEBUG org.asamk.signal.util.IOUtils - XDG_RUNTIME_DIR not set, falling back to temp dir\nusage: signal-cli finishChangeNumber [-h] -v VERIFICATION_CODE [-p PIN]\n                  number\nsignal-cli: error: too few arguments\n",
+    "exitCode": 1
+  }
+}

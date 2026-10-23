@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "path-root",
+    "transport": "http",
+    "note": "HTTP/stream transport behavior (spec/surface/jsonrpc/transports.md)",
+    "method": "GET",
+    "path": "/"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 404 Not Found",
+    "headers": [
+      "Content-Length: 50",
+      "Content-Type: text/html",
+      "Connection: close"
+    ],
+    "body": "\u003ch1\u003e404 Not Found\u003c/h1\u003eNo context found for request"
+  }
+}

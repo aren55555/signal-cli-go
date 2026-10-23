@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs255-sendAdminDelete_-a_15555550123_-t_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete",
+      "-a",
+      "+15555550123",
+      "-t",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "No local users found, you first need to register or link an account\n",
+    "exitCode": 1
+  }
+}

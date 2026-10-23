@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs044--a_15555550123_--account_15555550124_listContacts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "--account",
+      "+15555550124",
+      "listContacts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "User +15555550124 is not registered.\n",
+    "exitCode": 1
+  }
+}

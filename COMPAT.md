@@ -8,6 +8,8 @@ Legend: ✅ done · 🟡 partial (see notes) · ⬜ not started · n/a not appli
 
 **Status: draft.** JSON-RPC rows are filled in from `spec/surface/jsonrpc/`; transport, error and zero-account behavior was observed on the binary. CLI rows are filled in from `spec/surface/cli/`.
 
+Layer B goldens: all account-free behavior is recorded (CLI 355, JSON-RPC 162 scenarios, see `testdata/README.md`). A Layer B cell turns ✅ only when the scenario replays green against signal-cli-go, not when it is recorded.
+
 ## JSON-RPC daemon (priority 1)
 
 ### Transports and endpoints
@@ -118,7 +120,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | `--service-environment` | ✅ | ⬜ | n/a | ⬜ | n/a | |
 | `--trust-new-identities` | ✅ | ⬜ | n/a | ⬜ | n/a | |
 | `--disable-send-log` | ✅ | ⬜ | n/a | ⬜ | n/a | |
-| Help layout (width 75 or `$COLUMNS`, fully justified; leading logging-parser block) | ✅ | ⬜ | n/a | ⬜ | n/a | golden recorded (`help`); replay pending implementation |
+| Help layout (width 75 or `$COLUMNS`, fully justified; leading logging-parser block) | ✅ | ⬜ | n/a | ⬜ | n/a | goldens recorded (`help`, `*-help`, `help-columns-*`); replay pending implementation |
 | Parse errors (usage + `signal-cli: error:`, `Did you mean:`, prefix abbreviation, exit 1) | ✅ | ⬜ | n/a | ⬜ | n/a | goldens recorded (`no-args`, `unknown-*`, `bad-output-value`); replay pending implementation |
 | Exit codes 0–6 | 🟡 | ⬜ | n/a | ⬜ | ⬜ | 4/5/6 known from source only; 0/1 goldens recorded, replay pending |
 | Config file (`SIGNAL_CLI_CONFIG`, per-user file, unknown keys rejected) | ✅ | ⬜ | n/a | ⬜ | n/a | binary differs from man page; binary is authoritative |

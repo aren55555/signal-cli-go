@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs177-updateConfiguration_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateConfiguration",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli updateConfiguration [-h] [--read-receipts {true,false}]\n                  [--unidentified-delivery-indicators {true,false}]\n                  [--typing-indicators {true,false}]\n                  [--link-previews {true,false}]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  --read-receipts {true,false}\n                         Indicates if Signal should send read receipts.\n  --unidentified-delivery-indicators {true,false}\n                         Indicates  if  Signal   should  show  unidentified\n                         delivery indicators.\n  --typing-indicators {true,false}\n                         Indicates  if  Signal   should   send/show  typing\n                         indicators.\n  --link-previews {true,false}\n                         Indicates if Signal should generate link previews.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

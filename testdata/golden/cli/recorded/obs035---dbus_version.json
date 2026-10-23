@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs035---dbus_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--dbus",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "Dbus client failed: Cannot Resolve Session Bus Address: DISPLAY variable not set\n",
+    "exitCode": 2
+  }
+}

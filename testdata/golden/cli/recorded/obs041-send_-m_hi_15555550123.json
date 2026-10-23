@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "obs041-send_-m_hi_15555550123",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "-m",
+      "hi",
+      "+15555550123"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "No local users found, you first need to register or link an account\n",
+    "exitCode": 1
+  }
+}

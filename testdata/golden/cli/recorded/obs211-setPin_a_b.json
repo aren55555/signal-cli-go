@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs211-setPin_a_b",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "setPin",
+      "a",
+      "b"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli setPin [-h] pin\nsignal-cli: error: unrecognized arguments: 'b'\n",
+    "exitCode": 1
+  }
+}

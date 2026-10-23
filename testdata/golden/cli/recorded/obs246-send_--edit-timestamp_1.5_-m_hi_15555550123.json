@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "obs246-send_--edit-timestamp_1.5_-m_hi_15555550123",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "--edit-timestamp",
+      "1.5",
+      "-m",
+      "hi",
+      "+15555550123"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli send [-h] [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] [--note-to-self]\n                  [--notify-self] [-a [ATTACHMENT [ATTACHMENT ...]]]\n                  [--view-once] [-e] [--mention [MENTION [MENTION ...]]]\n                  [--text-style [TEXT_STYLE [TEXT_STYLE ...]]]\n                  [--quote-timestamp QUOTE_TIMESTAMP]\n                  [--quote-author QUOTE_AUTHOR]\n                  [--quote-message QUOTE_MESSAGE]\n                  [--quote-mention [QUOTE_MENTION [QUOTE_MENTION ...]]]\n                  [--quote-attachment [QUOTE_ATTACHMENT [QUOTE_ATTACHMENT ...]]]\n                  [--quote-text-style [QUOTE_TEXT_STYLE [QUOTE_TEXT_STYLE ...]]]\n                  [--sticker STICKER] [--preview-url PREVIEW_URL]\n                  [--preview-title PREVIEW_TITLE]\n                  [--preview-description PREVIEW_DESCRIPTION]\n                  [--preview-image PREVIEW_IMAGE]\n                  [--story-timestamp STORY_TIMESTAMP]\n                  [--story-author STORY_AUTHOR]\n                  [--edit-timestamp EDIT_TIMESTAMP] [--no-urgent]\n                  [--voice-note] [-m MESSAGE | --message-from-stdin]\n                  [recipient [recipient ...]]\nsignal-cli: error: argument --edit-timestamp:  could  not  convert '1.5' to\ninteger (64 bits)\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs155-sendAdminDelete_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli sendAdminDelete [-h] [-g GROUP_ID [GROUP_ID ...]]\n                  [--notify-self] -a TARGET_AUTHOR -t TARGET_TIMESTAMP\n                  [--story]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -g GROUP_ID [GROUP_ID ...], --group-id GROUP_ID [GROUP_ID ...], --group GROUP_ID [GROUP_ID ...]\n                         Specify the recipient group ID.\n  --notify-self          If  self  is  part  of  recipients/groups  send  a\n                         normal message, not a sync message.\n  -a TARGET_AUTHOR, --target-author TARGET_AUTHOR\n                         Specify the number of  the  author  of the message\n                         to admin delete.\n  -t TARGET_TIMESTAMP, --target-timestamp TARGET_TIMESTAMP\n                         Specify the  timestamp  of  the  message  to admin\n                         delete.\n  --story                Admin delete a story instead of a normal message\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "obs048--a_12345_verify_123456",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "12345",
+      "verify",
+      "123456"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "Invalid account (phone number), make sure you include the country code.\n",
+    "exitCode": 1
+  }
+}

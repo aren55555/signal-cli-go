@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "name": "obs293-sendStory_-a_f.jpg_-g",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendStory",
+      "-a",
+      "f.jpg",
+      "-g"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendStory [-h] -a ATTACHMENT [--no-replies] [-g GROUP_ID]\nsignal-cli: error: argument -g/--group-id: expected one argument\n",
+    "exitCode": 1
+  }
+}

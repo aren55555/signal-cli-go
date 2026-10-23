@@ -1,0 +1,23 @@
+{
+  "scenario": {
+    "name": "cfgfile-account",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "env": {
+      "SIGNAL_CLI_CONFIG": "{{SCRATCH}}/acct.json"
+    },
+    "files": {
+      "{{SCRATCH}}/acct.json": "{\"account\":\"+15555550123\"}"
+    },
+    "note": "account key accepted, no effect"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "signal-cli 0.14.7\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs286-remoteDelete_-t_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "remoteDelete",
+      "-t",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli remoteDelete [-h] -t TARGET_TIMESTAMP\n                  [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] [--note-to-self]\n                  [recipient [recipient ...]]\nsignal-cli: error: argument -t/--target-timestamp:  could not convert 'abc'\nto integer (64 bits)\n",
+    "exitCode": 1
+  }
+}

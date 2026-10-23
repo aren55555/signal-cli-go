@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "obs279-sendReceipt_-t_1_--type_foo_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "-t",
+      "1",
+      "--type",
+      "foo",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendReceipt [-h]\n                  -t TARGET_TIMESTAMP [TARGET_TIMESTAMP ...]\n                  [--type {read,viewed}] recipient\nsignal-cli: error: argument  --type:  invalid  choice:  'foo'  (choose from\n{read,viewed})\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs345--a_15555550123_addStickerPack_--uri_https_signal.art_addstic",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "addStickerPack",
+      "--uri",
+      "https://signal.art/addstickers/#pack_id=00&pack_key=00"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "User +15555550123 is not registered.\n",
+    "exitCode": 1
+  }
+}

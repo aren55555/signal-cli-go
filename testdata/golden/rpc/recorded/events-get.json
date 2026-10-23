@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "events-get",
+    "transport": "http",
+    "note": "SSE headers; zero accounts so no events arrive in 2s",
+    "method": "GET",
+    "path": "/api/v1/events",
+    "streamForMs": 2000
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 200 OK",
+    "headers": [
+      "Transfer-encoding: chunked",
+      "Content-type: text/event-stream"
+    ]
+  }
+}

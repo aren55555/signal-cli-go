@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs183-verify_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "verify",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli verify [-h] [-p PIN] verification_code\n\npositional arguments:\n  verification_code      The verification  code  you  received  via  sms or\n                         voice call.\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -p PIN, --pin PIN      The registration lock  PIN,  that  was  set by the\n                         user (Optional)\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

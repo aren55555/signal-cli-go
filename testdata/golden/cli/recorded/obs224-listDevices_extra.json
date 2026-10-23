@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs224-listDevices_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listDevices",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli listDevices [-h]\nsignal-cli: error: unrecognized arguments: 'extra'\n",
+    "exitCode": 1
+  }
+}

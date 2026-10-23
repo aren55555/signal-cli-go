@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs335-sendContacts_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendContacts",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendContacts [-h]\nsignal-cli: error: unrecognized arguments: 'extra'\n",
+    "exitCode": 1
+  }
+}

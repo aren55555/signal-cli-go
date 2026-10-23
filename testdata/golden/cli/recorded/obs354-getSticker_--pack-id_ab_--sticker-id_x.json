@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "obs354-getSticker_--pack-id_ab_--sticker-id_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getSticker",
+      "--pack-id",
+      "ab",
+      "--sticker-id",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli getSticker [-h] --pack-id PACK_ID --sticker-id STICKER_ID\nsignal-cli: error: argument --sticker-id: could  not convert 'x' to integer\n(32 bits)\n",
+    "exitCode": 1
+  }
+}

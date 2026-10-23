@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs123-verify",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "verify"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli verify [-h] [-p PIN] verification_code\nsignal-cli: error: too few arguments\n",
+    "exitCode": 1
+  }
+}

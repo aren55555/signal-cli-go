@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs122-uploadStickerPack",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "uploadStickerPack"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli uploadStickerPack [-h] path\nsignal-cli: error: too few arguments\n",
+    "exitCode": 1
+  }
+}

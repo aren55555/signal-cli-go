@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs083-listGroups",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listGroups"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "No local users found, you first need to register or link an account\n",
+    "exitCode": 1
+  }
+}

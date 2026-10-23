@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "name": "obs079-joinGroup",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "joinGroup"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli joinGroup [-h] --uri URI\nsignal-cli: error: argument --uri is required\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "obs280-sendReceipt_-t_1_2_x_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "-t",
+      "1",
+      "2",
+      "x",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli sendReceipt [-h]\n                  -t TARGET_TIMESTAMP [TARGET_TIMESTAMP ...]\n                  [--type {read,viewed}] recipient\nsignal-cli: error: argument  -t/--target-timestamp:  could  not convert 'x'\nto integer (64 bits)\n",
+    "exitCode": 1
+  }
+}

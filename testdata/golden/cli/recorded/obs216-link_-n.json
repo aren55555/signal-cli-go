@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs216-link_-n",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "link",
+      "-n"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli link [-h] [-n NAME]\nsignal-cli: error: argument -n/--name: expected one argument\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "http-body-033",
+    "transport": "http",
+    "note": "request-level parsing (spec/surface/jsonrpc/observations.md sections 1, 2, 10)",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "[{\"jsonrpc\":\"2.0\",\"result\":1,\"id\":1}]"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 200 OK",
+    "headers": [
+      "Content-type: application/json",
+      "Content-length: 368"
+    ],
+    "body": "[{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32600,\"message\":\"Unrecognized field \\\"result\\\" (class org.asamk.signal.jsonrpc.JsonRpcRequest), not marked as ignorable (4 known properties: \\\"method\\\", \\\"id\\\", \\\"jsonrpc\\\", \\\"params\\\")\\n at [Source: UNKNOWN; byte offset: #UNKNOWN] (through reference chain: org.asamk.signal.jsonrpc.JsonRpcRequest[\\\"result\\\"])\",\"data\":null},\"id\":1}]"
+  }
+}

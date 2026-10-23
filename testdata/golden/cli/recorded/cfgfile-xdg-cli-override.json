@@ -1,0 +1,25 @@
+{
+  "scenario": {
+    "name": "cfgfile-xdg-cli-override",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "plain-text",
+      "version"
+    ],
+    "env": {
+      "XDG_CONFIG_HOME": "{{SCRATCH}}/xdg"
+    },
+    "files": {
+      "{{SCRATCH}}/xdg/signal-cli/config.json": "{\"output\":\"json\"}"
+    },
+    "note": "command line overrides config file"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "signal-cli 0.14.7\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

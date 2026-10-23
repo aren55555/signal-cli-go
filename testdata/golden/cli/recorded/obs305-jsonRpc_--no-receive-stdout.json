@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs305-jsonRpc_--no-receive-stdout",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "jsonRpc",
+      "--no-receive-stdout"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli jsonRpc [-h] [--ignore-attachments] [--ignore-stories]\n                  [--ignore-avatars] [--ignore-stickers]\n                  [--send-read-receipts]\n                  [--receive-mode {on-start,on-connection,manual}]\nsignal-cli: error: unrecognized arguments: '--no-receive-stdout'\n",
+    "exitCode": 1
+  }
+}

@@ -1,0 +1,3566 @@
+[
+  {
+    "name": "obs003--h",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-h"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs004---version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs005--v_--version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-v",
+      "--version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs006---version_bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--version",
+      "bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs007---vers",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--vers"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs008-version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs009--o_json_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "json",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs010--o_plain-text_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "plain-text",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs011---output=json_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--output=json",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs012--ojson_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-ojson",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs013--oplain-text_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-oplain-text",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs014-version_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs015-version_-h_--bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version",
+      "-h",
+      "--bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs016--h_bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-h",
+      "bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs017--h_-o_xml",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-h",
+      "-o",
+      "xml"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs018--o_xml_-h",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "xml",
+      "-h"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs019-bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs021---bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs022---_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs023---d_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--d",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs024--a",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs025--o",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs026--o_xml_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "xml",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs027---service-environment_prod_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--service-environment",
+      "prod",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs028---trust-new-identities_sometimes_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--trust-new-identities",
+      "sometimes",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs029---dbus_--dbus-system_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--dbus",
+      "--dbus-system",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs030---log-file_SCRATCH_lf.txt_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--log-file",
+      "{{SCRATCH}}/lf.txt",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs031---scrub-log_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--scrub-log",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs032---service-environment_staging_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--service-environment",
+      "staging",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs033---disable-send-log_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--disable-send-log",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs034---trust-new-identities_always_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--trust-new-identities",
+      "always",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs035---dbus_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--dbus",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs036---dbus-system_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "--dbus-system",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs037--a_15555550123_--dbus_link",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "--dbus",
+      "link"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs038--d_nonexistent_x_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-d",
+      "/nonexistent/x",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs040--o_json_listAccounts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "json",
+      "listAccounts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs041-send_-m_hi_15555550123",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "-m",
+      "hi",
+      "+15555550123"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs042-register",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "register"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs043--a_15555550123_listContacts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "listContacts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs044--a_15555550123_--account_15555550124_listContacts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "--account",
+      "+15555550124",
+      "listContacts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs045--a_3fa85f64-5717-4562-b3fc-2c963f66afa6_listContacts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "listContacts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs046--a_12345_listContacts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "12345",
+      "listContacts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs047--a_12345_register",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "12345",
+      "register"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs048--a_12345_verify_123456",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "12345",
+      "verify",
+      "123456"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs049--a_15555550123_link",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "link"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs050--a_15555550123_listAccounts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "listAccounts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs051--a_15555550123_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs052--a_15555550123_-o_json_version",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "-o",
+      "json",
+      "version"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs053--o_json_link",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "json",
+      "link"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs054--o_plain-text_jsonRpc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "plain-text",
+      "jsonRpc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs068-acceptCall",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "acceptCall"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs069-addDevice",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "addDevice"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs070-addStickerPack",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "addStickerPack"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs071-block",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "block"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs072-deleteLocalAccountData",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "deleteLocalAccountData"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs073-finishChangeNumber",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "finishChangeNumber"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs074-getAttachment",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAttachment"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs075-getAvatar",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAvatar"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs076-getSticker",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getSticker"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs077-getUserStatus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getUserStatus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs078-hangupCall",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "hangupCall"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs079-joinGroup",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "joinGroup"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs080-listCalls",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listCalls"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs081-listContacts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listContacts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs082-listDevices",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listDevices"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs083-listGroups",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listGroups"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs084-listIdentities",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listIdentities"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs085-listStickerPacks",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listStickerPacks"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs086-quitGroup",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "quitGroup"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs087-receive",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "receive"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs089-rejectCall",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "rejectCall"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs090-remoteDelete",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "remoteDelete"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs091-removeContact",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeContact"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs092-removeDevice",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeDevice"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs093-removePin",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removePin"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs094-send",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs095-sendAdminDelete",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs096-sendContacts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendContacts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs097-sendMessageRequestResponse",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendMessageRequestResponse"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs098-sendPaymentNotification",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPaymentNotification"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs099-sendPinMessage",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPinMessage"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs100-sendPollCreate",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollCreate"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs101-sendPollTerminate",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollTerminate"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs102-sendPollVote",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollVote"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs103-sendReaction",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReaction"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs104-sendReceipt",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs105-sendStory",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendStory"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs106-sendSyncRequest",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendSyncRequest"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs107-sendTyping",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendTyping"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs108-sendUnpinMessage",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendUnpinMessage"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs109-setPin",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "setPin"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs110-startCall",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "startCall"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs111-startChangeNumber",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "startChangeNumber"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs112-submitRateLimitChallenge",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "submitRateLimitChallenge"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs113-trust",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "trust"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs114-unblock",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "unblock"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs115-unregister",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "unregister"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs116-updateAccount",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateAccount"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs117-updateConfiguration",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateConfiguration"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs118-updateContact",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateContact"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs119-updateDevice",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateDevice"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs120-updateGroup",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateGroup"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs121-updateProfile",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateProfile"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs122-uploadStickerPack",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "uploadStickerPack"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs123-verify",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "verify"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs124-acceptCall_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "acceptCall",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs125-addDevice_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "addDevice",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs126-addStickerPack_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "addStickerPack",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs127-block_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "block",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs128-daemon_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "daemon",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs129-deleteLocalAccountData_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "deleteLocalAccountData",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs130-finishChangeNumber_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "finishChangeNumber",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs131-getAttachment_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAttachment",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs132-getAvatar_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAvatar",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs133-getSticker_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getSticker",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs134-getUserStatus_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getUserStatus",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs135-hangupCall_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "hangupCall",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs136-joinGroup_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "joinGroup",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs137-jsonRpc_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "jsonRpc",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs138-link_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "link",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs139-listAccounts_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listAccounts",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs140-listCalls_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listCalls",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs141-listContacts_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listContacts",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs142-listDevices_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listDevices",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs143-listGroups_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listGroups",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs144-listIdentities_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listIdentities",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs145-listStickerPacks_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listStickerPacks",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs146-quitGroup_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "quitGroup",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs147-receive_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "receive",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs148-register_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "register",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs149-rejectCall_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "rejectCall",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs150-remoteDelete_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "remoteDelete",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs151-removeContact_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeContact",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs152-removeDevice_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeDevice",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs153-removePin_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removePin",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs154-send_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs155-sendAdminDelete_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs156-sendContacts_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendContacts",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs157-sendMessageRequestResponse_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendMessageRequestResponse",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs158-sendPaymentNotification_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPaymentNotification",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs159-sendPinMessage_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPinMessage",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs160-sendPollCreate_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollCreate",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs161-sendPollTerminate_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollTerminate",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs162-sendPollVote_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollVote",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs163-sendReaction_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReaction",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs164-sendReceipt_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs165-sendStory_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendStory",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs166-sendSyncRequest_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendSyncRequest",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs167-sendTyping_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendTyping",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs168-sendUnpinMessage_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendUnpinMessage",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs169-setPin_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "setPin",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs170-startCall_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "startCall",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs171-startChangeNumber_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "startChangeNumber",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs172-submitRateLimitChallenge_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "submitRateLimitChallenge",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs173-trust_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "trust",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs174-unblock_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "unblock",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs175-unregister_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "unregister",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs176-updateAccount_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateAccount",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs177-updateConfiguration_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateConfiguration",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs178-updateContact_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateContact",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs179-updateDevice_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateDevice",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs180-updateGroup_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateGroup",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs181-updateProfile_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateProfile",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs182-uploadStickerPack_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "uploadStickerPack",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs183-verify_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "verify",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs184-version_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs185-register_--bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "register",
+      "--bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs186-register_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "register",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs188--a_0b1c3e2a-1111-2222-3333-444455556666_register",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "0b1c3e2a-1111-2222-3333-444455556666",
+      "register"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs190-verify_1_2",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "verify",
+      "1",
+      "2"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs192-unregister_--bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "unregister",
+      "--bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs193--a_15555550123_unregister",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "unregister"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs194--a_15555550123_unregister_--delete-account",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "unregister",
+      "--delete-account"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs195-deleteLocalAccountData_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "deleteLocalAccountData",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs196--a_12345_deleteLocalAccountData",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "12345",
+      "deleteLocalAccountData"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs197-updateAccount_-u_x_--delete-username",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateAccount",
+      "-u",
+      "x",
+      "--delete-username"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs198-updateAccount_--number-sharing_yes",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateAccount",
+      "--number-sharing",
+      "yes"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs199-updateAccount_--number-sharing",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateAccount",
+      "--number-sharing"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs200--a_15555550123_updateAccount_--number-sharing_TRUE",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "updateAccount",
+      "--number-sharing",
+      "TRUE"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs201--a_15555550123_updateAccount",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "updateAccount"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs202--a_15555550123_startChangeNumber_15555550124",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "startChangeNumber",
+      "+15555550124"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs203-startChangeNumber_a_b",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "startChangeNumber",
+      "a",
+      "b"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs204-finishChangeNumber_15555550124",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "finishChangeNumber",
+      "+15555550124"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs205-finishChangeNumber_-v_123",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "finishChangeNumber",
+      "-v",
+      "123"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs206--a_15555550123_finishChangeNumber_-v_123_15555550124",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "finishChangeNumber",
+      "-v",
+      "123",
+      "+15555550124"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs207-updateConfiguration_--read-receipts_maybe",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateConfiguration",
+      "--read-receipts",
+      "maybe"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs208--a_15555550123_updateConfiguration_--read-receipts_True",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "updateConfiguration",
+      "--read-receipts",
+      "True"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs209--a_15555550123_updateConfiguration",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "updateConfiguration"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs211-setPin_a_b",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "setPin",
+      "a",
+      "b"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs212--a_15555550123_setPin_1234",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "setPin",
+      "1234"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs213-removePin_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removePin",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs214--a_15555550123_removePin",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "removePin"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs215-link_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "link",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs216-link_-n",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "link",
+      "-n"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs217--a_15555550123_link_-n_foo",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "link",
+      "-n",
+      "foo"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs218-addDevice_--uri",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "addDevice",
+      "--uri"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs219--a_15555550123_addDevice_--uri_sgnl_linkdevice_uuid=x_pub_ke",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "addDevice",
+      "--uri",
+      "sgnl://linkdevice?uuid=x&pub_key=y"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs220-listAccounts_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listAccounts",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs224-listDevices_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listDevices",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs225--a_15555550123_listDevices",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "listDevices"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs227-removeDevice_-d_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeDevice",
+      "-d",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs228-removeDevice_-d_1.5",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeDevice",
+      "-d",
+      "1.5"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs230--a_15555550123_removeDevice_--deviceId_2",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "removeDevice",
+      "--deviceId",
+      "2"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs231-updateDevice_-d_2",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateDevice",
+      "-d",
+      "2"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs232-updateDevice_-n_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateDevice",
+      "-n",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs233-updateDevice_-d_x_-n_y",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateDevice",
+      "-d",
+      "x",
+      "-n",
+      "y"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs234--a_15555550123_updateDevice_-d_2_-n_y",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "updateDevice",
+      "-d",
+      "2",
+      "-n",
+      "y"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs235-submitRateLimitChallenge_--challenge_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "submitRateLimitChallenge",
+      "--challenge",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs236-submitRateLimitChallenge_--captcha_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "submitRateLimitChallenge",
+      "--captcha",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs237--a_15555550123_submitRateLimitChallenge_--challenge_x_--capt",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "submitRateLimitChallenge",
+      "--challenge",
+      "x",
+      "--captcha",
+      "y"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs238-version_--bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "version",
+      "--bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs242-register_-v_--bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "register",
+      "-v",
+      "--bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs243-register_--voice_--bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "register",
+      "--voice",
+      "--bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs244-send_-m_hi_--message-from-stdin_15555550123",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "-m",
+      "hi",
+      "--message-from-stdin",
+      "+15555550123"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs245-send_--quote-timestamp_abc_-m_hi_15555550123",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "--quote-timestamp",
+      "abc",
+      "-m",
+      "hi",
+      "+15555550123"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs246-send_--edit-timestamp_1.5_-m_hi_15555550123",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "--edit-timestamp",
+      "1.5",
+      "-m",
+      "hi",
+      "+15555550123"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs247-send_--story-timestamp_-m_hi",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "--story-timestamp",
+      "-m",
+      "hi"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs248-send_-m",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "-m"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs249--a_15555550123_send_-m_hi_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "send",
+      "-m",
+      "hi",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs250--a_15555550123_-o_json_send_-m_hi_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "-o",
+      "json",
+      "send",
+      "-m",
+      "hi",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs251-sendAdminDelete_-t_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete",
+      "-t",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs252-sendAdminDelete_-a_15555550123",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete",
+      "-a",
+      "+15555550123"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs253-sendAdminDelete_-a_15555550123_-t_1_-g",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete",
+      "-a",
+      "+15555550123",
+      "-t",
+      "1",
+      "-g"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs254-sendAdminDelete_-a_15555550123_-t_x_-g_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete",
+      "-a",
+      "+15555550123",
+      "-t",
+      "x",
+      "-g",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs255-sendAdminDelete_-a_15555550123_-t_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendAdminDelete",
+      "-a",
+      "+15555550123",
+      "-t",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs256-sendPollCreate_-q_Q",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollCreate",
+      "-q",
+      "Q"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs257-sendPollCreate_-o_a_b",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollCreate",
+      "-o",
+      "a",
+      "b"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs258-sendPollCreate_-q_Q_-o",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollCreate",
+      "-q",
+      "Q",
+      "-o"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs259-sendPollVote_--poll-timestamp_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollVote",
+      "--poll-timestamp",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs260-sendPollVote_--vote-count_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollVote",
+      "--vote-count",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs261-sendPollVote_--poll-timestamp_1_--vote-count_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollVote",
+      "--poll-timestamp",
+      "1",
+      "--vote-count",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs262-sendPollVote_--poll-timestamp_1_--vote-count_1_-o_a",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollVote",
+      "--poll-timestamp",
+      "1",
+      "--vote-count",
+      "1",
+      "-o",
+      "a"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs265-sendMessageRequestResponse_--type_foo",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendMessageRequestResponse",
+      "--type",
+      "foo"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs266-sendMessageRequestResponse_--type_ACCEPT_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendMessageRequestResponse",
+      "--type",
+      "ACCEPT",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs267-sendMessageRequestResponse_--type_accept_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendMessageRequestResponse",
+      "--type",
+      "accept",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs268-sendPaymentNotification_--receipt_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPaymentNotification",
+      "--receipt",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs269-sendPaymentNotification_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPaymentNotification",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs270-sendPaymentNotification_--receipt_abc_15555550199_1555555019",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPaymentNotification",
+      "--receipt",
+      "abc",
+      "+15555550199",
+      "+15555550198"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs271-sendPinMessage_-a_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPinMessage",
+      "-a",
+      "+1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs272-sendPinMessage_-a_1_-t_1_-d_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPinMessage",
+      "-a",
+      "+1",
+      "-t",
+      "1",
+      "-d",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs273-sendUnpinMessage_-t_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendUnpinMessage",
+      "-t",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs274-sendReaction_-a_1_-t_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReaction",
+      "-a",
+      "+1",
+      "-t",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs275-sendReaction_-e_x_-a_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReaction",
+      "-e",
+      "x",
+      "-a",
+      "+1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs277-sendReceipt_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs278-sendReceipt_-t_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "-t",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs279-sendReceipt_-t_1_--type_foo_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "-t",
+      "1",
+      "--type",
+      "foo",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs280-sendReceipt_-t_1_2_x_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "-t",
+      "1",
+      "2",
+      "x",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs282-sendStory_-a_f.jpg_-g_a_b",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendStory",
+      "-a",
+      "f.jpg",
+      "-g",
+      "a",
+      "b"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs283-sendTyping_-u_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendTyping",
+      "-u",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs284-sendTyping_-s_extra_--bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendTyping",
+      "-s",
+      "extra",
+      "--bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs286-remoteDelete_-t_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "remoteDelete",
+      "-t",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs287--o_json_remoteDelete_-t_1_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "json",
+      "remoteDelete",
+      "-t",
+      "1",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs289-sendPollTerminate_--poll-timestamp_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollTerminate",
+      "--poll-timestamp",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs290-sendReceipt_-t_1_2_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "-t",
+      "1",
+      "2",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs291-sendReceipt_15555550199_-t_1_2",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendReceipt",
+      "+15555550199",
+      "-t",
+      "1",
+      "2"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs292-sendUnpinMessage_-a_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendUnpinMessage",
+      "-a",
+      "+1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs293-sendStory_-a_f.jpg_-g",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendStory",
+      "-a",
+      "f.jpg",
+      "-g"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs294-send_-a",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "send",
+      "-a"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs295--a_15555550123_sendReaction_-e_x_-a_1_-t_1_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "sendReaction",
+      "-e",
+      "x",
+      "-a",
+      "+1",
+      "-t",
+      "1",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs296-receive_-t_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "receive",
+      "-t",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs297-receive_--max-messages_1.5",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "receive",
+      "--max-messages",
+      "1.5"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs298--a_15555550123_receive",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "receive"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs299--a_15555550123_-o_json_receive_-t_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "-o",
+      "json",
+      "receive",
+      "-t",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs300-daemon_--receive-mode_bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "daemon",
+      "--receive-mode",
+      "bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs301--a_15555550123_daemon",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "daemon"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs302--a_15555550123_daemon_--http",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "daemon",
+      "--http"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs303-jsonRpc_--receive-mode_bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "jsonRpc",
+      "--receive-mode",
+      "bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs304--a_15555550123_jsonRpc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "jsonRpc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs305-jsonRpc_--no-receive-stdout",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "jsonRpc",
+      "--no-receive-stdout"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs306-joinGroup_--uri",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "joinGroup",
+      "--uri"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs307--a_15555550123_joinGroup_--uri_https_signal.group_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "joinGroup",
+      "--uri",
+      "https://signal.group/#x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs308-updateGroup_--link_bogus",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateGroup",
+      "--link",
+      "bogus"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs309-updateGroup_--set-permission-add-member_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateGroup",
+      "--set-permission-add-member",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs310-updateGroup_-e_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateGroup",
+      "-e",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs311--a_15555550123_updateGroup_-n_test",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "updateGroup",
+      "-n",
+      "test"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs313--a_15555550123_quitGroup_-g_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "quitGroup",
+      "-g",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs314-listGroups_-x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listGroups",
+      "-x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs315--a_15555550123_listGroups_-d",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "listGroups",
+      "-d"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs316-listContacts_--blocked",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listContacts",
+      "--blocked"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs317--a_15555550123_listContacts_--blocked_maybe",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "listContacts",
+      "--blocked",
+      "maybe"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs318-listIdentities_-n",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listIdentities",
+      "-n"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs319--a_15555550123_listIdentities",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "listIdentities"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs320-updateProfile_--avatar_a_--remove-avatar",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateProfile",
+      "--avatar",
+      "a",
+      "--remove-avatar"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs321--a_15555550123_updateProfile_--given-name_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "updateProfile",
+      "--given-name",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs323-updateContact_1_-e_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateContact",
+      "+1",
+      "-e",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs324--a_15555550123_updateContact_15555550124_-n_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "updateContact",
+      "+15555550124",
+      "-n",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs325-removeContact_--hide_--forget_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeContact",
+      "--hide",
+      "--forget",
+      "+1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs326-removeContact_1_2",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeContact",
+      "+1",
+      "+2"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs327--a_15555550123_removeContact_15555550124",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "removeContact",
+      "+15555550124"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs330-trust_-a_-v_123_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "trust",
+      "-a",
+      "-v",
+      "123",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs331--a_15555550123_trust_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "trust",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs332--a_15555550123_trust_-a_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "trust",
+      "-a",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs333--a_15555550123_block_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "block",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs334--a_15555550123_unblock_-g_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "unblock",
+      "-g",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs335-sendContacts_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendContacts",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs336-sendSyncRequest_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendSyncRequest",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs337--a_15555550123_sendContacts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "sendContacts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs338--a_15555550123_sendSyncRequest",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "sendSyncRequest"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs340-uploadStickerPack_a_b",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "uploadStickerPack",
+      "a",
+      "b"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs341--a_15555550123_uploadStickerPack_nonexistent_manifest.json",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "uploadStickerPack",
+      "/nonexistent/manifest.json"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs342--a_15555550123_listStickerPacks",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "listStickerPacks"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs343--o_json_listStickerPacks",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-o",
+      "json",
+      "listStickerPacks"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs344-addStickerPack_--uri",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "addStickerPack",
+      "--uri"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs345--a_15555550123_addStickerPack_--uri_https_signal.art_addstic",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "addStickerPack",
+      "--uri",
+      "https://signal.art/addstickers/#pack_id=00&pack_key=00"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs347-getAttachment_--id_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAttachment",
+      "--id",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs348-getAttachment_--id_x_--recipient_15555550199_-g_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAttachment",
+      "--id",
+      "x",
+      "--recipient",
+      "+15555550199",
+      "-g",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs349--a_15555550123_getAttachment_--id_x_-g_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "getAttachment",
+      "--id",
+      "x",
+      "-g",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs351-getAvatar_-c_15555550199_-p_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getAvatar",
+      "-c",
+      "+15555550199",
+      "-p",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs352--a_15555550123_getAvatar_-g_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "getAvatar",
+      "-g",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs354-getSticker_--pack-id_ab_--sticker-id_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getSticker",
+      "--pack-id",
+      "ab",
+      "--sticker-id",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs355--a_15555550123_getSticker_--pack-id_ab_--sticker-id_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "getSticker",
+      "--pack-id",
+      "ab",
+      "--sticker-id",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs356--a_15555550123_getUserStatus_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "getUserStatus",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs357--a_15555550123_getUserStatus_--username_u.01",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "getUserStatus",
+      "--username",
+      "u.01"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs359-startCall_15555550199_15555550198",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "startCall",
+      "+15555550199",
+      "+15555550198"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs360--a_15555550123_startCall_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "startCall",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs362-acceptCall_--call-id_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "acceptCall",
+      "--call-id",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs363-acceptCall_--call-id_99999999999999999999",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "acceptCall",
+      "--call-id",
+      "99999999999999999999"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs364--a_15555550123_acceptCall_--call-id_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "acceptCall",
+      "--call-id",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs365--a_15555550123_acceptCall_--call-id_-5",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "acceptCall",
+      "--call-id",
+      "-5"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs366-hangupCall_--call-id_x",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "hangupCall",
+      "--call-id",
+      "x"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs367--a_15555550123_hangupCall_--call-id_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "hangupCall",
+      "--call-id",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs368-rejectCall_--call-id_1.5",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "rejectCall",
+      "--call-id",
+      "1.5"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs369--a_15555550123_rejectCall_--call-id_1",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "rejectCall",
+      "--call-id",
+      "1"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs370--a_15555550123_listCalls",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "listCalls"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs371-listCalls_extra",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "listCalls",
+      "extra"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs372-getSticker_--pack-id_ab_--sticker-id_99999999999",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getSticker",
+      "--pack-id",
+      "ab",
+      "--sticker-id",
+      "99999999999"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs373--a_15555550123_trust_-v_123_15555550199",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "trust",
+      "-v",
+      "123",
+      "+15555550199"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs374-getUserStatus_--username",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "getUserStatus",
+      "--username"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  {
+    "name": "obs375--a_15555550123_block",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+15555550123",
+      "block"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  }
+]

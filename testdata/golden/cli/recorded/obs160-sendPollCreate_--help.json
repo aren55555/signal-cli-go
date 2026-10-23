@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs160-sendPollCreate_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "sendPollCreate",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli sendPollCreate [-h] [-g [GROUP_ID [GROUP_ID ...]]]\n                  [-u [USERNAME [USERNAME ...]]] [--note-to-self]\n                  [--notify-self] -q QUESTION [--no-multi]\n                  -o OPTION [OPTION ...] [recipient [recipient ...]]\n\npositional arguments:\n  recipient              Specify the recipients' phone number.\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -g [GROUP_ID [GROUP_ID ...]], --group-id [GROUP_ID [GROUP_ID ...]], --group [GROUP_ID [GROUP_ID ...]]\n                         Specify the recipient group ID.\n  -u [USERNAME [USERNAME ...]], --username [USERNAME [USERNAME ...]]\n                         Specify the recipient username or username link.\n  --note-to-self         Send the message to self\n  --notify-self          If  self  is  part  of  recipients/groups  send  a\n                         normal message, not a sync message.\n  -q QUESTION, --question QUESTION\n                         Specify the poll question.\n  --no-multi             Allow only  one  option  to  be  selected  by each\n                         recipient.\n  -o OPTION [OPTION ...], --option OPTION [OPTION ...]\n                         The options for the poll\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

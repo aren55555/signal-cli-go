@@ -1,0 +1,22 @@
+{
+  "scenario": {
+    "name": "method-noparams-listGroups",
+    "transport": "http",
+    "note": "every method with zero accounts and no params",
+    "method": "POST",
+    "path": "/api/v1/rpc",
+    "headers": [
+      "Content-Type: application/json"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"method\":\"listGroups\",\"id\":1}"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "status": "HTTP/1.1 200 OK",
+    "headers": [
+      "Content-type: application/json",
+      "Content-length: 112"
+    ],
+    "body": "{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32602,\"message\":\"Method requires valid account parameter\",\"data\":null},\"id\":1}"
+  }
+}

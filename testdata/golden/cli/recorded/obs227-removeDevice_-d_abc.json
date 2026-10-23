@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs227-removeDevice_-d_abc",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "removeDevice",
+      "-d",
+      "abc"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "usage: signal-cli removeDevice [-h] -d DEVICE_ID\nsignal-cli: error: argument  -d/--device-id/--deviceId:  could  not convert\n'abc' to integer (32 bits)\n",
+    "exitCode": 1
+  }
+}

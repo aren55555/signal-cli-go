@@ -1,0 +1,18 @@
+{
+  "scenario": {
+    "name": "obs179-updateDevice_--help",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "updateDevice",
+      "--help"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "usage: signal-cli [-h] [-v] [--log-file LOG_FILE] [--scrub-log]\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -v, --verbose\n  --log-file LOG_FILE\n  --scrub-log\nusage: signal-cli updateDevice [-h] -d DEVICE_ID -n DEVICE_NAME\n\nnamed arguments:\n  -h, --help             show this help message and exit\n  -d DEVICE_ID, --device-id DEVICE_ID, --deviceId DEVICE_ID\n                         Specify  the  device  you   want  to  update.  Use\n                         listDevices to see the deviceIds.\n  -n DEVICE_NAME, --device-name DEVICE_NAME\n                         Specify a name to describe the given device.\n",
+    "stderr": "",
+    "exitCode": 0
+  }
+}

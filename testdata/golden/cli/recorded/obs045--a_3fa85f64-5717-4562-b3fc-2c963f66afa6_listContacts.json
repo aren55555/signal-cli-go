@@ -1,0 +1,19 @@
+{
+  "scenario": {
+    "name": "obs045--a_3fa85f64-5717-4562-b3fc-2c963f66afa6_listContacts",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "listContacts"
+    ],
+    "note": "from spec/surface/cli/observations.md"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "User 3fa85f64-5717-4562-b3fc-2c963f66afa6 is not registered.\n",
+    "exitCode": 1
+  }
+}
