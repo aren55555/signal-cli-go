@@ -20,8 +20,8 @@ every session, and update both before ending one.
 |----|---------------------------------------------|--------|
 | 0  | Bootstrap: module, justfile, CI, docs, oracle installer | done (2026-10-23) |
 | 1  | Surface inventory: CLI + JSON-RPC specs, COMPAT.md rows, account-free goldens | done (2026-10-23) |
-| 2  | Crypto primitives with Layer A vectors      | **in progress** |
-| 3  | Signal protocol core (PQXDH, ratchet, sender keys, sealed sender) | not started |
+| 2  | Crypto primitives with Layer A vectors      | done (2026-10-23) |
+| 3  | Signal protocol core (PQXDH, ratchet, SPQR, sender keys, sealed sender) | **next** |
 | 4  | Service layer, first Layer C 1:1 exchange on staging | not started |
 | 5  | All message types, attachments, receipts, sync, linked devices | not started |
 | 6  | Groups v2 and zkgroup                        | not started |
@@ -43,6 +43,16 @@ starts. Existing pieces:
   secrets in `testdata/`)
 - `tools/install-oracle/`: downloads signal-cli 0.14.7 into `third_party/`,
   checks SHA-256 and the OpenPGP signature, and extracts it safely
+- `internal/crypto/edwards25519` (+ `/field`): GF(2^255-19), the
+  edwards25519 group, scalars mod l
+- `internal/crypto/ristretto255`: RFC 9496
+- `internal/crypto/curve25519`: Signal key encoding, X25519, XEd25519,
+  the PQXDH base-key check
+- `internal/crypto/kyber`: round-3 Kyber1024 (PQXDH prekeys)
+- `internal/proto/wire`: protobuf wire codec
+- `internal/testvec`: loads `testdata/vectors/*.json` in tests
+- `tools/rfcvectors`: extracts RFC 8032, 7748 and 9496 vectors from the
+  RFC texts
 - `spec/`: clean-room specs (spec role only, see `CLEANROOM.md`)
 - `testdata/vectors`, `testdata/golden`: see `testdata/README.md`
 
@@ -69,6 +79,17 @@ starts. Existing pieces:
   over D-Bus) are handled like voice calls: excluded for now, revisited in
   milestone 9b, interim documented error, COMPAT.md rows marked `deferred`.
   `daemon --dbus` stays excluded by PROMPT.md.
+- **KEMs** (from `spec/crypto/kem.md`): PQXDH prekeys use pre-standard
+  round-3 Kyber1024 (type `0x08`, expanded secret keys), implemented
+  in-repo. CDSI/SVR2 Noise uses FIPS 203 ML-KEM-1024 (`crypto/mlkem`).
+  SPQR uses ML-KEM-768 through libcrux's incremental API (see open
+  questions).
+- **XEd25519** follows signal.org plus the libsignal deviations in
+  `spec/crypto/xeddsa.md` (sign bit in signature bit 511, nonce over the
+  clamped key bytes, lenient u and S). VXEdDSA isn't used.
+- **Strict Ed25519 point decoding** (RFC 8032): `edwards25519.SetBytes`
+  rejects y >= p. XEd25519 never decodes R, so this doesn't affect
+  interop.
 - **Proxy support**: all egress goes through `HTTPS_PROXY`. Our HTTP and
   WebSocket clients must support HTTP CONNECT proxies from day one, or
   Layer C cannot run.
@@ -151,10 +172,15 @@ vectors.
 
 ## Open questions and risks
 
-- **Kyber vs ML-KEM**: confirm which KEM each libsignal 0.14.7-bundled
-  message and key type uses. Pre-standard Kyber1024 needs an in-repo
-  implementation; `crypto/mlkem` covers only FIPS 203. (Spec task for
-  milestone 2/3.)
+- **SPQR (new, milestone 3)**: libsignal v0.99.1 makes the Sparse
+  Post-Quantum Ratchet mandatory for every session (minimum version 1).
+  It uses ML-KEM-768 through libcrux's *incremental* API, with chunked
+  keys and ciphertexts and libcrux-specific state encodings (including a
+  workaround for libcrux issue 1275). `crypto/mlkem` has no such API.
+  The in-repo Kyber core already has a FIPS 203 variant, checked
+  against `crypto/mlkem` 768, which is a likely base. SPQR needs its
+  own spec before milestone 3 can interoperate. It is a large, new item.
+- Kyber vs ML-KEM: **resolved** (see Decisions).
 - **Enclave attestation** (CDSI, SVR2/SVR3): needs SGX DCAP quote and
   collateral verification and Noise. That looks feasible with `crypto/x509`
   and `crypto/ecdsa`, but it is unverified. If it isn't feasible, stop
@@ -218,3 +244,36 @@ vectors.
     order, which the comparison ignores (tested).
   - Recording takes about 5 minutes (CLI, 4 JVMs in parallel) plus 20 s
     (JSON-RPC).
+
+### 2026-10-23, session 2
+- The image was rebuilt: preflight OK, gcc present, `just ci` (with
+  `-race`) passes. The git identity is in `.git/config` (matches history).
+  Fixed the stale sandbox notes.
+- Milestone 2 done. Each step's vector tests were written and seen
+  failing against a stub before the implementation:
+  - edwards25519 field, group and scalars: RFC 8032 §7.1, RFC 7748 §5.2,
+    §6.1 and 1,000 iterations, RFC 9496 A.4; cross-checked against
+    `crypto/ed25519`, `crypto/ecdh` and `math/big`.
+  - ristretto255: all of RFC 9496 appendix A.
+  - XEd25519 and Signal key encoding: all libsignal vectors.
+  - Kyber1024: 10 committed KATs; all 100 checked once through the opt-in
+    `TestKyber1024FullKAT`. The ML-KEM variant matches `crypto/mlkem`.
+  - Protobuf wire codec: checked against `encoding/binary`, plus a fuzz
+    target.
+  - Fuzz targets: `FuzzSetBytes`, `FuzzSetCanonicalBytes`, `FuzzVerify`,
+    `FuzzEncapsulate`, `FuzzFields`. Each ran 15–30 s locally with no
+    findings; CI runs only their seed corpora.
+- Spec subagent "XEdDSA vectors, Kyber vs ML-KEM" produced
+  `spec/crypto/{kem,xeddsa}.md` and two vector files (CLEANROOM.md row).
+- Notes:
+  - The draft-cfrg-schwabe-kyber-04 NTT example has an erratum (the
+    fourth coefficient).
+  - protobuf.dev isn't allowlisted, so the encoding-guide example bytes
+    were written from memory; `encoding/binary` is the independent check.
+- Still open in COMPAT.md's crypto table: attachment encryption, profile
+  encryption and group master key derivation. They need Signal-specific
+  specs and land with the milestones that use them (5, 7, 6).
+- **Next (milestone 3)**: spec requests for PQXDH (key schedule, prekey
+  bundle and message protobufs), the Double Ratchet as libsignal runs it,
+  **SPQR** (see open questions), sender keys, sealed sender v1/v2, and
+  the libsignal vectors for each.
