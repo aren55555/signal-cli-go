@@ -321,18 +321,24 @@ func innerKeyGen(p *params, v variant, d []byte) (pk, sk []byte) {
 
 // innerEnc is draft section 10.3.
 func innerEnc(p *params, pk, m, coins []byte) []byte {
+	ct, r := innerEncU(p, pk[384*p.k:], coins)
 	t := make([]poly, p.k)
 	for i := range t {
 		t[i].decode(pk[384*i:], 12)
 	}
-	a := matrix(p, pk[384*p.k:])
-	r := make([]poly, p.k)
+	return innerEncV(p, ct, t, r, m, coins)
+}
+
+// innerEncU is the part of encryption that needs only rho and the coins:
+// it returns the u component of the ciphertext (c1) and r-hat. SPQR
+// sends c1 before it has the rest of the public key.
+func innerEncU(p *params, rho, coins []byte) (ct []byte, r []poly) {
+	a := matrix(p, rho)
+	r = make([]poly, p.k)
 	for i := range r {
 		r[i] = noise(coins, byte(i))
 		r[i].ntt()
 	}
-
-	var ct []byte
 	for i := range p.k {
 		var u poly
 		for j := range p.k {
@@ -344,7 +350,11 @@ func innerEnc(p *params, pk, m, coins []byte) []byte {
 		u.compress(p.du)
 		ct = u.encode(ct, p.du)
 	}
+	return ct, r
+}
 
+// innerEncV appends the v component (c2), which needs t-hat, to ct.
+func innerEncV(p *params, ct []byte, t, r []poly, m, coins []byte) []byte {
 	var vp poly
 	for j := range p.k {
 		vp.mulAddNTT(&t[j], &r[j])
