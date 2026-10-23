@@ -76,6 +76,7 @@ func DecapsulateMLKEM768(dk, ciphertext []byte) ([]byte, error) {
 // §3.3), which reproduces the c1 already sent.
 type IncrementalEncapsulation struct {
 	hdr, m, ct1 []byte
+	es          []byte // set when resumed from a libcrux state without the header
 }
 
 // StartEncapsulationMLKEM768 is the first part: from the header
@@ -104,6 +105,14 @@ func (e *IncrementalEncapsulation) Finish(ekPayload []byte) (ct2 []byte, err err
 	if err := checkLen(ekPayload, EKPayloadSizeMLKEM768, "encapsulation key payload"); err != nil {
 		return nil, err
 	}
+	if e.hdr == nil {
+		// Resumed from y-hat and e2: there is no header to check against,
+		// and the payload was checked when it arrived.
+		if !encodingInRange(ekPayload) {
+			return nil, ErrHeaderMismatch
+		}
+		return e.finishFromState(ekPayload), nil
+	}
 	ek := append(append([]byte(nil), ekPayload...), e.hdr[:32]...)
 	if !bytes.Equal(hashH(ek), e.hdr[32:]) || !encodingInRange(ekPayload) {
 		return nil, ErrHeaderMismatch
@@ -127,4 +136,117 @@ func encodingInRange(b []byte) bool {
 		}
 	}
 	return true
+}
+
+// EncapsulationStateSizeMLKEM768 is the size of libcrux's stored
+// encapsulation state: y-hat (3x256), e2 (256) as signed 16-bit
+// little-endian words, then m (32) (mlkem-incremental.md §5).
+const EncapsulationStateSizeMLKEM768 = 3*256*2 + 256*2 + 32
+
+// ResumeEncapsulationMLKEM768 rebuilds a split encapsulation from stored
+// state, for importing libsignal sessions. With the header it reruns the
+// deterministic encapsulation from m (the state's last 32 bytes); without
+// it (libsignal's EkReceivedCt1Sampled state) it uses y-hat and e2 from
+// the state, after the issue 1275 repair. ct1 is the c1 already sent.
+func ResumeEncapsulationMLKEM768(es, hdr, ct1 []byte) (*IncrementalEncapsulation, error) {
+	if err := checkLen(es, EncapsulationStateSizeMLKEM768, "encapsulation state"); err != nil {
+		return nil, err
+	}
+	if err := checkLen(ct1, Ct1SizeMLKEM768, "c1"); err != nil {
+		return nil, err
+	}
+	e := &IncrementalEncapsulation{m: append([]byte(nil), es[2048:]...), ct1: append([]byte(nil), ct1...)}
+	if hdr != nil {
+		if err := checkLen(hdr, HeaderSizeMLKEM768, "header"); err != nil {
+			return nil, err
+		}
+		e.hdr = append([]byte(nil), hdr...)
+		return e, nil
+	}
+	e.es = repairIssue1275(append([]byte(nil), es...))
+	return e, nil
+}
+
+// repairIssue1275 detects a state whose 16-bit words were written
+// big-endian and swaps them back (mlkem-incremental.md §5). The first e2
+// word that is neither 0 nor -1 decides.
+func repairIssue1275(es []byte) []byte {
+	for i := 1536; i < 2048; i += 2 {
+		switch uint16(es[i]) | uint16(es[i+1])<<8 {
+		case 0x0000, 0xffff:
+			continue
+		case 0x0001, 0x0002, 0xfffe:
+			return es
+		case 0x0100, 0x0200, 0xfeff:
+			for j := 0; j < 2048; j += 2 {
+				es[j], es[j+1] = es[j+1], es[j]
+			}
+			return es
+		default:
+			return es
+		}
+	}
+	return es
+}
+
+func wordModQ(lo, hi byte) uint16 {
+	v := int32(int16(uint16(lo)|uint16(hi)<<8)) % q
+	if v < 0 {
+		v += q
+	}
+	return uint16(v)
+}
+
+// finishFromState computes c2 from the stored y-hat, e2 and m and the
+// t-hat payload.
+func (e *IncrementalEncapsulation) finishFromState(ekPayload []byte) []byte {
+	p := params768
+	var t, r [3]poly
+	for i := range 3 {
+		t[i].decode(ekPayload[384*i:], 12)
+		for j := range n {
+			off := 512*i + 2*j
+			r[i][j] = wordModQ(e.es[off], e.es[off+1])
+		}
+	}
+	var vp, e2, mp poly
+	for i := range 3 {
+		vp.mulAddNTT(&t[i], &r[i])
+	}
+	vp.invNTT()
+	for j := range n {
+		e2[j] = wordModQ(e.es[1536+2*j], e.es[1537+2*j])
+	}
+	vp.add(&e2)
+	mp.decode(e.m, 1)
+	mp.decompress(1)
+	vp.add(&mp)
+	vp.compress(p.dv)
+	return vp.encode(nil, p.dv)
+}
+
+// encapsulationState writes libcrux's state format for (hdr, m); tests use
+// it to check ResumeEncapsulationMLKEM768.
+func encapsulationState(hdr, m []byte) []byte {
+	_, coins := hashG(m, hdr[32:])
+	signed := func(c uint16) uint16 { // [0, q) to a signed 16-bit word
+		if c > q/2 {
+			return uint16(int16(int32(c) - q))
+		}
+		return c
+	}
+	var out []byte
+	for i := range 3 {
+		r := noise(coins, byte(i))
+		r.ntt()
+		for _, c := range r {
+			out = append(out, byte(c), byte(c>>8))
+		}
+	}
+	e2 := noise(coins, byte(6))
+	for _, c := range e2 {
+		w := signed(c)
+		out = append(out, byte(w), byte(w>>8))
+	}
+	return append(out, m...)
 }

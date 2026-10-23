@@ -132,3 +132,72 @@ func TestMLKEM768MatchesCryptoMLKEM(t *testing.T) {
 		}
 	}
 }
+
+// TestEncapsulationState: a split encapsulation resumed from libcrux's
+// stored encapsulation state (mlkem-incremental.md §5) gives the same c2,
+// including when the state was written byte-swapped (issue 1275).
+func TestEncapsulationState(t *testing.T) {
+	ek, _, _ := GenerateKeyMLKEM768(bytes.Repeat([]byte{9}, 64))
+	hk := sha3.Sum256(ek)
+	hdr := append(bytes.Clone(ek[EKPayloadSizeMLKEM768:]), hk[:]...)
+	m := bytes.Repeat([]byte{0x3c}, 32)
+	ct, _, _ := EncapsulateMLKEM768(ek, m)
+	ct1, want := ct[:Ct1SizeMLKEM768], ct[Ct1SizeMLKEM768:]
+	payload := ek[:EKPayloadSizeMLKEM768]
+
+	es := encapsulationState(hdr, m)
+	if len(es) != EncapsulationStateSizeMLKEM768 {
+		t.Fatalf("state is %d bytes", len(es))
+	}
+	swapped := bytes.Clone(es)
+	for i := 0; i < 2048; i += 2 {
+		swapped[i], swapped[i+1] = swapped[i+1], swapped[i]
+	}
+	for name, c := range map[string]struct{ es, hdr []byte }{
+		"from state":              {es, nil},
+		"from byte-swapped state": {swapped, nil},
+		"from header and m":       {swapped, hdr}, // m is not swapped
+	} {
+		enc, err := ResumeEncapsulationMLKEM768(c.es, c.hdr, ct1)
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		got, err := enc.Finish(payload)
+		if err != nil || !bytes.Equal(got, want) {
+			t.Errorf("%s: c2 differs (%v)", name, err)
+		}
+	}
+	if _, err := ResumeEncapsulationMLKEM768(es[:2079], nil, ct1); err == nil {
+		t.Error("short state accepted")
+	}
+}
+
+func TestIssue1275Repair(t *testing.T) {
+	es := make([]byte, EncapsulationStateSizeMLKEM768)
+	for i := range 1536 { // y-hat only; e2 stays zero
+		es[i] = byte(i)
+	}
+	// e2 all 0 or -1: unchanged.
+	if got := repairIssue1275(bytes.Clone(es)); !bytes.Equal(got, es) {
+		t.Error("an all-zero e2 was changed")
+	}
+	// First non-trivial word 0x0100 (1 swapped): swap words 0..2047.
+	sw := bytes.Clone(es)
+	sw[1536+4], sw[1536+5] = 0x00, 0x01 // little-endian word 0x0100
+	got := repairIssue1275(bytes.Clone(sw))
+	if got[0] != sw[1] || got[1] != sw[0] || !bytes.Equal(got[2048:], sw[2048:]) {
+		t.Error("a swapped state was not repaired (or m was touched)")
+	}
+	// First non-trivial word 0x0002 (2, correct): unchanged.
+	ok := bytes.Clone(es)
+	ok[1536+2], ok[1536+3] = 0x02, 0x00
+	if got := repairIssue1275(bytes.Clone(ok)); !bytes.Equal(got, ok) {
+		t.Error("a correct state was changed")
+	}
+	// Unrecognizable word: unchanged.
+	odd := bytes.Clone(es)
+	odd[1536], odd[1537] = 0x34, 0x12
+	if got := repairIssue1275(bytes.Clone(odd)); !bytes.Equal(got, odd) {
+		t.Error("an unrecognizable state was changed")
+	}
+}

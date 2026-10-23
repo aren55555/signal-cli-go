@@ -1,0 +1,118 @@
+// SPQR's serialized state, as libsignal stores it in StoredSession field
+// 15 (pq_ratchet_state). Read only to import signal-cli sessions. Written
+// from spec/protocol/spqr/state.md §2, never copied from upstream.
+syntax = "proto3";
+
+package signalcligo;
+
+option go_package = "github.com/aren55555/signal-cli-go/internal/proto/signalpb";
+
+message SpqrState {
+  message Negotiation {
+    bytes auth_key = 1;
+    SpqrDirection direction = 2;
+    SpqrVersion min_version = 3;
+    SpqrChainParams chain_params = 4;
+  }
+  Negotiation negotiation = 1; // absent once a message was received
+  SpqrChain chain = 2;
+  oneof inner {
+    SpqrV1 v1 = 3; // absent: V0
+  }
+}
+
+enum SpqrVersion {
+  SPQR_V0 = 0;
+  SPQR_V1 = 1;
+}
+
+enum SpqrDirection {
+  SPQR_A2B = 0;
+  SPQR_B2A = 1;
+}
+
+// 0 stands for the library default (25000 and 2000).
+message SpqrChainParams {
+  uint32 max_jump = 1;
+  uint32 max_ooo_keys = 2;
+}
+
+message SpqrChain {
+  message Link {
+    message Half {
+      uint32 counter = 1;
+      bytes next = 2;    // 32 bytes, or empty once erased
+      bytes skipped = 3; // 36-byte entries: BE32(index) || key
+    }
+    Half send = 1;
+    Half recv = 2;
+  }
+  SpqrDirection direction = 1;
+  uint64 current_epoch = 2;
+  repeated Link links = 3; // oldest first
+  bytes next_root = 4;
+  uint64 send_epoch = 5;
+  SpqrChainParams params = 6;
+}
+
+message SpqrAuthenticator {
+  bytes root_key = 1;
+  bytes mac_key = 2;
+}
+
+// Encoder state: the next chunk counter and either the data points per
+// polynomial or, once a parity chunk was produced, the coefficients.
+message SpqrEncoder {
+  uint32 next = 1;
+  repeated bytes points = 2;       // 16 entries of BE16 words
+  repeated bytes coefficients = 3; // 16 entries of BE16 words, lowest degree first
+}
+
+message SpqrDecoder {
+  uint32 points_needed = 1;  // string length / 2
+  uint32 polynomials = 2;    // 16
+  repeated bytes points = 3; // 16 entries of BE16(x) || BE16(y) records
+  bool complete = 4;         // true makes the decoder refuse to output
+}
+
+// The core data of an SCKA state. Fields 3-5 depend on the state
+// (state.md §2): ek, dk, hdr, ct1 or the encapsulation state es.
+message SpqrCore {
+  uint64 epoch = 1;
+  SpqrAuthenticator auth = 2;
+  bytes f3 = 3;
+  bytes f4 = 4;
+  bytes f5 = 5;
+}
+
+// The two layouts of a chunked SCKA state (state.md §2): field 2 is an
+// encoder in most states but a decoder in HeaderReceived and
+// Ct1Acknowledged, so each state is decoded with the layout it uses.
+message SpqrChunkedEncDec {
+  SpqrCore core = 1;
+  SpqrEncoder encoder = 2;
+  SpqrDecoder decoder = 3;
+}
+
+message SpqrChunkedDec {
+  SpqrCore core = 1;
+  SpqrDecoder decoder = 2;
+}
+
+// The SCKA state; each member is a serialized SpqrChunkedEncDec or
+// SpqrChunkedDec, depending on the state.
+message SpqrV1 {
+  oneof state {
+    bytes keys_unsampled = 1;
+    bytes keys_sampled = 2;
+    bytes header_sent = 3;
+    bytes ct1_received = 4;
+    bytes ek_sent_ct1_received = 5;
+    bytes no_header_received = 6;
+    bytes header_received = 7;
+    bytes ct1_sampled = 8;
+    bytes ek_received_ct1_sampled = 9;
+    bytes ct1_acknowledged = 10;
+    bytes ct2_sampled = 11;
+  }
+}
