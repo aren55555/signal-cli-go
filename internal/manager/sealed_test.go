@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
+	"github.com/aren55555/signal-cli-go/internal/crypto/zkgroup"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 	"github.com/aren55555/signal-cli-go/internal/service/api"
 	"github.com/aren55555/signal-cli-go/internal/store"
@@ -78,7 +79,11 @@ func TestSealedSend(t *testing.T) {
 	if !m.Sealed || body != "sealed hi" || m.Sender.ServiceID != testACI || m.Sender.DeviceID != 2 {
 		t.Errorf("delivered %+v %q", m, body)
 	}
-	want := []string{"auth GET /v1/profile/" + sealedBACI, "auth GET /v1/certificate/delivery?includeE164=false",
+	var k [32]byte
+	copy(k[:], bKey)
+	var u [16]byte
+	copy(u[:], uuidBytes(sealedBACI))
+	want := []string{"auth GET /v1/profile/" + sealedBACI + "/" + zkgroup.ProfileKeyVersion(k, u), "auth GET /v1/certificate/delivery?includeE164=false",
 		"unauth GET /v2/keys/" + sealedBACI + "/*", "unauth PUT /v1/messages/" + sealedBACI + "?story=false"}
 	if got := strings.Join(fc.requests[:4], ","); got != strings.Join(want, ",") {
 		t.Errorf("requests\n%v\nwant\n%v", fc.requests, want)

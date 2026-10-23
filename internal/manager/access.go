@@ -6,10 +6,13 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
+	"github.com/aren55555/signal-cli-go/internal/crypto/zkgroup"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 	"github.com/aren55555/signal-cli-go/internal/protocol"
 	"github.com/aren55555/signal-cli-go/internal/service/api"
@@ -90,11 +93,7 @@ func (s *Sender) senderCertificate(ctx context.Context) []byte {
 
 // fetchProfile fetches dest's profile and stores the outcome; a failure
 // is stored too, with mode unknown (profile.md §3.3).
-//
-// TODO(zkgroup): with a known profile key signal-cli fetches
-// /v1/profile/{aci}/{version}; that needs the profile-key version, which
-// is being specified. Until then the unversioned path is used, which
-// carries every member the access decision reads.
+// With a known profile key the versioned path is used (profile.md §3.2).
 func (s *Sender) fetchProfile(ctx context.Context, dest string) {
 	a := s.Acct
 	rc := a.Recipients[dest]
@@ -104,7 +103,15 @@ func (s *Sender) fetchProfile(ctx context.Context, dest string) {
 		a.Recipients[dest] = rc
 		a.SaveRecipients()
 	}()
-	r, err := s.Chat.Request(ctx, "GET", "/v1/profile/"+dest, []chat.Header{{Name: "accept-language", Value: "en;q=1"}}, nil)
+	path := "/v1/profile/" + dest
+	if len(rc.ProfileKey) == 32 {
+		if aci, ok := uuidRaw(dest); ok {
+			var k [32]byte
+			copy(k[:], rc.ProfileKey)
+			path += "/" + zkgroup.ProfileKeyVersion(k, aci)
+		}
+	}
+	r, err := s.Chat.Request(ctx, "GET", path, []chat.Header{{Name: "accept-language", Value: "en;q=1"}}, nil)
 	if err != nil {
 		return
 	}
@@ -206,4 +213,24 @@ func ApplyContent(a *store.Account, m *Message, now time.Time) error {
 	rc.ProfileKey = key
 	a.Recipients[m.Sender.ServiceID] = rc
 	return a.SaveRecipients()
+}
+
+// uuidRaw parses a hyphenated UUID into its 16 bytes.
+func uuidRaw(s string) ([16]byte, bool) {
+	var u [16]byte
+	if len(s) != 36 {
+		return u, false
+	}
+	b, err := hex.DecodeString(strings.ReplaceAll(s, "-", ""))
+	if err != nil || len(b) != 16 {
+		return u, false
+	}
+	copy(u[:], b)
+	return u, true
+}
+
+// RefreshProfile fetches dest's profile now and returns what was stored.
+func (s *Sender) RefreshProfile(ctx context.Context, dest string) *store.Profile {
+	s.fetchProfile(ctx, dest)
+	return s.Acct.Recipients[dest].Profile
 }

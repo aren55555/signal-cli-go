@@ -266,7 +266,7 @@ func (f *fakeChat) special(unauth bool, verb, path string, headers []chat.Header
 		if unauth {
 			return &chat.Response{Status: 401}
 		}
-		p, ok := f.profiles[strings.TrimPrefix(path, "/v1/profile/")]
+		p, ok := f.profiles[strings.SplitN(strings.TrimPrefix(path, "/v1/profile/"), "/", 2)[0]]
 		if !ok {
 			return &chat.Response{Status: 404}
 		}

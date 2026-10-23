@@ -216,3 +216,15 @@ func (e *Element) ScalarBaseMult(s *edwards25519.Scalar) *Element {
 	e.p.ScalarBaseMult(s)
 	return e
 }
+
+// SetElligatorBytes sets e to MAP of one 32-byte string (RFC 9496 section
+// 4.3.4, a single application with no addition): the top bit is cleared
+// and the value reduced mod p. zkgroup derives some points this way
+// (spec/crypto/zkgroup-profile.md §2.4).
+func (e *Element) SetElligatorBytes(b []byte) (*Element, error) {
+	if len(b) != 32 {
+		return nil, errors.New("ristretto255: invalid Elligator input length")
+	}
+	mapToPoint(&e.p, b)
+	return e, nil
+}
