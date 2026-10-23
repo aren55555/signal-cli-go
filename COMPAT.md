@@ -225,7 +225,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | Storage service | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
 | CDSI contact discovery | ⬜ | ⬜ | ⬜ | n/a | ⬜ | enclave attestation |
 | SVR2 (PIN, registration lock) | ⬜ | ⬜ | ⬜ | n/a | ⬜ | enclave attestation |
-| WebSocket client (RFC 6455, via CONNECT proxy) | ⬜ | ⬜ | ⬜ | n/a | ⬜ | |
+| WebSocket client (RFC 6455, via CONNECT proxy) | n/a (RFC 6455) | ✅ [`internal/service/websocket`](internal/service/websocket) | ✅ RFC 6455 accept-key and §5.7 frame examples, protocol-violation table, end-to-end through an in-process CONNECT proxy and TLS server; `FuzzReadFrame` | ⬜ | TLS roots for staging come from the transport spec |
 
 ## Crypto primitives (Layer A)
 
