@@ -68,6 +68,7 @@ func h2Handler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("bad request %s %s %q", r.Method, r.Proto, r.URL.Path), http.StatusBadRequest)
 		return
 	}
+	w.Header().Set("X-Signal-Timestamp", "1700000000000")
 	w.WriteHeader(http.StatusOK)
 	fl := w.(http.Flusher)
 	fl.Flush()
@@ -150,6 +151,9 @@ func TestDialH2ThroughProxy(t *testing.T) {
 	if err := c.Write([]byte("abc")); err != nil {
 		t.Fatal(err)
 	}
+	if ts := c.ResponseHeader().Get("X-Signal-Timestamp"); ts != "1700000000000" {
+		t.Errorf("response header x-signal-timestamp %q", ts)
+	}
 	if msg, err := c.Read(); err != nil || string(msg) != "cba" {
 		t.Fatalf("echo %q, %v", msg, err)
 	}
@@ -184,5 +188,33 @@ func TestDialH2NeedsH2Server(t *testing.T) {
 	defer cancel()
 	if _, err := DialH2(ctx, "wss://localhost:"+port+"/", Options{TLSConfig: &tls.Config{RootCAs: pool}}); err == nil {
 		t.Error("extended CONNECT to an HTTP/1.1 server succeeded")
+	}
+}
+
+// TestH2HeaderOrder: headers go out in libsignal's order
+// (spec/service/transport.md §3.4), the rest sorted, and authorization is
+// never indexed.
+func TestH2HeaderOrder(t *testing.T) {
+	got := h2Headers(http.Header{
+		"Zz-Extra":                 {"1"},
+		"User-Agent":               {"ua"},
+		"Authorization":            {"Basic x"},
+		"X-Signal-Receive-Stories": {"true"},
+		"A-Extra":                  {"2"},
+	})
+	want := []string{"authorization", "x-signal-receive-stories", "user-agent", "a-extra", "zz-extra", "sec-websocket-version"}
+	if len(got) != len(want) {
+		t.Fatalf("headers %v", got)
+	}
+	for i, h := range got {
+		if h.Name != want[i] {
+			t.Errorf("header %d is %q, want %q", i, h.Name, want[i])
+		}
+		if h.Sensitive != (h.Name == "authorization") {
+			t.Errorf("%s sensitive=%v", h.Name, h.Sensitive)
+		}
+	}
+	if got[len(got)-1].Value != "13" {
+		t.Errorf("sec-websocket-version %q", got[len(got)-1].Value)
 	}
 }

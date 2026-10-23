@@ -71,6 +71,7 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
+	w.Header().Set("X-Signal-Timestamp", "1700000000000")
 	w.WriteHeader(http.StatusOK)
 	fl := w.(http.Flusher)
 	fl.Flush()
@@ -195,7 +196,7 @@ func TestConnectRejected(t *testing.T) {
 	port, pool := startHelper(t, "xconnect")
 	_, _, err := open(t, port, pool, nil, nil) // no x-test header: 400
 	var se *StatusError
-	if !errors.As(err, &se) || se.Status != 400 {
+	if !errors.As(err, &se) || se.Status != 400 || headerValue(se.Header, "content-type") != "text/plain; charset=utf-8" {
 		t.Errorf("rejected CONNECT: %v", err)
 	}
 }
@@ -379,5 +380,33 @@ func TestSendRespectsFlowControl(t *testing.T) {
 	}
 	if err := <-wrote; err != nil {
 		t.Fatal(err)
+	}
+}
+
+func headerValue(h []HeaderField, name string) string {
+	for _, f := range h {
+		if f.Name == name {
+			return f.Value
+		}
+	}
+	return ""
+}
+
+// TestResponseHeaders: the 2xx response's headers are available, without
+// pseudo-headers.
+func TestResponseHeaders(t *testing.T) {
+	port, pool := startHelper(t, "xconnect")
+	c, s, err := open(t, port, pool, nil, testHeaders)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	if v := headerValue(s.Header(), "x-signal-timestamp"); v != "1700000000000" {
+		t.Errorf("x-signal-timestamp %q in %v", v, s.Header())
+	}
+	for _, h := range s.Header() {
+		if strings.HasPrefix(h.Name, ":") {
+			t.Errorf("pseudo-header %q exposed", h.Name)
+		}
 	}
 }

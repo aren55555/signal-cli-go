@@ -198,6 +198,7 @@ type Conn struct {
 	w          io.Writer
 	closeFn    func() error
 	maxMessage int64
+	respHeader http.Header
 
 	wmu    sync.Mutex
 	closed bool
@@ -309,7 +310,7 @@ func Dial(ctx context.Context, rawURL string, opts Options) (*Conn, error) {
 	if limit == 0 {
 		limit = 16 << 20
 	}
-	return &Conn{r: br, w: conn, closeFn: conn.Close, maxMessage: limit}, nil
+	return &Conn{r: br, w: conn, closeFn: conn.Close, maxMessage: limit, respHeader: resp.Header}, nil
 }
 
 func (c *Conn) writeControl(op opcode, payload []byte) error {
@@ -436,3 +437,6 @@ func (c *Conn) Close() error {
 	}
 	return err
 }
+
+// ResponseHeader returns the headers of the handshake response.
+func (c *Conn) ResponseHeader() http.Header { return c.respHeader }

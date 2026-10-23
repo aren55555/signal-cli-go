@@ -27,8 +27,12 @@ var (
 	ErrClosed = errors.New("h2: closed")
 )
 
-// StatusError reports a non-2xx response to an extended CONNECT.
-type StatusError struct{ Status int }
+// StatusError reports a non-2xx response to an extended CONNECT, with the
+// response's headers (pseudo-headers removed).
+type StatusError struct {
+	Status int
+	Header []HeaderField
+}
 
 func (e *StatusError) Error() string {
 	return fmt.Sprintf("h2: CONNECT answered with status %d", e.Status)
@@ -366,6 +370,8 @@ func (c *Conn) deliverHeaders(dec *Decoder, stream uint32, block []byte, endStre
 		for _, h := range fields {
 			if h.Name == ":status" {
 				fmt.Sscanf(h.Value, "%d", &s.status)
+			} else if !strings.HasPrefix(h.Name, ":") {
+				s.header = append(s.header, h)
 			}
 		}
 		if s.status == 0 {
@@ -429,6 +435,7 @@ type Stream struct {
 	c          *Conn
 	id         uint32
 	status     int
+	header     []HeaderField // response headers of the first header block
 	sendWindow int64
 	buf        []byte
 	remoteDone bool
@@ -522,7 +529,7 @@ func (c *Conn) OpenConnect(ctx context.Context, protocol, path string, headers [
 		return nil, ctx.Err()
 	case status < 200 || status > 299:
 		s.reset()
-		return nil, &StatusError{Status: status}
+		return nil, &StatusError{Status: status, Header: s.header}
 	}
 	return s, nil
 }
@@ -608,3 +615,6 @@ func (s *Stream) Close() error {
 	c.mu.Unlock()
 	return c.write(appendFrame(nil, frameData, flagEndStream, s.id, nil))
 }
+
+// Header returns the response headers, without pseudo-headers.
+func (s *Stream) Header() []HeaderField { return s.header }
