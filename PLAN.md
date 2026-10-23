@@ -524,3 +524,34 @@ vectors.
     - registration REST;
     - the CLI commands themselves;
     - the deferred captures (sealed sender, sender keys, post-reply).
+- **Milestone 4, open items (operator's order, 2026-10-23).**
+  - Prekey refill and the start-up account check: live on A.2 (100+100
+    one-time keys per identity; a second check uploads nothing; the
+    device name is kept).
+  - Sealed sender, live both ways: reference B → our A.2 sealed (real
+    staging trust roots), and our A.2 → B sealed. The access decision
+    follows send.md §3, with the 6-hour profile cache, the 401 fallback
+    and the sticky downgrade.
+  - zkgroup profile-key version and commitment: specified by a spec
+    subagent (spec/crypto/zkgroup-profile.md). All nine reference-jar
+    cases match, and staging accepts our versioned profile fetch.
+  - Reply round trip: once B wrote to our ACI, both sides carry Whisper
+    messages (inner type 1) and no session is left unacknowledged.
+    Messages B addressed to A's *number* go to A's PNI and stay PreKey
+    messages until a PNI signature merges the threads; that is
+    unspecified in content.md and still open.
+  - Receive loop: envelopes cached before ack; receipts batched until
+    queue-empty; renewal and retry receipts on failures; prekey refresh
+    after PreKey messages.
+  - Storage: the account index is now signal-cli's own accounts.json
+    (`<DATA_DIR>/data`); our files live in `<path>.go/`. The live A.2
+    account moved to `.data/cli-a`.
+  - CLI: received-message and send-result rendering, account selection,
+    and the link/send/receive logic are done. The argparse4j-exact
+    parser and help formatting wait on a second spec subagent
+    (spec/surface/cli/argparse.md).
+  - Known gaps:
+    - Phone-number recipients need CDSI (milestone 7); ACIs work.
+    - The live environment is refused, since only staging endpoints
+      exist.
+    - The post-link sync requests need a sync spec.
