@@ -178,8 +178,9 @@ type Options struct {
 // Conn is a client WebSocket connection. Read and Write may be used from
 // different goroutines; neither may be used concurrently with itself.
 type Conn struct {
-	conn       net.Conn
 	r          *bufio.Reader
+	w          io.Writer
+	closeFn    func() error
 	maxMessage int64
 
 	wmu    sync.Mutex
@@ -280,7 +281,7 @@ func Dial(ctx context.Context, rawURL string, opts Options) (*Conn, error) {
 	if limit == 0 {
 		limit = 16 << 20
 	}
-	return &Conn{conn: conn, r: br, maxMessage: limit}, nil
+	return &Conn{r: br, w: conn, closeFn: conn.Close, maxMessage: limit}, nil
 }
 
 // dialTCP connects to host directly or through an HTTP CONNECT proxy.
@@ -342,7 +343,7 @@ func (c *Conn) writeLocked(op opcode, payload []byte) error {
 	if _, err := rand.Read(mask[:]); err != nil {
 		return err
 	}
-	return writeFrame(c.conn, true, op, payload, &mask)
+	return writeFrame(c.w, true, op, payload, &mask)
 }
 
 // Write sends one binary message.
@@ -386,7 +387,7 @@ func (c *Conn) Read() ([]byte, error) {
 				_ = c.writeLocked(opClose, f.payload)
 			}
 			c.wmu.Unlock()
-			c.conn.Close()
+			c.closeFn()
 			return nil, ErrClosed
 		case opText, opBinary:
 			if inMessage {
@@ -419,14 +420,25 @@ func (c *Conn) Close() error {
 	c.closed = true
 	err := c.writeLocked(opClose, []byte{0x03, 0xe8}) // 1000: normal closure
 	c.wmu.Unlock()
-	c.conn.SetReadDeadline(time.Now().Add(2 * time.Second))
-	for err == nil {
-		f, rerr := readFrame(c.r, c.maxMessage, false)
-		if rerr != nil || f.op == opClose {
-			break
+	if err == nil {
+		// Wait briefly for the server's close frame; closing the transport
+		// below unblocks the reader if it never comes.
+		done := make(chan struct{})
+		go func() {
+			defer close(done)
+			for {
+				f, rerr := readFrame(c.r, c.maxMessage, false)
+				if rerr != nil || f.op == opClose {
+					return
+				}
+			}
+		}()
+		select {
+		case <-done:
+		case <-time.After(2 * time.Second):
 		}
 	}
-	if cerr := c.conn.Close(); err == nil {
+	if cerr := c.closeFn(); err == nil {
 		err = cerr
 	}
 	return err
