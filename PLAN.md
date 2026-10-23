@@ -369,3 +369,32 @@ vectors.
     loading signal-cli's stored records (StoredSession plus SPQR state
     per `spqr/state.md`) for the capture replay; the captures themselves
     (operator numbers) and the offline replay test.
+- Sender keys, sealed sender, and the stored-session loader done (same day):
+  - `internal/protocol`:
+    - sender keys;
+    - sealed sender (certificates and trust roots, v1, v2 seal,
+      SentMessage parse and fan-out, v2 unseal);
+    - loaders for SessionRecord (with lazy SPQR import), prekey,
+      signed-prekey and Kyber-prekey records, sender-key records, and
+      msg-cache envelope files;
+    - HasUsableSenderChain.
+  - `internal/crypto/gcmsiv`: AES-GCM-SIV with all RFC 8452 vectors.
+  - `internal/protocol/spqr`: Import/Export of libsignal's SPQR state. The
+    real issue-1275 states import and finish the upstream exchange.
+  - Where green-first runs couldn't be compiled against a stub, mutation
+    checks showed the tests catch the targeted behaviours.
+- **Waiting on the operator:** staging numbers for the captures.
+  Unconfirmed allowlist need: libsignal's native library names
+  `grpc.chat.staging.signal.org` and `svrb.staging.signal.org`, which
+  aren't allowlisted; whether signal-cli 0.14.7 connects to them is
+  unknown.
+- Capture plan (from `spec/protocol/capture.md`):
+  - Register two fresh reference instances on staging. The sender sends
+    a set of messages (text, a group message for sender keys, sealed and
+    unsealed) to a recipient that hasn't replied yet.
+  - Stop the recipient and snapshot its data dir, then run one `receive`
+    with `--trust-new-identities never` so the envelopes stay in
+    `msg-cache/`.
+  - Export the needed keys with a JVM tool over the bundled sqlite-jdbc
+    driver, then scrub and store the result under `testdata/`. The Go
+    replay test decrypts everything offline with the loaders above.
