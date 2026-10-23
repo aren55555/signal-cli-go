@@ -9,6 +9,9 @@ api.anthropic.com
 claude.ai
 console.anthropic.com
 platform.claude.com
+# Operator-approved 2026-10-23: claude.ai connector relay, so the in-sandbox
+# Claude Code stops retrying it every turn.
+mcp-proxy.anthropic.com
 
 # --- Reference signal-cli 0.14.7 release download (milestone 0 installer) ---
 # Release assets on github.com redirect to the githubusercontent hosts.
@@ -48,3 +51,7 @@ datatracker.ietf.org
 csrc.nist.gov
 go.dev
 pkg.go.dev
+# Operator-approved 2026-10-23 (spec subagents requested these for citations).
+www.ietf.org
+nvlpubs.nist.gov
+pq-crystals.org
