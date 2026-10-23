@@ -1,0 +1,120 @@
+package manager
+
+import (
+	"context"
+	"encoding/base64"
+	"io"
+
+	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
+	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
+	"github.com/aren55555/signal-cli-go/internal/protocol"
+	"github.com/aren55555/signal-cli-go/internal/service/api"
+	"github.com/aren55555/signal-cli-go/internal/service/chat"
+	"google.golang.org/protobuf/proto"
+)
+
+// Receipt kinds (content.md §5.1).
+const (
+	ReceiptDelivery = signalpb.AppReceipt_DELIVERY
+	ReceiptRead     = signalpb.AppReceipt_READ
+	ReceiptViewed   = signalpb.AppReceipt_VIEWED
+)
+
+// SendReceipt sends one ReceiptMessage to every device of dest: content
+// hint IMPLICIT, not urgent, sealed when possible, no transcript
+// (content.md §5.1, pipe.md §7.1).
+func (s *Sender) SendReceipt(ctx context.Context, dest string, kind signalpb.AppReceipt_Kind, timestamps []uint64) error {
+	c, err := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_ReceiptMessage{
+		ReceiptMessage: &signalpb.AppReceipt{Kind: kind.Enum(), Timestamps: timestamps}}})
+	if err != nil {
+		return err
+	}
+	_, _, err = s.send(ctx, dest, c, s.timestamp(), false, protocol.ContentHintImplicit)
+	return err
+}
+
+// SendNullMessage sends a NullMessage whose padding is a serialized
+// DataMessage with a base64 body of 1..140 random bytes (content.md §6).
+func (s *Sender) SendNullMessage(ctx context.Context, dest string) error {
+	var n [1]byte
+	if _, err := io.ReadFull(s.rand(), n[:]); err != nil {
+		return err
+	}
+	filler := make([]byte, 1+int(n[0])%140)
+	if _, err := io.ReadFull(s.rand(), filler); err != nil {
+		return err
+	}
+	padding, err := proto.Marshal(&signalpb.AppDataMessage{Body: proto.String(base64.StdEncoding.EncodeToString(filler))})
+	if err != nil {
+		return err
+	}
+	c, err := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_NullMessage{NullMessage: &signalpb.AppNullMessage{Padding: padding}}})
+	if err != nil {
+		return err
+	}
+	_, _, err = s.send(ctx, dest, c, s.timestamp(), false, protocol.ContentHintImplicit)
+	return err
+}
+
+// SendRetryReceipt sends a DecryptionErrorMessage to the device whose
+// message failed, as PlaintextContent: 0xC0, the Content, 0x80, not
+// encrypted (pipe.md §7.2 item 2). Sealed, it rides in sealed sender with
+// the plaintext content type; otherwise the envelope type is 8.
+func (s *Sender) SendRetryReceipt(ctx context.Context, dest string, device uint32, dem *signalpb.AppDecryptionErrorMessage) error {
+	demBytes, err := proto.Marshal(dem)
+	if err != nil {
+		return err
+	}
+	c, err := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_DecryptionErrorMessage{DecryptionErrorMessage: demBytes}})
+	if err != nil {
+		return err
+	}
+	plain := append(append([]byte{0xC0}, c...), 0x80)
+	entryType, wire := envPlaintext, plain
+	acc := s.accessFor(ctx, dest)
+	if acc != nil {
+		identity, err := curve25519.NewPrivateKey(s.Acct.Data.ACIIdentity.Private)
+		if err != nil {
+			return err
+		}
+		ik, ok := s.Acct.Identities[dest]
+		recipientKey, perr := curve25519.ParsePublicKey(ik.Key)
+		if !ok || perr != nil {
+			acc = nil
+		} else {
+			usmc := protocol.EncodeSealedContent(protocol.SealedContentPlaintext, acc.cert, plain, protocol.ContentHintImplicit, nil)
+			if wire, err = protocol.SealV1(s.rand(), identity, recipientKey, usmc); err != nil {
+				return err
+			}
+			entryType = envUnidentified
+		}
+	}
+	// The registration ID comes from our session with that device, if any.
+	var regID uint32
+	if recs, err := s.sessions(dest); err == nil && recs[device] != nil {
+		regID = recs[device].RemoteRegistrationID()
+	}
+	body := outgoingMessages{Destination: dest, Timestamp: s.timestamp(), Online: false, Urgent: false,
+		Messages: []outgoingMessage{{Type: entryType, DestinationDeviceID: device, DestinationRegistrationID: regID, Content: base64.StdEncoding.EncodeToString(wire)}}}
+	b, err := api.Marshal(body)
+	if err != nil {
+		return err
+	}
+	path := "/v1/messages/" + dest + "?story=false"
+	var r *chat.Response
+	if acc != nil {
+		r, err = s.Unauth.Request(ctx, "PUT", path, append(append([]chat.Header{}, jsonHeader...), acc.header()), b)
+		if err == nil && r.Status == 401 {
+			r, err = s.Chat.Request(ctx, "PUT", path, jsonHeader, b)
+		}
+	} else {
+		r, err = s.Chat.Request(ctx, "PUT", path, jsonHeader, b)
+	}
+	if err != nil {
+		return err
+	}
+	if r.Status != 200 {
+		return &SendStatusError{Status: r.Status}
+	}
+	return nil
+}

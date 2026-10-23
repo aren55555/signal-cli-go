@@ -108,7 +108,7 @@ func (s *Sender) SendText(ctx context.Context, recipientACI, text string) (uint6
 	if err != nil {
 		return 0, err
 	}
-	needsSync, unidentified, err := s.send(ctx, recipientACI, c, ts, true)
+	needsSync, unidentified, err := s.send(ctx, recipientACI, c, ts, true, protocol.ContentHintResendable)
 	if err != nil {
 		return 0, err
 	}
@@ -142,7 +142,7 @@ func (s *Sender) sendTranscript(ctx context.Context, dest string, dm *signalpb.A
 	if err != nil {
 		return err
 	}
-	_, _, err = s.send(ctx, s.Acct.Data.ACI, c, ts, false)
+	_, _, err = s.send(ctx, s.Acct.Data.ACI, c, ts, false, protocol.ContentHintResendable)
 	return err
 }
 
@@ -325,7 +325,7 @@ type outgoingMessages struct {
 // send runs the send loop of send.md §5 for one destination (an ACI). It
 // returns the response's needsSync and whether the message went out
 // sealed and was accepted on the unauthenticated socket.
-func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uint64, urgent bool) (needsSync, unidentified bool, err error) {
+func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uint64, urgent bool, hint uint32) (needsSync, unidentified bool, err error) {
 	self := dest == s.Acct.Data.ACI
 	padded := content.Pad(plaintext)
 	acc := s.accessFor(ctx, dest)
@@ -392,7 +392,7 @@ func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uin
 				if typ == protocol.MessageTypePreKey {
 					kind = protocol.SealedContentPreKey
 				}
-				usmc := protocol.EncodeSealedContent(kind, acc.cert, wire, protocol.ContentHintResendable, nil)
+				usmc := protocol.EncodeSealedContent(kind, acc.cert, wire, hint, nil)
 				if wire, err = protocol.SealV1(s.rand(), identity, next.RemoteIdentity(), usmc); err != nil {
 					return false, false, err
 				}

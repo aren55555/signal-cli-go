@@ -87,6 +87,7 @@ type ServerRequest struct {
 	ServerTimestamp uint64 // X-Signal-Timestamp in ms; 0 if absent
 	id              uint64
 	c               *Conn
+	ack             func() error // NewDelivery's
 }
 
 // Ack acknowledges an envelope (200 "OK", nothing else), deleting it from
@@ -94,6 +95,9 @@ type ServerRequest struct {
 func (r *ServerRequest) Ack() error {
 	if r.Kind != KindEnvelope {
 		return errors.New("chat: only envelopes are acknowledged")
+	}
+	if r.ack != nil {
+		return r.ack()
 	}
 	return r.c.write(&signalpb.ChatWebSocketMessage{
 		Type:     signalpb.ChatWebSocketMessage_RESPONSE.Enum(),
@@ -352,4 +356,10 @@ func (c *Conn) keepAlive() {
 			return
 		}
 	}
+}
+
+// NewDelivery makes a server request outside a connection, acked by ack;
+// for tests of code that consumes deliveries.
+func NewDelivery(kind Kind, body []byte, serverTimestamp uint64, ack func() error) *ServerRequest {
+	return &ServerRequest{Kind: kind, Body: body, ServerTimestamp: serverTimestamp, ack: ack}
 }

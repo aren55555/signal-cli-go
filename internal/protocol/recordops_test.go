@@ -39,3 +39,18 @@ func TestUnacknowledgedClearsOnReply(t *testing.T) {
 		t.Error("still unacknowledged after a reply")
 	}
 }
+
+func TestSenderRatchetKey(t *testing.T) {
+	d := newDuo(t, 92)
+	typ, wire := d.aliceSend(t, "hi", t0)
+	k := SenderRatchetKey(wire, typ)
+	if len(k) != 33 || k[0] != 0x05 {
+		t.Fatalf("ratchet key %x", k)
+	}
+	if string(k) != string(d.alice.current.senderRatchet.PublicKey().Bytes()) {
+		t.Error("not the sender ratchet key")
+	}
+	if SenderRatchetKey([]byte{1, 2}, typ) != nil {
+		t.Error("garbage parsed")
+	}
+}

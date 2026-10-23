@@ -51,3 +51,25 @@ func (r *SessionRecord) RemoteIdentity() *curve25519.PublicKey {
 // Unacknowledged reports whether the current state still sends PreKey
 // messages (the peer has not replied on it yet).
 func (r *SessionRecord) Unacknowledged() bool { return r.current != nil && r.current.pending != nil }
+
+// SenderRatchetKey returns the 33-byte sender ratchet key of a
+// SignalMessage (messageType 2) or of the SignalMessage inside a
+// PreKeySignalMessage (3), for a retry receipt (pipe.md §7.2); nil if the
+// message does not parse.
+func SenderRatchetKey(wire []byte, messageType int) []byte {
+	switch messageType {
+	case MessageTypePreKey:
+		pm, err := parsePreKeyMessage(wire)
+		if err != nil || pm.inner == nil {
+			return nil
+		}
+		return pm.inner.ratchetKey.Bytes()
+	case MessageTypeWhisper:
+		m, err := parseRatchetMessage(wire)
+		if err != nil {
+			return nil
+		}
+		return m.ratchetKey.Bytes()
+	}
+	return nil
+}

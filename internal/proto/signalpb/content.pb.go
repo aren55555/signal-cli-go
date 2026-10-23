@@ -1089,6 +1089,67 @@ func (x *AppUnidentifiedStatus) GetDestinationServiceIdBinary() []byte {
 	return nil
 }
 
+// §5.3: the retry receipt's payload, serialized into Content field 8.
+type AppDecryptionErrorMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RatchetKey    []byte                 `protobuf:"bytes,1,opt,name=ratchet_key,json=ratchetKey" json:"ratchet_key,omitempty"`
+	Timestamp     *uint64                `protobuf:"varint,2,opt,name=timestamp" json:"timestamp,omitempty"`
+	DeviceId      *uint32                `protobuf:"varint,3,opt,name=device_id,json=deviceId" json:"device_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppDecryptionErrorMessage) Reset() {
+	*x = AppDecryptionErrorMessage{}
+	mi := &file_content_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppDecryptionErrorMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppDecryptionErrorMessage) ProtoMessage() {}
+
+func (x *AppDecryptionErrorMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppDecryptionErrorMessage.ProtoReflect.Descriptor instead.
+func (*AppDecryptionErrorMessage) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *AppDecryptionErrorMessage) GetRatchetKey() []byte {
+	if x != nil {
+		return x.RatchetKey
+	}
+	return nil
+}
+
+func (x *AppDecryptionErrorMessage) GetTimestamp() uint64 {
+	if x != nil && x.Timestamp != nil {
+		return *x.Timestamp
+	}
+	return 0
+}
+
+func (x *AppDecryptionErrorMessage) GetDeviceId() uint32 {
+	if x != nil && x.DeviceId != nil {
+		return *x.DeviceId
+	}
+	return 0
+}
+
 var File_content_proto protoreflect.FileDescriptor
 
 const file_content_proto_rawDesc = "" +
@@ -1173,7 +1234,12 @@ const file_content_proto_rawDesc = "" +
 	"\funidentified\x18\x02 \x01(\bR\funidentified\x124\n" +
 	"\x16destination_service_id\x18\x03 \x01(\tR\x14destinationServiceId\x12?\n" +
 	"\x1cdestination_pni_identity_key\x18\x05 \x01(\fR\x19destinationPniIdentityKey\x12A\n" +
-	"\x1ddestination_service_id_binary\x18\x06 \x01(\fR\x1adestinationServiceIdBinaryB<Z:github.com/aren55555/signal-cli-go/internal/proto/signalpb"
+	"\x1ddestination_service_id_binary\x18\x06 \x01(\fR\x1adestinationServiceIdBinary\"w\n" +
+	"\x19AppDecryptionErrorMessage\x12\x1f\n" +
+	"\vratchet_key\x18\x01 \x01(\fR\n" +
+	"ratchetKey\x12\x1c\n" +
+	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x12\x1b\n" +
+	"\tdevice_id\x18\x03 \x01(\rR\bdeviceIdB<Z:github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 
 var (
 	file_content_proto_rawDescOnce sync.Once
@@ -1188,23 +1254,24 @@ func file_content_proto_rawDescGZIP() []byte {
 }
 
 var file_content_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_content_proto_goTypes = []any{
-	(AppDataMessage_Flag)(0),      // 0: signalcligo.AppDataMessage.Flag
-	(AppReceipt_Kind)(0),          // 1: signalcligo.AppReceipt.Kind
-	(AppTyping_Action)(0),         // 2: signalcligo.AppTyping.Action
-	(*AppContent)(nil),            // 3: signalcligo.AppContent
-	(*AppDataMessage)(nil),        // 4: signalcligo.AppDataMessage
-	(*AppGroupContextV2)(nil),     // 5: signalcligo.AppGroupContextV2
-	(*AppDelete)(nil),             // 6: signalcligo.AppDelete
-	(*AppEdit)(nil),               // 7: signalcligo.AppEdit
-	(*AppReceipt)(nil),            // 8: signalcligo.AppReceipt
-	(*AppTyping)(nil),             // 9: signalcligo.AppTyping
-	(*AppNullMessage)(nil),        // 10: signalcligo.AppNullMessage
-	(*AppPniSignature)(nil),       // 11: signalcligo.AppPniSignature
-	(*AppSyncMessage)(nil),        // 12: signalcligo.AppSyncMessage
-	(*AppSent)(nil),               // 13: signalcligo.AppSent
-	(*AppUnidentifiedStatus)(nil), // 14: signalcligo.AppUnidentifiedStatus
+	(AppDataMessage_Flag)(0),          // 0: signalcligo.AppDataMessage.Flag
+	(AppReceipt_Kind)(0),              // 1: signalcligo.AppReceipt.Kind
+	(AppTyping_Action)(0),             // 2: signalcligo.AppTyping.Action
+	(*AppContent)(nil),                // 3: signalcligo.AppContent
+	(*AppDataMessage)(nil),            // 4: signalcligo.AppDataMessage
+	(*AppGroupContextV2)(nil),         // 5: signalcligo.AppGroupContextV2
+	(*AppDelete)(nil),                 // 6: signalcligo.AppDelete
+	(*AppEdit)(nil),                   // 7: signalcligo.AppEdit
+	(*AppReceipt)(nil),                // 8: signalcligo.AppReceipt
+	(*AppTyping)(nil),                 // 9: signalcligo.AppTyping
+	(*AppNullMessage)(nil),            // 10: signalcligo.AppNullMessage
+	(*AppPniSignature)(nil),           // 11: signalcligo.AppPniSignature
+	(*AppSyncMessage)(nil),            // 12: signalcligo.AppSyncMessage
+	(*AppSent)(nil),                   // 13: signalcligo.AppSent
+	(*AppUnidentifiedStatus)(nil),     // 14: signalcligo.AppUnidentifiedStatus
+	(*AppDecryptionErrorMessage)(nil), // 15: signalcligo.AppDecryptionErrorMessage
 }
 var file_content_proto_depIdxs = []int32{
 	4,  // 0: signalcligo.AppContent.data_message:type_name -> signalcligo.AppDataMessage
@@ -1249,7 +1316,7 @@ func file_content_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_content_proto_rawDesc), len(file_content_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

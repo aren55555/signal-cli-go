@@ -16,6 +16,7 @@ import (
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 	"github.com/aren55555/signal-cli-go/internal/protocol"
 	"github.com/aren55555/signal-cli-go/internal/store"
+	"google.golang.org/protobuf/proto"
 )
 
 // Envelope types (spec/protocol/capture.md §3).
@@ -24,6 +25,7 @@ const (
 	envPreKeyBundle  = 3
 	envUnidentified  = 6
 	envServerReceipt = 5
+	envPlaintext     = 8
 )
 
 // ErrUnsupportedEnvelope reports an envelope kind not handled yet.
@@ -152,17 +154,25 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 		m.Sealed = true
 		m.Sender = protocol.Address{ServiceID: sc.Sender.SenderUUID, DeviceID: sc.Sender.DeviceID}
 		wire = sc.Content
+		if m.Sender.ServiceID == a.Data.ACI && m.Sender.DeviceID == uint32(a.Data.DeviceID) {
+			return nil, ErrSelfSend
+		}
 		switch sc.Kind {
 		case protocol.SealedContentPreKey:
 			kind = envPreKeyBundle
 		case protocol.SealedContentMessage:
 			kind = envCiphertext
+		case protocol.SealedContentPlaintext:
+			kind = envPlaintext
 		default:
 			return nil, fmt.Errorf("%w: sealed content kind %d", ErrUnsupportedEnvelope, sc.Kind)
 		}
 	}
 
 	m.InnerType = kind
+	if kind == envPlaintext {
+		return plaintextContent(m, wire)
+	}
 	key := sessionKey(m.ToPNI, m.Sender)
 	rec := new(protocol.SessionRecord)
 	if b, ok := a.Sessions[key]; ok {
@@ -190,7 +200,15 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 		return nil, fmt.Errorf("%w: %d", ErrUnsupportedEnvelope, kind)
 	}
 	if err != nil {
-		return nil, err
+		if errors.Is(err, protocol.ErrUntrustedIdentity) || errors.Is(err, protocol.ErrDuplicateMessage) {
+			return nil, err
+		}
+		msgType := protocol.MessageTypeWhisper
+		if kind == envPreKeyBundle {
+			msgType = protocol.MessageTypePreKey
+		}
+		return nil, &DecryptError{Sender: m.Sender, ToPNI: m.ToPNI, Sealed: m.Sealed, InnerType: kind, Timestamp: m.ClientTimestamp,
+			RatchetKey: protocol.SenderRatchetKey(wire, msgType), Err: err}
 	}
 	if c, ok := content.Unpad(pt); ok {
 		m.Content = c
@@ -237,5 +255,40 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 			}
 		}
 	}
+	return m, nil
+}
+
+// ErrSelfSend reports a sealed message from this very device; it is
+// dropped silently (pipe.md §7.2).
+var ErrSelfSend = errors.New("sealed sender message from this device")
+
+// DecryptError is a protocol-level failure (invalid message, no session,
+// invalid key or key ID) from a known sender: what a retry receipt and
+// session renewal need (pipe.md §7.2).
+type DecryptError struct {
+	Sender     protocol.Address
+	ToPNI      bool
+	Sealed     bool
+	InnerType  int    // envelope type of the failing message, after unsealing
+	Timestamp  uint64 // the envelope's client timestamp
+	RatchetKey []byte // nil if the message did not parse
+	Err        error
+}
+
+func (e *DecryptError) Error() string { return e.Err.Error() }
+func (e *DecryptError) Unwrap() error { return e.Err }
+
+// plaintextContent unwraps PlaintextContent (0xC0, Content, 0x80), valid
+// only when it carries a DecryptionErrorMessage alone (content.md §5.3).
+func plaintextContent(m *Message, wire []byte) (*Message, error) {
+	if len(wire) < 2 || wire[0] != 0xC0 || wire[len(wire)-1] != 0x80 {
+		return nil, fmt.Errorf("%w: malformed plaintext content", protocol.ErrInvalidMessage)
+	}
+	var c signalpb.AppContent
+	if err := proto.Unmarshal(wire[1:len(wire)-1], &c); err != nil || c.GetDecryptionErrorMessage() == nil ||
+		c.SenderKeyDistributionMessage != nil || c.PniSignatureMessage != nil {
+		return nil, fmt.Errorf("%w: plaintext content without a lone decryption error", protocol.ErrInvalidMessage)
+	}
+	m.Content = wire[1 : len(wire)-1]
 	return m, nil
 }

@@ -119,3 +119,10 @@ message AppUnidentifiedStatus {
   optional bytes destination_pni_identity_key = 5;
   optional bytes destination_service_id_binary = 6;
 }
+
+// §5.3: the retry receipt's payload, serialized into Content field 8.
+message AppDecryptionErrorMessage {
+  optional bytes ratchet_key = 1;
+  optional uint64 timestamp = 2;
+  optional uint32 device_id = 3;
+}
