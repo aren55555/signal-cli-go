@@ -95,6 +95,36 @@ starts. Existing pieces:
 - In this Claude Code build, `grep` in the agent shell is a wrapper
   function that fails with `unknown option '-G'`. Use `command grep`.
 
+## Milestone 2 plan: crypto primitives
+
+Order matters: each step is a dependency of the next. Every primitive gets
+standard vectors (Layer A) before it is used, and secret-dependent code is
+constant-time. Any place where that is uncertain is noted in the code and
+here.
+
+1. **Spec requests (spec subagents, run in parallel with step 2)**:
+   - which KEM each key and message type in the libsignal version bundled
+     with signal-cli 0.14.7 uses (pre-standard Kyber1024 or FIPS 203
+     ML-KEM-1024), with key-type prefix bytes;
+   - published test vectors as data in `testdata/vectors/` (XEdDSA, KEM
+     keys, HKDF info strings used by Signal constructions), with citations.
+2. **edwards25519**: field arithmetic mod 2^255-19 (fixed limbs,
+   constant-time select and swap), group operations, scalars mod the group
+   order, encoding. Vectors: RFC 8032 (checked against `crypto/ed25519`
+   too), RFC 7748 (checked against `crypto/ecdh`).
+3. **Ristretto255** (RFC 9496 vectors). zkgroup in milestone 6 builds on
+   it.
+4. **XEdDSA and VXEdDSA**, from Signal's published specification at
+   signal.org/docs (a public standard, so the implementation role reads it
+   directly). Vectors from step 1.
+5. **KEM**: `crypto/mlkem` if the answer is ML-KEM. Otherwise an in-repo
+   pre-standard Kyber1024 with its round-3 known-answer tests.
+6. **Protobuf wire codec**: hand-written varint, length-delimited and
+   fixed types, unknown-field preservation, plus a `testing.F` fuzz test.
+
+The primitive rows in COMPAT.md turn green as each step lands with its
+vectors.
+
 ## Facts from the milestone 1 inventory that shape the implementation
 
 - Help and parse-error text wrap at `$COLUMNS`, else the terminal width,
@@ -131,11 +161,11 @@ starts. Existing pieces:
   and `crypto/ecdsa`, but it is unverified. If it isn't feasible, stop
   and ask, per PROMPT.md section 6.
 - **Staging hosts**: `sandbox/ALLOWED_HOSTS` may need more staging hosts
-  once the oracle is observed (milestone 1). Each addition needs operator
-  approval.
+  once real staging traffic starts (milestone 4). Each addition needs
+  operator approval.
 - **Java-specific error text** (milestone 8): many JSON-RPC errors carry
   Jackson parser messages with Java class names (for example
-  `Cannot construct instance of `org.asamk.signal.jsonrpc.JsonRpcRequest``).
+  ``Cannot construct instance of `org.asamk.signal.jsonrpc.JsonRpcRequest` ``).
   Strict byte parity means reproducing those strings. The goldens keep
   them verbatim. Decide in milestone 8 whether to match them exactly or to
   relax the comparison to code plus `data` for those cases, documented as a
