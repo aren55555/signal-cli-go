@@ -28,6 +28,7 @@ every session, and update both before ending one.
 | 7  | Profiles, contacts, usernames, storage service, CDSI, SVR | not started |
 | 8  | Daemon parity (HTTP/SSE, socket, TCP); Layer B fully green | not started |
 | 9  | CLI parity                                   | not started |
+| 9b | Revisit deferred items (voice calls) | not started |
 | 10 | Stretch goal: import an existing signal-cli data dir | not started |
 
 Milestone 2 does not start until the operator has reviewed this file and
@@ -56,6 +57,14 @@ starts. Existing pieces:
   so the GitHub account is the only trust anchor. The JDK is baked into
   the sandbox image, which the oracle runs on.
 - **Progress log** lives at the bottom of this file, not in a separate file.
+- **Voice calls: deferred** (operator, 2026-10-23). Calls are excluded for
+  now and revisited after milestone 9. They are deferred, not "won't do":
+  the specs stay in `spec/surface/` and the COMPAT.md rows are marked
+  `deferred`. Until then signal-cli-go answers the call commands and
+  methods (`startCall`, `acceptCall`, `hangupCall`, `rejectCall`,
+  `listCalls`, `subscribeCallEvents`, `unsubscribeCallEvents`) with a
+  documented error rather than implementing them. Deferred rows do not
+  count toward "100%" until they are revisited.
 - **Proxy support**: all egress goes through `HTTPS_PROXY`. Our HTTP and
   WebSocket clients must support HTTP CONNECT proxies from day one, or
   Layer C cannot run.
@@ -119,12 +128,6 @@ starts. Existing pieces:
 - **Staging hosts**: `sandbox/ALLOWED_HOSTS` may need more staging hosts
   once the oracle is observed (milestone 1). Each addition needs operator
   approval.
-- **Voice calls**: PROMPT.md says calls are out of scope "because
-  signal-cli doesn't support them". But 0.14.7 does expose call methods
-  (`startCall`, `acceptCall`, `hangupCall`, `rejectCall`, `listCalls`,
-  `subscribeCallEvents`/`unsubscribeCallEvents`, see `docs/CALL_TUNNEL.md`).
-  **Operator decision needed**: implement them, or return a documented
-  error? COMPAT.md flags those rows.
 - **D-Bus client mode** (`--dbus`, `--dbus-system`, `--bus-name`): PROMPT.md
   excludes `daemon --dbus`. Is the CLI's D-Bus client mode excluded too?
   **Operator to confirm.**
@@ -156,3 +159,5 @@ starts. Existing pieces:
   record them. That needs a JSON-RPC harness (HTTP, socket, TCP) and
   semantic JSON comparison. Then show the operator PLAN.md and COMPAT.md
   before milestone 2.
+- Operator decision: voice calls deferred until after milestone 9
+  (12 COMPAT.md rows marked `deferred`; milestone 9b added).

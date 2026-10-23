@@ -4,7 +4,7 @@ Target: signal-cli **0.14.7**. A row is done only when every column is ✅
 and links to the tests that prove it. Partial, skipped, or flaky coverage
 is stated in the Notes column.
 
-Legend: ✅ done · 🟡 partial (see notes) · ⬜ not started · n/a not applicable
+Legend: ✅ done · 🟡 partial (see notes) · ⬜ not started · n/a not applicable · deferred: out of scope for now, revisited later (not "won't do")
 
 **Status: draft.** JSON-RPC rows are filled in from `spec/surface/jsonrpc/`; transport, error and zero-account behavior was observed on the binary. CLI rows are filled in from `spec/surface/cli/`.
 
@@ -31,7 +31,7 @@ Spec: [`transports.md`](spec/surface/jsonrpc/transports.md), [`errors.md`](spec/
 
 | Method | Spec'd | Impl | Layer A | Layer B | Layer C | Notes |
 |--------|--------|------|---------|---------|---------|-------|
-| [`acceptCall`](spec/surface/jsonrpc/methods/acceptCall.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account; **calls: scope question, see PLAN.md** |
+| [`acceptCall`](spec/surface/jsonrpc/methods/acceptCall.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`addDevice`](spec/surface/jsonrpc/methods/addDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`addStickerPack`](spec/surface/jsonrpc/methods/addStickerPack.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`block`](spec/surface/jsonrpc/methods/block.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
@@ -42,10 +42,10 @@ Spec: [`transports.md`](spec/surface/jsonrpc/transports.md), [`errors.md`](spec/
 | [`getAvatar`](spec/surface/jsonrpc/methods/getAvatar.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`getSticker`](spec/surface/jsonrpc/methods/getSticker.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`getUserStatus`](spec/surface/jsonrpc/methods/getUserStatus.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`hangupCall`](spec/surface/jsonrpc/methods/hangupCall.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account; **calls: scope question, see PLAN.md** |
+| [`hangupCall`](spec/surface/jsonrpc/methods/hangupCall.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`joinGroup`](spec/surface/jsonrpc/methods/joinGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`listAccounts`](spec/surface/jsonrpc/methods/listAccounts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`listCalls`](spec/surface/jsonrpc/methods/listCalls.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account; **calls: scope question, see PLAN.md** |
+| [`listCalls`](spec/surface/jsonrpc/methods/listCalls.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`listContacts`](spec/surface/jsonrpc/methods/listContacts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`listDevices`](spec/surface/jsonrpc/methods/listDevices.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`listGroups`](spec/surface/jsonrpc/methods/listGroups.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
@@ -54,7 +54,7 @@ Spec: [`transports.md`](spec/surface/jsonrpc/transports.md), [`errors.md`](spec/
 | [`quitGroup`](spec/surface/jsonrpc/methods/quitGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`receive`](spec/surface/jsonrpc/methods/receive.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`register`](spec/surface/jsonrpc/methods/register.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`rejectCall`](spec/surface/jsonrpc/methods/rejectCall.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account; **calls: scope question, see PLAN.md** |
+| [`rejectCall`](spec/surface/jsonrpc/methods/rejectCall.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`remoteDelete`](spec/surface/jsonrpc/methods/remoteDelete.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`removeContact`](spec/surface/jsonrpc/methods/removeContact.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`removeDevice`](spec/surface/jsonrpc/methods/removeDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
@@ -75,16 +75,16 @@ Spec: [`transports.md`](spec/surface/jsonrpc/transports.md), [`errors.md`](spec/
 | [`sendTyping`](spec/surface/jsonrpc/methods/sendTyping.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`sendUnpinMessage`](spec/surface/jsonrpc/methods/sendUnpinMessage.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`setPin`](spec/surface/jsonrpc/methods/setPin.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`startCall`](spec/surface/jsonrpc/methods/startCall.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account; **calls: scope question, see PLAN.md** |
+| [`startCall`](spec/surface/jsonrpc/methods/startCall.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`startChangeNumber`](spec/surface/jsonrpc/methods/startChangeNumber.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`startLink`](spec/surface/jsonrpc/methods/startLink.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`submitRateLimitChallenge`](spec/surface/jsonrpc/methods/submitRateLimitChallenge.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`subscribeCallEvents`](spec/surface/jsonrpc/methods/subscribeCallEvents.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account; not available over HTTP (-32601); **calls: scope question, see PLAN.md** |
+| [`subscribeCallEvents`](spec/surface/jsonrpc/methods/subscribeCallEvents.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; not available over HTTP (-32601); **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`subscribeReceive`](spec/surface/jsonrpc/methods/subscribeReceive.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account; not available over HTTP (-32601) |
 | [`trust`](spec/surface/jsonrpc/methods/trust.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`unblock`](spec/surface/jsonrpc/methods/unblock.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`unregister`](spec/surface/jsonrpc/methods/unregister.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`unsubscribeCallEvents`](spec/surface/jsonrpc/methods/unsubscribeCallEvents.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account; not available over HTTP (-32601); **calls: scope question, see PLAN.md** |
+| [`unsubscribeCallEvents`](spec/surface/jsonrpc/methods/unsubscribeCallEvents.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; not available over HTTP (-32601); **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`unsubscribeReceive`](spec/surface/jsonrpc/methods/unsubscribeReceive.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account; not available over HTTP (-32601) |
 | [`updateAccount`](spec/surface/jsonrpc/methods/updateAccount.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
 | [`updateConfiguration`](spec/surface/jsonrpc/methods/updateConfiguration.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
@@ -130,7 +130,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 
 | Command | Spec'd | Impl | Layer A | Layer B | Layer C | Notes |
 |---------|--------|------|---------|---------|---------|-------|
-| [`acceptCall`](spec/surface/cli/acceptCall.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; **calls: scope question, see PLAN.md** |
+| [`acceptCall`](spec/surface/cli/acceptCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`addDevice`](spec/surface/cli/addDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`addStickerPack`](spec/surface/cli/addStickerPack.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`block`](spec/surface/cli/block.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
@@ -141,12 +141,12 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`getAvatar`](spec/surface/cli/getAvatar.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`getSticker`](spec/surface/cli/getSticker.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`getUserStatus`](spec/surface/cli/getUserStatus.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`hangupCall`](spec/surface/cli/hangupCall.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; **calls: scope question, see PLAN.md** |
+| [`hangupCall`](spec/surface/cli/hangupCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`joinGroup`](spec/surface/cli/joinGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`jsonRpc`](spec/surface/cli/jsonRpc.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; json only |
 | [`link`](spec/surface/cli/link.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; provisioning (-a forbidden); plain-text only |
 | [`listAccounts`](spec/surface/cli/listAccounts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`listCalls`](spec/surface/cli/listCalls.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; **calls: scope question, see PLAN.md** |
+| [`listCalls`](spec/surface/cli/listCalls.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`listContacts`](spec/surface/cli/listContacts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`listDevices`](spec/surface/cli/listDevices.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`listGroups`](spec/surface/cli/listGroups.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
@@ -155,7 +155,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`quitGroup`](spec/surface/cli/quitGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`receive`](spec/surface/cli/receive.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`register`](spec/surface/cli/register.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; registration command |
-| [`rejectCall`](spec/surface/cli/rejectCall.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; **calls: scope question, see PLAN.md** |
+| [`rejectCall`](spec/surface/cli/rejectCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`remoteDelete`](spec/surface/cli/remoteDelete.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`removeContact`](spec/surface/cli/removeContact.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`removeDevice`](spec/surface/cli/removeDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
@@ -176,7 +176,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`sendTyping`](spec/surface/cli/sendTyping.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`sendUnpinMessage`](spec/surface/cli/sendUnpinMessage.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`setPin`](spec/surface/cli/setPin.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`startCall`](spec/surface/cli/startCall.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; **calls: scope question, see PLAN.md** |
+| [`startCall`](spec/surface/cli/startCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`startChangeNumber`](spec/surface/cli/startChangeNumber.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`submitRateLimitChallenge`](spec/surface/cli/submitRateLimitChallenge.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`trust`](spec/surface/cli/trust.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
