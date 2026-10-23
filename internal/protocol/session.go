@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
+	"github.com/aren55555/signal-cli-go/internal/protocol/spqr"
 )
 
 // Limits from spec/protocol/double-ratchet.md §6.
@@ -14,6 +15,11 @@ const (
 	MaxMessageKeys    = 2000  // skipped-key entries kept per receiving chain
 	MaxReceiverChains = 5     // receiving chains kept per session state
 )
+
+// spqrParams are libsignal's chain parameters (spqr/session.md §2). A
+// session with one's own other device gets an unlimited jump instead;
+// that needs the addresses at creation and isn't done yet.
+var spqrParams = spqr.Params{MaxJump: MaxForwardJumps, MaxOOO: MaxMessageKeys}
 
 // ErrDuplicateMessage reports a counter that was already used. libsignal
 // reports it before any MAC check and stops trying other session states.
@@ -64,6 +70,10 @@ type SessionState struct {
 	// every outgoing message is a PreKeySignalMessage (pqxdh.md §4).
 	pending      *pendingPreKey
 	pendingKyber *pendingKyberPreKey
+
+	// pq is the SPQR state (session.md). States are values: Send and
+	// Receive return new ones, so sharing it between copies is safe.
+	pq *spqr.State
 }
 
 // NewAliceSession builds the initiator's state after PQXDH (pqxdh.md §4):
@@ -92,6 +102,7 @@ func NewAliceSession(rand io.Reader, init *PQXDHInitiation, localIdentity, remot
 	s.rootKey, ck = rootStep(init.Secrets.RootKey, dh)
 	s.senderRatchet = ratchet
 	s.sendChain = chain{key: ck}
+	s.pq = spqr.New(init.Secrets.PQRKey, true, spqrParams)
 	return s, nil
 }
 
@@ -107,6 +118,7 @@ func NewBobSession(secrets *PQXDHSecrets, signedPreKey *curve25519.PrivateKey, l
 		rootKey:        secrets.RootKey,
 		senderRatchet:  signedPreKey,
 		sendChain:      chain{key: secrets.ChainKey},
+		pq:             spqr.New(secrets.PQRKey, false, spqrParams),
 	}
 }
 
@@ -152,19 +164,29 @@ func (s *SessionState) sendStep(spqrKey []byte) (*SessionState, sendResult, erro
 // modified. rand supplies the new sending ratchet key if a DH ratchet step
 // is needed.
 func (s *SessionState) receiveStep(rand io.Reader, ratchetKey *curve25519.PublicKey, counter uint32, spqrKey []byte) (*SessionState, messageKeys, error) {
+	t, seed, err := s.receiveSeed(rand, ratchetKey, counter)
+	if err != nil {
+		return nil, messageKeys{}, err
+	}
+	return t, deriveMessageKeys(seed, spqrKey), nil
+}
+
+// receiveSeed is receiveStep without the key expansion: it returns the
+// updated copy and the message-key seed, so SPQR can run in between.
+func (s *SessionState) receiveSeed(rand io.Reader, ratchetKey *curve25519.PublicKey, counter uint32) (*SessionState, []byte, error) {
 	t := s.clone()
 	rc := t.findReceiver(ratchetKey)
 	if rc == nil {
 		var err error
 		if rc, err = t.dhRatchet(rand, ratchetKey); err != nil {
-			return nil, messageKeys{}, err
+			return nil, nil, err
 		}
 	}
 	seed, err := t.seedFor(rc, counter)
 	if err != nil {
-		return nil, messageKeys{}, err
+		return nil, nil, err
 	}
-	return t, deriveMessageKeys(seed, spqrKey), nil
+	return t, seed, nil
 }
 
 func (s *SessionState) findReceiver(key *curve25519.PublicKey) *receiverChain {

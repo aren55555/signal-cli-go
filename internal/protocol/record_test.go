@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
+	"github.com/aren55555/signal-cli-go/internal/protocol/spqr"
 )
 
 var (
@@ -79,7 +80,7 @@ func (d *duo) bobKeys() LocalIdentity {
 // aliceSend encrypts with Alice's current state and commits.
 func (d *duo) aliceSend(t *testing.T, msg string, now time.Time) (int, []byte) {
 	t.Helper()
-	next, typ, wire, err := d.alice.Encrypt([]byte(msg), now, aliceAddr, bobAddr)
+	next, typ, wire, err := d.alice.Encrypt(d.rngA, []byte(msg), now, aliceAddr, bobAddr)
 	if err != nil {
 		t.Fatalf("alice encrypt: %v", err)
 	}
@@ -89,7 +90,7 @@ func (d *duo) aliceSend(t *testing.T, msg string, now time.Time) (int, []byte) {
 
 func (d *duo) bobSend(t *testing.T, msg string) []byte {
 	t.Helper()
-	next, typ, wire, err := d.bob.Encrypt([]byte(msg), t0, bobAddr, aliceAddr)
+	next, typ, wire, err := d.bob.Encrypt(d.rngB, []byte(msg), t0, bobAddr, aliceAddr)
 	if err != nil {
 		t.Fatalf("bob encrypt: %v", err)
 	}
@@ -279,10 +280,10 @@ func TestRecordArchiveLimit(t *testing.T) {
 
 func TestRecordUnacknowledgedSessionExpires(t *testing.T) {
 	d := newDuo(t, 54)
-	if _, _, _, err := d.alice.Encrypt([]byte("late"), t0.Add(MaxUnacknowledgedSessionAge+time.Second), aliceAddr, bobAddr); !errors.Is(err, ErrSessionNotFound) {
+	if _, _, _, err := d.alice.Encrypt(d.rngA, []byte("late"), t0.Add(MaxUnacknowledgedSessionAge+time.Second), aliceAddr, bobAddr); !errors.Is(err, ErrSessionNotFound) {
 		t.Errorf("31-day-old pending session: %v, want ErrSessionNotFound", err)
 	}
-	if _, _, _, err := d.alice.Encrypt([]byte("ok"), t0.Add(MaxUnacknowledgedSessionAge), aliceAddr, bobAddr); err != nil {
+	if _, _, _, err := d.alice.Encrypt(d.rngA, []byte("ok"), t0.Add(MaxUnacknowledgedSessionAge), aliceAddr, bobAddr); err != nil {
 		t.Errorf("exactly 30 days: %v", err)
 	}
 }
@@ -330,5 +331,55 @@ func TestRecordRejectsNewV3Session(t *testing.T) {
 	wire[0] = 0x34
 	if _, err := d.bobReceive(t, MessageTypePreKey, wire); !errors.Is(err, ErrInvalidMessage) {
 		t.Errorf("new v3 session: %v", err)
+	}
+}
+
+// TestSPQRInSession: every SignalMessage carries a V1 SPQR message, and a
+// long conversation advances SPQR epochs on both sides (session.md §3, §5).
+func TestSPQRInSession(t *testing.T) {
+	d := newDuo(t, 57)
+	typ, w := d.aliceSend(t, "start", t0)
+	if _, err := d.bobReceive(t, typ, w); err != nil {
+		t.Fatal(err)
+	}
+	pm, _ := parsePreKeyMessage(w)
+	if len(pm.inner.pqRatchet) == 0 || pm.inner.pqRatchet[0] != 0x01 {
+		t.Fatalf("first message pq_ratchet %x", pm.inner.pqRatchet)
+	}
+	for i := range 400 {
+		w := d.bobSend(t, "b")
+		if m, _ := parseRatchetMessage(w); len(m.pqRatchet) == 0 || m.pqRatchet[0] != 0x01 {
+			t.Fatalf("message %d without SPQR data", i)
+		}
+		d.aliceReceive(t, w)
+		typ, w = d.aliceSend(t, "a", t0)
+		if _, err := d.bobReceive(t, typ, w); err != nil {
+			t.Fatalf("round %d: %v", i, err)
+		}
+	}
+	ea, eb := d.alice.current.pq.Epoch(), d.bob.current.pq.Epoch()
+	if ea < 4 || eb < 4 {
+		t.Errorf("SPQR epochs after 400 rounds: alice %d, bob %d", ea, eb)
+	}
+}
+
+// TestPeerWithoutSPQR: a message with no SPQR data (an SPQR V0 sender)
+// fails to decrypt in a V1 session (session.md §7).
+func TestPeerWithoutSPQR(t *testing.T) {
+	d := newDuo(t, 58)
+	typ, w := d.aliceSend(t, "x", t0)
+	if _, err := d.bobReceive(t, typ, w); err != nil {
+		t.Fatal(err)
+	}
+	d.aliceReceive(t, d.bobSend(t, "y"))
+	cur := d.alice.current.clone()
+	cur.pq = &spqr.State{} // V0: empty SPQR messages, no salt
+	d.alice = d.alice.replaceCurrent(cur)
+	_, w = d.aliceSend(t, "no spqr", t0)
+	if m, _ := parseRatchetMessage(w); len(m.pqRatchet) != 0 {
+		t.Fatalf("V0 sender wrote pq_ratchet %x", m.pqRatchet)
+	}
+	if _, err := d.bobReceive(t, MessageTypeWhisper, w); !errors.Is(err, ErrDecryptionFailed) {
+		t.Errorf("message without SPQR: %v, want ErrDecryptionFailed", err)
 	}
 }

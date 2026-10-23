@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
+	"github.com/aren55555/signal-cli-go/internal/protocol/spqr"
 )
 
 // Ciphertext message types (libsignal's numbering).
@@ -148,12 +149,11 @@ func NewInitiatorRecord(rand io.Reader, identity *curve25519.PrivateKey, localRe
 
 // Encrypt encrypts plaintext (already padded by the caller) with the
 // current state. While the state is unacknowledged the result is a
-// PreKeySignalMessage carrying the address binding.
-//
-// SPQR is not wired in yet: no SPQR key is mixed in and pq_ratchet stays
-// empty, so libsignal peers (which require SPQR V1) will reject these
-// messages until it is.
-func (r *SessionRecord) Encrypt(plaintext []byte, now time.Time, local, remote Address) (*SessionRecord, int, []byte, error) {
+// PreKeySignalMessage carrying the address binding. SPQR runs first: its
+// key salts the message keys and its message rides in pq_ratchet
+// (spqr/session.md §3); rand feeds SPQR's key generation and
+// encapsulation.
+func (r *SessionRecord) Encrypt(rand io.Reader, plaintext []byte, now time.Time, local, remote Address) (*SessionRecord, int, []byte, error) {
 	cur := r.current
 	if cur == nil {
 		return nil, 0, nil, ErrSessionNotFound
@@ -161,10 +161,19 @@ func (r *SessionRecord) Encrypt(plaintext []byte, now time.Time, local, remote A
 	if cur.pending != nil && now.Sub(cur.pending.created) > MaxUnacknowledgedSessionAge {
 		return nil, 0, nil, fmt.Errorf("%w: unacknowledged session is older than 30 days", ErrSessionNotFound)
 	}
-	next, res, err := cur.sendStep(nil)
+	var pqNext *spqr.State
+	var pqMsg, pqKey []byte
+	if cur.pq != nil {
+		var err error
+		if pqNext, pqMsg, pqKey, err = cur.pq.Send(rand); err != nil {
+			return nil, 0, nil, fmt.Errorf("protocol: post-quantum ratchet send error: %w", err)
+		}
+	}
+	next, res, err := cur.sendStep(pqKey)
 	if err != nil {
 		return nil, 0, nil, err
 	}
+	next.pq = pqNext
 	ct, err := cbcEncrypt(res.keys.cipherKey, res.keys.iv, plaintext)
 	if err != nil {
 		return nil, 0, nil, err
@@ -175,6 +184,7 @@ func (r *SessionRecord) Encrypt(plaintext []byte, now time.Time, local, remote A
 		counter:         res.counter,
 		previousCounter: res.previousCounter,
 		ciphertext:      ct,
+		pqRatchet:       pqMsg,
 	}
 	if cur.pending != nil {
 		if b, ok := addressBinding(local, remote); ok {
@@ -208,10 +218,18 @@ func decryptWith(st *SessionState, rand io.Reader, m *ratchetMessage, local, rem
 	if m.version != st.version {
 		return nil, nil, errStateMismatch
 	}
-	next, keys, err := st.receiveStep(rand, m.ratchetKey, m.counter, nil)
+	next, seed, err := st.receiveSeed(rand, m.ratchetKey, m.counter)
 	if err != nil {
 		return nil, nil, err
 	}
+	var pqKey []byte
+	if st.pq != nil {
+		// Any SPQR error makes this candidate fail (spqr/session.md §6).
+		if next.pq, pqKey, err = st.pq.Receive(m.pqRatchet); err != nil {
+			return nil, nil, errStateMismatch
+		}
+	}
+	keys := deriveMessageKeys(seed, pqKey)
 	if !m.verifyMAC(keys.macKey, st.remoteIdentity, st.localIdentity) {
 		return nil, nil, errStateMismatch
 	}

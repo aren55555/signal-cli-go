@@ -485,3 +485,11 @@ func (s *State) Receive(msg []byte) (next *State, key []byte, err error) {
 	n.chain, n.neg = c, nil // receiving ends negotiation
 	return n, key, nil
 }
+
+// Epoch returns the SCKA epoch (0 for a V0 state).
+func (s *State) Epoch() uint64 {
+	if s.scka == nil {
+		return 0
+	}
+	return s.scka.epoch
+}
