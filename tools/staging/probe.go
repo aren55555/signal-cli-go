@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -15,25 +14,19 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// onlyAccount opens the single account in a data directory.
+// onlyAccount opens the single account under <data>/data (signal-cli's
+// layout, as the CLI uses it).
 func onlyAccount(data string) *store.Account {
-	entries, err := os.ReadDir(data)
+	r := store.Open(filepath.Join(data, "data"))
+	entries, err := r.Accounts()
+	if err != nil || len(entries) != 1 {
+		log.Fatalf("want exactly one account in %s (%v)", data, err)
+	}
+	a, err := r.Load(entries[0].Path)
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, e := range entries {
-		if e.IsDir() {
-			if _, err := os.Stat(filepath.Join(data, e.Name(), "account.json")); err == nil {
-				a, err := store.Open(data).Load(e.Name())
-				if err != nil {
-					log.Fatal(err)
-				}
-				return a
-			}
-		}
-	}
-	log.Fatalf("no account in %s", data)
-	return nil
+	return a
 }
 
 // probe opens the authenticated chat socket, lists the queued envelopes

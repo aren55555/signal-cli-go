@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -140,7 +141,7 @@ func TestDecryptPreKeyAndWhisper(t *testing.T) {
 	// The state is on disk: a fresh load continues the session.
 	path := a.Path()
 	a.Close()
-	b, err := store.Open(strings.TrimSuffix(a.Dir(), "/"+path)).Load(path)
+	b, err := store.Open(filepath.Dir(a.Dir())).Load(path)
 	if err != nil {
 		t.Fatal(err)
 	}

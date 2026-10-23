@@ -3,11 +3,13 @@ package store
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 )
 
 // ErrNoAccount reports a number with no local account.
@@ -22,7 +24,7 @@ const (
 // Document versions. Raise one and add a migration when its layout
 // changes.
 const (
-	indexVersion      = 1
+	indexVersion      = 2 // signal-cli's accounts.json version
 	accountVersion    = 1
 	keysVersion       = 1
 	sessionsVersion   = 1
@@ -123,36 +125,96 @@ type identitiesDoc struct {
 	Identities map[string]Identity `json:"identities"`
 }
 
-type indexEntry struct {
-	Path        string `json:"path"`
-	Environment string `json:"environment"`
-	Number      string `json:"number"`
-	ACI         string `json:"aci,omitempty"`
+// IndexEntry is one account in signal-cli's accounts.json.
+type IndexEntry struct {
+	Path        string
+	Environment string
+	Number      string
+	UUID        string // "" when null
 }
 
 type indexDoc struct {
-	Version  int          `json:"version"`
-	Accounts []indexEntry `json:"accounts"`
+	Accounts []IndexEntry
 }
 
-// Root is a data directory holding accounts.
+// Root is signal-cli's account directory (<DATA_DIR>/data).
 type Root struct{ dir string }
 
 // Open returns the root at dir; nothing is read or created until needed.
 func Open(dir string) *Root { return &Root{dir: dir} }
 
-func (r *Root) index() (*indexDoc, error) {
-	var idx indexDoc
-	err := ReadJSON(filepath.Join(r.dir, "accounts.json"), indexVersion, indexMigrations, &idx)
-	if errors.Is(err, os.ErrNotExist) {
-		return &indexDoc{Version: indexVersion}, nil
+// ErrNotOurs reports an index entry with no signal-cli-go account files
+// (an account signal-cli itself created, not yet imported).
+var ErrNotOurs = errors.New("store: account has no signal-cli-go data")
+
+// Accounts lists the index; a missing index is an empty list.
+func (r *Root) Accounts() ([]IndexEntry, error) {
+	idx, err := r.index()
+	if err != nil {
+		return nil, err
 	}
-	return &idx, err
+	return idx.Accounts, nil
 }
 
+func (r *Root) index() (*indexDoc, error) {
+	b, err := os.ReadFile(filepath.Join(r.dir, "accounts.json"))
+	if errors.Is(err, os.ErrNotExist) {
+		return &indexDoc{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	var raw struct {
+		Accounts []struct {
+			Path        string  `json:"path"`
+			Environment string  `json:"environment"`
+			Number      string  `json:"number"`
+			UUID        *string `json:"uuid"`
+		} `json:"accounts"`
+		Version int `json:"version"`
+	}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return nil, fmt.Errorf("store: accounts.json: %w", err)
+	}
+	if raw.Version > indexVersion {
+		return nil, fmt.Errorf("%w: accounts.json has version %d", ErrNewerVersion, raw.Version)
+	}
+	idx := &indexDoc{}
+	for _, e := range raw.Accounts {
+		ie := IndexEntry{Path: e.Path, Environment: e.Environment, Number: e.Number}
+		if e.UUID != nil {
+			ie.UUID = *e.UUID
+		}
+		idx.Accounts = append(idx.Accounts, ie)
+	}
+	return idx, nil
+}
+
+// saveIndex writes accounts.json as signal-cli does (Jackson's default
+// pretty printer).
 func (r *Root) saveIndex(idx *indexDoc) error {
-	idx.Version = indexVersion
-	return WriteJSON(filepath.Join(r.dir, "accounts.json"), idx)
+	q := func(s string) string {
+		b, _ := json.Marshal(s)
+		return string(b)
+	}
+	var sb strings.Builder
+	sb.WriteString("{\n  \"accounts\" : [ ")
+	for i, e := range idx.Accounts {
+		if i > 0 {
+			sb.WriteString(", ")
+		}
+		uuid := "null"
+		if e.UUID != "" {
+			uuid = q(e.UUID)
+		}
+		fmt.Fprintf(&sb, "{\n    \"path\" : %s,\n    \"environment\" : %s,\n    \"number\" : %s,\n    \"uuid\" : %s\n  }",
+			q(e.Path), q(e.Environment), q(e.Number), uuid)
+	}
+	if len(idx.Accounts) > 0 {
+		sb.WriteString(" ")
+	}
+	fmt.Fprintf(&sb, "],\n  \"version\" : %d\n}", indexVersion)
+	return WriteFileAtomic(filepath.Join(r.dir, "accounts.json"), []byte(sb.String()), 0o600)
 }
 
 // Account is an open, locked account directory.
@@ -170,7 +232,11 @@ type Account struct {
 // Path is the account's directory name within the root.
 func (a *Account) Path() string { return a.path }
 
-func (a *Account) file(name string) string { return filepath.Join(a.root.dir, a.path, name) }
+func (a *Account) file(name string) string { return filepath.Join(a.Dir(), name) }
+
+// accountDir is where signal-cli-go keeps an account: <path>.go/ beside
+// signal-cli's own account file <path>.
+func (r *Root) accountDir(path string) string { return filepath.Join(r.dir, path+".go") }
 
 // Create makes and locks a new account directory for number.
 func (r *Root) Create(number, env string) (*Account, error) {
@@ -191,10 +257,10 @@ func (r *Root) Create(number, env string) (*Account, error) {
 		return nil, err
 	}
 	path := hex.EncodeToString(id[:])
-	if err := os.Mkdir(filepath.Join(r.dir, path), 0o700); err != nil {
+	if err := os.Mkdir(r.accountDir(path), 0o700); err != nil {
 		return nil, err
 	}
-	lock, err := Lock(filepath.Join(r.dir, path))
+	lock, err := Lock(r.accountDir(path))
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +272,7 @@ func (r *Root) Create(number, env string) (*Account, error) {
 		lock.Unlock()
 		return nil, err
 	}
-	idx.Accounts = append(idx.Accounts, indexEntry{Path: path, Environment: env, Number: number})
+	idx.Accounts = append(idx.Accounts, IndexEntry{Path: path, Environment: env, Number: number})
 	if err := r.saveIndex(idx); err != nil {
 		lock.Unlock()
 		return nil, err
@@ -230,7 +296,10 @@ func (r *Root) Find(number string) (*Account, error) {
 
 // Load opens and locks the account directory at path.
 func (r *Root) Load(path string) (*Account, error) {
-	lock, err := Lock(filepath.Join(r.dir, path))
+	if fi, err := os.Stat(r.accountDir(path)); err != nil || !fi.IsDir() {
+		return nil, ErrNotOurs
+	}
+	lock, err := Lock(r.accountDir(path))
 	if err != nil {
 		return nil, err
 	}
@@ -274,8 +343,8 @@ func (a *Account) Save() error {
 		return err
 	}
 	for i := range idx.Accounts {
-		if idx.Accounts[i].Path == a.path && idx.Accounts[i].ACI != a.Data.ACI {
-			idx.Accounts[i].ACI = a.Data.ACI
+		if idx.Accounts[i].Path == a.path && idx.Accounts[i].UUID != a.Data.ACI {
+			idx.Accounts[i].UUID = a.Data.ACI
 			return a.root.saveIndex(idx)
 		}
 	}
@@ -316,15 +385,15 @@ func (r *Root) Delete(a *Account) error {
 	if err != nil {
 		return err
 	}
-	idx.Accounts = slices.DeleteFunc(idx.Accounts, func(e indexEntry) bool { return e.Path == a.path })
+	idx.Accounts = slices.DeleteFunc(idx.Accounts, func(e IndexEntry) bool { return e.Path == a.path })
 	if err := r.saveIndex(idx); err != nil {
 		return err
 	}
-	return os.RemoveAll(filepath.Join(r.dir, a.path))
+	return os.RemoveAll(a.Dir())
 }
 
 // Dir is the account directory's full path.
-func (a *Account) Dir() string { return filepath.Join(a.root.dir, a.path) }
+func (a *Account) Dir() string { return a.root.accountDir(a.path) }
 
 // Unidentified-access modes of a stored profile (spec/service/send.md §3).
 const (

@@ -64,7 +64,7 @@ func TestAccountLifecycle(t *testing.T) {
 	if len(idx) == 0 {
 		t.Error("no index")
 	}
-	if fi, _ := os.Stat(filepath.Join(root, b.Path(), "account.json")); fi.Mode().Perm() != 0o600 {
+	if fi, _ := os.Stat(filepath.Join(b.Dir(), "account.json")); fi.Mode().Perm() != 0o600 {
 		t.Errorf("account file mode %v", fi.Mode())
 	}
 	if err := r.Delete(b); err != nil {
@@ -94,5 +94,46 @@ func TestRecipients(t *testing.T) {
 	defer b.Close()
 	if rc := b.Recipients["x"]; string(rc.ProfileKey) != "\x01" || rc.Profile.AccessMode != AccessEnabled {
 		t.Errorf("reloaded %+v", rc)
+	}
+}
+
+// TestIndexIsSignalCLIFormat: the index is signal-cli's accounts.json
+// (version 2, path/environment/number/uuid, Jackson's pretty printer), so
+// account selection matches signal-cli on any data directory; our own
+// files live in <path>.go/ next to where signal-cli keeps its account file.
+func TestIndexIsSignalCLIFormat(t *testing.T) {
+	root := t.TempDir()
+	r := Open(root)
+	a, err := r.Create("+15555550100", EnvStaging)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a.Data.ACI = "0b6ab9b6-0000-4000-8000-00000000c5d3"
+	a.Save()
+	b, _ := r.Create("+15555550101", EnvLive)
+	b.Close()
+	a.Close()
+	got, _ := os.ReadFile(filepath.Join(root, "accounts.json"))
+	want := "{\n  \"accounts\" : [ {\n    \"path\" : \"" + a.Path() + "\",\n    \"environment\" : \"STAGING\",\n    \"number\" : \"+15555550100\",\n    \"uuid\" : \"0b6ab9b6-0000-4000-8000-00000000c5d3\"\n  }, {\n    \"path\" : \"" + b.Path() + "\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550101\",\n    \"uuid\" : null\n  } ],\n  \"version\" : 2\n}"
+	if string(got) != want {
+		t.Errorf("index\n%s\nwant\n%s", got, want)
+	}
+	if fi, err := os.Stat(filepath.Join(root, a.Path()+".go", "account.json")); err != nil || fi.IsDir() {
+		t.Errorf("account file: %v", err)
+	}
+
+	// signal-cli's own index entries without our files are listed but not
+	// loadable as ours.
+	os.WriteFile(filepath.Join(root, "accounts.json"), []byte("{\n  \"accounts\" : [ {\n    \"path\" : \"111111\",\n    \"environment\" : \"LIVE\",\n    \"number\" : \"+15555550111\",\n    \"uuid\" : null\n  } ],\n  \"version\" : 2\n}\n"), 0o600)
+	entries, err := r.Accounts()
+	if err != nil || len(entries) != 1 || entries[0].Number != "+15555550111" || entries[0].UUID != "" {
+		t.Fatalf("entries %+v, %v", entries, err)
+	}
+	if _, err := r.Find("+15555550111"); !errors.Is(err, ErrNotOurs) {
+		t.Errorf("foreign account: %v", err)
+	}
+	empty := Open(filepath.Join(root, "none"))
+	if e, err := empty.Accounts(); err != nil || len(e) != 0 {
+		t.Errorf("missing index: %v %v", e, err)
 	}
 }
