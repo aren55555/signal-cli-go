@@ -462,3 +462,7 @@ vectors.
   are too large to expose overruns) and fuzzing of the frame and HPACK
   decoders. `websocket.DialH2` layers RFC 6455 framing on an h2 stream;
   `authorization` is sent as a never-indexed header.
+- **TLS roots** (`internal/service/trust`): the two Signal roots, taken
+  black-box from the reference distribution's JNI library by fingerprint
+  (CLEANROOM.md row). `ChatRoots` holds both (chat over h2), `RESTRoots`
+  only the RSA root (registration REST, CDN, storage).
