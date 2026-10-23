@@ -1,0 +1,34 @@
+{
+  "source": {
+    "description": "Fixed varint (LEB128, protobuf-style base-128, least-significant group first) vectors from the spqr crate unit tests for the SPQR V1 message serializer (epoch, key index and chunk index fields). Copied from the test values; the decode vectors give the input bytes, the starting offset, the value and the offset after decoding.",
+    "upstream_repo": "https://github.com/signalapp/SparsePostQuantumRatchet",
+    "upstream_tag": "v1.5.3",
+    "upstream_commit": "fd320484dcec89004021e6fdc7481825f5f261fa",
+    "upstream_file_path": "src/v1/chunked/states/serialize.rs (tests encoding_varint, decoding_varint, decoding_varint_zero; roundtrip_varint is randomized and not included)"
+  },
+  "vectors": [
+    {
+      "name": "encoding_varint",
+      "op": "encode",
+      "value": 300,
+      "value_hex": "012c",
+      "bytes_hex": "ac02"
+    },
+    {
+      "name": "decoding_varint",
+      "op": "decode",
+      "input_hex": "ffac02ff",
+      "start_offset": 1,
+      "value": 300,
+      "end_offset": 3
+    },
+    {
+      "name": "decoding_varint_zero",
+      "op": "decode",
+      "input_hex": "00",
+      "start_offset": 0,
+      "value": 0,
+      "end_offset": 1
+    }
+  ]
+}
