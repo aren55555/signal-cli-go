@@ -3,7 +3,8 @@
 // the published documents instead of hand-copied.
 //
 // Supported: RFC 8032 section 7.1 (Ed25519), RFC 7748 sections 5.2 and 6.1
-// (X25519), RFC 9496 appendix A (ristretto255).
+// (X25519), RFC 9496 appendix A (ristretto255), RFC 8452 appendix C
+// (AES-GCM-SIV).
 //
 // Usage (from the repo root, with the RFC text downloaded from
 // https://www.rfc-editor.org/rfc/rfcNNNN.txt):
@@ -11,6 +12,7 @@
 //	go run ./tools/rfcvectors -rfc 8032 -in rfc8032.txt > testdata/vectors/rfc8032_ed25519.json
 //	go run ./tools/rfcvectors -rfc 7748 -in rfc7748.txt > testdata/vectors/rfc7748_x25519.json
 //	go run ./tools/rfcvectors -rfc 9496 -in rfc9496.txt > testdata/vectors/rfc9496_ristretto255.json
+//	go run ./tools/rfcvectors -rfc 8452 -in rfc8452.txt > testdata/vectors/rfc8452_aes_gcm_siv.json
 package main
 
 import (
@@ -69,6 +71,9 @@ func run(num int, in string) error {
 	case 9496:
 		src.Sections = "Appendix A"
 		out, err = parse9496(src, lines)
+	case 8452:
+		src.Sections = "Appendix C"
+		out, err = parse8452(src, lines)
 	default:
 		return fmt.Errorf("unsupported RFC %d", num)
 	}
@@ -461,4 +466,87 @@ func parse9496(src source, lines []string) (any, error) {
 		FromUniformBytes   []uniformVector   `json:"from_uniform_bytes"`
 		SqrtRatioM1        []sqrtRatioVector `json:"sqrt_ratio_m1"`
 	}{src, multiples, invalid, uniform, sqrt}, nil
+}
+
+type gcmSIVVector struct {
+	Section    string `json:"section"`
+	Plaintext  string `json:"plaintext"`
+	AAD        string `json:"aad"`
+	Key        string `json:"key"`
+	Nonce      string `json:"nonce"`
+	AuthKey    string `json:"record_authentication_key"`
+	EncKey     string `json:"record_encryption_key"`
+	PolyvalOut string `json:"polyval_result"`
+	Tag        string `json:"tag"`
+	Result     string `json:"result"`
+}
+
+var sivLabel = regexp.MustCompile(`^(Plaintext|AAD|Key|Nonce|Record authentication key|Record encryption key|POLYVAL input|POLYVAL result|POLYVAL result XOR nonce|\.\.\. and masked|Tag|Initial counter|Result)( \((\d+) bytes?\))? *=(.*)$`)
+
+func parse8452(src source, lines []string) (any, error) {
+	var vs []gcmSIVVector
+	for _, sec := range []struct{ from, to, name string }{
+		{"C.1.  ", "C.2.  ", "C.1"},
+		{"C.2.  ", "C.3.  ", "C.2"},
+		{"C.3.  ", "Acknowledgements", "C.3"},
+	} {
+		body, err := section(lines, sec.from, sec.to)
+		if err != nil {
+			return nil, err
+		}
+		var cur *gcmSIVVector
+		for i, l := range body {
+			m := sivLabel.FindStringSubmatch(strings.TrimSpace(l))
+			if m == nil {
+				continue
+			}
+			rest, _ := hexAfter(body, i)
+			val := strings.ReplaceAll(strings.TrimSpace(m[4]), " ", "") + rest
+			if m[3] != "" {
+				n, _ := strconv.Atoi(m[3])
+				if err := checkHex(val, n, sec.name+" "+m[1]); err != nil {
+					return nil, err
+				}
+			}
+			switch m[1] {
+			case "Plaintext":
+				vs = append(vs, gcmSIVVector{Section: sec.name, Plaintext: val})
+				cur = &vs[len(vs)-1]
+			case "AAD":
+				cur.AAD = val
+			case "Key":
+				cur.Key = val
+			case "Nonce":
+				cur.Nonce = val
+			case "Record authentication key":
+				cur.AuthKey = val
+			case "Record encryption key":
+				cur.EncKey = val
+			case "POLYVAL result":
+				cur.PolyvalOut = val
+			case "Tag":
+				cur.Tag = val
+			case "Result":
+				cur.Result = val
+			}
+		}
+	}
+	for _, v := range vs {
+		if err := checkHex(v.Nonce, 12, v.Section+" nonce"); err != nil {
+			return nil, err
+		}
+		if err := checkHex(v.Tag, 16, v.Section+" tag"); err != nil {
+			return nil, err
+		}
+		if len(v.Key) != 32 && len(v.Key) != 64 {
+			return nil, fmt.Errorf("%s: key of %d hex digits", v.Section, len(v.Key))
+		}
+		if len(v.Result) != len(v.Plaintext)+32 {
+			return nil, fmt.Errorf("%s: result length %d for plaintext %d", v.Section, len(v.Result), len(v.Plaintext))
+		}
+	}
+	return struct {
+		Source  source         `json:"source"`
+		Vectors []gcmSIVVector `json:"vectors"`
+	}{src, vs}, nil
 }
