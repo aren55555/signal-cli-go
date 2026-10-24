@@ -193,22 +193,34 @@ func TestDecryptToPNIAndSealed(t *testing.T) {
 }
 
 // TestUntrustedIdentityChangesNothing: a sender whose identity key
-// changed is refused (trust on first use) and no state is stored.
+// changed is refused (trust on first use). No session or prekey state is
+// stored, but the new key is recorded as UNTRUSTED so it can be trusted
+// later (capture.md §5); a cache retry records nothing.
 func TestUntrustedIdentityChangesNothing(t *testing.T) {
-	a, bundles := testAccount(t)
-	d := &Decryptor{Acct: a}
-	me := protocol.Address{ServiceID: testACI, DeviceID: 2}
-	bob := protocol.Address{ServiceID: bobACI, DeviceID: 1}
-	a.Identities[bobACI] = store.Identity{Key: bytes.Repeat([]byte{5}, 33), Trust: store.TrustedUnverified}
-	s := newSender(t, bobACI, bundles["aci"], bob, me)
-	_, wire := s.encrypt(t, "hi", bob, me)
-	_, err := d.Decrypt(&signalpb.ServiceEnvelope{Type: proto.Uint32(3), SourceServiceIdBinary: uuidBytes(bobACI), SourceDeviceId: proto.Uint32(1),
-		DestinationServiceIdBinary: uuidBytes(testACI), Content: wire})
-	if !errors.Is(err, protocol.ErrUntrustedIdentity) {
-		t.Fatalf("decrypt: %v", err)
-	}
-	if _, ok := a.Keys.ACI.PreKeys[8]; !ok || len(a.Sessions) != 0 {
-		t.Error("state changed after a refused message")
+	for _, retrying := range []bool{false, true} {
+		a, bundles := testAccount(t)
+		d := &Decryptor{Acct: a, Retrying: retrying}
+		me := protocol.Address{ServiceID: testACI, DeviceID: 2}
+		bob := protocol.Address{ServiceID: bobACI, DeviceID: 1}
+		old := bytes.Repeat([]byte{5}, 33)
+		a.Identities[bobACI] = store.Identity{Key: old, Trust: store.TrustedUnverified}
+		s := newSender(t, bobACI, bundles["aci"], bob, me)
+		_, wire := s.encrypt(t, "hi", bob, me)
+		_, err := d.Decrypt(&signalpb.ServiceEnvelope{Type: proto.Uint32(3), SourceServiceIdBinary: uuidBytes(bobACI), SourceDeviceId: proto.Uint32(1),
+			DestinationServiceIdBinary: uuidBytes(testACI), Content: wire})
+		if !errors.Is(err, protocol.ErrUntrustedIdentity) {
+			t.Fatalf("decrypt: %v", err)
+		}
+		if _, ok := a.Keys.ACI.PreKeys[8]; !ok || len(a.Sessions) != 0 {
+			t.Error("state changed after a refused message")
+		}
+		got := a.Identities[bobACI]
+		switch {
+		case retrying && !bytes.Equal(got.Key, old):
+			t.Error("a retry stored the new key")
+		case !retrying && (!bytes.Equal(got.Key, s.id.PublicKey().Bytes()) || got.Trust != store.Untrusted):
+			t.Errorf("new key not stored as untrusted: %+v", got)
+		}
 	}
 }
 

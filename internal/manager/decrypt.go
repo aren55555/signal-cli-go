@@ -51,6 +51,9 @@ type Decryptor struct {
 	Rand  io.Reader
 	Now   func() time.Time
 	Roots []*curve25519.PublicKey // sealed-sender trust roots; default staging
+	// Retrying marks a cache retry pass: identity changes are not stored
+	// (capture.md §5).
+	Retrying bool
 }
 
 func (d *Decryptor) rand() io.Reader {
@@ -182,7 +185,7 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 	}
 	var pt []byte
 	var used *protocol.UsedPreKeys
-	var newIdentity []byte
+	var newIdentity, changedIdentity []byte
 	switch kind {
 	case envPreKeyBundle:
 		trust := func(k *curve25519.PublicKey) bool {
@@ -191,7 +194,11 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 				newIdentity = k.Bytes()
 				return true
 			}
-			return bytes.Equal(known.Key, k.Bytes()) && known.Trust != store.Untrusted
+			if !bytes.Equal(known.Key, k.Bytes()) {
+				changedIdentity = k.Bytes()
+				return false
+			}
+			return known.Trust != store.Untrusted
 		}
 		rec, pt, used, err = rec.DecryptPreKey(d.rand(), wire, protocol.LocalIdentity{Key: identity, RegistrationID: regID}, preKeys{keys}, trust, local, m.Sender)
 	case envCiphertext:
@@ -200,6 +207,14 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 		return nil, fmt.Errorf("%w: %d", ErrUnsupportedEnvelope, kind)
 	}
 	if err != nil {
+		if errors.Is(err, protocol.ErrUntrustedIdentity) && changedIdentity != nil && !d.Retrying {
+			// The changed key replaces the old one, untrusted, so that
+			// listIdentities and trust can see it.
+			a.Identities[m.Sender.ServiceID] = store.Identity{Key: changedIdentity, Trust: store.Untrusted, Added: d.now().UnixMilli()}
+			if serr := a.SaveIdentities(); serr != nil {
+				return nil, serr
+			}
+		}
 		if errors.Is(err, protocol.ErrUntrustedIdentity) || errors.Is(err, protocol.ErrDuplicateMessage) {
 			return nil, err
 		}
@@ -291,4 +306,11 @@ func plaintextContent(m *Message, wire []byte) (*Message, error) {
 	}
 	m.Content = wire[1 : len(wire)-1]
 	return m, nil
+}
+
+func (d *Decryptor) now() time.Time {
+	if d.Now != nil {
+		return d.Now()
+	}
+	return time.Now()
 }

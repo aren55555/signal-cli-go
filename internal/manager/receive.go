@@ -112,6 +112,8 @@ func (r *Receiver) RetryCache(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	r.Decryptor.Retrying = true
+	defer func() { r.Decryptor.Retrying = false }()
 	for _, e := range entries {
 		if !strings.HasSuffix(e.Name(), ".env") {
 			continue
