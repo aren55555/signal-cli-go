@@ -1,0 +1,92 @@
+{
+  "source": {
+    "description": "Fixed request/response vectors for PUT /v1/messages/multi_recipient and for the individual story send, from libsignal v0.99.1's WebSocket chat API unit tests, plus the My Story distribution ID constant from signal-service-java. The request bodies in the upstream multi_recipient tests are the 3-byte placeholder [1,2,3] (not a real sealed-sender v2 payload). Response cases give an HTTP status, an optional JSON body, and the expected classification. ACI_UUID and PNI_UUID are the upstream test constants. The group-send case's token header value is not reproduced, because upstream builds it from a fixture token that is not a plain literal here; only the presence of the header is recorded. Nothing here was derived or invented by the spec agent.",
+    "repositories": [
+      {
+        "repository": "https://github.com/signalapp/libsignal",
+        "tag": "v0.99.1",
+        "commit": "97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8",
+        "files": ["rust/net/chat/src/ws/messages.rs (tests test_story, test_group_send, test_individual_story_send; constants ACI_UUID, PNI_UUID, MULTI_RECIPIENT_MESSAGE_CONTENT_TYPE, GROUP_SEND_TOKEN_HEADER)"]
+      },
+      {
+        "repository": "https://github.com/Turasa/libsignal-service-java",
+        "tag": "v2.15.3_unofficial_151",
+        "commit": "66956cb4a0394d50cee3590209baf58312084a44",
+        "files": ["lib/libsignal-service/src/main/java/org/whispersystems/signalservice/api/push/DistributionId.java (MY_STORY_STRING)"]
+      }
+    ],
+    "spec": "spec/service/stories.md",
+    "conventions": "Header names are lowercase as in libsignal. 'expect' values: 'ok' with unregistered_ids (in the given order); 'unauthorized'; 'mismatched_devices' with per-recipient entries (account, missing, extra, stale, in response order); 'server_side_error'; 'unexpected' (parse or shape error). Service-ID strings: a bare UUID is an ACI; 'PNI:'+UUID is a PNI."
+  },
+  "constants": {
+    "my_story_distribution_id": "00000000-0000-0000-0000-000000000000",
+    "multi_recipient_content_type": "application/vnd.signal-messenger.mrm",
+    "group_send_token_header": "group-send-token",
+    "ACI_UUID": "9d0652a3-dcc3-4d11-975f-74d61598733f",
+    "PNI_UUID": "796abedb-ca4e-4f18-8803-1fde5b921f9f"
+  },
+  "multi_recipient_requests": [
+    {
+      "name": "story",
+      "inputs": { "timestamp": 1700000000000, "auth": "story", "online": false, "urgent": true, "body_hex": "010203" },
+      "expected": {
+        "method": "PUT",
+        "path": "/v1/messages/multi_recipient?ts=1700000000000&online=false&urgent=true&story=true",
+        "headers": { "content-type": "application/vnd.signal-messenger.mrm" },
+        "body_hex": "010203"
+      }
+    },
+    {
+      "name": "group_send",
+      "inputs": { "timestamp": 1700000000000, "auth": "group_send_token", "online": true, "urgent": false, "body_hex": "010203" },
+      "expected": {
+        "method": "PUT",
+        "path": "/v1/messages/multi_recipient?ts=1700000000000&online=true&urgent=false",
+        "headers": { "content-type": "application/vnd.signal-messenger.mrm", "group-send-token": "<standard base64 with padding of the serialized GroupSendFullToken>" },
+        "body_hex": "010203"
+      }
+    }
+  ],
+  "multi_recipient_responses": [
+    { "status": 200, "body": "{}", "expect": "ok", "unregistered_ids": [] },
+    { "status": 200, "body": "{\"uuids404\":[]}", "expect": "ok", "unregistered_ids": [] },
+    { "status": 200, "body": "{\"uuids404\":[\"9d0652a3-dcc3-4d11-975f-74d61598733f\", \"PNI:796abedb-ca4e-4f18-8803-1fde5b921f9f\"]}", "expect": "ok",
+      "unregistered_ids": ["9d0652a3-dcc3-4d11-975f-74d61598733f", "PNI:796abedb-ca4e-4f18-8803-1fde5b921f9f"] },
+    { "status": 200, "body": "{", "expect": "unexpected" },
+    { "status": 200, "body": "{\"uuids404\":[\"garbage\"]}", "expect": "unexpected" },
+    { "status": 401, "body": null, "expect": "unauthorized" },
+    { "status": 500, "body": null, "expect": "server_side_error" },
+    { "status": 409, "body": null, "expect": "unexpected" },
+    { "status": 409,
+      "body": "[{\"uuid\":\"9d0652a3-dcc3-4d11-975f-74d61598733f\",\"devices\":{\"missingDevices\":[50,60]}},{\"uuid\":\"PNI:796abedb-ca4e-4f18-8803-1fde5b921f9f\",\"devices\":{\"missingDevices\":[],\"extraDevices\":[4,5]}}]",
+      "expect": "mismatched_devices",
+      "entries": [
+        { "account": "9d0652a3-dcc3-4d11-975f-74d61598733f", "missing": [50, 60], "extra": [], "stale": [] },
+        { "account": "PNI:796abedb-ca4e-4f18-8803-1fde5b921f9f", "missing": [], "extra": [4, 5], "stale": [] }
+      ] },
+    { "status": 410,
+      "body": "[{\"uuid\":\"9d0652a3-dcc3-4d11-975f-74d61598733f\",\"devices\":{\"staleDevices\":[4,5]}},{\"uuid\":\"PNI:796abedb-ca4e-4f18-8803-1fde5b921f9f\",\"devices\":{\"staleDevices\":[1]}}]",
+      "expect": "mismatched_devices",
+      "entries": [
+        { "account": "9d0652a3-dcc3-4d11-975f-74d61598733f", "missing": [], "extra": [], "stale": [4, 5] },
+        { "account": "PNI:796abedb-ca4e-4f18-8803-1fde5b921f9f", "missing": [], "extra": [], "stale": [1] }
+      ] },
+    { "status": 410, "body": "[", "expect": "unexpected" },
+    { "status": 410, "body": "{\"uuid\":\"9d0652a3-dcc3-4d11-975f-74d61598733f\",\"devices\":{\"staleDevices\":[4,5]}}", "expect": "unexpected", "note": "object instead of array" },
+    { "status": 410, "body": "[{\"uuid\":\"9d0652a3-dcc3-4d11-975f-74d61598733f\",\"devices\":{}}]", "expect": "unexpected", "note": "no devices listed" },
+    { "status": 410, "body": "[{\"uuid\":\"garbage\",\"devices\":{{\"staleDevices\":[4,5]}}}]", "expect": "unexpected", "note": "upstream raw-string literal; the doubled braces are literal characters, so the body is also malformed JSON" },
+    { "status": 410, "body": "[{\"uuid\":\"9d0652a3-dcc3-4d11-975f-74d61598733f\",\"devices\":{\"staleDevices\":[200]}}]", "expect": "unexpected", "note": "device id out of range 1..127" },
+    { "status": 410, "body": "[{\"uuid\":\"9d0652a3-dcc3-4d11-975f-74d61598733f\",\"devices\":{\"staleDevices\":[\"4\"]}}]", "expect": "unexpected", "note": "device id not an integer" }
+  ],
+  "individual_story_send": {
+    "note": "libsignal's own typed sealed 1:1 send with Story authorization. signal-cli 0.14.7 does not use this typed API for 1:1 sends; it uses signal-service-java's JSON body (spec/service/send.md section 2.1), whose key order differs. Recorded for the path and query shape and the absence of any access header.",
+    "inputs": { "destination": "PNI:796abedb-ca4e-4f18-8803-1fde5b921f9f", "timestamp": 1700000000000, "online": false, "urgent": true,
+      "messages": [ { "device_id": 2, "registration_id": 22, "contents_hex": "ffff" }, { "device_id": 3, "registration_id": 33, "contents_hex": "fefe" } ] },
+    "expected": {
+      "method": "PUT",
+      "path": "/v1/messages/PNI:796abedb-ca4e-4f18-8803-1fde5b921f9f?story=true",
+      "headers": { "content-type": "application/json" },
+      "json_body": { "messages": [ { "type": 6, "destinationDeviceId": 2, "destinationRegistrationId": 22, "content": "//8=" }, { "type": 6, "destinationDeviceId": 3, "destinationRegistrationId": 33, "content": "/v4=" } ], "online": false, "urgent": true, "timestamp": 1700000000000 }
+    }
+  }
+}
