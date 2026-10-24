@@ -71,7 +71,12 @@ func (e *env) network(g *globals) (*network, error) {
 }
 
 func (n *network) dialChat(ctx context.Context, a *store.Account, keepAlive bool) (*chat.Conn, error) {
-	ep := chat.Endpoint{Proxy: n.proxy, UserAgentOverride: n.userAgent, ReceiveStories: true}
+	return n.dialChatStories(ctx, a, keepAlive, true)
+}
+
+// dialChatStories is dialChat with x-signal-receive-stories set (pipe.md §2).
+func (n *network) dialChatStories(ctx context.Context, a *store.Account, keepAlive, stories bool) (*chat.Conn, error) {
+	ep := chat.Endpoint{Proxy: n.proxy, UserAgentOverride: n.userAgent, ReceiveStories: stories}
 	if a != nil {
 		ep.Credentials = &chat.Credentials{ACI: a.Data.ACI, DeviceID: a.Data.DeviceID, Password: a.Data.Password}
 	}
@@ -303,7 +308,7 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 	if err != nil {
 		return err
 	}
-	c, err := n.dialChat(ctx, a, true)
+	c, err := n.dialChatStories(ctx, a, true, !o.ignoreStories)
 	if err != nil {
 		return ioError("Error while checking account %s: %v", a.Data.Number, err)
 	}
