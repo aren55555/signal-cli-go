@@ -603,3 +603,33 @@ vectors.
   edit and delete. Note for invocations: options taking several values
   (`--mention`, `-o`, `-t`) swallow a following recipient, as in
   signal-cli, so the recipient goes first.
+- **Milestone 5, attachments and sync (2026-10-24).**
+  - Attachments from attachments.md: every vector passes; uploads to
+    CDN 2/3 and downloads work live against staging (the CDN hosts chain
+    to the Signal root, as assumed). Our B → reference A: a PNG (with
+    dimensions), a text file and random binary, stored byte-identically.
+    Reference A → our B, addressed to our PNI: voice-note flags, a data
+    URI and a 2200-byte long text that replaces the body.
+  - Live findings, all fixed: the data-directory refusal failed for a
+    relative `-c` (our B sent its `accounts.json` to A; only our own
+    staging accounts received it and both copies were deleted); bad
+    base64 in a data URI is retried as a path (spec says otherwise);
+    "Stored plaintext in" prints the configured path; a Content with only
+    a NullMessage prints nothing; sync transcripts must name the
+    destination in e164/binary form (we sent the string form, the
+    reference sends field 12, so ours rendered `To: <unknown>`).
+  - Sync from sync.md: transcripts per §4.1, the full SyncMessage,
+    validation and effects on receipt, primary answers to sync requests,
+    the contact stream, sendSyncRequest, sendContacts, post-link
+    requests, read/viewed syncs, and `trust` with its verified sync. A
+    self-send with no session to another own device now goes out with an
+    empty list so the 409 names the new devices (a freshly linked device
+    would otherwise never hear from its primary).
+  - A changed identity key is now stored as UNTRUSTED when a message is
+    refused, as signal-cli does; without it `trust` could not act on our
+    A.2's stale key for B. After `trust -v`, all 15 cached envelopes from
+    B decrypted, and the reference applied our verified sync.
+  - PNI merging works live: A now shows B by number with one identity.
+  - Next: linked-device management (gRPC on the chat h2 connection),
+    addDevice, stories, sender-key multi-recipient sends, and the
+    sealed-sender/sender-key/post-reply captures with our own client.
