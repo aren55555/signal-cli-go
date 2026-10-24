@@ -30,6 +30,7 @@ const (
 	sessionsVersion   = 1
 	senderKeysVersion = 1
 	stickersVersion   = 1
+	groupsVersion     = 1
 	identitiesVersion = 1
 )
 
@@ -243,6 +244,7 @@ type Account struct {
 	Identities map[string]Identity // service ID -> identity
 	SenderKeys SenderKeys
 	Stickers   []StickerPack
+	Groups     []GroupRecord
 	Recipients map[string]Recipient // ACI -> recipient
 }
 
@@ -350,6 +352,9 @@ func (r *Root) Load(path string) (*Account, error) {
 	if err := a.LoadStickers(); err != nil {
 		return fail(err)
 	}
+	if err := a.LoadGroups(); err != nil {
+		return fail(err)
+	}
 	if a.Identities == nil {
 		a.Identities = map[string]Identity{}
 	}
@@ -449,8 +454,11 @@ type Recipient struct {
 	ProfileSharing    bool   `json:"profileSharing,omitempty"`
 	Blocked           bool   `json:"blocked,omitempty"`
 	// GivenName and FamilyName are the contact name (from a contacts sync).
-	GivenName  string `json:"givenName,omitempty"`
-	FamilyName string `json:"familyName,omitempty"`
+	GivenName string `json:"givenName,omitempty"`
+	// ProfileKeyCredential is the stored expiring profile-key credential
+	// (zkgroup-credentials.md §8.4).
+	ProfileKeyCredential []byte `json:"profileKeyCredential,omitempty"`
+	FamilyName           string `json:"familyName,omitempty"`
 }
 
 type recipientsDoc struct {
@@ -559,4 +567,58 @@ func (a *Account) StickerPackByID(id string) int {
 		}
 	}
 	return -1
+}
+
+// GroupRecord is a stored v2 group (groups.md §5). State is the decrypted
+// group as JSON (internal/groups.State), nil when never fetched or lost.
+type GroupRecord struct {
+	GroupID               []byte            `json:"groupId"`
+	MasterKey             []byte            `json:"masterKey"`
+	DistributionID        string            `json:"distributionId"`
+	State                 json.RawMessage   `json:"state,omitempty"`
+	Blocked               bool              `json:"blocked,omitempty"`
+	ProfileSharing        bool              `json:"profileSharing,omitempty"`
+	PermissionDenied      bool              `json:"permissionDenied,omitempty"`
+	EndorsementExpiration int64             `json:"endorsementExpiration,omitempty"` // ms
+	Endorsements          map[string][]byte `json:"endorsements,omitempty"`          // ACI -> 33-byte endorsement
+}
+
+type groupsDoc struct {
+	Version int           `json:"version"`
+	Groups  []GroupRecord `json:"groups"`
+}
+
+// LoadGroups reads groups.json into a.Groups.
+func (a *Account) LoadGroups() error {
+	var d groupsDoc
+	if err := ReadJSON(a.file("groups.json"), groupsVersion, Migrations{}, &d); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	a.Groups = d.Groups
+	return nil
+}
+
+// SaveGroups writes groups.json.
+func (a *Account) SaveGroups() error {
+	return WriteJSON(a.file("groups.json"), &groupsDoc{Version: groupsVersion, Groups: a.Groups})
+}
+
+// Group returns the record with that group ID, or nil.
+func (a *Account) Group(id []byte) *GroupRecord {
+	for i := range a.Groups {
+		if string(a.Groups[i].GroupID) == string(id) {
+			return &a.Groups[i]
+		}
+	}
+	return nil
+}
+
+// RemoveGroup deletes a record.
+func (a *Account) RemoveGroup(id []byte) {
+	for i := range a.Groups {
+		if string(a.Groups[i].GroupID) == string(id) {
+			a.Groups = append(a.Groups[:i], a.Groups[i+1:]...)
+			return
+		}
+	}
 }

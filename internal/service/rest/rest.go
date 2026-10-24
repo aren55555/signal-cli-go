@@ -160,3 +160,38 @@ func (c *Client) DoHeaders(ctx context.Context, method, path string, auth *Basic
 func (e *StatusError) Is(target error) bool {
 	return target == ErrAuthorization && (e.Status == 401 || e.Status == 403)
 }
+
+// RawResponse is a response with its body undecoded.
+type RawResponse struct {
+	Status int
+	Header http.Header
+	Body   []byte
+}
+
+// Raw sends a request with the given headers and raw body and returns the
+// response as is, whatever its status. Only User-Agent is added (the
+// groups service gets no X-Signal-Agent; groups.md §3.1).
+func (c *Client) Raw(ctx context.Context, method, path string, headers map[string]string, body []byte) (*RawResponse, error) {
+	var rd io.Reader
+	if body != nil {
+		rd = bytes.NewReader(body)
+	}
+	req, err := http.NewRequestWithContext(ctx, method, c.base+path, rd)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", c.agent)
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+	resp, err := c.hc.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	data, err := io.ReadAll(io.LimitReader(resp.Body, 16<<20))
+	if err != nil {
+		return nil, err
+	}
+	return &RawResponse{Status: resp.StatusCode, Header: resp.Header, Body: data}, nil
+}
