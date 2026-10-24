@@ -377,6 +377,8 @@ func (c *Conn) deliverHeaders(dec *Decoder, stream uint32, block []byte, endStre
 		if s.status == 0 {
 			s.status = -1 // malformed response
 		}
+	} else {
+		s.trailer = append(s.trailer, fields...)
 	}
 	if endStream {
 		s.remoteDone = true
@@ -436,6 +438,7 @@ type Stream struct {
 	id         uint32
 	status     int
 	header     []HeaderField // response headers of the first header block
+	trailer    []HeaderField // later header blocks (trailers)
 	sendWindow int64
 	buf        []byte
 	remoteDone bool
@@ -620,3 +623,123 @@ func (s *Stream) Close() error {
 
 // Header returns the response headers, without pseudo-headers.
 func (s *Stream) Header() []HeaderField { return s.header }
+
+// Response is the result of Do.
+type Response struct {
+	Status  int
+	Header  []HeaderField // without pseudo-headers
+	Body    []byte
+	Trailer []HeaderField // a second header block, if any
+}
+
+// Do sends a normal request (method, path, headers, body) on a new stream
+// and reads the whole response, trailers included (for gRPC calls).
+func (c *Conn) Do(ctx context.Context, method, path string, headers []HeaderField, body []byte) (*Response, error) {
+	stop := context.AfterFunc(ctx, func() {
+		c.mu.Lock()
+		c.cond.Broadcast()
+		c.mu.Unlock()
+	})
+	defer stop()
+
+	c.mu.Lock()
+	for !c.settingsSeen && c.err == nil && ctx.Err() == nil {
+		c.cond.Wait()
+	}
+	if err := c.err; err != nil || ctx.Err() != nil {
+		c.mu.Unlock()
+		if err == nil {
+			err = ctx.Err()
+		}
+		return nil, err
+	}
+	s := &Stream{c: c, id: c.nextStream, sendWindow: c.peerWindow}
+	c.nextStream += 2
+	c.streams[s.id] = s
+	frameSize := int(c.peerFrameSize)
+	c.mu.Unlock()
+	defer func() {
+		c.mu.Lock()
+		delete(c.streams, s.id)
+		c.mu.Unlock()
+	}()
+
+	fields := []HeaderField{
+		{Name: ":method", Value: method},
+		{Name: ":scheme", Value: "https"},
+		{Name: ":path", Value: path},
+		{Name: ":authority", Value: c.authority},
+	}
+	for _, h := range headers {
+		h.Name = strings.ToLower(h.Name)
+		fields = append(fields, h)
+	}
+	if err := c.sendHeaders(s.id, fields, frameSize, len(body) == 0); err != nil {
+		return nil, err
+	}
+	if len(body) > 0 {
+		if _, err := s.Write(body); err != nil {
+			return nil, err
+		}
+		if err := s.Close(); err != nil {
+			return nil, err
+		}
+	} else {
+		c.mu.Lock()
+		s.localDone = true
+		c.mu.Unlock()
+	}
+	var out []byte
+	buf := make([]byte, 16<<10)
+	for {
+		n, err := s.Read(buf)
+		out = append(out, buf[:n]...)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			c.mu.Lock()
+			status := s.status
+			c.mu.Unlock()
+			if status != 0 && errors.Is(err, ErrClosed) {
+				break // reset after a complete response
+			}
+			return nil, err
+		}
+		if ctx.Err() != nil {
+			s.reset()
+			return nil, ctx.Err()
+		}
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return &Response{Status: s.status, Header: s.header, Body: out, Trailer: s.trailer}, nil
+}
+
+// sendHeaders writes a header block as HEADERS plus CONTINUATION frames.
+func (c *Conn) sendHeaders(id uint32, fields []HeaderField, frameSize int, endStream bool) error {
+	c.wmu.Lock()
+	defer c.wmu.Unlock()
+	block := c.enc.Encode(nil, fields)
+	var out []byte
+	first := true
+	for len(block) > 0 || first {
+		n := min(len(block), frameSize)
+		typ, flags := byte(frameContinuation), byte(0)
+		if first {
+			typ = frameHeaders
+			if endStream {
+				flags |= flagEndStream
+			}
+		}
+		if n == len(block) {
+			flags |= flagEndHeaders
+		}
+		out = appendFrame(out, typ, flags, id, block[:n])
+		block, first = block[n:], false
+	}
+	if _, err := c.bw.Write(out); err != nil {
+		return err
+	}
+	return c.bw.Flush()
+}

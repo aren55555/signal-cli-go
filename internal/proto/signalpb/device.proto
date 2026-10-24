@@ -1,0 +1,31 @@
+// The Devices gRPC service messages (package org.signal.chat.device on the
+// wire; only the field numbers matter). Written from
+// spec/service/sync.md §8.1, never copied from upstream.
+syntax = "proto3";
+
+package signalcligo;
+
+option go_package = "github.com/aren55555/signal-cli-go/internal/proto/signalpb";
+
+message GetDevicesRequest {}
+
+message GetDevicesResponse {
+  message LinkedDevice {
+    uint32 id = 1;
+    bytes name = 2;
+    uint64 last_seen = 3;
+    uint32 registration_id = 4;
+    bytes created_at_ciphertext = 5;
+  }
+  repeated LinkedDevice devices = 1;
+}
+
+message RemoveDeviceRequest {
+  uint32 id = 1;
+}
+
+message RemoveDeviceResponse {}
+
+message ClearPushTokenRequest {}
+
+message ClearPushTokenResponse {}

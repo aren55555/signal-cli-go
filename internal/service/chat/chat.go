@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/service/h2"
 	"strconv"
 	"strings"
 	"sync"
@@ -120,6 +121,9 @@ type Conn struct {
 
 	serverTime time.Time // from the upgrade response; set before use
 	wake       chan struct{}
+
+	rpc        unaryDoer        // the HTTP/2 connection, for gRPC calls
+	rpcHeaders []h2.HeaderField // upgrade headers minus x-signal-receive-stories
 }
 
 // New starts the protocol on s; the Conn owns s from now on.

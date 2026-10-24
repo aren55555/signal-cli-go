@@ -476,6 +476,17 @@ const aepAlphabet = "0123456789abcdefghijklmnopqrstuvwxyz"
 // SendKeys sends the account entropy pool and media root backup key,
 // creating and storing them first if absent (§6.7).
 func (s *Sender) SendKeys(ctx context.Context) error {
+	if err := s.ensureKeys(); err != nil {
+		return err
+	}
+	a := s.Acct
+	return s.SendSync(ctx, &signalpb.AppSyncMessage{Keys: &signalpb.AppSyncMessage_Keys{
+		AccountEntropyPool: proto.String(a.Data.AccountEntropyPool), MediaRootBackupKey: a.Data.MediaRootBackupKey}}, false)
+}
+
+// ensureKeys creates and stores the account entropy pool and media root
+// backup key if absent.
+func (s *Sender) ensureKeys() error {
 	a := s.Acct
 	changed := false
 	if a.Data.AccountEntropyPool == "" {
@@ -499,12 +510,9 @@ func (s *Sender) SendKeys(ctx context.Context) error {
 		a.Data.MediaRootBackupKey, changed = k, true
 	}
 	if changed {
-		if err := a.Save(); err != nil {
-			return err
-		}
+		return a.Save()
 	}
-	return s.SendSync(ctx, &signalpb.AppSyncMessage{Keys: &signalpb.AppSyncMessage_Keys{
-		AccountEntropyPool: proto.String(a.Data.AccountEntropyPool), MediaRootBackupKey: a.Data.MediaRootBackupKey}}, false)
+	return nil
 }
 
 // SendReadSync sends a read or viewed sync for messages from sender

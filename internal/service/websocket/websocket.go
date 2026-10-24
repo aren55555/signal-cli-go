@@ -18,6 +18,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/service/h2"
 	"io"
 	"net"
 	"net/http"
@@ -199,6 +200,7 @@ type Conn struct {
 	closeFn    func() error
 	maxMessage int64
 	respHeader http.Header
+	h2         *h2.Conn // the HTTP/2 connection under an RFC 8441 socket
 
 	wmu    sync.Mutex
 	closed bool

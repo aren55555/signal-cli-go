@@ -60,6 +60,7 @@ func DialH2(ctx context.Context, rawURL string, opts Options) (*Conn, error) {
 		},
 		maxMessage: limit,
 		respHeader: resp,
+		h2:         hc,
 	}, nil
 }
 
@@ -96,4 +97,14 @@ func h2Headers(hdr http.Header) []h2.HeaderField {
 		}
 	}
 	return append(out, h2.HeaderField{Name: "sec-websocket-version", Value: "13"})
+}
+
+// H2 returns the HTTP/2 connection carrying an RFC 8441 socket (nil for
+// an HTTP/1.1 one), for other requests on the same connection.
+func (c *Conn) H2() *h2.Conn { return c.h2 }
+
+// UpgradeHeaders converts headers to the h2 form used for the upgrade.
+func UpgradeHeaders(hdr http.Header) []h2.HeaderField {
+	out := h2Headers(hdr)
+	return out[:len(out)-1] // without sec-websocket-version
 }

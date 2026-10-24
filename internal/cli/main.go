@@ -197,6 +197,16 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		runErr = runRegister(ctx, e, g, s.Bool("voice"), s.String("captcha"), s.Bool("reregister"))
 	case "verify":
 		runErr = runVerify(ctx, e, g, s.String("verification_code"), s.String("pin"))
+	case "listDevices":
+		runErr = runListDevices(ctx, e, g)
+	case "addDevice":
+		runErr = runAddDevice(ctx, e, g, s.String("uri"))
+	case "removeDevice":
+		runErr = runRemoveDevice(ctx, e, g, s.Int("device-id"))
+	case "updateDevice":
+		runErr = runUpdateDevice(ctx, e, g, s.Int("device-id"), s.String("device-name"))
+	case "unregister":
+		runErr = runUnregister(ctx, e, g, s.Bool("delete_account"))
 	case "trust":
 		sn := s.String("verified_safety_number")
 		runErr = runTrust(ctx, e, g, s.String("recipient"), s.Bool("trust_all_known_keys"), sn, s.Has("verified_safety_number"))

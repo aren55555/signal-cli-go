@@ -178,6 +178,7 @@ type sendOpts struct {
 type session struct {
 	acct   *store.Account
 	sender *manager.Sender
+	chat   *chat.Conn // the authenticated socket (gRPC calls)
 	close  func()
 }
 
@@ -196,7 +197,7 @@ func openSession(ctx context.Context, e *env, g *globals, a *store.Account) (*se
 		c.Close()
 		return nil, err
 	}
-	s := &session{acct: a, sender: &manager.Sender{Acct: a, Chat: c, CDN: n.cdn()}}
+	s := &session{acct: a, sender: &manager.Sender{Acct: a, Chat: c, CDN: n.cdn()}, chat: c}
 	closers := []func() error{c.Close}
 	if u, err := n.dialChat(ctx, nil, false); err == nil {
 		s.sender.Unauth = u

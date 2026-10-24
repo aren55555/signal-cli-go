@@ -186,6 +186,20 @@ func commandParser(name string) *argparse.Parser {
 			&argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Metavars: []string{"recipient"}, Help: "Specify the phone number, for which to set the trust."},
 			all, verified)
 		p.Groups = []*argparse.Group{{Args: []*argparse.Arg{all, verified}}}
+	case "listDevices":
+	case "addDevice":
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"--uri"}, Dest: "uri", Metavars: []string{"URI"}, Required: true, Help: "Specify the uri contained in the QR code shown by the new device."})
+	case "removeDevice":
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"-d", "--device-id", "--deviceId"}, Dest: "device-id", Metavars: []string{"DEVICE_ID"}, Kind: argparse.Int32, Required: true,
+			Help: "Specify the device you want to remove. Use listDevices to see the deviceIds."})
+	case "updateDevice":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"-d", "--device-id", "--deviceId"}, Dest: "device-id", Metavars: []string{"DEVICE_ID"}, Kind: argparse.Int32, Required: true,
+				Help: "Specify the device you want to update. Use listDevices to see the deviceIds."},
+			&argparse.Arg{Names: []string{"-n", "--device-name"}, Dest: "device-name", Metavars: []string{"DEVICE_NAME"}, Required: true, Help: "Specify a name to describe the given device."})
+	case "unregister":
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"--delete-account"}, Action: argparse.StoreTrue,
+			Help: "Delete account completely from server. CAUTION: Only do this if you won't use this number again!"})
 	case "getAttachment":
 		recipient := &argparse.Arg{Names: []string{"--recipient"}, Dest: "recipient", Metavars: []string{"RECIPIENT"}, Help: "Sender of the attachment"}
 		group := &argparse.Arg{Names: []string{"-g", "--group-id"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Help: "Group in which the attachment was received"}

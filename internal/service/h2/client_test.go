@@ -67,6 +67,10 @@ func runHelper() {
 // echoHandler accepts an extended CONNECT with :protocol "test-proto" and
 // header x-test: yes, then echoes the stream back.
 func echoHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		grpcHandler(w, r)
+		return
+	}
 	if r.Method != http.MethodConnect || r.Header.Get(":protocol") != "test-proto" || r.URL.Path != "/echo" || r.Header.Get("X-Test") != "yes" {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
@@ -408,5 +412,58 @@ func TestResponseHeaders(t *testing.T) {
 		if strings.HasPrefix(h.Name, ":") {
 			t.Errorf("pseudo-header %q exposed", h.Name)
 		}
+	}
+}
+
+// grpcHandler plays a unary gRPC server: /test.Svc/Echo answers with the
+// request body and a grpc-status 0 trailer; /test.Svc/Fail answers
+// trailers-only with grpc-status 5.
+func grpcHandler(w http.ResponseWriter, r *http.Request) {
+	body, _ := io.ReadAll(r.Body)
+	w.Header().Set("Content-Type", "application/grpc")
+	switch r.URL.Path {
+	case "/test.Svc/Echo":
+		if r.Header.Get("Te") != "trailers" || r.Header.Get("Authorization") != "Basic eA==" {
+			w.Header().Set("Grpc-Status", "16")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		w.Header().Set("Trailer", "Grpc-Status, Grpc-Message")
+		w.WriteHeader(http.StatusOK)
+		w.Write(body)
+		w.Header().Set("Grpc-Status", "0")
+	default:
+		w.Header().Set("Grpc-Status", "5")
+		w.Header().Set("Grpc-Message", "not found")
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func TestDoUnary(t *testing.T) {
+	port, pool := startHelper(t, "plain")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	c, err := Dial(ctx, "localhost:"+port, Options{TLSConfig: &tls.Config{RootCAs: pool}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	hdr := []HeaderField{{Name: "content-type", Value: "application/grpc"}, {Name: "te", Value: "trailers"}, {Name: "authorization", Value: "Basic eA=="}}
+	big := bytes.Repeat([]byte("x"), 100000) // beyond one frame and the initial window
+	for i := 0; i < 3; i++ {                 // several streams on one connection
+		r, err := c.Do(ctx, "POST", "/test.Svc/Echo", hdr, big)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if r.Status != 200 || !bytes.Equal(r.Body, big) || headerValue(r.Trailer, "grpc-status") != "0" {
+			t.Fatalf("echo: status %d, %d bytes, trailer %v", r.Status, len(r.Body), r.Trailer)
+		}
+	}
+	r, err := c.Do(ctx, "POST", "/test.Svc/Fail", hdr, []byte{0, 0, 0, 0, 0})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if headerValue(r.Header, "grpc-status") != "5" || headerValue(r.Header, "grpc-message") != "not found" || len(r.Body) != 0 {
+		t.Errorf("trailers-only: %+v", r)
 	}
 }

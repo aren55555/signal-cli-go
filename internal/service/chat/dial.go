@@ -96,6 +96,11 @@ func Dial(ctx context.Context, ep Endpoint) (*Conn, error) {
 		return nil, classify(err)
 	}
 	c := New(s, ep.KeepAlive)
+	if hs, ok := s.(interface{ H2() *h2.Conn }); ok && hs.H2() != nil {
+		rh := h.Clone()
+		rh.Del("X-Signal-Receive-Stories")
+		c.rpc, c.rpcHeaders = hs.H2(), websocket.UpgradeHeaders(rh)
+	}
 	if ms, err := strconv.ParseInt(strings.TrimSpace(resp.Get("X-Signal-Timestamp")), 10, 64); err == nil {
 		c.serverTime = time.UnixMilli(ms)
 	}
