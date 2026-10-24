@@ -1,0 +1,134 @@
+{
+  "description": "Groups v2 test vectors for signal-cli 0.14.7 compatibility. Companion to spec/service/groups.md. Encodings were produced offline by running the public classes of the reference distribution jars (signal-service-java-2.15.3_unofficial_151.jar Wire messages, libsignal-cli-0.14.7.jar GroupInviteLinkUrl and GroupId, libsignal-client-0.99.1.jar GroupSecretParams, okhttp Credentials) in jshell with hand-chosen dummy inputs. They are observations of the reference implementation, not upstream-published vectors, except the content_range cases, which are copied from upstream unit tests (marked).",
+  "sources": {
+    "signal-cli": "https://github.com/AsamK/signal-cli @ v0.14.7 (b01b6b370dc063599a1a2b9fde0f5ff4e2d78fe8)",
+    "signal-service-java": "https://github.com/Turasa/libsignal-service-java @ v2.15.3_unofficial_151 (66956cb4a0394d50cee3590209baf58312084a44)",
+    "storage-service": "https://github.com/signalapp/storage-service @ v20260713.0.2 (0da239ba7ddda05306ed7b0c4b81fd627055d888)",
+    "jars": "third_party/signal-cli-0.14.7/lib/*.jar (JDK 25.0.5 jshell, offline)"
+  },
+  "inputs": {
+    "master_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "invite_link_password_hex": "202122232425262728292a2b2c2d2e2f"
+  },
+  "group_id_derivation": {
+    "note": "group id = the 32-byte group identifier of the GroupPublicParams derived from the master key (crypto: spec/crypto/zkgroup-groups.md); shown as standard base64 with padding, as signal-cli prints it. Computed with libsignal-client-0.99.1.jar.",
+    "cases": [
+      {"master_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", "group_id_base64": "NAJvAquFGBlkB/fLu7nVtwGM203Fjl7nujQs/mWoJ6o=", "group_public_params_hex": "0034026f02ab8518196407f7cbbbb9d5b7018cdb4dc58e5ee7ba342cfe65a827aa22e10f207c77dd19a554c8da52617af7e2ea38cd2c31093c851b912b7cd1b058e8d712a34207c813e1484e1aa7af3cc00dfcb941ed0385d90db43e3204e59b78"},
+      {"master_key_hex": "0000000000000000000000000000000000000000000000000000000000000000", "group_id_base64": "d/rq8//fR4RzhvN3G9KcKlQoj7cguQFjTOqLV6JUSbo="},
+      {"master_key_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "group_id_base64": "oNU87d/985rcAmREXz3MK6PxPqxzeNuQJAJzZ5Euw9w="}
+    ]
+  },
+  "group_id_parse": {
+    "note": "signal-cli GroupId.fromBase64 (CLI -g values). Decoder = Java's basic RFC 4648 decoder (padding optional, no URL-safe alphabet, no whitespace). 16 bytes -> V1, 32 bytes -> V2, other lengths rejected. 'error' is the exception message; the CLI prefixes it with 'Invalid group id: '.",
+    "cases": [
+      {"input": "NAJvAquFGBlkB/fLu7nVtwGM203Fjl7nujQs/mWoJ6o=", "result": "v2", "canonical": "NAJvAquFGBlkB/fLu7nVtwGM203Fjl7nujQs/mWoJ6o="},
+      {"input": "NAJvAquFGBlkB/fLu7nVtwGM203Fjl7nujQs/mWoJ6o", "result": "v2", "canonical": "NAJvAquFGBlkB/fLu7nVtwGM203Fjl7nujQs/mWoJ6o="},
+      {"input": "NAJvAquFGBlkB_fLu7nVtwGM203Fjl7nujQs_mWoJ6o=", "result": "error", "error": "Failed to decode groupId (must be base64) \"NAJvAquFGBlkB_fLu7nVtwGM203Fjl7nujQs_mWoJ6o=\": Illegal base64 character 5f"},
+      {"input": "AAAAAAAAAAAAAAAAAAAAAA==", "result": "v1", "canonical": "AAAAAAAAAAAAAAAAAAAAAA=="},
+      {"input": "abc", "result": "error", "error": "Failed to decode groupId (must be base64) \"abc\": Invalid group id of size 2"},
+      {"input": "AAAA", "result": "error", "error": "Failed to decode groupId (must be base64) \"AAAA\": Invalid group id of size 3"},
+      {"input": "", "result": "error", "error": "Failed to decode groupId (must be base64) \"\": Invalid group id of size 0"},
+      {"input": " NAJvAquFGBlkB/fLu7nVtwGM203Fjl7nujQs/mWoJ6o=", "result": "error", "error": "Failed to decode groupId (must be base64) \" NAJvAquFGBlkB/fLu7nVtwGM203Fjl7nujQs/mWoJ6o=\": Illegal base64 character 20"}
+    ]
+  },
+  "invite_link": {
+    "note": "GroupInviteLink protobuf {contentsV1(1): {groupMasterKey(1), inviteLinkPassword(2)}}; URL = 'https://signal.group/#' + URL-safe base64 without padding of the encoding.",
+    "encoding_hex": "0a340a20000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f1210202122232425262728292a2b2c2d2e2f",
+    "url": "https://signal.group/#CjQKIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fEhAgISIjJCUmJygpKissLS4v"
+  },
+  "invite_link_parse": {
+    "note": "signal-cli GroupInviteLinkUrl.fromUri. outcome: ok | not_a_link (CLI: 'Link is not a signal group invitation link') | invalid (CLI: 'Group link is invalid: ' + message) | unknown_version (CLI: 'Group link was created with an incompatible version: ' + message) | uncaught (escapes the command; CLI generic uncaught-exception path).",
+    "cases": [
+      {"input": "https://signal.group/#CjQKIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fEhAgISIjJCUmJygpKissLS4v", "outcome": "ok", "master_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", "password_hex": "202122232425262728292a2b2c2d2e2f"},
+      {"input": "sgnl://signal.group/#CjQKIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fEhAgISIjJCUmJygpKissLS4v", "outcome": "ok", "master_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", "password_hex": "202122232425262728292a2b2c2d2e2f"},
+      {"input": "HTTPS://SIGNAL.GROUP/#CjQKIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fEhAgISIjJCUmJygpKissLS4v", "outcome": "ok", "master_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", "password_hex": "202122232425262728292a2b2c2d2e2f"},
+      {"input": "https://signal.group#CjQKIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fEhAgISIjJCUmJygpKissLS4v", "outcome": "ok", "master_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", "password_hex": "202122232425262728292a2b2c2d2e2f"},
+      {"input": "https://signal.group/?a=b#CjQKIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fEhAgISIjJCUmJygpKissLS4v", "outcome": "ok", "master_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", "password_hex": "202122232425262728292a2b2c2d2e2f", "note": "query is ignored"},
+      {"input": "https://user@signal.group:443/#CjQKIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fEhAgISIjJCUmJygpKissLS4v", "outcome": "ok", "master_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", "password_hex": "202122232425262728292a2b2c2d2e2f", "note": "user info and port are ignored; only scheme and host are checked"},
+      {"input": "https://signal.group/#CiIKIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4f", "outcome": "ok", "master_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", "password_hex": "", "note": "no password field: empty password"},
+      {"input": "https://signal.group/x#CjQKIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fEhAgISIjJCUmJygpKissLS4v", "outcome": "invalid", "message": "No path was expected in uri"},
+      {"input": "https://signal.group/", "outcome": "invalid", "message": "No reference was in the uri"},
+      {"input": "https://signal.group/#", "outcome": "invalid", "message": "No reference was in the uri"},
+      {"input": "https://signal.group/#!!!!", "outcome": "invalid", "message": "java.io.IOException: Bad Base64 input character '!' in array position 0"},
+      {"input": "https://signal.group/#CiQKEAAAAAAAAAAAAAAAAAAAAAASECAhIiMkJSYnKCkqKywtLi8", "outcome": "invalid", "message": "org.signal.libsignal.zkgroup.InvalidInputException: Length of array supplied was 16 expected 32", "note": "16-byte master key"},
+      {"input": "https://signal.group/#EAE", "outcome": "unknown_version", "message": "Url contains no known group link content", "note": "bytes 10 01: unknown field 2, no contentsV1"},
+      {"input": "https://signal.group/#x", "outcome": "uncaught", "message": "java.lang.IllegalArgumentException: Base64-encoded string must have at least four characters, but length specified was 1"},
+      {"input": "https://example.com/#CjQKIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fEhAgISIjJCUmJygpKissLS4v", "outcome": "not_a_link"},
+      {"input": "http://signal.group/#CjQKIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fEhAgISIjJCUmJygpKissLS4v", "outcome": "not_a_link"},
+      {"input": "signal.group/#CjQKIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fEhAgISIjJCUmJygpKissLS4v", "outcome": "not_a_link"},
+      {"input": "not a uri %%", "outcome": "not_a_link"}
+    ]
+  },
+  "proto_encodings": {
+    "note": "Hex of Wire (proto3) encodings. Fields are emitted in ascending field-number order; proto3 default values (0, false, empty) are omitted; a set-but-empty sub-message is emitted as tag + length 0.",
+    "GroupContextV2 {masterKey=MK, revision=0}": "0a20000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f1000",
+    "GroupContextV2 {masterKey=MK, revision=7, groupChange=010203}": "0a20000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f10071a03010203",
+    "GroupAttributeBlob {title='Group'}": "0a0547726f7570",
+    "GroupAttributeBlob {title=''}": "0a00",
+    "GroupAttributeBlob {descriptionText='Desc'}": "220444657363",
+    "GroupAttributeBlob {disappearingMessagesDuration=3600}": "18901c",
+    "GroupAttributeBlob {disappearingMessagesDuration=0}": "1800",
+    "GroupAttributeBlob {avatar=010203}": "1203010203",
+    "AccessControl {attributes=MEMBER, members=MEMBER} (new group)": "08021002",
+    "Actions {version=5, modifyAddFromInviteLinkAccess=ANY, modifyInviteLinkPassword=PW} (enable link on a group without password)": "10057a0208019a01120a10202122232425262728292a2b2c2d2e2f",
+    "Actions {version=1, modifyAddFromInviteLinkAccess=UNSATISFIABLE} (disable link)": "10017a020804",
+    "Actions {version=3, modifyMemberAccess=ADMINISTRATOR}": "100372020803",
+    "Actions {version=2, modifyAttributesAccess=MEMBER}": "10026a020802",
+    "Actions {version=4, modify_announcements_only=true}": "1004aa01020801",
+    "Actions {version=4, modify_announcements_only=false}": "1004aa0100",
+    "Actions {version=9, modifyAvatar='groups/abc/def'}": "10095a100a0e67726f7570732f6162632f646566",
+    "Actions {sourceUserId=0909, version=1, terminate_group={}}": "0a0209091001e20100",
+    "GroupChange {actions=<disable-link actions>, serverSignature=aabb, changeEpoch=1}": "0a0610017a0208041202aabb1801",
+    "GroupChangeResponse {group_change=<above>, group_send_endorsements_response=cc}": "0a0e0a0610017a0208041202aabb18011201cc",
+    "GroupResponse {group={version=3}, group_send_endorsements_response=cc}": "0a0230031201cc",
+    "GroupChanges {groupChanges=[{groupChange=<above>, groupState={version=1}}]}": "0a140a0e0a0610017a0208041202aabb180112023001",
+    "Member {joinedAtVersion=4} (joined_at_version response)": "2804",
+    "GroupJoinInfo {memberCount=3, addFromInviteLink=ADMINISTRATOR, version=12, pendingAdminApproval=true}": "20032803300c3801",
+    "AvatarUploadAttributes {key='groups/k/o', credential='c', acl='private', algorithm='AWS4-HMAC-SHA256', date='20261024T000000Z', policy='p', signature='s'}": "0a0a67726f7570732f6b2f6f1201631a07707269766174652210415753342d484d41432d5348413235362a103230323631303234543030303030305a3201703a0173",
+    "ExternalGroupCredential {token='tok'}": "0a03746f6b",
+    "DecryptedGroup {title='T', disappearingMessagesTimer={duration=0}, accessControl={MEMBER,MEMBER,UNSATISFIABLE}, revision=3, members=[{aciBytes=101112..1f, role=ADMINISTRATOR, profileKey=404142..5f, joinedAtRevision=0}], isAnnouncementGroup=DISABLED} (group_data column)": "12015422002a0608021002180430033a360a10101112131415161718191a1b1c1d1e1f10021a20404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f6002"
+  },
+  "http": {
+    "authorization_header": {
+      "note": "Basic auth with username = lowercase hex of the serialized GroupPublicParams, password = lowercase hex of the serialized AuthCredentialPresentation; joined with ':' and standard base64 (okhttp Credentials.basic, ISO-8859-1). Dummy values shown.",
+      "username": "0011",
+      "password": "aabb",
+      "header": "Basic MDAxMTphYWJi"
+    },
+    "invite_link_password_query": {
+      "note": "URL-safe base64 without padding of the 16-byte password, used in PATCH /v2/groups/?inviteLinkPassword=... and GET /v2/groups/join/...",
+      "password_hex": "202122232425262728292a2b2c2d2e2f",
+      "encoded": "ICEiIyQlJicoKSorLC0uLw"
+    },
+    "auth_credential_request": {
+      "note": "todaySeconds = start of the current UTC day in epoch seconds; end = todaySeconds + 604800. Sent on the authenticated chat WebSocket.",
+      "today_utc": "2026-10-24",
+      "path": "/v1/certificate/auth/group?redemptionStartSeconds=1792800000&redemptionEndSeconds=1793404800"
+    },
+    "logs_path_example": "/v2/groups/logs/5?maxSupportedChangeEpoch=7&includeFirstState=false&includeLastState=false"
+  },
+  "content_range": {
+    "note": "Content-Range header of a 206 logs response. Valid cases copied from signal-service-java test ContentRange_parse_Test.kt, invalid cases from ContentRange_parse_withInvalidStrings_Test.kt (@ v2.15.3_unofficial_151). Pattern: whole value must match 'versions <a>-<b>/<c>' (decimal). Next page starts at b+1. Server format (storage-service GroupsController): 'versions <from>-<from+limit-1>/<latestVersion>'.",
+    "valid": [
+      {"header": "versions 1-2/3", "start": 1, "end": 2, "total": 3},
+      {"header": "versions 23-45/67", "start": 23, "end": 45, "total": 67}
+    ],
+    "invalid": [null, "", "23-45/67", "ersions 23-45/67", "versions 23-45", "versions a-b/c"]
+  },
+  "constants": {
+    "highest_known_change_epoch": 7,
+    "group_max_size": 1001,
+    "invite_link_password_bytes": 16,
+    "signed_group_change_max_bytes_in_message": 2048,
+    "endorsement_refresh_margin_ms": 7200000,
+    "auth_credential_window_days": 7,
+    "min_sender_key_targets": 2,
+    "server_logs_page_limit": 64,
+    "server_gse_minimum_lifetime_hours": 6,
+    "server_gse_expiration_interval_days": 1,
+    "avatar_upload_max_bytes_server_policy": 3145728,
+    "avatar_download_max_bytes": 10485760,
+    "staging_storage_url": "https://storage-staging.signal.org",
+    "staging_cdn0_url": "https://cdn-staging.signal.org"
+  }
+}

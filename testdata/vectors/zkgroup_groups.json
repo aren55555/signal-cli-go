@@ -1,0 +1,2174 @@
+{
+  "blob": {
+    "aes_gcm_siv_rfc8452": [
+      {
+        "ciphertext_and_tag": "4a6a9db4c8c6549201b9edb53006cba821ec9cf850948a7c86c68ac7539d027fe819e63abcd020b006a976397632eb5d",
+        "key": "0100000000000000000000000000000000000000000000000000000000000000",
+        "nonce": "030000000000000000000000",
+        "plaintext": "0100000000000000000000000000000002000000000000000000000000000000",
+        "provenance": "upstream",
+        "source_file": "rust/zkgroup/src/api/groups/group_params.rs test_aesgcmsiv_vec1 (RFC 8452 Appendix C)"
+      },
+      {
+        "ciphertext_and_tag": "f3f80f2cf0cb2dd9c5984fcda908456cc537703b5ba70324a6793a7bf218d3eaffffffff000000000000000000000000",
+        "key": "0000000000000000000000000000000000000000000000000000000000000000",
+        "nonce": "000000000000000000000000",
+        "plaintext": "000000000000000000000000000000004db923dc793ee6497c76dcc03a98e108",
+        "provenance": "upstream",
+        "source_file": "rust/zkgroup/src/api/groups/group_params.rs test_aesgcmsiv_vec2 (RFC 8452 Appendix C)"
+      }
+    ],
+    "crafted_padding": {
+      "blob_key": "94b0466e6fbcace9aae8b5bc1dfd941a7e2478696d32d2d685007276fac9a9ea",
+      "cases": [
+        {
+          "blob": "0637c1651be971e3b0053a5c5cfefc5d0102030405060708090a0b0c00",
+          "decrypt_with_padding": {
+            "error": "verification_failure",
+            "java_exception": "VerificationFailedException",
+            "ok": false
+          },
+          "inner_plaintext": "",
+          "nonce": "0102030405060708090a0b0c"
+        },
+        {
+          "blob": "8e08dc4b50bb9d781fd85ef6153229f168838f0102030405060708090a0b0c00",
+          "decrypt_with_padding": {
+            "error": "verification_failure",
+            "java_exception": "VerificationFailedException",
+            "ok": false
+          },
+          "inner_plaintext": "000000",
+          "nonce": "0102030405060708090a0b0c"
+        },
+        {
+          "blob": "009a626b6adb6394a519a77f3d195454dd09ea790102030405060708090a0b0c00",
+          "decrypt_with_padding": {
+            "ok": true,
+            "value": ""
+          },
+          "inner_plaintext": "00000000",
+          "nonce": "0102030405060708090a0b0c"
+        },
+        {
+          "blob": "358975cd06caf06d6fceb3ecb40587d90257f92a4c5efd0102030405060708090a0b0c00",
+          "decrypt_with_padding": {
+            "error": "verification_failure",
+            "java_exception": "VerificationFailedException",
+            "ok": false
+          },
+          "inner_plaintext": "00000005aabbcc",
+          "nonce": "0102030405060708090a0b0c"
+        },
+        {
+          "blob": "6f14c3cf763a00130b49b8cdda107a5d40bb23ba35df010102030405060708090a0b0c00",
+          "decrypt_with_padding": {
+            "ok": true,
+            "value": ""
+          },
+          "inner_plaintext": "00000003aabbcc",
+          "nonce": "0102030405060708090a0b0c"
+        },
+        {
+          "blob": "1eff31f62e75b6c4d2c3654af81d1bd2f3860ebe19ba410102030405060708090a0b0c00",
+          "decrypt_with_padding": {
+            "error": "verification_failure",
+            "java_exception": "VerificationFailedException",
+            "ok": false
+          },
+          "inner_plaintext": "00000004aabbcc",
+          "nonce": "0102030405060708090a0b0c"
+        },
+        {
+          "blob": "8addbe3606659ea21ca9323d1bc841d53cb1297efc0102030405060708090a0b0c00",
+          "decrypt_with_padding": {
+            "error": "verification_failure",
+            "java_exception": "VerificationFailedException",
+            "ok": false
+          },
+          "inner_plaintext": "ffffffff00",
+          "nonce": "0102030405060708090a0b0c"
+        },
+        {
+          "blob": "e404b489633cd833990fec941e47bcec97c0b3bfa40102030405060708090a0b0c00",
+          "decrypt_with_padding": {
+            "ok": true,
+            "value": "01"
+          },
+          "inner_plaintext": "0000000001",
+          "nonce": "0102030405060708090a0b0c"
+        },
+        {
+          "blob": "3672ebb879bddc3c504d902c027a0226908facf5580102030405060708090a0b0c00",
+          "decrypt_with_padding": {
+            "ok": true,
+            "value": ""
+          },
+          "inner_plaintext": "00000001ff",
+          "nonce": "0102030405060708090a0b0c"
+        }
+      ],
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "note": "inner_plaintext is the AES-GCM-SIV plaintext including the 4-byte big-endian padding-length header; blob = ciphertext||tag||nonce||00.",
+      "provenance": "jar+bouncycastle"
+    },
+    "errors": {
+      "cases": [
+        {
+          "case": "reserved_7f",
+          "ciphertext": "dd4d032ca9bb75a4a78541b90cb4e95743f3b0dabfc7e11101b098e34f6cf6513940a04c1f20a302692afdc7087f1019607f",
+          "result": {
+            "ok": true,
+            "value": "0102030405060708111213141516171819"
+          }
+        },
+        {
+          "case": "tampered",
+          "ciphertext": "dc4d032ca9bb75a4a78541b90cb4e95743f3b0dabfc7e11101b098e34f6cf6513940a04c1f20a302692afdc7087f10196000",
+          "result": {
+            "error": "verification_failure",
+            "java_exception": "VerificationFailedException",
+            "ok": false
+          }
+        },
+        {
+          "case": "len0",
+          "ciphertext": "",
+          "result": {
+            "error": "verification_failure",
+            "java_exception": "VerificationFailedException",
+            "ok": false
+          }
+        },
+        {
+          "case": "len12",
+          "ciphertext": "a302692afdc7087f10196000",
+          "result": {
+            "error": "verification_failure",
+            "java_exception": "VerificationFailedException",
+            "ok": false
+          }
+        },
+        {
+          "case": "len13",
+          "ciphertext": "20a302692afdc7087f10196000",
+          "result": {
+            "error": "verification_failure",
+            "java_exception": "VerificationFailedException",
+            "ok": false
+          }
+        },
+        {
+          "case": "len28",
+          "ciphertext": "e11101b098e34f6cf6513940a04c1f20a302692afdc7087f10196000",
+          "result": {
+            "error": "verification_failure",
+            "java_exception": "VerificationFailedException",
+            "ok": false
+          }
+        },
+        {
+          "case": "len29",
+          "ciphertext": "c7e11101b098e34f6cf6513940a04c1f20a302692afdc7087f10196000",
+          "result": {
+            "error": "verification_failure",
+            "java_exception": "VerificationFailedException",
+            "ok": false
+          }
+        },
+        {
+          "case": "wrong_group",
+          "result": {
+            "error": "verification_failure",
+            "java_exception": "VerificationFailedException",
+            "ok": false
+          }
+        }
+      ],
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "note": "Base ciphertext: the upstream padded vector (randomness TEST_ARRAY_32_2). lenN cases are the last N bytes of it. wrong_group decrypts it under the all-zero master key.",
+      "provenance": "jar"
+    },
+    "generated": [
+      {
+        "ciphertext": "85aeeba816ba35ddcef4894c1817126e14d0421620a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 0,
+        "plaintext": "",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "3dff46a1f5e9fc5333da2d0ab653f9a6090522f5f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 0,
+        "plaintext": "",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "56193710b92f442e527f9fd0023a9e7dfb57da551220a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 1,
+        "plaintext": "",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "da4bb2404ec32a21f8fc907e5b987ed9a7e50cd1f4f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 1,
+        "plaintext": "",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "ff9992c834069edb30e8112dd77028036905f98e58313443a2f1373920a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 8,
+        "plaintext": "",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "1ebcd23f96c36114ab726145c12139c99e222a60c4bdea6856d3a2b8f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 8,
+        "plaintext": "",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "841a66fac2b4e267a4db76ec9a7efd1b03f33f5e7921f4f55331a80b3a2c31c1ba0beb1417e383e5928ad59c5328ad08bf3a68c356fc5260eefe913eb8ad95c786c22ffa0782c23ac190eeea8e45eb5984924549f361e0541a93af49f7065290f0f1605a159abe08b27c1da5b6afa27b23cca80c4b41dc6354d38306b04cb0e3e219551a91c36ff9ce67b56863b1e17cde15fe3d392d95b540ff4ed6cf54ab0b82853cc2ff590fde255383a975217f517f671777841478b9126c6063dc84dfbfbc6a1178f92b3c5c9f505b981d11d9c34818d4986fd83a6134ac6be5f93d268763561f48fa4aaf674c45157a7b3bd310623837e534730780cb2a07959e318d0b4bc56d68b85af24e0f804f2e89f0accf60dd3fbbab20a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 257,
+        "plaintext": "",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "cb2d79637932e01c45b86211b160661c11e7a5bf774d34e26f6b5d8818372c6041bebdf3b5fd912c6701ec542986e621ea97dda95bc32daf7a0578a51cc535fcb9dc3ab157df42c9b1edaa719c34b2404798c04985bce2b81b8bac68c283187002080c10a1542b0fef44c37859c03108ea21901c62417a26bfc6fb32028bccbe5f403f6cfb9b9e483230fb7a9ea16bd7513b01e440c180c8a83dbcaf9cabb79f09ca034d8089ee1bdf4ec6d72eedf15135d47c509ce9c034fd4b350f741a90fc89ae7bc79667518a83385465a5e56f0cad0745221ac886612a539165cb1046b1ec387f28817b3be8ae931cca543a7763ab005e50c4fbd9a5110dc0faac03af66fc3104babdc26044c069037db81aa888110611dc09f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 257,
+        "plaintext": "",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "7b2d29ce8811b1bfbacc4b14ac9f6443cb8bfd9bed20a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 0,
+        "plaintext": "00",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "a99edb6dfe683803c0f48b4310a73bfe8189727950f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 0,
+        "plaintext": "00",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "0961666558ed0f09b6bdc86ab2f1589f65e7f9bf58ed20a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 1,
+        "plaintext": "00",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "1b75c47aa3310ad6aadd017c24a6669ea2fe059b3a40f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 1,
+        "plaintext": "00",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "8c10e093a9be7ae3871774ca68e0cd304a7896a24d3b20fc7fb07890cc20a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 8,
+        "plaintext": "00",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "85869302d94b19cef5dbd91962351892b227b1f8fd92dcf05d7a653b64f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 8,
+        "plaintext": "00",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "cf9c7ce26f118d406485ced58d605d39661002489ff0e9a59da7e2935129c7e0d95bf8a70ca6b88730f600e8b29e9d0ee15819d1cb9973d16f6dfd345875799f97c7e8e9f3dc68d282c75276ffd651ee76dda670a6cae7b8c7b9f9073e2fc6893269c16945e94a9c7f2a9b5a5c2eea924964790d8193fb4634e667a967a4b0940247566a87c429cf9367b580bbf7a0074f591eea45daa5c90be312a496583efb3a26b3925efba1af8a37ce9ce77447f8250b8d4c671c0eb0aaa426563323d8579b10f847a981b7305e1fc343c6b918e0feabf004bd29d92ad2a71835e37d8e0908c63df2359ce9c6febc74146916569fdc13fd67d380f3d4a99b83bcf6b26ff8d1f07e85f204eca3502929f24344f40da1c29c2f43d820a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 257,
+        "plaintext": "00",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "14385410ffd4a8906f178c9b32f84639ea87bba001cd6d6231082b8adbc96de4077cfe65797c1cd0b4fe563465048edf452c4a44bd64ed2236219afcdbc0103ec10c6202438925ca06babd589c8eba8c4b7640894b9cadc27482499078e85a107b8ad30d83aec27db29aa9efd840187b17293553fd56777bcc6a8c5616a8472d3c3bcfc70c539b3e78c8f7d2a21020b499538347d75cc2ce972eda8c86a0d6c05824e527bdf910aec1dbae3a963afc7c805b97bcb635c19628be00c866d62801ffb38b21e391d18d98d1432a8239c5db3b29771cb61ac03f0e797d410d90846a1695ae1b08fbf8e6634437007be3ce8bfa0e8a13f0fcb726dcedf1ce8246e7c9018a33c98a05db7484818fb2d55f43956ff5cccbf0b0f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 257,
+        "plaintext": "00",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "dd4d032ca9bb75a4a78541b90cb4e95743f3b0dabfc7e11101b098e34f6cf6513940a04c1f20a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 0,
+        "plaintext": "0102030405060708111213141516171819",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "406bf56cbc57abcc769bf52073fd5ae2a4145a7161e5a1e042a272bbc0b298c3f37a21f896f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 0,
+        "plaintext": "0102030405060708111213141516171819",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "2d6e11cd482377da7da0016a3d9912092a3123df6c1633968f2c4eadd4194e4c2281fb2bf0a020a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 1,
+        "plaintext": "0102030405060708111213141516171819",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "f6f950984ca39e3c7a9d361b52ad61d6f60b40d7b09204054bdfd7011e747238a2e63357405cf86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 1,
+        "plaintext": "0102030405060708111213141516171819",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "fcd673a98e7ed0a8bb4d7662b122b54332587618e48d2c79d4480b4f4c4dee8abff15335b8a2aa14c4fe8fed9c20a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 8,
+        "plaintext": "0102030405060708111213141516171819",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "ea1a0e3712c940cadf4f9135d3b2a1a74c85dd81d7e02c3aa10a32aadb0ab367dcd82aa5147dddb3999bcbbdbbf86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 8,
+        "plaintext": "0102030405060708111213141516171819",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "5cb5b7bff06e85d929f3511fd194e638cf32a47663868bc8e64d98fb1bbe435ebd21c763ce2d42e85a1b2c169f12f9818ddadcf4b491398b7c5d46a224e1582749f5e2a4a2294caaaaab843a1b7cf6426fd543d09ff32a4ba5f319ca4442b4da34b3e2b5b4f8a52fdc4b484ea86b33db3ebb758dbd9614178f0e4e1f9b2b914f1e786936b62ed2b58b7ae3cb3e7ae0835b9516959837406662b85eac740cef83b60b5aaeaaab95643c2bef8ce87358fabff9d690052beb9e52d0c947e7c986b2f3ce3b7161cec72c08e2c4ade3debe3792d736c0457bc352afb8b6caa48a5b92c1ec05ba808ba8f94c6572ebbf29818912344987573de419dbcc7f1ea0e4b2dd4077b76b381819747ac332e46fa23abfc3338e2f4b081a8a53cba0988eef116764d944f1ce3f20a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 257,
+        "plaintext": "0102030405060708111213141516171819",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "9047573717e3377ed7583e9b24606b56b93e7a95eb2e90ef001f7941f46d5c6befe96c57372bd3a926dde8a066bd24e3c7b0e5aa026038fe40d319f81e2f06de7150c49a2ec34521980cc3fbf90b6bf6e2b76f7f82683f2f5843a0a29a75ae603767857a8a0ebfcfc3eb68e069979c1ca78d9bd3478cba56bb3657053aea509a6a4ee6238bb43e0637f93d75e611c51a9e8d264db620452217b38bf4c4bd8f98118319f4992e92225cb99b666cd04afe98d87167b8458899c2bb4ea498b917cd71b74d084fefe6a9552e7b17ca8ff859f9db67ceec6c640d0012a4af2d7b0b57d7c5a8e3a422b0eb9671e5dd573df030f36a3a1bb99c4555f46508490a34cdfb05f7059c52585e2c7961077afc90547a9ff561259057c5214ea1c73584182b791ac7e0b389c0f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 257,
+        "plaintext": "0102030405060708111213141516171819",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "535ee0a9695795754571b228ef1331ea333a6e3c14ae05681ef6d7aa69b64b1d9520b5b48108e61c9b9020a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 0,
+        "plaintext": "5369676e616c2067726f7570207469746c6520e29c93",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "28e7673813dc431ad24264666f31d898dbe7b1ed82a3f904688959d1a600c976de4e22ff4362fc820701f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 0,
+        "plaintext": "5369676e616c2067726f7570207469746c6520e29c93",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "d0279117cb5f761b69da7364ded55412f8ada5165eccfb498115b5b5a08eeb18169d5627281084cf59980120a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 1,
+        "plaintext": "5369676e616c2067726f7570207469746c6520e29c93",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "f973d5a90bd512b16b4ea09574a8c5af6a35eb4e17700e4fd3d1a51f232b0ce3c3842f85ba6d63efa70a29f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 1,
+        "plaintext": "5369676e616c2067726f7570207469746c6520e29c93",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "e6b758dca130723c1c33752bd67c2dc6bb4d715b6ffa951decc9eb1e2f803442f9df256664311e7b031d5023afbf2e6287bf20a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 8,
+        "plaintext": "5369676e616c2067726f7570207469746c6520e29c93",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "63b8fcc16dca6a0469fae7a92f63890a7bc7d917e8f2241f04f04dbd45290b026f04194ca6fb6ce330c117ccf8fe39955a1ff86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 8,
+        "plaintext": "5369676e616c2067726f7570207469746c6520e29c93",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "1ce452c3b08b75ef287cb19a8d6c77169fff6a3a9311678e5562b75aa945db368f3451bb835c5241ea889583c901642e0e37ee8e8c73d1c37468bffb7ece956897ebac32c7e76ad8fa3182c3d9810b453f1becbcccb1d45d80c1a0a0d4bfb6fdd7da1f796388dd2e91156bd965c0d45bad0b9d3ecb530c4b03c15e4b4cbf536ee62e20e6d955f83c413d883878ad7dcf50e521ad16c7a6a286f1c3271105b71615536ba42dbed2c8a1c6ad66b116dfc9bfe10faa4f2343e0453f9fa369d4e61e0acd66035b18201f1bf8ce188fcb0c5683cba1917094443c32990aa3d1258f8aae4f55d8a6bf72c10c2a24c02f7c8071a0f5b15d32a4b45209039aedc7c2449ced6b14f34be4b8c4208b3862cd2b51a2f6e778bf1b51de9c598f5da69ebb1b879bf2f7f724dcbf82656caa20a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 257,
+        "plaintext": "5369676e616c2067726f7570207469746c6520e29c93",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "ea4fb175b05a9bd6f4efd84f313ec2773ff3261ec078b77527a444c233da8fb327821a8a47249b1dcd81615c920e15033425dd1d7ee7b283dabf671c32c8fbddd812edd704ae6a27b471aea1421f1a237cef3c89f115a607bf4eb8b1b89e98bd5ce34f05e336df95cb95651ef4b5c14011d52bba1f82dad495766ef341e47e618a8c39eae15e2a3b83a03c8eb3b89516ab2f1044391671f14cd38e61bc8b3d8fb47916a7a1a1351a52da2299258f1d587e1b2319955585e3aa5773b236edcc50791e3a0ccf947237df2d9a3b01ac7c1171f3a48057c567b61c4ea31d0c43ae3e1b44e3a83669950508bdff2682a05eb6e5e28b08e4dc05d57247ca76e48b50e23fabb40fef895d2ffafdfec7538fffb87b62cbfef7941d3b7a90b5e5f77a92b4fb1205076083306848b4bdf86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 257,
+        "plaintext": "5369676e616c2067726f7570207469746c6520e29c93",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "4a94912d82c9858092fb70accca06699d0e0f92beda166ba354c1b182b8026b80631dfa9e4763b6013450d9d4a3b08bae723704457568da66bc8c0f26bf64dd31aa72c2d43fd9d9e6291aeb31f534e69975b3ca319ea57c3f80d5c5a7306f0a7b40955b6421eda06cdaa895dcf8f0813520292c320a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 0,
+        "plaintext": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "79f873c1968fe17ad76221730875cc6f901c931fc2f68354a5b8347d067fb9c662cce07cce560d4fe9e2b9d9edec236551b8ac5cbee53228fc769f3de27016368d9ead5e891d41672449b1876af0e13f55d7f087a92bcb1f27a467f129e7cced3a4f2c62e6109a027edca02e97ddddda4ce3962ef86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 0,
+        "plaintext": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "ae3eec2c8e2db0fbb8d7027ad4b21b3ad681239cfae11e0fb67e56c2bbd251fe634f75fb1c60d0003765b2f4073e6eaa9ef8fb4f4dbd4c6c692656c28f3400407b69866dd4c61813c8959ddbab8d428d4d3b63afd444a8bbf5c38e3e69c12ff63fa64b54dfea3a18d3e794160a310ac0250073d5e120a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 1,
+        "plaintext": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "4788b0e2a4fe4549276eb7682e6a57cbe7af8d1f71e32784cdbd84830547a545029b5356b9653d4b755f12b64755d12ed2df745ff185d933d61f3f36950cafb674dd5710d77d97d2d86291b5ee5cbce7ce80145b379aafd8e2df927157a5b9ea9d4985476454402af13f2da662571548cff0ea9fbbf86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 1,
+        "plaintext": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "9e01e4e5c96a35ba760da1fe9978de531164fbc296d949ec12284b096a30e8cf7cbe620c94c9707844e5bd07228c9d4b6477243a9013422999271042117ac390608b95f6515cf04298fe1b5a4c7dcbb0b00b53c71131d5ac610a949e2bdc602ac3fc68484bda5334b5ac40f77986c490088be2a78b3328b3c063322d20a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 8,
+        "plaintext": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "26aa677fbc11c6a6ab9451bd6e847a9fe39c71a0d0f9b67def27e724357586bc88723259ddc23870cdf4d884c6ac2aae77aadd1d95fcd3de7f6ddbaa182dcf7ab1e70384740f1b6cbd14126cf4e986274424677807459dc5f802fbaea6067ab30dbb71919a9dff061854b7a34b435c5dee61f4358c856de4e90ee474f86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 8,
+        "plaintext": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "ciphertext": "5317cc38c52a104d508ff36c1934f83db82eae4d446c8cad18d4dad01a76600d03ba340a16650c380351eb44d5fd809b7340c42def9b95a4a1d86fdaaa0c7a903049de8f2dc1e372e9ec691d280e9fa563a3161e823417701aa07a41746e23a56cfae5df88b9935ca7daeccacdee2fcecefb655ce9cfab2512c994a6e0ffba2f8e056a98af15098f4085197112c2593372bd4ad5332255b31e44f8b427d215aa9dc362a468e87f9a6d4c2383de1e467cc29b79540f3f1e9c3445500b6d32f307a3ddbcb9d4f354a2ace62343c733e226cdaa1dac0815653d75bbff6f9305df22872834783461f510a0e4152e0c9577e65136b7a3b0941cc10457c9ff0f007a285446e0dd17f2d999432f3df97b1ea072c355a0e20dfa6dc03342404f4730ca92465acdcd6be61a5385b7dff5e1a4b0cc2c12e8fde020e4dafc2f8bdb397e0da85f4377a7fa3e6a0f416c02b1a727201f367d7ddf23c28b94b383377b08b1d12dd37a20c19da17af9463b363c5fb2487beb08a22b5720a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 257,
+        "plaintext": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+        "provenance": "jar",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+      },
+      {
+        "ciphertext": "b99e2043d9ddcd6e844416428a892823b29ad14dc5f32945810ac3cc803f9de1c45151df27ae406b838306ce44c055fb9a135ddc7f6eb7663242847173a0797a0b3ba254a92d624560565e0e76e03e26195682a95ccc84088ee78c994b0745bbfbb2045167dd7574d485e39add8cdbeb2728380dddf88d0ff599858e6712a11d45f106de86128aad9f42c80fba6e80bbbf5ee27f3aa183325c90c105f4066434ec9df4f609bbcdc741c4280e826bf6144a2e9ebb6949049e830bd2d137e159a1bb5cc50a9f0affcbf94b741e48432db3b7af0e76efea545463c95e38aa837d1ca666ba1c56e384334aa3174d890534b145dd49df16113438b99d2578c73af622a6eda953a64e3fedf79e3bd95bc407babf83faae1f09df25ba721dc570bdfbeed41274b9f82d47822bbff576e6b7d1dca6ef69113595295cdfafba27547b3b144e321f551c98eebe31623de7e1d71000305831debcff8d11b2e5753c48bbbe1da2ab0b65054b4a74a2a597cdc0d06432bf205567fcf86675fa8e32243e0831203700",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "padding_len": 257,
+        "plaintext": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+        "provenance": "jar",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ],
+    "upstream": [
+      {
+        "ciphertext": "e95807b190d478d7be3a77b22927132eeba51c739cd5707317f73e591a915fff1f20a302692afdc7087f10196000",
+        "intermediate": {
+          "blob_key": "94b0466e6fbcace9aae8b5bc1dfd941a7e2478696d32d2d685007276fac9a9ea",
+          "nonce": "20a302692afdc7087f101960"
+        },
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "name": "unpadded encrypt_blob (Rust only)",
+        "padded": false,
+        "plaintext": "0102030405060708111213141516171819",
+        "provenance": "upstream",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7",
+        "source_file": "rust/zkgroup/tests/integration_tests.rs test_blob_encryption"
+      },
+      {
+        "ciphertext": "dd4d032ca9bb75a4a78541b90cb4e95743f3b0dabfc7e11101b098e34f6cf6513940a04c1f20a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "name": "padded, padding_len 0 (Java/Node/Swift encryptBlob)",
+        "padded": true,
+        "padding_len": 0,
+        "plaintext": "0102030405060708111213141516171819",
+        "provenance": "upstream",
+        "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7",
+        "source_file": "java/client/src/test/java/org/signal/libsignal/zkgroup/integrationtests/ZkGroupTest.java testBlobEncryption (same in node/ts/test/ZKGroup-test.ts, swift ZKGroupTests.swift)"
+      },
+      {
+        "ciphertext": "5cb5b7bff06e85d929f3511fd194e638cf32a47663868bc8e64d98fb1bbe435ebd21c763ce2d42e85a1b2c169f12f9818ddadcf4b491398b7c5d46a224e1582749f5e2a4a2294caaaaab843a1b7cf6426fd543d09ff32a4ba5f319ca4442b4da34b3e2b5b4f8a52fdc4b484ea86b33db3ebb758dbd9614178f0e4e1f9b2b914f1e786936b62ed2b58b7ae3cb3e7ae0835b9516959837406662b85eac740cef83b60b5aaeaaab95643c2bef8ce87358fabff9d690052beb9e52d0c947e7c986b2f3ce3b7161cec72c08e2c4ade3debe3792d736c0457bc352afb8b6caa48a5b92c1ec05ba808ba8f94c6572ebbf29818912344987573de419dbcc7f1ea0e4b2dd4077b76b381819747ac332e46fa23abfc3338e2f4b081a8a53cba0988eef116764d944f1ce3f20a302692afdc7087f10196000",
+        "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "name": "padded with 257 zero bytes, decrypt only",
+        "padded": true,
+        "padding_len": 257,
+        "plaintext": "0102030405060708111213141516171819",
+        "provenance": "upstream",
+        "source_file": "ZkGroupTest.java / ZKGroup-test.ts testBlobEncryption (ciphertextPaddedWith257)"
+      },
+      {
+        "ciphertext": "3798afe9c65ffb35a63b2c048b16f19dd50ee9acc33cc925667a9abad4d4c6f86675fa8e32243e0831203700",
+        "generate_randomness": "0000000000000000000000000000000000000000000000000000000000000000",
+        "intermediate": {
+          "blob_key": "2f3a52f8c6ead828a2d8f74883eaa6f5af0d4cadd4511d264f8d523cd7853f1e",
+          "master_key": "ba49ecfb3a51e63b3e1df856e081801b1d4ddb597b4db9bd38269539b3787b3d",
+          "nonce": "f86675fa8e32243e08312037"
+        },
+        "name": "padded 'secret team', padding_len 0, params from generate(zero randomness)",
+        "padded": true,
+        "padding_len": 0,
+        "plaintext": "736563726574207465616d",
+        "provenance": "upstream",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000",
+        "source_file": "rust/zkgroup/src/api/groups/group_params.rs test_encrypt_with_padding"
+      },
+      {
+        "ciphertext": "880a70e071b33f81e1219842c8514f34901abb734c191292ac325455d898da000484080099c620f86675fa8e32243e0831203700",
+        "generate_randomness": "0000000000000000000000000000000000000000000000000000000000000000",
+        "name": "padded 'secret team', padding_len 8, params from generate(zero randomness)",
+        "padded": true,
+        "padding_len": 8,
+        "plaintext": "736563726574207465616d",
+        "provenance": "upstream",
+        "randomness": "0000000000000000000000000000000000000000000000000000000000000000",
+        "source_file": "rust/zkgroup/src/api/groups/group_params.rs test_encrypt_with_padding"
+      }
+    ]
+  },
+  "constants": {
+    "field_constants_le": {
+      "SQRT_ID": "a81b5c4acb2a3075aa6dea0e2da9bccd156eeb739954347597eb7bf45855b305",
+      "note": "little-endian canonical encodings; SQRT_ID = the non-negative square root of SQRT_M1*d (derived; matches the corner-case value in dalek's lizard tests)"
+    },
+    "profile_key_encryption_system_params": {
+      "G_b1": "f6baa317ce1839c93d617e0cd837d19da9c8a4c520bf7c51b1e6c2cb2a049c61",
+      "G_b2": "2e0175894c8730b203ab3bd98ecb2d81abacb65f8a6124f49771d14a9852120c",
+      "label": "Signal_ZKGroup_20200424_Constant_ProfileKeyEncryption_SystemParams_Generate",
+      "provenance": "upstream; derivation reproduced (derived)",
+      "source_file": "rust/zkgroup/src/crypto/profile_key_encryption.rs (hardcoded 64-byte constant)"
+    },
+    "ristretto_basepoint": "e2f2ae0a6abc4e71a884a961c500515f58e30b6aa582dd8db6a65945e08d2d76",
+    "test_arrays": {
+      "TEST_ARRAY_16": "000102030405060708090a0b0c0d0e0f",
+      "TEST_ARRAY_16_1": "6465666768696a6b6c6d6e6f70717273",
+      "TEST_ARRAY_32": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "TEST_ARRAY_32_1": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "TEST_ARRAY_32_2": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7",
+      "source_file": "rust/zkgroup/src/common/constants.rs"
+    },
+    "uid_encryption_system_params": {
+      "G_a1": "a6324c368df734691147981348b6e7eb42c3307e711b6c7eccd3032d45693f5a",
+      "G_a2": "048013525b76124bf2640c5e9369c76efbe80aba2a24aa5d8e18a98eba14f837",
+      "label": "Signal_ZKGroup_20200424_Constant_UidEncryption_SystemParams_Generate",
+      "provenance": "upstream; derivation reproduced (derived)",
+      "source_file": "rust/zkgroup/src/crypto/uid_encryption.rs (hardcoded 64-byte constant)"
+    }
+  },
+  "domain_level_upstream": [
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext_64": "f89ee7705a66036b908db884211b773ac543ee35c4a3086220fc3e1e35b4234cfa1d2eea2cc2f4b4c42cff39a9dceb57293b5f8770ca60f9e9b74447bfd3bd3d",
+      "intermediate": {
+        "A": "9e540dea5f6dc48f56e3c771c5cb1af40643fd3c8890e378533bddad10a7cd4b",
+        "M1": "42d44fed346d65a1eb275d0669cd4c1d92b75d955b3b0d322749de22bb6d7065",
+        "M2": "c830573f8a8e7778671f76cdc796dc0a235cf177f197d9fcba06e84e96247444",
+        "a1": "365377f9d875a8bc8a5a898a9173056c554a81a15ef5579acb0271dd8a7c4300",
+        "a2": "a031563ae827b3a50ff0ececdf98c9984ff39ccc9b18eafa87683f3a66e4db0a"
+      },
+      "key_sho": {
+        "data": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+        "label": "Test_Uid_Encryption"
+      },
+      "name": "uid encryption",
+      "note": "64 bytes: E_A1 || E_A2 without the reserved byte. Keys: a1, a2 are two scalar squeezes from Sho(label, data).",
+      "provenance": "upstream (ciphertext); derived (intermediate)",
+      "source_file": "rust/zkgroup/src/crypto/uid_encryption.rs test_uid_encryption"
+    },
+    {
+      "ciphertext_64": "5618cb4c7d721e012b22f077ef1264f6b143bb597a1d665a70aa84245f246d20badb97474a56f4b5361aeca9d118b7004e140971990aab2af2432d3f8f7d213a",
+      "intermediate": {
+        "A": "6210d3827b2f389db5da1af2f4746a51948b500e0d105d2a5d04d4dc23025a52",
+        "M3": "c86438c627ea08ebb30c332087205b8c32c24d22d24dae315e67e16b500f6e20",
+        "M4": "b23220e85cfd2f7fa47f6857061e356ce1868bfbe761f50668584a8962019c48",
+        "a1": "cd7d5d733681cc3616a2c771e43f0a6a5c0729c72b8c7f37aa09bc60a20fb20e",
+        "a2": "5a8c69af519c3a6efe0e4566c053c454963ca53aec6eb08d850efbfa6f66230b"
+      },
+      "key_sho": {
+        "data": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "label": "Test_Profile_Key_Encryption"
+      },
+      "name": "profile key encryption",
+      "profile_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "upstream (ciphertext); derived (intermediate)",
+      "source_file": "rust/zkgroup/src/crypto/profile_key_encryption.rs test_profile_key_encryption",
+      "uid": "6465666768696a6b6c6d6e6f70717273"
+    }
+  ],
+  "generate_from_randomness": [
+    {
+      "master_key": "ba49ecfb3a51e63b3e1df856e081801b1d4ddb597b4db9bd38269539b3787b3d",
+      "provenance": "jar",
+      "randomness": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "master_key": "79e55504e8f4a0617532df3edbf954a5c86cd29de2492f8bdebeac54f94d93ca",
+      "provenance": "jar",
+      "randomness": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+    },
+    {
+      "master_key": "4be9c20bdb04d9378c56b23ee775d2cf1119e0cd135bac96f04b688f2fc7b151",
+      "provenance": "jar",
+      "randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7"
+    }
+  ],
+  "group_params": [
+    {
+      "fields": {
+        "blob_key": "94b0466e6fbcace9aae8b5bc1dfd941a7e2478696d32d2d685007276fac9a9ea",
+        "group_id": "84e256730548f8ba09069b223eccc133f599f9827edc7084f8921e4a70cd9e4c",
+        "profile_key_A": "ce1b7ad669a5db8b4addef7862f7ffbaab050226fd7cd776758a17fc95999c56",
+        "profile_key_a1": "8977bfd07545538e47361be67d99ce7019655f23e1814a2a7bd880d8773ad604",
+        "profile_key_a2": "a0b0dc3d64fec27a274e89c1d1bc33928874c58ad9ce4e9c923a043fa6967d0f",
+        "uid_A": "d8c075c601cb280cc4f2c9c52c075fc5336c63fe27b935db3bcce18e01c90833",
+        "uid_a1": "d5be9fd6ed09160b6d6b24bb3e64b2fcb6bba9cb80d3fa66e5093f3e6e1e110c",
+        "uid_a2": "943401f91518e83d37f8fbd271ffaadbd095e347fc40853aa5efde6c745b3f07"
+      },
+      "group_identifier": "84e256730548f8ba09069b223eccc133f599f9827edc7084f8921e4a70cd9e4c",
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "note": "TEST_ARRAY_32_1, the master key of libsignal's Java/Node/Swift blob and presentation tests",
+      "provenance": "jar (fields split by the spec agent per spec §3.3)",
+      "public_params": "0084e256730548f8ba09069b223eccc133f599f9827edc7084f8921e4a70cd9e4cd8c075c601cb280cc4f2c9c52c075fc5336c63fe27b935db3bcce18e01c90833ce1b7ad669a5db8b4addef7862f7ffbaab050226fd7cd776758a17fc95999c56",
+      "secret_params": "006465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f8081828384e256730548f8ba09069b223eccc133f599f9827edc7084f8921e4a70cd9e4c94b0466e6fbcace9aae8b5bc1dfd941a7e2478696d32d2d685007276fac9a9ead5be9fd6ed09160b6d6b24bb3e64b2fcb6bba9cb80d3fa66e5093f3e6e1e110c943401f91518e83d37f8fbd271ffaadbd095e347fc40853aa5efde6c745b3f07d8c075c601cb280cc4f2c9c52c075fc5336c63fe27b935db3bcce18e01c908338977bfd07545538e47361be67d99ce7019655f23e1814a2a7bd880d8773ad604a0b0dc3d64fec27a274e89c1d1bc33928874c58ad9ce4e9c923a043fa6967d0fce1b7ad669a5db8b4addef7862f7ffbaab050226fd7cd776758a17fc95999c56"
+    },
+    {
+      "fields": {
+        "blob_key": "d44737882ec526b329862661edde4a41276ce8b2aa787b1b20faac05d73e9874",
+        "group_id": "77faeaf3ffdf47847386f3771bd29c2a54288fb720b901634cea8b57a25449ba",
+        "profile_key_A": "8e269c29f5fffc1039f0255e0848f04ea360a2692a957e777c0f064e739f2040",
+        "profile_key_a1": "1d75038c433eb9ad00e9c6cb6341c683b26c33655a2a5e35b9f559026a3a3305",
+        "profile_key_a2": "ed803cd28126fb9aa732411870556a6d8692ccf70c860de64344987d0a716204",
+        "uid_A": "2e71b296fe1f92dce6237d0e739760a9c375eb57b37a38a12eb4b5163c742e27",
+        "uid_a1": "1febc4a9f12912d964ffd5d05edb111b256082f2da5521dd2877880f7cc8ee02",
+        "uid_a2": "19fce38c5568d5223b53c5c0a4b7953501c9a3b9e47e57ff27206ba8f7ede601"
+      },
+      "group_identifier": "77faeaf3ffdf47847386f3771bd29c2a54288fb720b901634cea8b57a25449ba",
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "note": "all zero",
+      "provenance": "jar (fields split by the spec agent per spec §3.3)",
+      "public_params": "0077faeaf3ffdf47847386f3771bd29c2a54288fb720b901634cea8b57a25449ba2e71b296fe1f92dce6237d0e739760a9c375eb57b37a38a12eb4b5163c742e278e269c29f5fffc1039f0255e0848f04ea360a2692a957e777c0f064e739f2040",
+      "secret_params": "00000000000000000000000000000000000000000000000000000000000000000077faeaf3ffdf47847386f3771bd29c2a54288fb720b901634cea8b57a25449bad44737882ec526b329862661edde4a41276ce8b2aa787b1b20faac05d73e98741febc4a9f12912d964ffd5d05edb111b256082f2da5521dd2877880f7cc8ee0219fce38c5568d5223b53c5c0a4b7953501c9a3b9e47e57ff27206ba8f7ede6012e71b296fe1f92dce6237d0e739760a9c375eb57b37a38a12eb4b5163c742e271d75038c433eb9ad00e9c6cb6341c683b26c33655a2a5e35b9f559026a3a3305ed803cd28126fb9aa732411870556a6d8692ccf70c860de64344987d0a7162048e269c29f5fffc1039f0255e0848f04ea360a2692a957e777c0f064e739f2040"
+    },
+    {
+      "fields": {
+        "blob_key": "a5fcfd296d7ab3ab4b1df7b7eebf6c2f6a0fe6116a1b2d2418594da9fae20ebf",
+        "group_id": "a0d53ceddffdf39adc0264445f3dcc2ba3f13eac7378db9024027367912ec3dc",
+        "profile_key_A": "90216e83807dd7c6925417bc6e254249cdcec3194012fffa312f84fd7e192e4b",
+        "profile_key_a1": "ac6fedb954d098a95e5dcf0bab36cd0385b09b47d6b9d7a9a3acba728c537802",
+        "profile_key_a2": "6b560be947e67e38389102d73d2ab3ae802ae8ca9ed9d357a9ed1471ab02a70b",
+        "uid_A": "0ee7e9a480ea4d4a2dcc30dd4d0b7b592ae23f3c666b9880f7114dab4106a14c",
+        "uid_a1": "02d499edf7659d5e6d6687d824e14facca680bd187c969baad16fb2fd9018207",
+        "uid_a2": "922e7070e43692db657cf83d66485bdf0aadcf514922ee5d3539cb2143657a0a"
+      },
+      "group_identifier": "a0d53ceddffdf39adc0264445f3dcc2ba3f13eac7378db9024027367912ec3dc",
+      "master_key": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "note": "all 0xff",
+      "provenance": "jar (fields split by the spec agent per spec §3.3)",
+      "public_params": "00a0d53ceddffdf39adc0264445f3dcc2ba3f13eac7378db9024027367912ec3dc0ee7e9a480ea4d4a2dcc30dd4d0b7b592ae23f3c666b9880f7114dab4106a14c90216e83807dd7c6925417bc6e254249cdcec3194012fffa312f84fd7e192e4b",
+      "secret_params": "00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa0d53ceddffdf39adc0264445f3dcc2ba3f13eac7378db9024027367912ec3dca5fcfd296d7ab3ab4b1df7b7eebf6c2f6a0fe6116a1b2d2418594da9fae20ebf02d499edf7659d5e6d6687d824e14facca680bd187c969baad16fb2fd9018207922e7070e43692db657cf83d66485bdf0aadcf514922ee5d3539cb2143657a0a0ee7e9a480ea4d4a2dcc30dd4d0b7b592ae23f3c666b9880f7114dab4106a14cac6fedb954d098a95e5dcf0bab36cd0385b09b47d6b9d7a9a3acba728c5378026b560be947e67e38389102d73d2ab3ae802ae8ca9ed9d357a9ed1471ab02a70b90216e83807dd7c6925417bc6e254249cdcec3194012fffa312f84fd7e192e4b"
+    },
+    {
+      "fields": {
+        "blob_key": "d2c3b0ef35a6551298784a0fedb896c3607d7f24df2b79820d35d82114400ac1",
+        "group_id": "34026f02ab8518196407f7cbbbb9d5b7018cdb4dc58e5ee7ba342cfe65a827aa",
+        "profile_key_A": "e8d712a34207c813e1484e1aa7af3cc00dfcb941ed0385d90db43e3204e59b78",
+        "profile_key_a1": "51b4dccb7e7bcb1f7de86d3eb1ed7cd6dede8ea42b9847fe8b6f7651bd8f690d",
+        "profile_key_a2": "81a1a3d69ffa3f59e9fbb8117ca7f41a3341fb47203d648dd1a4afdb6642ef0e",
+        "uid_A": "22e10f207c77dd19a554c8da52617af7e2ea38cd2c31093c851b912b7cd1b058",
+        "uid_a1": "eba5d8126eb7af8f3876d283a4e840814c213ccee13e37001559388997c3620b",
+        "uid_a2": "4bbafa7974dea9bb9377a7cd7e14ace0e5ef0386203376fd612d216d0392c306"
+      },
+      "group_identifier": "34026f02ab8518196407f7cbbbb9d5b7018cdb4dc58e5ee7ba342cfe65a827aa",
+      "master_key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "note": "TEST_ARRAY_32",
+      "provenance": "jar (fields split by the spec agent per spec §3.3)",
+      "public_params": "0034026f02ab8518196407f7cbbbb9d5b7018cdb4dc58e5ee7ba342cfe65a827aa22e10f207c77dd19a554c8da52617af7e2ea38cd2c31093c851b912b7cd1b058e8d712a34207c813e1484e1aa7af3cc00dfcb941ed0385d90db43e3204e59b78",
+      "secret_params": "00000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f34026f02ab8518196407f7cbbbb9d5b7018cdb4dc58e5ee7ba342cfe65a827aad2c3b0ef35a6551298784a0fedb896c3607d7f24df2b79820d35d82114400ac1eba5d8126eb7af8f3876d283a4e840814c213ccee13e37001559388997c3620b4bbafa7974dea9bb9377a7cd7e14ace0e5ef0386203376fd612d216d0392c30622e10f207c77dd19a554c8da52617af7e2ea38cd2c31093c851b912b7cd1b05851b4dccb7e7bcb1f7de86d3eb1ed7cd6dede8ea42b9847fe8b6f7651bd8f690d81a1a3d69ffa3f59e9fbb8117ca7f41a3341fb47203d648dd1a4afdb6642ef0ee8d712a34207c813e1484e1aa7af3cc00dfcb941ed0385d90db43e3204e59b78"
+    },
+    {
+      "fields": {
+        "blob_key": "97499b8c16a5a3f7ee15e35cc575e2f5facc4397724d077e8b0ffbdbf60c1a99",
+        "group_id": "884fd9c38b84784863653e468bc520310efd8a45f074c87c4d9f8d72ccaae66c",
+        "profile_key_A": "b49e7ea01ea59ddfe6029780a764d43996b7260cb6119754e2a54430c330b314",
+        "profile_key_a1": "f4afff5a6d2b4e25c6eaead22b3c292b1bd56c689ddd5065a62f10acb69ea60c",
+        "profile_key_a2": "b8e58e984272d55f0b87341ecddb6fb068fbd1b607c9d367a1e767d63ff8390d",
+        "uid_A": "6c39b3988a0777897a91318ba1aabb21335b167596a8eba564255ac896e66913",
+        "uid_a1": "f0120ab228a345d3bf4c469114b0d313c6940de82c2392c9ead626bc550e250f",
+        "uid_a2": "43381f54d18a92d05d95e9ecb6f17912b8f6cce1bcae04bc0b895c323f730508"
+      },
+      "group_identifier": "884fd9c38b84784863653e468bc520310efd8a45f074c87c4d9f8d72ccaae66c",
+      "master_key": "8b1c3f0e5a7d2c4b6e9f1a3d5c7b9e2f4a6c8e0b1d3f5a7c9e2b4d6f8a0c1e3f",
+      "note": "arbitrary",
+      "provenance": "jar (fields split by the spec agent per spec §3.3)",
+      "public_params": "00884fd9c38b84784863653e468bc520310efd8a45f074c87c4d9f8d72ccaae66c6c39b3988a0777897a91318ba1aabb21335b167596a8eba564255ac896e66913b49e7ea01ea59ddfe6029780a764d43996b7260cb6119754e2a54430c330b314",
+      "secret_params": "008b1c3f0e5a7d2c4b6e9f1a3d5c7b9e2f4a6c8e0b1d3f5a7c9e2b4d6f8a0c1e3f884fd9c38b84784863653e468bc520310efd8a45f074c87c4d9f8d72ccaae66c97499b8c16a5a3f7ee15e35cc575e2f5facc4397724d077e8b0ffbdbf60c1a99f0120ab228a345d3bf4c469114b0d313c6940de82c2392c9ead626bc550e250f43381f54d18a92d05d95e9ecb6f17912b8f6cce1bcae04bc0b895c323f7305086c39b3988a0777897a91318ba1aabb21335b167596a8eba564255ac896e66913f4afff5a6d2b4e25c6eaead22b3c292b1bd56c689ddd5065a62f10acb69ea60cb8e58e984272d55f0b87341ecddb6fb068fbd1b607c9d367a1e767d63ff8390db49e7ea01ea59ddfe6029780a764d43996b7260cb6119754e2a54430c330b314"
+    }
+  ],
+  "identity_preimage_slots": {
+    "description": "The eight positive-preimage slots (spec section 4.4) for the identity point, in slot order. Every value maps to the identity under MAP. 0 and SQRT_ID each occur twice; this is why profile keys whose masked form is 0 or SQRT_ID cannot be decrypted (see profile_key_ciphertexts).",
+    "provenance": "derived",
+    "slots": [
+      "a81b5c4acb2a3075aa6dea0e2da9bccd156eeb739954347597eb7bf45855b305",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "a81b5c4acb2a3075aa6dea0e2da9bccd156eeb739954347597eb7bf45855b305",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "bced0d08ab13994b901f939d3d6f164d7d1f1b7860d5ccdbca27c4b705f23d02",
+      "a2ce3011a78ef573098dfffa7c6319a2973184a23f8c7e4fb28a95abee32615f",
+      "068c5b499d860a72cba9a67991e93e203e07f2cecac35ff78ba286490a9d647f",
+      "2a6382d98d9b4fe0526bf32f2e36b1c6fb594edaadaa30f35a29566c59adfe4c"
+    ]
+  },
+  "lizard": [
+    {
+      "data": "00000000000000000000000000000000",
+      "point": "f0b7e34484f74cf00f15024b738539738646bbbe1e9bc7509a676815227e774f",
+      "provenance": "upstream",
+      "source_file": "curve25519-dalek src/lizard/lizard_ristretto.rs (test lizard_encode)"
+    },
+    {
+      "data": "01010101010101010101010101010101",
+      "point": "cc92e81f585afc5caac88660d8d17e9025a44489a363042123f6af0702156e65",
+      "provenance": "upstream",
+      "source_file": "curve25519-dalek src/lizard/lizard_ristretto.rs (test lizard_encode)"
+    },
+    {
+      "data": "000102030405060708090a0b0c0d0e0f",
+      "point": "c830573f8a8e7778671f76cdc796dc0a235cf177f197d9fcba06e84e96247444",
+      "provenance": "upstream",
+      "source_file": "curve25519-dalek src/lizard/lizard_ristretto.rs (test lizard_encode); same data as zkgroup tests/integration_tests.rs test_lizard (round trip only)"
+    },
+    {
+      "data": "dddddddddddddddddddddddddddddddd",
+      "point": "ccb60554c081841037f821fa827b6a5bc2531f80e2647f1a858611f4ccfe3056",
+      "provenance": "upstream",
+      "source_file": "curve25519-dalek src/lizard/lizard_ristretto.rs (test lizard_encode)"
+    }
+  ],
+  "notary_signatures": {
+    "cases": [
+      {
+        "message": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "name": "libsignal testServerSignatures",
+        "provenance": "upstream signature (rust/zkgroup/tests/integration_tests.rs test_server_sigs; Java ZkGroupTest.testServerSignatures); public params from jar",
+        "public_key": "2ea6a26de65a111a0ffb88ed51cb1b4d68ad33e4f8d43ef160b5da11302b0751",
+        "server_public_params": "server_public_params.test_generated",
+        "signature": "87d354564d35ef91edba851e0815612e864c227a0471d50c270698604406d003a55473f576cf241fc6b41c6b16e5e63b333c02fe4a33858022fdd7a4ab367b06",
+        "signing_randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7",
+        "valid": true
+      },
+      {
+        "message": "6565666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "name": "altered message",
+        "provenance": "jar",
+        "public_key": "2ea6a26de65a111a0ffb88ed51cb1b4d68ad33e4f8d43ef160b5da11302b0751",
+        "signature": "87d354564d35ef91edba851e0815612e864c227a0471d50c270698604406d003a55473f576cf241fc6b41c6b16e5e63b333c02fe4a33858022fdd7a4ab367b06",
+        "valid": false
+      },
+      {
+        "message": "",
+        "name": "empty message",
+        "provenance": "jar",
+        "public_key": "2ea6a26de65a111a0ffb88ed51cb1b4d68ad33e4f8d43ef160b5da11302b0751",
+        "signature": "a80c0effd5205507ad0e2f70c9bcaa6df1d1d8d3e83fad3899a223f34018ce0bae754eea03f7dca35c8ac4f2287d151e51181c0f4c471501ed2a33b466512a0d",
+        "signing_randomness": "c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7",
+        "valid": true
+      },
+      {
+        "message": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f60616263",
+        "name": "100-byte message",
+        "provenance": "jar",
+        "public_key": "2ea6a26de65a111a0ffb88ed51cb1b4d68ad33e4f8d43ef160b5da11302b0751",
+        "signature": "efd752e3a0e3b8bc0107d0530cbb09b45215262542fad86eba2754b7a9cd0707625889e539a592c2f201eb1c496dbb511d57a132620cad96551c9a9239120701",
+        "signing_randomness": "0000000000000000000000000000000000000000000000000000000000000000",
+        "valid": true
+      },
+      {
+        "message": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f60616263",
+        "name": "poksho sign test",
+        "private_key": "7a3c6282f02d37a05023b60d5428e6cc5961d4c31221937adae0b574e4d07205",
+        "private_key_wide_input": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+        "provenance": "upstream signature (rust/poksho/src/sign.rs test_signature); private/public key derived",
+        "public_key": "7c107ed2840904ea12ce0be6d4d774a14c00b91c21f71dc96c1de2b087a33228",
+        "signature": "a08f6b34a282dd4c7cfc40b918f224a6b631ca5f6480a10b42bd1408602a7e008a23a1e32479befb5e26b9f0f4fe0e9e9e9ec9afad269143acb03a22c6364f03",
+        "signing_randomness": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+        "valid": true
+      },
+      {
+        "key_sho": {
+          "data": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+          "label": "Test_Signature"
+        },
+        "message": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+        "name": "zkgroup signature unit test",
+        "private_key": "ae68f43c0b7bdc150e2f78851ead1601e6ea4ac173916c4c2bd2d1eceb16d802",
+        "provenance": "upstream signature (rust/zkgroup/src/crypto/signature.rs test_signature); keys derived",
+        "public_key": "d0e6342cc853ee63dc533fb1eae582677a6ecc1799e92d8835c8f3db0fd9c208",
+        "signature": "db9bfbd61526c350f9be95171106d0065288cb33031be71725243780532caa07cbda74c4193b6ee6e95faecd41fb4419ceae3f4d63b9475927e110eeb7720b06",
+        "valid": true
+      }
+    ],
+    "jar_verification_note": "verify: the upstream signature; verify_altered: message byte 0 xor 1; verify_badsig: signature byte 63 xor 0x10; verify_noncanon: signature byte 31 set to 0xff (non-canonical challenge scalar)",
+    "jar_verification_results": {
+      "verify": {
+        "ok": true,
+        "value": "valid"
+      },
+      "verify_altered": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "verify_badsig": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "verify_noncanon": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      }
+    }
+  },
+  "profile_key_ciphertexts": [
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "0048c03ab4afbf6b8fb0e126c037a0ad4094600dd0e0634d76f88c21087f3cfb485a89bc1e3abc4c95041d1d170eccf02933ec5393d4be1dc573f83c33d3b9a746",
+      "decrypt": {
+        "ok": true,
+        "value": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "f87aa3b0dbd562f5a1a8f5236b0ce4dc92f6b0c12041060f088bf52933db3635",
+        "M4": "b23220e85cfd2f7fa47f6857061e356ce1868bfbe761f50668584a8962019c48",
+        "decrypt_match_count": 1
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "009ae60a489a1e6fb2bae09be5d169a498355e732790b0685f6d2f6915abd08f32766f307313fd409d90e302534af4804e34db50424ed2321f47153c04a27c5e5b",
+      "decrypt": {
+        "ok": true,
+        "value": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "c86438c627ea08ebb30c332087205b8c32c24d22d24dae315e67e16b500f6e20",
+        "M4": "b23220e85cfd2f7fa47f6857061e356ce1868bfbe761f50668584a8962019c48",
+        "decrypt_match_count": 1
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "007e1e12bea2fa38c23c80ef120bfa677537f0e1124d498af10f3be442502eaf11b6238571a6936ab67a33761d182bf3ba42ccb23df8cf4eebec7ce1468780df06",
+      "decrypt": {
+        "ok": true,
+        "value": "0202020202020202020202020202020202020202020202020202020202020202"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "e0b5f9599cb13561fd9facb18f86ad4809cf59d17dca157d616d990557bb633d",
+        "M4": "80a08701dd8a05c64baa05596cd5e26e484b2adb8ca4ba847f9f831bfc1ddc28",
+        "decrypt_match_count": 1
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "0202020202020202020202020202020202020202020202020202020202020202",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "002c0d0fce0f9af5f6582b5c0314b2d354e5432681c82478da5618ec9d313d306d8eb8d6a2d5ddf318890ed3e47b1ef0936286a54cd9e59b65b8e6e69aa5cf0f26",
+      "decrypt": {
+        "ok": true,
+        "value": "0202020202020202020202020202020202020202020202020202020202020202"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "78fd08553491d599da1acadb719bcb141ba1a7d89f695d43e38d299198ca1200",
+        "M4": "80a08701dd8a05c64baa05596cd5e26e484b2adb8ca4ba847f9f831bfc1ddc28",
+        "decrypt_match_count": 1
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "0202020202020202020202020202020202020202020202020202020202020202",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "00702e1e04737c5f65855ff01f5cd7f05813162ce289c4497a8fff9fbfef785c720ca065f00e1da92b14a089dd78c1f506a06239940e579884c32119162be5725e",
+      "decrypt": {
+        "ok": true,
+        "value": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "6e099b6f3bd5f7e377f8ff940ba26efd2a7cb18b8db2d43393732ff28b55ca0f",
+        "M4": "88b357cc52647f28c250e1c28886c64787a4890b846e96b1211e4f5eb67d1b6b",
+        "decrypt_match_count": 1
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "0074184f30f1094c53c5feb7b1a42a8a05666e6298950d46751e609cc7aaf52d02c4783347f0dd0544abadcffd082715bfdcf5de5b919bb1f898c4f310ae3b5e2a",
+      "decrypt": {
+        "ok": true,
+        "value": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "b0b18de135330b70bab989e18b35463aa33b7230be1c6a8c5cdaddfe1670ad24",
+        "M4": "88b357cc52647f28c250e1c28886c64787a4890b846e96b1211e4f5eb67d1b6b",
+        "decrypt_match_count": 1
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "00ecfe08db1d009d3c5d605de7a3df47039ff8422defd0e8ddb8b5f7694ff096782e5454279715a6ee0bac58b45559b54fbe4f4f2395480603eef1e30cd6bc5f1c",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "c8e52d276a4e4c83ddfd12b4044a9b08f6cead8e7965218de263350e2f7e8933",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "00a8a0b3cb0b211342c4b42f7811c7966aabf79553afbe435751b3129fe8b3030ca81d0026c18aaca3fc9c8a20a5926f1b2239920feb4518cf2a4b5d6138ed3519",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "b278f71048751b439f58408188dc1cd897c177ba8b82f591eaef8f971d9da722",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "00187d617de5064a96dfb285d814ada17f51cbb797d5a7024173ded242c0a5d65e1ce911a76a83103a1e919d42c10dfd3a70f542b7626010894e99da92768ca04d",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "649e5ff921c868e7450b7c400d79742483224ca5ae28fb2fe0cf4cd512f2f808",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "0100000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "00dc6e3aaaeee769dae4da2e526c4fadf80cf523730dfe7d3d2e675fe85e8d2200008b9f913ffcc3f779050cab48fec15ee0fe9a26912dd9c67471dc8929d32b4d",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "687470bbda8f95f16eb36a4393faa86a373eea2907de26a5f2736910b9202a39",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "0100000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "004ef827ef8b05ea2579ee4f0111624821a792aabb298f193801e4ed65f30db1623c555171081b84aeffb0d797620f790ab591f2102e280ad50f73f6eb95c45f00",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "3adb053b3d7a2433a0b9e3cdeb879d08fe9d647e0dd700ff41c2079637388a00",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "00000000000000000000000000000000000000000000000000000000000000c0",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "0046227da3c9198e82e6bc692d9c186b163d02cbb2b5a7a9f0f34450c26e7d06532031d1c2cce7dbed2317f48d5e18542bf0c14cde12eca24fa1f4b90c5f753a25",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "1861ae81986c898423412c8fb55917abc629a130c24e7a3725947206c2a7b822",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "00000000000000000000000000000000000000000000000000000000000000c0",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "001cb4daea644e35a813594cfec13b9c6503a505c6b4ff7c1b5f0566ef92825c03a8c2af090f35b8f1dc48dd558ebb08135b87bf02d162de5b78b04f3b54d2d449",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "105a99f9c1557344233e16877a2be8ffba4e8c6b8b0c96f0a09b78d6599d0f21",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "a81b5c4acb2a3075aa6dea0e2da9bccd156eeb739954347597eb7bf45855b305",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "0000f9b3c023fb35d8e75b55474526f2499a25aeff771b8977458aa05c5fda0942b0c1b5247d176fefba37aac47c7a6e04ae24ec875a941d0706876a52b384d116",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "ee761942ab21a4c662fc2d164f7ef86b41cd92d8f6895c33c29126f6c14b2e5c",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "a81b5c4acb2a3075aa6dea0e2da9bccd156eeb739954347597eb7bf45855b305",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "00145d6c6582e897b8eca6fc6eb3401c776d3874a3fe007adc17c439a6b18bfb1e10997c0624c06dc60067be884126d88212e9d1826c02c0b45a5d2acfc0ba0f0b",
+      "decrypt": {
+        "ok": true,
+        "value": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "e239f41bd061cffa4956073bf52c16a7f79ebeb94fa2b3f3fe3fabcc94019441",
+        "M4": "aa628aeeffea9480b5feb6026280c04a019bf1adca9fa13ab5e753a65464b32a",
+        "decrypt_match_count": 1
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "007222c004073990b9160575b55fa94766ec074ff41a20d0bb3c56f99f4d4f255f2e27bbf83424e3419a6d49a0f937ba8334f14d26909fd3e6f795105fd1958c32",
+      "decrypt": {
+        "ok": true,
+        "value": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "0c6fe127322404f82b6cae52290adf1b08562529c1f4a72bee1483292d762650",
+        "M4": "aa628aeeffea9480b5feb6026280c04a019bf1adca9fa13ab5e753a65464b32a",
+        "decrypt_match_count": 1
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "003a2c7a1b6b8ae198d155d8c9de3318755725dbb2e2108ccdb78ea788442ff843ea78a333f89db07a58a6c9170007a9bea1d9784cbc8d8fb7787d56cfda893076",
+      "decrypt": {
+        "ok": true,
+        "value": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "f87aa3b0dbd562f5a1a8f5236b0ce4dc92f6b0c12041060f088bf52933db3635",
+        "M4": "b23220e85cfd2f7fa47f6857061e356ce1868bfbe761f50668584a8962019c48",
+        "decrypt_match_count": 1
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "0078a80568dec86a050f81a0d6b25b3bec74ea84b6d719ef2853978dcaba6cb22b566d3b03dfd3b77e404aeeaf80b407deb3d4fd78bddb26a8bc1278d3797f8b7b",
+      "decrypt": {
+        "ok": true,
+        "value": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "c86438c627ea08ebb30c332087205b8c32c24d22d24dae315e67e16b500f6e20",
+        "M4": "b23220e85cfd2f7fa47f6857061e356ce1868bfbe761f50668584a8962019c48",
+        "decrypt_match_count": 1
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "00de2737bff947d6f74f29edec5567db6afb0448ccebaaf49bf5d86100b20b2848206b46b8039de026c29b64f4cad6a99c741247c0af359bfa456da0738edb0f45",
+      "decrypt": {
+        "ok": true,
+        "value": "0202020202020202020202020202020202020202020202020202020202020202"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "e0b5f9599cb13561fd9facb18f86ad4809cf59d17dca157d616d990557bb633d",
+        "M4": "80a08701dd8a05c64baa05596cd5e26e484b2adb8ca4ba847f9f831bfc1ddc28",
+        "decrypt_match_count": 1
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "0202020202020202020202020202020202020202020202020202020202020202",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "0092e2856282b61827678dc1606151342c54192bf5e934030acc58c392940ede7ac81540c366897b87d4d9b0f4030068fb19ffdcdf43f4bfcab3e99183e27f621c",
+      "decrypt": {
+        "ok": true,
+        "value": "0202020202020202020202020202020202020202020202020202020202020202"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "78fd08553491d599da1acadb719bcb141ba1a7d89f695d43e38d299198ca1200",
+        "M4": "80a08701dd8a05c64baa05596cd5e26e484b2adb8ca4ba847f9f831bfc1ddc28",
+        "decrypt_match_count": 1
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "0202020202020202020202020202020202020202020202020202020202020202",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "00da6af2755c75ecc506333559f719d560f7a4cbd324e7c70914a62392f58df95e8898ec7e1a46e789c48bc7e762a30c7cde155f828172e56b57e7e4fe3cb9731c",
+      "decrypt": {
+        "ok": true,
+        "value": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "6e099b6f3bd5f7e377f8ff940ba26efd2a7cb18b8db2d43393732ff28b55ca0f",
+        "M4": "88b357cc52647f28c250e1c28886c64787a4890b846e96b1211e4f5eb67d1b6b",
+        "decrypt_match_count": 1
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "00d681e85ccd1b2fd6f79a366ed4fe5b6254050ec502b9a84e8079b77c72ea4062e231f56de5bfc0446d2f23a7e490d1bd6db9d9f1a1a909bbb5541285a7b9214c",
+      "decrypt": {
+        "ok": true,
+        "value": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "b0b18de135330b70bab989e18b35463aa33b7230be1c6a8c5cdaddfe1670ad24",
+        "M4": "88b357cc52647f28c250e1c28886c64787a4890b846e96b1211e4f5eb67d1b6b",
+        "decrypt_match_count": 1
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "0066d2cbb6ba56698ece48a7b90735f7f677571a0380dd31022d134bd82557a458d87e4f24af2f1e997e7faafa7b98502b7011660b2dac42738c0e1fd0b857423b",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "c8e52d276a4e4c83ddfd12b4044a9b08f6cead8e7965218de263350e2f7e8933",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "00e0d10bb66023cc488e869513f433fb8011e6e46472498d57631a585a1d9b6d76c48bfaed5a2f04460d364393cbf73feac33c3c8d250a6fe32fc13fda9d5e543e",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "b278f71048751b439f58408188dc1cd897c177ba8b82f591eaef8f971d9da722",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "00c4e08d22161bcbdc3b0103776f4a074e7edfda9a9c56ed6b19b3d59c637ad244d4ba7204546852a23e390757a8f1d175a75e05d161490ea3e6e1d442d2559e48",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "649e5ff921c868e7450b7c400d79742483224ca5ae28fb2fe0cf4cd512f2f808",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "0100000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "00d22ee736b1cf58fb3267caed884f78d56dca9cc7eb00faebdd645612cd7de5388a4ac67d1c2513e7b1e4c2ceac6a989311d2ba0f36b92f5ddc1bb1cd02081950",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "687470bbda8f95f16eb36a4393faa86a373eea2907de26a5f2736910b9202a39",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "0100000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "00c406be6e12f7f5eb2418084636f6f16c510e0616f08578d97f76f9199f9ff07482ddd253ab9a212f13c9f25b6eca31cae2ac9455ed60c03ca67e9ffee762b069",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "3adb053b3d7a2433a0b9e3cdeb879d08fe9d647e0dd700ff41c2079637388a00",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "00000000000000000000000000000000000000000000000000000000000000c0",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "009802262a1204cd96d4636d7948ed5c5907fff889d553d51a28336b98e7b1185deafcd719307f782b57f59e93a006cb2e5adafa8272b787d2b904065b4564e818",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "1861ae81986c898423412c8fb55917abc629a130c24e7a3725947206c2a7b822",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "00000000000000000000000000000000000000000000000000000000000000c0",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "002278ae0b311872e9a3e105731b3a0f0cefdf6ae8a52cbb8b4bc5a1bd306aba4808cfce970dcb8b1457b2be6350226d9782845caf6ed62623c92715f052c25b22",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "105a99f9c1557344233e16877a2be8ffba4e8c6b8b0c96f0a09b78d6599d0f21",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "a81b5c4acb2a3075aa6dea0e2da9bccd156eeb739954347597eb7bf45855b305",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "00e44e7f62e8dc52ab630c9793b2cfdc95437d9361ccb85e6e1f23fdad2b2c71423c53a85a1a13901e1b67b11d7fc8d5ef58d9415a92c073d67f3cfa80d8ea070a",
+      "decrypt": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "ee761942ab21a4c662fc2d164f7ef86b41cd92d8f6895c33c29126f6c14b2e5c",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 2
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "a81b5c4acb2a3075aa6dea0e2da9bccd156eeb739954347597eb7bf45855b305",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "00ac042ffb4beee644614c06b1a9ce095c0b4d3ae50f41d33d9e36ca1ea10ffe1dce01beefadeb2d57ceaf8c465622d5d5bc711d8a35e0a3e14e13539f7fde1d28",
+      "decrypt": {
+        "ok": true,
+        "value": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "e239f41bd061cffa4956073bf52c16a7f79ebeb94fa2b3f3fe3fabcc94019441",
+        "M4": "aa628aeeffea9480b5feb6026280c04a019bf1adca9fa13ab5e753a65464b32a",
+        "decrypt_match_count": 1
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "provenance": "jar"
+    },
+    {
+      "aci": "64656667-6869-6a6b-6c6d-6e6f70717273",
+      "ciphertext": "00b241cb5bf630aecda2212ef99a3ed64e7184ffbb6971e2294d68428286d1741f54cfc5409021cf2f244945ddeb4d4e86b59ce3c5a4bb57f763ffacec6bd75e71",
+      "decrypt": {
+        "ok": true,
+        "value": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "0c6fe127322404f82b6cae52290adf1b08562529c1f4a72bee1483292d762650",
+        "M4": "aa628aeeffea9480b5feb6026280c04a019bf1adca9fa13ab5e753a65464b32a",
+        "decrypt_match_count": 1
+      },
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "0008fd61ac2293dc58e3a0bd59d7d251a2965be08fa704cd9f30883c6f78944e421280d1b7ef5472fbd1e4363e588ebbd9ff3c1547e392ba808e5e996c83489163",
+      "decrypt": {
+        "ok": true,
+        "value": "bced0d08ab13994b901f939d3d6f164d7d1f1b7860d5ccdbca27c4b705f23d02"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "7e841218632344c60d4a7197b87a02c572e8848a3727d4fe12d4aeab945adc65",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 1
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "bced0d08ab13994b901f939d3d6f164d7d1f1b7860d5ccdbca27c4b705f23d02",
+      "provenance": "jar"
+    },
+    {
+      "aci": "00010203-0405-0607-0809-0a0b0c0d0e0f",
+      "ciphertext": "00b4892083fafc3a0fde4e7ea82f947427bc628316149fba0ef1b5eb4e0e91a00976b3ed61b06edf7ee8efaba09a4ad157a6c95cfb00adb7c08c7ef2d432bdb366",
+      "decrypt": {
+        "ok": true,
+        "value": "bded0d08ab13994b901f939d3d6f164d7d1f1b7860d5ccdbca27c4b705f23dc2"
+      },
+      "decrypt_with_aci_11111111-2222-4333-8444-555555555555": {
+        "error": "verification_failure",
+        "java_exception": "VerificationFailedException",
+        "ok": false
+      },
+      "intermediate": {
+        "M3": "54502d5d6fc05ce8597ed937d59a7cd7a6e2ccabf55a29fb86ebacbadcc40f4f",
+        "M4": "0000000000000000000000000000000000000000000000000000000000000000",
+        "decrypt_match_count": 1
+      },
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "profile_key": "bded0d08ab13994b901f939d3d6f164d7d1f1b7860d5ccdbca27c4b705f23dc2",
+      "provenance": "jar"
+    }
+  ],
+  "serialization_errors": {
+    "base_master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+    "cases": [
+      {
+        "case": "reserved1",
+        "result": {
+          "error": "deserialization_failure",
+          "java_exception": "InvalidInputException",
+          "ok": false
+        },
+        "type": "GroupSecretParams"
+      },
+      {
+        "case": "a1_noncanonical",
+        "result": {
+          "error": "deserialization_failure",
+          "java_exception": "InvalidInputException",
+          "ok": false
+        },
+        "type": "GroupSecretParams"
+      },
+      {
+        "case": "groupid_tampered_accepted",
+        "result": {
+          "ok": true,
+          "value": "85e256730548f8ba09069b223eccc133f599f9827edc7084f8921e4a70cd9e4c"
+        },
+        "type": "GroupSecretParams"
+      },
+      {
+        "case": "len288",
+        "result": {
+          "error": "deserialization_failure",
+          "java_exception": "InvalidInputException",
+          "ok": false
+        },
+        "type": "GroupSecretParams"
+      },
+      {
+        "case": "reserved1",
+        "result": {
+          "error": "deserialization_failure",
+          "java_exception": "InvalidInputException",
+          "ok": false
+        },
+        "type": "GroupPublicParams"
+      },
+      {
+        "case": "len31",
+        "result": {
+          "error": "deserialization_failure",
+          "java_exception": "InvalidInputException",
+          "ok": false
+        },
+        "type": "GroupMasterKey"
+      }
+    ],
+    "note": "groupid_tampered_accepted: byte 33 (first group-id byte) of the secret params flipped; libsignal accepts it and reports the tampered identifier (no consistency check).",
+    "provenance": "jar"
+  },
+  "server_public_params": {
+    "parse_edge_cases": {
+      "cases": [
+        {
+          "case": "trailing",
+          "result": {
+            "ok": true,
+            "value": "parsed"
+          }
+        },
+        {
+          "case": "short",
+          "result": {
+            "error": "deserialization_failure",
+            "java_exception": "AssertionError",
+            "ok": false
+          }
+        },
+        {
+          "case": "reserved1",
+          "result": {
+            "error": "deserialization_failure",
+            "java_exception": "AssertionError",
+            "ok": false
+          }
+        }
+      ],
+      "input": "staging zkGroupServerPublicParams",
+      "note": "trailing: one extra byte appended (accepted by libsignal); short: last byte removed; reserved1: first byte set to 0x01",
+      "provenance": "jar"
+    },
+    "signal_cli_config": {
+      "production": {
+        "backupServerPublicParams": {
+          "base64": "AJwNSU55fsFCbgaxGRD11wO1juAs8Yr5GF8FPlGzzvdJJIKH5/4CC7ZJSOe3yL2vturVaRU2Cx0n751Vt8wkj1bozK3CBV1UokxV09GWf+hdVImLGjXGYLLhnI1J2TWEe7iWHyb553EEnRb5oxr9n3lUbNAJuRmFM7hrr0Al0F0wrDD4S8lo2mGaXe0MJCOM166F8oYRQqpFeEHfiLnxA1O8ZLh7vMdv4g9jI5phpRBTsJ5IjiJrWeP0zdIGHEssUeprDZ9OUJ14m0v61eYJMKsf59Bn+mAT2a7YfB+Don9O",
+          "components": {
+            "C_W": "9c0d494e797ec1426e06b11910f5d703b58ee02cf18af9185f053e51b3cef749",
+            "I": [
+              "248287e7fe020bb64948e7b7c8bdafb6ead56915360b1d27ef9d55b7cc248f56",
+              "e8ccadc2055d54a24c55d3d1967fe85d54898b1a35c660b2e19c8d49d935847b",
+              "b8961f26f9e771049d16f9a31afd9f79546cd009b9198533b86baf4025d05d30",
+              "ac30f84bc968da619a5ded0c24238cd7ae85f2861142aa457841df88b9f10353",
+              "bc64b87bbcc76fe20f63239a61a51053b09e488e226b59e3f4cdd2061c4b2c51",
+              "ea6b0d9f4e509d789b4bfad5e60930ab1fe7d067fa6013d9aed87c1f83a27f4e"
+            ],
+            "reserved": "00"
+          },
+          "jar_parses": true,
+          "length": 225
+        },
+        "genericServerPublicParams": {
+          "base64": "AByD873dTilmOSG0TjKrvpeaKEsUmIO8Vx9BeMmftwUs9v7ikPwM8P3OHyT0+X3EUMZrSe9VUp26Wai51Q9I8mdk0hX/yo7CeFGJyzoOqn8e/i4Ygbn5HoAyXJx5eXfIbqpc0bIxzju4H/HOQeOpt6h742qii5u/cbwOhFZCsMIbElZTaeU+BWMBQiZHIGHT5IE0qCordQKZ5iPZom0HeFa8Yq0ShuEyAl0WINBiY6xE3H/9WnvzXBbMuuk//eRxXgzO8ieCeK8FwQNxbfXqZm6Ro1cMhCOF3u7xoX83QhpN",
+          "components": {
+            "C_W": "1c83f3bddd4e29663921b44e32abbe979a284b149883bc571f4178c99fb7052c",
+            "I": [
+              "f6fee290fc0cf0fdce1f24f4f97dc450c66b49ef55529dba59a8b9d50f48f267",
+              "64d215ffca8ec2785189cb3a0eaa7f1efe2e1881b9f91e80325c9c797977c86e",
+              "aa5cd1b231ce3bb81ff1ce41e3a9b7a87be36aa28b9bbf71bc0e845642b0c21b",
+              "12565369e53e0563014226472061d3e48134a82a2b750299e623d9a26d077856",
+              "bc62ad1286e132025d1620d06263ac44dc7ffd5a7bf35c16ccbae93ffde4715e",
+              "0ccef2278278af05c103716df5ea666e91a3570c842385deeef1a17f37421a4d"
+            ],
+            "reserved": "00"
+          },
+          "jar_parses": true,
+          "length": 225
+        },
+        "zkGroupServerPublicParams": {
+          "base64": "AMhf5ywVwITZMsff/eCyudZx9JDmkkkbV6PInzG4p8x3VqVJSFiMvnvlEKWuRob/1eaIetR31IYeAbm0NdOuHH8Qi+Rexi1wLlpzIo1gstHWBfZzy1+qHRV5A4TqPp15YzBPm0WSggW6PbSn+F4lf57VCnHF7p8SvzAA2ZZJPYJURt8X7bbg+H3i+PEjH9DXItNEqs2sNcug37xZQDLm7X36nOoGPs54XsEGzPdEV+itQNGUFEjY6X9Uv+Acuks7NpyGvCoKxGwgKgE5XyJ+nNKlyHHOLb6N1NuHyBrZrgtY/JYJHRooo5CEqYKBqdFnmbTVGEkCvJKxLnjwKWf+fEPoWeQFj5ObDjcKMZf2Jm2Ae69x+ikU5gBXsRmoF94GXTLfN0/vLt98KDPnxwAQL9j5V1jGOY8jQl6MLxEs56cwXN0dqCnImzVH3TZT1cJ8SW1BRX6qIVxEzjsSGx3yxF3suAilPMqGRp4ffyopjMD1JXiKR2RwLKzizUe5e8XyGOy9fplzhw3jVzTRyUZTRSZKkMLWcQ/gv0E4aONNqs4P+NameAZYOD12qRkxosQQP5uux6B2nRyZ7sAV54DgFyLiRcq1FvwKw2EPQdk4HDoePrO/RNUbyNddnM/mMgj4FW65xCoT1LmjrIjsv/Ggdlx46ueczhMgtBunx1/w8k8V+l8LVZ8gAT6wkU5J+DPQalQguMg12Jzug3q4TbdHiGCmD9EunCwOmsLuLJkz6EcSYXtrlDEnAM+hicw7iergYLLlMXpfTdGxJCWJmP4zqUFeTTmsmhsjGBt7NiEB/9pFFEB3pSbf4iiUukw63Eo8Aqnf4iwob6X1QviCWuc8t0LUlT9vALgh/f2DPVOOmR0RW6bgRvc7DSF20V/omg+YBw==",
+          "components": {
+            "auth_credentials_public_key_unused": "c85fe72c15c084d932c7dffde0b2b9d671f490e692491b57a3c89f31b8a7cc7756a54948588cbe7be510a5ae4686ffd5e6887ad477d4861e01b9b435d3ae1c7f",
+            "auth_credentials_with_pni_public_key_unused": "ecb808a53cca86469e1f7f2a298cc0f525788a4764702cace2cd47b97bc5f218ecbd7e9973870de35734d1c9465345264a90c2d6710fe0bf413868e34daace0f",
+            "endorsement_public_key": "d4953f6f00b821fdfd833d538e991d115ba6e046f73b0d2176d15fe89a0f9807",
+            "expiring_profile_key_credentials_public_key": "32df374fef2edf7c2833e7c700102fd8f95758c6398f23425e8c2f112ce7a7305cdd1da829c89b3547dd3653d5c27c496d41457eaa215c44ce3b121b1df2c45d",
+            "generic_credential_public_key": "f8d6a6780658383d76a91931a2c4103f9baec7a0769d1c99eec015e780e01722e245cab516fc0ac3610f41d9381c3a1e3eb3bf44d51bc8d75d9ccfe63208f8156eb9c42a13d4b9a3ac88ecbff1a0765c78eae79cce1320b41ba7c75ff0f24f15fa5f0b559f20013eb0914e49f833d06a5420b8c835d89cee837ab84db7478860a60fd12e9c2c0e9ac2ee2c9933e84712617b6b94312700cfa189cc3b89eae060b2e5317a5f4dd1b124258998fe33a9415e4d39ac9a1b23181b7b362101ffda45144077a526dfe22894ba4c3adc4a3c02a9dfe22c286fa5f542f8825ae73cb742",
+            "pni_credentials_public_key_unused": "fc96091d1a28a39084a98281a9d16799b4d5184902bc92b12e78f02967fe7c43e859e4058f939b0e370a3197f6266d807baf71fa2914e60057b119a817de065d",
+            "profile_key_credentials_public_key_unused": "108be45ec62d702e5a73228d60b2d1d605f673cb5faa1d15790384ea3e9d7963304f9b45928205ba3db4a7f85e257f9ed50a71c5ee9f12bf3000d996493d8254",
+            "receipt_credentials_public_key": "fa9cea063ece785ec106ccf74457e8ad40d1941448d8e97f54bfe01cba4b3b369c86bc2a0ac46c202a01395f227e9cd2a5c871ce2dbe8dd4db87c81ad9ae0b58",
+            "reserved": "00",
+            "sig_public_key": "46df17edb6e0f87de2f8f1231fd0d722d344aacdac35cba0dfbc594032e6ed7d"
+          },
+          "jar_parses": true,
+          "length": 673
+        }
+      },
+      "staging": {
+        "backupServerPublicParams": {
+          "base64": "AHYrGb9IfugAAJiPKp+mdXUx+OL9zBolPYHYQz6GI1gWjpEu5me3zVNSvmYY4zWboZHif+HG1sDHSuvwFd0QszSwuSF4X4kRP3fJREdTZ5MCR0n55zUppTwfHRW2S4sdQ0JGz7YDQIJCufYSKh0pGNEHL6hv79Agrdnr4momr3oXdnkpVBIp3HWAQ6IbXQVSG18X36GaicI1vdT0UFmTwU2KTneluC2eyL9c5ff8PcmiS+YcLzh0OKYQXB5ZfQ06d6DiINvDQLy75zcfUOniLAj0lGJiHxGczin/RXisKSR8",
+          "components": {
+            "C_W": "762b19bf487ee80000988f2a9fa6757531f8e2fdcc1a253d81d8433e86235816",
+            "I": [
+              "8e912ee667b7cd5352be6618e3359ba191e27fe1c6d6c0c74aebf015dd10b334",
+              "b0b921785f89113f77c94447536793024749f9e73529a53c1f1d15b64b8b1d43",
+              "4246cfb603408242b9f6122a1d2918d1072fa86fefd020add9ebe26a26af7a17",
+              "767929541229dc758043a21b5d05521b5f17dfa19a89c235bdd4f4505993c14d",
+              "8a4e77a5b82d9ec8bf5ce5f7fc3dc9a24be61c2f387438a6105c1e597d0d3a77",
+              "a0e220dbc340bcbbe7371f50e9e22c08f49462621f119cce29ff4578ac29247c"
+            ],
+            "reserved": "00"
+          },
+          "jar_parses": true,
+          "length": 225
+        },
+        "genericServerPublicParams": {
+          "base64": "AHILOIrFPXX9laLbalbA9+L1CXpSbM/bTJXZGZiuyK1JaI6dK5FHHWL6tWxmHKYAZTSYmElmJ5z2A5YcirjO/yfoemE03FItyaf8W1fE4p14hzb5qnrmfXUSiAIVrhaXVwIwSzH6RL/+EO8jFIjJ/YfExfJ8aBl48CKHgu1+A6kWynhttonvWWx6h7924mIzW0Czj2ROuh4LwQyZypex4GuOPW8sgIT21KNZaafgg+KbV7XM1x1tF3XA17B4uGUaDbDw2O+nR1+U5p6qHPzmJ7ggFjSN6Utu+35dS1sS0P9N",
+          "components": {
+            "C_W": "720b388ac53d75fd95a2db6a56c0f7e2f5097a526ccfdb4c95d91998aec8ad49",
+            "I": [
+              "688e9d2b91471d62fab56c661ca600653498984966279cf603961c8ab8ceff27",
+              "e87a6134dc522dc9a7fc5b57c4e29d788736f9aa7ae67d7512880215ae169757",
+              "02304b31fa44bffe10ef231488c9fd87c4c5f27c681978f0228782ed7e03a916",
+              "ca786db689ef596c7a87bf76e262335b40b38f644eba1e0bc10c99ca97b1e06b",
+              "8e3d6f2c8084f6d4a35969a7e083e29b57b5ccd71d6d1775c0d7b078b8651a0d",
+              "b0f0d8efa7475f94e69eaa1cfce627b82016348de94b6efb7e5d4b5b12d0ff4d"
+            ],
+            "reserved": "00"
+          },
+          "jar_parses": true,
+          "length": 225
+        },
+        "zkGroupServerPublicParams": {
+          "base64": "ABSY21VckQcbSXVNCGRYJcfWHiAMZmpTtTELcDmxgdFbtp/bWsSxZdMKzfCp8rvIs8ocCU3B37fT3r4Mi5qAemeGeR2X+/YmOGR5ofui7tD5mDQfstAI9i+4WpMtIe8KC3wU5w3Inq3uNWVmoGtpKndsNfwJrCg0Hd9zmObhypUnSkfYn2ooMOOnBpfdanRtrvetZUayDMSC5iSRcXKpdlukrpzzsCIvEwjwQlJYVPOQPj4V0F4UXXBdHSLK05uoPBCQG8G9rYIGedYsClJXnbrgGYG3eMTG5hnx4X4ntARBgELuMWWUEEfSK0mjXg+/2lPmWcTZWR9nkqgQQP0tbzuiPm74H2wMO4u1Wafe+UwyIlIT9L7KLS19Aw8r4sPrXZSSsOZ6s7M1+rTJN0bI5CKY2PX29y5Ok3jSWufIKcgKOnWoP67d5b2du2ZVJjpjfibNIHbT/cegy/sBLoFwtHogVYUewANUAXIaMPyCLRArsKhfJ5wBtTminG/PAvuBdJ70Z/bXVPf8TVsR292zQ65xwvWTejROW6AZX6aqucUjlENAErBme1YHmOSpU6tr6doJ66dPzVAWIanmO/5mgjNEDeK7DDqQdB1xd03HT2Qs2TxY3kCK8aAb/0iM0HQiXjxZ9HIgYhbtvGEnDKW5ILSUydqH/KBhW4Pb0jZWnqN/YgbWDKeJxnDbYcUob5ZY5Lt5ZCMKuaGUvCJRrCtuugSMaqjowCGRempsDdJEt+cMaalhZ6gczklJB/IbdwENW9KeVFPoFNFzhxWUIS5ML9riVYhAtE6JE5jX0xiHNVIIPthb458cfA8daR0nYfYAUKogQArm0iBezOO+mPk5vCNWI+wwkyFCqNDXz/qxl1gAntuCJtSfq9OC3NkdhQlgYQ==",
+          "components": {
+            "auth_credentials_public_key_unused": "1498db555c91071b49754d08645825c7d61e200c666a53b5310b7039b181d15bb69fdb5ac4b165d30acdf0a9f2bbc8b3ca1c094dc1dfb7d3debe0c8b9a807a67",
+            "auth_credentials_with_pni_public_key_unused": "2055851ec0035401721a30fc822d102bb0a85f279c01b539a29c6fcf02fb81749ef467f6d754f7fc4d5b11dbddb343ae71c2f5937a344e5ba0195fa6aab9c523",
+            "endorsement_public_key": "5623ec30932142a8d0d7cffab19758009edb8226d49fabd382dcd91d85096061",
+            "expiring_profile_key_credentials_public_key": "9492b0e67ab3b335fab4c93746c8e42298d8f5f6f72e4e9378d25ae7c829c80a3a75a83faedde5bd9dbb6655263a637e26cd2076d3fdc7a0cbfb012e8170b47a",
+            "generic_credential_public_key": "94434012b0667b560798e4a953ab6be9da09eba74fcd501621a9e63bfe668233440de2bb0c3a90741d71774dc74f642cd93c58de408af1a01bff488cd074225e3c59f472206216edbc61270ca5b920b494c9da87fca0615b83dbd236569ea37f6206d60ca789c670db61c5286f9658e4bb7964230ab9a194bc2251ac2b6eba048c6aa8e8c021917a6a6c0dd244b7e70c69a96167a81cce494907f21b77010d5bd29e5453e814d173871594212e4c2fdae2558840b44e891398d7d318873552083ed85be39f1c7c0f1d691d2761f60050aa20400ae6d2205ecce3be98f939bc23",
+            "pni_credentials_public_key_unused": "8042ee3165941047d22b49a35e0fbfda53e659c4d9591f6792a81040fd2d6f3ba23e6ef81f6c0c3b8bb559a7def94c32225213f4beca2d2d7d030f2be2c3eb5d",
+            "profile_key_credentials_public_key_unused": "86791d97fbf626386479a1fba2eed0f998341fb2d008f62fb85a932d21ef0a0b7c14e70dc89eadee356566a06b692a776c35fc09ac28341ddf7398e6e1ca9527",
+            "receipt_credentials_public_key": "a4ae9cf3b0222f1308f042525854f3903e3e15d05e145d705d1d22cad39ba83c10901bc1bdad820679d62c0a52579dbae01981b778c4c6e619f1e17e27b40441",
+            "reserved": "00",
+            "sig_public_key": "4a47d89f6a2830e3a70697dd6a746daef7ad6546b20cc482e624917172a9765b"
+          },
+          "jar_parses": true,
+          "length": 673
+        }
+      }
+    },
+    "test_generated": {
+      "provenance": "jar (ServerSecretParams.generate with fixed randomness TEST_ARRAY_32, as in libsignal's testServerSignatures)",
+      "randomness": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "serialized": "002c6c2ce268cd682650212f0b6207234b6ab87994d53a134b69ff30564748c42f04b24006437c6c5dd4d6698c7c2f6c4b115efd11457e558854f898129b167948904c61bd301f66430526f3b0da96e92369c6e00febd095828e3e8e8281b7a42cd6890d8b25a2935b4fd811c123327aa7ba6edc6f90016576c10ca093b431c3252ea6a26de65a111a0ffb88ed51cb1b4d68ad33e4f8d43ef160b5da11302b07515c3c20fb291b50c57714fc3ef13d03ab440d5b972b0baea6ea3021bf019a2d48b81db01cd8fd71bb284fdb9fb570e88fd3d21d07fc31fbeaa243246d99f4a143e20b6d4e9be867972d254166f58394cd65ffcc77dcc149e620d49a70307ab3740cd5744959637390167be118f3159a71699392f0d14e7ef977c1f85b969aba6282e1e286da282dd29eebf6ded6fc40c70bad2a6be14c9d20140e357c52e7d469c2634a0ade057b520dabbc6c9f378dbcc1f5fd42b2ad295db0c8585484af6c48144e000f6388ed826d74dd7f643779a73909a5853c61e67b9cecc66488f6be0b20683a3c5572cd7eae0aa897dfc831802636913181cb5991bc0fdb5b2f984967903c77d37f4c00b9f4cb4ceb640a905a543d8b2638be0230c56e9a9f2021cb143c63eab44db246d12c7e701e511929d948414b0738674917d5134ef588cdde7b88d3e7634e2d0dfd51632506ddc64dcc2060dc153623335d1e41b592e2aede5e9c02ac74af5af11cd8bcb2b23b1083e263ae0e4966df0583441ab45bb3325017aa551be67ea65848d4a4a2ce1bcae81ebf8a4a5411e117110ba87fba3468802f3a9ec3816429f0727f411cd99a59f26c7f1b70551a644237be82b907ee378c35bee2c295eca804aa1c4a5bca7bc6cdfbc5625639bea849f865af554694dcb94032232e96f23925fefbad358bdb82435f3925d2ea35735d77a26fe11508dcab55",
+      "sig_public_key": "2ea6a26de65a111a0ffb88ed51cb1b4d68ad33e4f8d43ef160b5da11302b0751"
+    }
+  },
+  "source": {
+    "curve25519_dalek": "https://github.com/dalek-cryptography/curve25519-dalek @ curve25519-5.0.0 (07bef73ff85998a206cd2cea7f2605c801d0d1c9)",
+    "description": "Vectors for the non-credential half of libsignal zkgroup used by Signal groups v2 (group master key -\u003e secret/public params and group identifier, service-ID and profile-key ciphertexts, group blob encryption, server public params, notary signatures). See spec/crypto/zkgroup-groups.md. All hex is lowercase. Points are 32-byte ristretto255 encodings (RFC 9496), scalars 32-byte little-endian reduced mod the group order. UUIDs are written canonically; their 16-byte form is RFC 9562 order.",
+    "libsignal_commit": "97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8",
+    "libsignal_repository": "https://github.com/signalapp/libsignal",
+    "libsignal_tag": "v0.99.1",
+    "provenance": {
+      "config": "Copied as data from signal-cli v0.14.7 lib/src/main/java/org/asamk/signal/manager/config/{StagingConfig,LiveConfig}.java; validity checked by parsing in the jar; component split by the spec agent per spec section 8.",
+      "derived": "Intermediates (M1, M2, M3, M4, derived scalars, identity slots, decrypt match counts, server/poksho public keys) computed by the spec agent with a throwaway scratch implementation of the spec (not delivered, deleted). It reproduced every jar ciphertext, every jar decryption outcome (including the failures), all secret/public params, every upstream fixed vector in this file and the hardcoded system params, so the intermediates are consistent with libsignal but are not exposed by libsignal itself.",
+      "jar": "Computed offline with the reference distribution: jshell over /work/third_party/signal-cli-0.14.7/lib/*.jar (libsignal-client 0.99.1 with its native library), via the public Java API (GroupSecretParams, ClientZkGroupCipher, ServerSecretParams, ServerPublicParams, GenericServerPublicParams) and the public deterministic JNI entry points org.signal.libsignal.internal.Native.GroupSecretParams_EncryptBlobWithPaddingDeterministic / GroupSecretParams_DecryptBlobWithPadding. Deterministic randomness was supplied through a SecureRandom subclass returning fixed bytes. No network.",
+      "jar+bouncycastle": "Inner AES-256-GCM-SIV encryption done with BouncyCastle GCMSIVBlockCipher (bcprov-jdk18on-1.85.jar from the same distribution) under the blob key read from the jar's GroupSecretParams; decryption result from the jar.",
+      "upstream": "Copied as data from libsignal tests/constants at the commit above; the 'source_file' member names the file."
+    },
+    "signal_cli_commit": "b01b6b370dc063599a1a2b9fde0f5ff4e2d78fe8",
+    "signal_cli_repository": "https://github.com/AsamK/signal-cli",
+    "signal_cli_tag": "v0.14.7"
+  },
+  "uuid_ciphertext_errors": {
+    "cases": [
+      {
+        "case": "wrong_group",
+        "result": {
+          "error": "verification_failure",
+          "java_exception": "VerificationFailedException",
+          "ok": false
+        }
+      },
+      {
+        "case": "reserved1",
+        "result": {
+          "error": "deserialization_failure",
+          "java_exception": "InvalidInputException",
+          "ok": false
+        }
+      },
+      {
+        "case": "len64",
+        "result": {
+          "error": "deserialization_failure",
+          "java_exception": "InvalidInputException",
+          "ok": false
+        }
+      },
+      {
+        "case": "len66",
+        "result": {
+          "error": "deserialization_failure",
+          "java_exception": "InvalidInputException",
+          "ok": false
+        }
+      },
+      {
+        "case": "EA1_basepoint",
+        "ciphertext": "00e2f2ae0a6abc4e71a884a961c500515f58e30b6aa582dd8db6a65945e08d2d76725c6aa1b61d5a8b48d75f4aaa9a3cbe88d3e0f1a54319081f77c72c8f525474",
+        "result": {
+          "error": "verification_failure",
+          "java_exception": "VerificationFailedException",
+          "ok": false
+        }
+      },
+      {
+        "case": "EA1_identity",
+        "ciphertext": "000000000000000000000000000000000000000000000000000000000000000000725c6aa1b61d5a8b48d75f4aaa9a3cbe88d3e0f1a54319081f77c72c8f525474",
+        "result": {
+          "error": "verification_failure",
+          "java_exception": "VerificationFailedException",
+          "ok": false
+        }
+      },
+      {
+        "case": "swapped",
+        "ciphertext": "00725c6aa1b61d5a8b48d75f4aaa9a3cbe88d3e0f1a54319081f77c72c8f525474765de9df4cfa5487f360e29e99343e91811baec331c4680985e608ca5d408e21",
+        "result": {
+          "error": "verification_failure",
+          "java_exception": "VerificationFailedException",
+          "ok": false
+        }
+      },
+      {
+        "case": "badpoint",
+        "result": {
+          "error": "deserialization_failure",
+          "java_exception": "InvalidInputException",
+          "ok": false
+        }
+      }
+    ],
+    "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+    "provenance": "jar",
+    "valid_ciphertext_base": "ACI 00010203-0405-0607-0809-0a0b0c0d0e0f (see uuid_ciphertexts); wrong_group decrypts it under the all-zero master key"
+  },
+  "uuid_ciphertexts": [
+    {
+      "ciphertext": "00765de9df4cfa5487f360e29e99343e91811baec331c4680985e608ca5d408e21725c6aa1b61d5a8b48d75f4aaa9a3cbe88d3e0f1a54319081f77c72c8f525474",
+      "decrypted_fixed_width_service_id": "00000102030405060708090a0b0c0d0e0f",
+      "intermediate": {
+        "M1": "42d44fed346d65a1eb275d0669cd4c1d92b75d955b3b0d322749de22bb6d7065",
+        "M2_lizard": "c830573f8a8e7778671f76cdc796dc0a235cf177f197d9fcba06e84e96247444"
+      },
+      "kind": "ACI",
+      "m1_absorbed_service_id_binary": "000102030405060708090a0b0c0d0e0f",
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar",
+      "uuid": "00010203-0405-0607-0809-0a0b0c0d0e0f"
+    },
+    {
+      "ciphertext": "00eef2a36742f787be75ab50597af45bb7a6c394456e9b6f4c92bba15d6d645c0926933b0c311167164ae2775b5c249e38c8b9ccdb555d3863730a6e7d81ed3a41",
+      "decrypted_fixed_width_service_id": "01000102030405060708090a0b0c0d0e0f",
+      "intermediate": {
+        "M1": "d879e8cc6d0595a68aa0a7fe97e9ffee3c87afe1b7b3bde9ccb2faa8afdf9f48",
+        "M2_lizard": "c830573f8a8e7778671f76cdc796dc0a235cf177f197d9fcba06e84e96247444"
+      },
+      "kind": "PNI",
+      "m1_absorbed_service_id_binary": "01000102030405060708090a0b0c0d0e0f",
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar",
+      "uuid": "00010203-0405-0607-0809-0a0b0c0d0e0f"
+    },
+    {
+      "ciphertext": "008234fbd9312589fcaad194b455149cb1f4b4f1533537b7a1cf9db93602d1a74a84f3e831117fae8f57b3409b97ea59a10816ed42ab6aa8ba0c61432d76947e0a",
+      "decrypted_fixed_width_service_id": "0000000000000000000000000000000000",
+      "intermediate": {
+        "M1": "84fba8e9dc2c57cabd00d0d7072a22d170bd05d299e37e84ca3322abc9e59474",
+        "M2_lizard": "f0b7e34484f74cf00f15024b738539738646bbbe1e9bc7509a676815227e774f"
+      },
+      "kind": "ACI",
+      "m1_absorbed_service_id_binary": "00000000000000000000000000000000",
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar",
+      "uuid": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "ciphertext": "0080ba404bf6a6a173c83a3de3d84e1b078fbcdeba4ad3d954c8bafb547cda6e6c3aab23c48d7af68e0c00b4c620d89add48048c284e90b56da29f9f6ef0305107",
+      "decrypted_fixed_width_service_id": "0100000000000000000000000000000000",
+      "intermediate": {
+        "M1": "c4cec92e00b65922ac9cce498da6841f4cccbb68110ed7d8ba6e2e7d366faf50",
+        "M2_lizard": "f0b7e34484f74cf00f15024b738539738646bbbe1e9bc7509a676815227e774f"
+      },
+      "kind": "PNI",
+      "m1_absorbed_service_id_binary": "0100000000000000000000000000000000",
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar",
+      "uuid": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "ciphertext": "0076e95feb5ff7b9fb45485310c725f24333065bd87834a494311e237df45ac91a56454d78a4ef93f77be67331c72bd12aab4991a12749afc7c46790c0ccdced15",
+      "decrypted_fixed_width_service_id": "00ffffffffffffffffffffffffffffffff",
+      "intermediate": {
+        "M1": "ba253123de77b5d95983f77dceeadd687502b3e0ff17f46bf476db6f41103316",
+        "M2_lizard": "d805dfcda34ab5704e69727c83a7d8b002416d4fd9adba9c0ee28dce69d7c90b"
+      },
+      "kind": "ACI",
+      "m1_absorbed_service_id_binary": "ffffffffffffffffffffffffffffffff",
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+    },
+    {
+      "ciphertext": "00a25a8ff4af493e2048db98b25458ea8cafa6327e4c7090f213d5a02b1877106af49b5a559b8eee95eefabdb9985b5eceaa72d4621cd1517367a9ecc5d6e7de26",
+      "decrypted_fixed_width_service_id": "01ffffffffffffffffffffffffffffffff",
+      "intermediate": {
+        "M1": "50b7a7137b61da98a84bb258cf6ed7b91edfd1e52fbce3624f819f88e5676043",
+        "M2_lizard": "d805dfcda34ab5704e69727c83a7d8b002416d4fd9adba9c0ee28dce69d7c90b"
+      },
+      "kind": "PNI",
+      "m1_absorbed_service_id_binary": "01ffffffffffffffffffffffffffffffff",
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+    },
+    {
+      "ciphertext": "00fe74409060615679fc115473683d63abd9ced46c7f2ad736046de5a2c7d2522f122895597049cfd7cc5beb6dc72aa990ae9a62ec8e256a1cbf5f3f284233bb07",
+      "decrypted_fixed_width_service_id": "006465666768696a6b6c6d6e6f70717273",
+      "intermediate": {
+        "M1": "526025e57149463ca25dc98448d0a63221f4c63b6a5ace83bedd030e88766370",
+        "M2_lizard": "92a4ed2b2ccc433cfb52ddb8cebc5a00dd101fb175ef5428a2f2b598fb42b40d"
+      },
+      "kind": "ACI",
+      "m1_absorbed_service_id_binary": "6465666768696a6b6c6d6e6f70717273",
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar",
+      "uuid": "64656667-6869-6a6b-6c6d-6e6f70717273"
+    },
+    {
+      "ciphertext": "00de749a0fef17b06bbce74ca5d0f7a0c45f443a1901f1e3e016d3548e50a2fa19ce6b27ac467ed9c9f5018b2a4456b6c2b1a91454422fdd473c9636a8459e1c17",
+      "decrypted_fixed_width_service_id": "016465666768696a6b6c6d6e6f70717273",
+      "intermediate": {
+        "M1": "08f7343832b3adedc124108d4573bf38c78e173432b6152603205e88aca32309",
+        "M2_lizard": "92a4ed2b2ccc433cfb52ddb8cebc5a00dd101fb175ef5428a2f2b598fb42b40d"
+      },
+      "kind": "PNI",
+      "m1_absorbed_service_id_binary": "016465666768696a6b6c6d6e6f70717273",
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar",
+      "uuid": "64656667-6869-6a6b-6c6d-6e6f70717273"
+    },
+    {
+      "ciphertext": "00d224856170743634db1b9d51db7ffb3ee5fe8819b86b64db0a068d1957e53471c661dc1d4dbff772b89e9d06313c4102b5a40e460c9be80021753f2f90ee7a6a",
+      "decrypted_fixed_width_service_id": "006f6b5c1e2d3a4b9c8e7f0a1b2c3d4e5f",
+      "intermediate": {
+        "M1": "68fac3d139e1b7d5c5d1bf79d0a9e48004342fb8d0ec41a38e0895ad143d840d",
+        "M2_lizard": "c84318b945e156bbb5f8884ddf44aafe845ff0d61cc2e4c21f787df9991b623d"
+      },
+      "kind": "ACI",
+      "m1_absorbed_service_id_binary": "6f6b5c1e2d3a4b9c8e7f0a1b2c3d4e5f",
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar",
+      "uuid": "6f6b5c1e-2d3a-4b9c-8e7f-0a1b2c3d4e5f"
+    },
+    {
+      "ciphertext": "002ecda3daa7ffb2a673abf3a5ba43397ab3173f774a159e417eda1e56e0cb0036e891f835bbb145bdbe978d11431c418d7856c94115c5081ef6254444da76e024",
+      "decrypted_fixed_width_service_id": "016f6b5c1e2d3a4b9c8e7f0a1b2c3d4e5f",
+      "intermediate": {
+        "M1": "4afa65713c6ba2b2382ac3a9213fbd3ac724a39523eccd425df341366efff016",
+        "M2_lizard": "c84318b945e156bbb5f8884ddf44aafe845ff0d61cc2e4c21f787df9991b623d"
+      },
+      "kind": "PNI",
+      "m1_absorbed_service_id_binary": "016f6b5c1e2d3a4b9c8e7f0a1b2c3d4e5f",
+      "master_key": "6465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f80818283",
+      "provenance": "jar",
+      "uuid": "6f6b5c1e-2d3a-4b9c-8e7f-0a1b2c3d4e5f"
+    },
+    {
+      "ciphertext": "007091dd2f61d7360b94ddfd9a583c07a4f78b4b2c6616e011637b25765c6e5514422d2aa394a6b4b9fbf01e2a553b11024a5d297f980d2055a8a7ecf5d5f8e87a",
+      "decrypted_fixed_width_service_id": "00000102030405060708090a0b0c0d0e0f",
+      "intermediate": {
+        "M1": "42d44fed346d65a1eb275d0669cd4c1d92b75d955b3b0d322749de22bb6d7065",
+        "M2_lizard": "c830573f8a8e7778671f76cdc796dc0a235cf177f197d9fcba06e84e96247444"
+      },
+      "kind": "ACI",
+      "m1_absorbed_service_id_binary": "000102030405060708090a0b0c0d0e0f",
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar",
+      "uuid": "00010203-0405-0607-0809-0a0b0c0d0e0f"
+    },
+    {
+      "ciphertext": "00fed861335d0d32eb18ee72bed635a33625444ead4fb4ced7b0fbb95f51060d136aefd1524f6ed3727fc61e1838904802430bd23b9688276bd79674502f57c978",
+      "decrypted_fixed_width_service_id": "01000102030405060708090a0b0c0d0e0f",
+      "intermediate": {
+        "M1": "d879e8cc6d0595a68aa0a7fe97e9ffee3c87afe1b7b3bde9ccb2faa8afdf9f48",
+        "M2_lizard": "c830573f8a8e7778671f76cdc796dc0a235cf177f197d9fcba06e84e96247444"
+      },
+      "kind": "PNI",
+      "m1_absorbed_service_id_binary": "01000102030405060708090a0b0c0d0e0f",
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar",
+      "uuid": "00010203-0405-0607-0809-0a0b0c0d0e0f"
+    },
+    {
+      "ciphertext": "0072c573e5d3a3d61354fb339209683049c31d8a609ccbfb32b9e87ee05b0de51d969dc2d072bbb00acc2a015143a87d5967ab7a960d0fa8f77424f9e5cf9dea24",
+      "decrypted_fixed_width_service_id": "0000000000000000000000000000000000",
+      "intermediate": {
+        "M1": "84fba8e9dc2c57cabd00d0d7072a22d170bd05d299e37e84ca3322abc9e59474",
+        "M2_lizard": "f0b7e34484f74cf00f15024b738539738646bbbe1e9bc7509a676815227e774f"
+      },
+      "kind": "ACI",
+      "m1_absorbed_service_id_binary": "00000000000000000000000000000000",
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar",
+      "uuid": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "ciphertext": "007a33e167927f19ff0dedd93479e97d0e2f28a19e17752589631236ea7e37837d28d1a8bc9916673fc5eb0e5ebc243dbfabd2faf1af76cf26e66ed58eabd54175",
+      "decrypted_fixed_width_service_id": "0100000000000000000000000000000000",
+      "intermediate": {
+        "M1": "c4cec92e00b65922ac9cce498da6841f4cccbb68110ed7d8ba6e2e7d366faf50",
+        "M2_lizard": "f0b7e34484f74cf00f15024b738539738646bbbe1e9bc7509a676815227e774f"
+      },
+      "kind": "PNI",
+      "m1_absorbed_service_id_binary": "0100000000000000000000000000000000",
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar",
+      "uuid": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "ciphertext": "002a88ee80231ae24dcdec9183a387a116ea9dc0ce0ac443800cf80614fa8a0d040c7beb6bf54d1a1a33c6c9653a513c342e9e556f5090505ec6d62ab6186eb55b",
+      "decrypted_fixed_width_service_id": "00ffffffffffffffffffffffffffffffff",
+      "intermediate": {
+        "M1": "ba253123de77b5d95983f77dceeadd687502b3e0ff17f46bf476db6f41103316",
+        "M2_lizard": "d805dfcda34ab5704e69727c83a7d8b002416d4fd9adba9c0ee28dce69d7c90b"
+      },
+      "kind": "ACI",
+      "m1_absorbed_service_id_binary": "ffffffffffffffffffffffffffffffff",
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+    },
+    {
+      "ciphertext": "0040d14a78278af8465304dc0ff0181a621a43d6d42b4067126d8f5c279f7fd02b0ce67c083b794606b7bc4407c1ba5afda3c6460e3661f8e17be3afdcf3e5bf09",
+      "decrypted_fixed_width_service_id": "01ffffffffffffffffffffffffffffffff",
+      "intermediate": {
+        "M1": "50b7a7137b61da98a84bb258cf6ed7b91edfd1e52fbce3624f819f88e5676043",
+        "M2_lizard": "d805dfcda34ab5704e69727c83a7d8b002416d4fd9adba9c0ee28dce69d7c90b"
+      },
+      "kind": "PNI",
+      "m1_absorbed_service_id_binary": "01ffffffffffffffffffffffffffffffff",
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+    },
+    {
+      "ciphertext": "00dcdac04920b5fa4fef4b3bc7cb30b9482ca1e8a895ca242cc133de4664e1044a68ea90e18e7dc8fe895e5adcb8202ad3d6f938688170ad21fb7e958b654da776",
+      "decrypted_fixed_width_service_id": "006465666768696a6b6c6d6e6f70717273",
+      "intermediate": {
+        "M1": "526025e57149463ca25dc98448d0a63221f4c63b6a5ace83bedd030e88766370",
+        "M2_lizard": "92a4ed2b2ccc433cfb52ddb8cebc5a00dd101fb175ef5428a2f2b598fb42b40d"
+      },
+      "kind": "ACI",
+      "m1_absorbed_service_id_binary": "6465666768696a6b6c6d6e6f70717273",
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar",
+      "uuid": "64656667-6869-6a6b-6c6d-6e6f70717273"
+    },
+    {
+      "ciphertext": "00d64c2b820524cea1eb2705d1caf14f147a71ffa04aab5d9f2a6b6efc14f602693460fcda936376a6df6f3d0c40f0c15253a66bbcc2dc90cd6fd63954de49e650",
+      "decrypted_fixed_width_service_id": "016465666768696a6b6c6d6e6f70717273",
+      "intermediate": {
+        "M1": "08f7343832b3adedc124108d4573bf38c78e173432b6152603205e88aca32309",
+        "M2_lizard": "92a4ed2b2ccc433cfb52ddb8cebc5a00dd101fb175ef5428a2f2b598fb42b40d"
+      },
+      "kind": "PNI",
+      "m1_absorbed_service_id_binary": "016465666768696a6b6c6d6e6f70717273",
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar",
+      "uuid": "64656667-6869-6a6b-6c6d-6e6f70717273"
+    },
+    {
+      "ciphertext": "00e2760ee2ab0af73ea2c9dc32a7bde986a9eb57c7e390cdd4223e12d6c8200f7e6c21b21d94c1af90391b66361761d03bde6942ea7a944b572d9e3281fa626d68",
+      "decrypted_fixed_width_service_id": "006f6b5c1e2d3a4b9c8e7f0a1b2c3d4e5f",
+      "intermediate": {
+        "M1": "68fac3d139e1b7d5c5d1bf79d0a9e48004342fb8d0ec41a38e0895ad143d840d",
+        "M2_lizard": "c84318b945e156bbb5f8884ddf44aafe845ff0d61cc2e4c21f787df9991b623d"
+      },
+      "kind": "ACI",
+      "m1_absorbed_service_id_binary": "6f6b5c1e2d3a4b9c8e7f0a1b2c3d4e5f",
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar",
+      "uuid": "6f6b5c1e-2d3a-4b9c-8e7f-0a1b2c3d4e5f"
+    },
+    {
+      "ciphertext": "002c82a254d63fe142038a56c6901bb80621aaa043cde8413803a206e04e8cf351c00b3771077cbffcd0c816ab4117a702f20711b6760e0ff0facc384b746bb14e",
+      "decrypted_fixed_width_service_id": "016f6b5c1e2d3a4b9c8e7f0a1b2c3d4e5f",
+      "intermediate": {
+        "M1": "4afa65713c6ba2b2382ac3a9213fbd3ac724a39523eccd425df341366efff016",
+        "M2_lizard": "c84318b945e156bbb5f8884ddf44aafe845ff0d61cc2e4c21f787df9991b623d"
+      },
+      "kind": "PNI",
+      "m1_absorbed_service_id_binary": "016f6b5c1e2d3a4b9c8e7f0a1b2c3d4e5f",
+      "master_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "jar",
+      "uuid": "6f6b5c1e-2d3a-4b9c-8e7f-0a1b2c3d4e5f"
+    }
+  ]
+}
