@@ -14,6 +14,7 @@ import (
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 	"github.com/aren55555/signal-cli-go/internal/protocol"
 	"github.com/aren55555/signal-cli-go/internal/service/api"
+	"github.com/aren55555/signal-cli-go/internal/service/cdn"
 	"github.com/aren55555/signal-cli-go/internal/service/chat"
 	"github.com/aren55555/signal-cli-go/internal/store"
 	"google.golang.org/protobuf/proto"
@@ -47,6 +48,8 @@ type fakeChat struct {
 	cert       []byte
 	accessKeys map[string][]byte // dest -> the access key the server accepts
 	sealed401  bool              // answer sealed PUTs with 401
+	mrPaths    []string          // multi_recipient request paths
+	forms      int               // upload forms handed out
 	root       *curve25519.PrivateKey
 }
 
@@ -73,6 +76,9 @@ func (f *fakeChat) handle(unauth bool, verb, path string, headers []chat.Header,
 	}
 	if r := f.special(unauth, verb, path, headers); r != nil {
 		return r, nil
+	}
+	if verb == "PUT" && strings.HasPrefix(path, "/v1/messages/multi_recipient") {
+		return f.multiRecipient(unauth, path, headers, body), nil
 	}
 	switch {
 	case verb == "GET" && strings.HasPrefix(path, "/v2/keys/"):
@@ -110,7 +116,10 @@ func (f *fakeChat) handle(unauth bool, verb, path string, headers []chat.Header,
 		return &chat.Response{Status: 200, Body: out}, nil
 
 	case verb == "PUT" && strings.HasPrefix(path, "/v1/messages/"):
-		dest := strings.TrimSuffix(strings.TrimPrefix(path, "/v1/messages/"), "?story=false")
+		dest, query, _ := strings.Cut(strings.TrimPrefix(path, "/v1/messages/"), "?")
+		if query != "story=false" && query != "story=true" {
+			f.t.Errorf("send query %q", query)
+		}
 		var req struct {
 			Destination string `json:"destination"`
 			Timestamp   uint64 `json:"timestamp"`
@@ -172,6 +181,7 @@ func (f *fakeChat) handle(unauth bool, verb, path string, headers []chat.Header,
 				f.t.Errorf("device %s.%d cannot decrypt: %v", dest, m.DestinationDeviceID, err)
 				continue
 			}
+			f.receiveSKDM(d.acct, msg)
 			f.delivered = append(f.delivered, delivery{dest, m.DestinationDeviceID, msg})
 		}
 		return &chat.Response{Status: 200, Body: []byte(`{"needsSync":true}`)}, nil
@@ -256,6 +266,10 @@ func TestSendText(t *testing.T) {
 // socket's access check; nil means "not special".
 func (f *fakeChat) special(unauth bool, verb, path string, headers []chat.Header) *chat.Response {
 	switch {
+	case !unauth && verb == "GET" && strings.HasPrefix(path, "/v4/attachments/form/upload"):
+		f.forms++
+		b, _ := json.Marshal(cdn.Form{CDN: 3, Key: fmt.Sprintf("form%d", f.forms), Headers: map[string]string{}, SignedUploadLocation: "https://x/attachments"})
+		return &chat.Response{Status: 200, Body: b}
 	case !unauth && verb == "GET" && path == "/v1/certificate/delivery?includeE164=false":
 		if f.cert == nil {
 			return &chat.Response{Status: 500}
@@ -271,6 +285,8 @@ func (f *fakeChat) special(unauth bool, verb, path string, headers []chat.Header
 			return &chat.Response{Status: 404}
 		}
 		return &chat.Response{Status: 200, Body: []byte(p)}
+	case unauth && strings.HasPrefix(path, "/v1/messages/multi_recipient"):
+		return nil // story authorization: no access check (stories.md §3.4)
 	case unauth:
 		var key string
 		for _, h := range headers {
@@ -279,7 +295,10 @@ func (f *fakeChat) special(unauth bool, verb, path string, headers []chat.Header
 			}
 		}
 		dest := strings.SplitN(strings.TrimPrefix(strings.TrimPrefix(path, "/v2/keys/"), "/v1/messages/"), "/", 2)[0]
-		dest = strings.TrimSuffix(dest, "?story=false")
+		dest, query, _ := strings.Cut(dest, "?")
+		if query == "story=true" && verb == "PUT" {
+			return nil // access keys are not checked for story sends
+		}
 		if key == "" || key != base64.StdEncoding.EncodeToString(f.accessKeys[dest]) || (f.sealed401 && verb == "PUT") {
 			return &chat.Response{Status: 401}
 		}

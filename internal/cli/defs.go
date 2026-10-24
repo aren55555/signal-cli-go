@@ -200,6 +200,11 @@ func commandParser(name string) *argparse.Parser {
 	case "unregister":
 		p.Args = append(p.Args, &argparse.Arg{Names: []string{"--delete-account"}, Action: argparse.StoreTrue,
 			Help: "Delete account completely from server. CAUTION: Only do this if you won't use this number again!"})
+	case "sendStory":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"-a", "--attachment"}, Dest: "attachment", Metavars: []string{"ATTACHMENT"}, Required: true, Help: "Specify the file path to the image or video to post as a story."},
+			&argparse.Arg{Names: []string{"--no-replies"}, Action: argparse.StoreTrue, Help: "Disable replies on this story."},
+			&argparse.Arg{Names: []string{"-g", "--group-id"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Help: "Specify a group to post the story to. Without this, posts to My Story."})
 	case "getAttachment":
 		recipient := &argparse.Arg{Names: []string{"--recipient"}, Dest: "recipient", Metavars: []string{"RECIPIENT"}, Help: "Sender of the attachment"}
 		group := &argparse.Arg{Names: []string{"-g", "--group-id"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Help: "Group in which the attachment was received"}

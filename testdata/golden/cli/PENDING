@@ -34,7 +34,6 @@ obs086-quitGroup
 obs089-rejectCall
 obs091-removeContact
 obs093-removePin
-obs105-sendStory
 obs109-setPin
 obs110-startCall
 obs111-startChangeNumber
@@ -64,7 +63,6 @@ obs144-listIdentities_--help
 obs146-quitGroup_--help
 obs149-rejectCall_--help
 obs151-removeContact_--help
-obs165-sendStory_--help
 obs169-setPin_--help
 obs170-startCall_--help
 obs171-startChangeNumber_--help
@@ -99,8 +97,6 @@ obs235-submitRateLimitChallenge_--challenge_x
 obs236-submitRateLimitChallenge_--captcha_x
 obs237--a_15555550123_submitRateLimitChallenge_--challenge_x_--capt
 obs242-register_-v_--bogus
-obs282-sendStory_-a_f.jpg_-g_a_b
-obs293-sendStory_-a_f.jpg_-g
 obs300-daemon_--receive-mode_bogus
 obs301--a_15555550123_daemon
 obs302--a_15555550123_daemon_--http

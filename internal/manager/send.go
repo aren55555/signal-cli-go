@@ -332,19 +332,28 @@ func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uin
 
 // sendOnline is send with the online flag (typing messages).
 func (s *Sender) sendOnline(ctx context.Context, dest string, plaintext []byte, ts uint64, urgent, online bool, hint uint32) (needsSync, unidentified bool, err error) {
-	return s.deliver(ctx, dest, plaintext, ts, urgent, online, false, hint)
+	return s.deliver(ctx, dest, plaintext, ts, deliverOpts{urgent: urgent, online: online, hint: hint})
 }
 
 // sendUnsealed sends on the authenticated socket only, not urgent, with
 // no effect on the recipient's sealed-sender state (sync.md §6.5).
 func (s *Sender) sendUnsealed(ctx context.Context, dest string, plaintext []byte, ts uint64) (needsSync bool, err error) {
-	needsSync, _, err = s.deliver(ctx, dest, plaintext, ts, false, false, true, protocol.ContentHintImplicit)
+	needsSync, _, err = s.deliver(ctx, dest, plaintext, ts, deliverOpts{unsealed: true, hint: protocol.ContentHintImplicit})
 	return needsSync, err
+}
+
+// deliverOpts are the flags of one 1:1 send.
+type deliverOpts struct {
+	urgent, online bool
+	unsealed       bool // never sealed, no sticky downgrade
+	story          bool // ?story=true (story SKDMs)
+	hint           uint32
 }
 
 // deliver encrypts for dest's devices and puts the message, sealed when
 // access allows unless unsealed is set.
-func (s *Sender) deliver(ctx context.Context, dest string, plaintext []byte, ts uint64, urgent, online, unsealed bool, hint uint32) (needsSync, unidentified bool, err error) {
+func (s *Sender) deliver(ctx context.Context, dest string, plaintext []byte, ts uint64, o deliverOpts) (needsSync, unidentified bool, err error) {
+	urgent, online, unsealed, hint := o.urgent, o.online, o.unsealed, o.hint
 	self := dest == s.Acct.Data.ACI
 	padded := content.Pad(plaintext)
 	var acc *access
@@ -433,7 +442,7 @@ func (s *Sender) deliver(ctx context.Context, dest string, plaintext []byte, ts 
 		if err != nil {
 			return false, false, err
 		}
-		path := "/v1/messages/" + dest + "?story=false"
+		path := "/v1/messages/" + dest + "?story=" + strconv.FormatBool(o.story)
 		var r *chat.Response
 		sealedPut := acc != nil
 		if sealedPut {

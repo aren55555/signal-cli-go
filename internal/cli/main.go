@@ -207,6 +207,8 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		runErr = runUpdateDevice(ctx, e, g, s.Int("device-id"), s.String("device-name"))
 	case "unregister":
 		runErr = runUnregister(ctx, e, g, s.Bool("delete_account"))
+	case "sendStory":
+		runErr = runSendStory(ctx, e, g, s.String("attachment"), s.Bool("no_replies"), s.String("group-id"))
 	case "trust":
 		sn := s.String("verified_safety_number")
 		runErr = runTrust(ctx, e, g, s.String("recipient"), s.Bool("trust_all_known_keys"), sn, s.Has("verified_safety_number"))
