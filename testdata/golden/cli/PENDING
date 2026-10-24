@@ -10,11 +10,6 @@ listAccounts-empty-json
 two-accounts-listContacts
 two-accounts-listAccounts
 two-accounts-listAccounts-json
-cfgfile-output-json
-cfgfile-malformed
-cfgfile-bad-value
-cfgfile-unknown-key
-cfgfile-xdg
 help-columns-80
 help-columns-120
 send-help-columns-80

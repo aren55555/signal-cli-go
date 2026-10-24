@@ -44,6 +44,10 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 	if _, err := os.Stat("/.flatpak-info"); err == nil {
 		d.busName = "org.asamk.SignalCli"
 	}
+	if err := applyConfig(&d, getenv); err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
+	}
 	p := newParser(d)
 	r, err := p.Parse(args)
 	if err != nil {
@@ -77,6 +81,9 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		g.dataDir = d.dataDir
 	}
 	cmd := r.Command
+	if g.output == "" {
+		g.output = d.output
+	}
 	if g.output == "" {
 		g.output = "plain-text"
 		if jsonOnly[cmd] {
