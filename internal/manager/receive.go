@@ -201,6 +201,19 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 	if proto.Unmarshal(m.Content, &c) != nil || !valid(&c, &env) {
 		return // dropped silently (pipe.md §7 step 4)
 	}
+	applyPNI(r.Acct, m, &c)
+	if c.GetEditMessage() != nil && c.GetPniSignatureMessage() != nil {
+		// A PNI signature hides an edit (content-features.md §4.4 item 5).
+		c.Body = nil
+		if b, err := proto.Marshal(&c); err == nil {
+			m.Content = b
+		}
+	}
+	for _, dm := range []*signalpb.AppDataMessage{c.GetDataMessage(), c.GetEditMessage().GetDataMessage()} {
+		if dm != nil && dm.GroupV2 == nil {
+			applyTimer(r.Acct, m.Sender.ServiceID, dm)
+		}
+	}
 	if dm := c.GetDataMessage(); dm != nil {
 		// A delivery receipt only for sealed messages without a visible
 		// source (§7.1).
@@ -219,23 +232,6 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 		}
 	}
 	r.emit(Event{Envelope: &env, ServerDelivered: delivered, Message: m})
-}
-
-// valid applies the receive-side checks that make signal-cli drop content
-// silently (pipe.md §7 step 4, content.md §7).
-func valid(c *signalpb.AppContent, env *signalpb.ServiceEnvelope) bool {
-	if c.Body == nil && c.SenderKeyDistributionMessage == nil && c.PniSignatureMessage == nil {
-		return false
-	}
-	if dm := c.GetDataMessage(); dm != nil {
-		if dm.Timestamp == nil || dm.GetTimestamp() != env.GetClientTimestamp() {
-			return false
-		}
-		if dm.GetRequiredProtocolVersion() > currentProtocolVersion {
-			return false
-		}
-	}
-	return true
 }
 
 // currentProtocolVersion is DataMessage.ProtocolVersion CURRENT
