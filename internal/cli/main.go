@@ -226,6 +226,30 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 			}
 		}
 		runErr = runUpdateConfiguration(ctx, e, g, set)
+	case "updateGroup":
+		o := updateGroupOpts{groupID: s.String("group-id"), avatar: s.String("avatar"), members: s.Strings("member"),
+			remove: s.Strings("remove-member"), admins: s.Strings("admin"), unadmin: s.Strings("remove-admin"), ban: s.Strings("ban"),
+			unban: s.Strings("unban"), resetLink: s.Bool("reset_link"), link: s.String("link"), permAdd: s.String("set-permission-add-member"),
+			permEdit: s.String("set-permission-edit-details"), permSend: s.String("set-permission-send-messages")}
+		strp := func(k string) *string {
+			if !s.Has(k) {
+				return nil
+			}
+			v := s.String(k)
+			return &v
+		}
+		o.name, o.description, o.labelEmoji, o.label = strp("name"), strp("description"), strp("member-label-emoji"), strp("member-label")
+		if s.Has("expiration") {
+			v := uint32(s.Int("expiration"))
+			o.expiration = &v
+		}
+		runErr = runUpdateGroup(ctx, e, g, o)
+	case "joinGroup":
+		runErr = runJoinGroup(ctx, e, g, s.String("uri"))
+	case "quitGroup":
+		runErr = runQuitGroup(ctx, e, g, s.String("group-id"), s.Bool("delete"), s.Strings("admin"))
+	case "listGroups":
+		runErr = runListGroups(ctx, e, g, s.Bool("detailed"), s.Strings("group-id"))
 	case "trust":
 		sn := s.String("verified_safety_number")
 		runErr = runTrust(ctx, e, g, s.String("recipient"), s.Bool("trust_all_known_keys"), sn, s.Has("verified_safety_number"))

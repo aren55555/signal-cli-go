@@ -345,8 +345,10 @@ func (s *Sender) sendUnsealed(ctx context.Context, dest string, plaintext []byte
 // deliverOpts are the flags of one 1:1 send.
 type deliverOpts struct {
 	urgent, online bool
-	unsealed       bool // never sealed, no sticky downgrade
-	story          bool // ?story=true (story SKDMs)
+	unsealed       bool   // never sealed, no sticky downgrade
+	story          bool   // ?story=true (story SKDMs)
+	groupID        []byte // USMC group ID (group sends)
+	groupToken     []byte // full group send token: sealed access without a key, or fallback
 	hint           uint32
 }
 
@@ -359,6 +361,12 @@ func (s *Sender) deliver(ctx context.Context, dest string, plaintext []byte, ts 
 	var acc *access
 	if !unsealed {
 		acc = s.accessFor(ctx, dest)
+		if acc == nil && o.groupToken != nil {
+			// No access key: the group send token (groups.md §12.4).
+			if cert := s.senderCertificate(ctx); cert != nil {
+				acc = &access{token: o.groupToken, cert: cert}
+			}
+		}
 	}
 	defer func() {
 		if err == nil && !unidentified && !self && !unsealed {
@@ -382,7 +390,11 @@ func (s *Sender) deliver(ctx context.Context, dest string, plaintext []byte, ts 
 		if _, ok := recs[1]; !ok && !(self && s.Acct.Data.DeviceID == 1) {
 			err := s.fetchBundles(ctx, dest, "*", acc)
 			if errors.Is(err, errAccessRejected) {
-				acc = nil // the next attempt is fully unsealed (§3.3)
+				if acc.token == nil && o.groupToken != nil {
+					acc = &access{token: o.groupToken, cert: acc.cert} // token fallback (groups.md §12.3)
+				} else {
+					acc = nil // the next attempt is fully unsealed (§3.3)
+				}
 				continue
 			}
 			if err != nil {
@@ -420,7 +432,7 @@ func (s *Sender) deliver(ctx context.Context, dest string, plaintext []byte, ts 
 				if typ == protocol.MessageTypePreKey {
 					kind = protocol.SealedContentPreKey
 				}
-				usmc := protocol.EncodeSealedContent(kind, acc.cert, wire, hint, nil)
+				usmc := protocol.EncodeSealedContent(kind, acc.cert, wire, hint, o.groupID)
 				if wire, err = protocol.SealV1(s.rand(), identity, next.RemoteIdentity(), usmc); err != nil {
 					return false, false, err
 				}

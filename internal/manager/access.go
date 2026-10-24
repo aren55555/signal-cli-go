@@ -27,11 +27,15 @@ const profileMaxAge = 6 * time.Hour
 // access is sealed-sender access for one recipient: the key for the
 // Unidentified-Access-Key header and our sender certificate.
 type access struct {
-	key  []byte
-	cert []byte
+	key   []byte
+	cert  []byte
+	token []byte // a group send full token instead of the key (groups.md §12)
 }
 
 func (a *access) header() chat.Header {
+	if a.token != nil {
+		return chat.Header{Name: "group-send-token", Value: base64.StdEncoding.EncodeToString(a.token)}
+	}
 	return chat.Header{Name: "unidentified-access-key", Value: base64.StdEncoding.EncodeToString(a.key)}
 }
 

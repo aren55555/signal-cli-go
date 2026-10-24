@@ -16,6 +16,7 @@ import (
 
 	"github.com/aren55555/signal-cli-go/internal/attachment"
 	"github.com/aren55555/signal-cli-go/internal/cli/argparse"
+	"github.com/aren55555/signal-cli-go/internal/groups"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 	"github.com/aren55555/signal-cli-go/internal/protocol"
@@ -44,13 +45,13 @@ func (rs recipientSpec) targets(a *store.Account) ([]resolved, error) {
 	if len(rs.recipients) == 0 && len(rs.groups) == 0 && len(rs.usernames) == 0 && !rs.noteToSelf {
 		return nil, userError("No recipients given")
 	}
+	var groupTargets []resolved
 	for _, g := range rs.groups {
-		if err := checkGroupID(g); err != nil {
+		id, err := parseGroupArg(g)
+		if err != nil {
 			return nil, err
 		}
-	}
-	if len(rs.groups) > 0 {
-		return nil, userError("Groups are not supported by signal-cli-go yet")
+		groupTargets = append(groupTargets, resolved{key: groups.FormatGroupID(id), group: id})
 	}
 	if len(rs.usernames) > 0 {
 		return nil, userError("Sending to a username is not supported by signal-cli-go yet")
@@ -62,19 +63,13 @@ func (rs recipientSpec) targets(a *store.Account) ([]resolved, error) {
 	if rs.noteToSelf {
 		out = append(out, resolved{key: "Note-To-Self", aci: a.Data.ACI})
 	}
-	return out, nil
+	return append(out, groupTargets...), nil
 }
 
 // checkGroupID decodes a group ID (16 or 32 bytes, standard base64).
 func checkGroupID(g string) error {
-	b, err := base64.StdEncoding.DecodeString(g)
-	if err == nil && len(b) != 16 && len(b) != 32 {
-		err = fmt.Errorf("Invalid group id length: %d", len(b))
-	}
-	if err != nil {
-		return userError(fmt.Sprintf("Invalid group id: Failed to decode groupId (must be base64) \"%s\": %v", g, err))
-	}
-	return nil
+	_, err := parseGroupArg(g)
+	return err
 }
 
 // authorBinary resolves an author to its binary service ID (§1.2).
@@ -114,14 +109,35 @@ func sendDataCommand(ctx context.Context, e *env, g *globals, a *store.Account, 
 			return &cliError{msg: fmt.Sprintf("Failed to send message: %v (IOException)", err), code: 2}
 		}
 	}
-	acis := make([]string, len(targets))
-	for i, t := range targets {
-		acis[i] = t.aci
+	var people, groupTargets []resolved
+	for _, t := range targets {
+		if t.group != nil {
+			groupTargets = append(groupTargets, t)
+		} else {
+			people = append(people, t)
+		}
 	}
-	ts, res := s.sender.SendData(ctx, acis, d)
 	var results []sendResult
-	for i, r := range res {
-		results = append(results, resultFor(targets[i].key, targets[i].aci, transcriptOK(r.Err)))
+	var ts uint64
+	if len(people) > 0 {
+		acis := make([]string, len(people))
+		for i, t := range people {
+			acis[i] = t.aci
+		}
+		var res []manager.SendResult
+		ts, res = s.sender.SendData(ctx, acis, d)
+		for i, r := range res {
+			results = append(results, resultFor(people[i].key, people[i].aci, transcriptOK(r.Err)))
+		}
+		d.Timestamp = ts
+	}
+	for _, t := range groupTargets {
+		gts, res, err := s.groups.SendData(ctx, t.group, d)
+		if err != nil {
+			return groupSendError(s, t.group, err)
+		}
+		ts, d.Timestamp = gts, gts
+		results = append(results, groupResults(a, t.key, res)...)
 	}
 	return finishSend(e, g, ts, results)
 }
@@ -617,4 +633,13 @@ func attachmentErrorText(arg string, err error) string {
 		return arg + ": " + arg + " (No such file or directory)"
 	}
 	return arg + ": " + err.Error()
+}
+
+// parseGroupArg parses a -g value (groups.md §1).
+func parseGroupArg(s string) ([]byte, error) {
+	id, err := groups.ParseGroupID(s)
+	if err != nil {
+		return nil, userError("Invalid group id: " + err.Error())
+	}
+	return id, nil
 }

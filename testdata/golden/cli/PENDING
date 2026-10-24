@@ -22,12 +22,9 @@ obs073-finishChangeNumber
 obs075-getAvatar
 obs077-getUserStatus
 obs078-hangupCall
-obs079-joinGroup
 obs080-listCalls
 obs081-listContacts
-obs083-listGroups
 obs084-listIdentities
-obs086-quitGroup
 obs089-rejectCall
 obs091-removeContact
 obs093-removePin
@@ -38,7 +35,6 @@ obs112-submitRateLimitChallenge
 obs114-unblock
 obs116-updateAccount
 obs118-updateContact
-obs120-updateGroup
 obs121-updateProfile
 obs124-acceptCall_--help
 obs127-block_--help
@@ -48,12 +44,9 @@ obs130-finishChangeNumber_--help
 obs132-getAvatar_--help
 obs134-getUserStatus_--help
 obs135-hangupCall_--help
-obs136-joinGroup_--help
 obs137-jsonRpc_--help
 obs141-listContacts_--help
-obs143-listGroups_--help
 obs144-listIdentities_--help
-obs146-quitGroup_--help
 obs149-rejectCall_--help
 obs151-removeContact_--help
 obs169-setPin_--help
@@ -63,7 +56,6 @@ obs172-submitRateLimitChallenge_--help
 obs174-unblock_--help
 obs176-updateAccount_--help
 obs178-updateContact_--help
-obs180-updateGroup_--help
 obs181-updateProfile_--help
 obs194--a_15555550123_unregister_--delete-account
 obs195-deleteLocalAccountData_extra
@@ -91,15 +83,6 @@ obs302--a_15555550123_daemon_--http
 obs303-jsonRpc_--receive-mode_bogus
 obs304--a_15555550123_jsonRpc
 obs305-jsonRpc_--no-receive-stdout
-obs306-joinGroup_--uri
-obs307--a_15555550123_joinGroup_--uri_https_signal.group_x
-obs308-updateGroup_--link_bogus
-obs309-updateGroup_--set-permission-add-member_x
-obs310-updateGroup_-e_x
-obs311--a_15555550123_updateGroup_-n_test
-obs313--a_15555550123_quitGroup_-g_abc
-obs314-listGroups_-x
-obs315--a_15555550123_listGroups_-d
 obs316-listContacts_--blocked
 obs317--a_15555550123_listContacts_--blocked_maybe
 obs318-listIdentities_-n

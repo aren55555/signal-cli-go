@@ -25,6 +25,7 @@ var resultType = map[resultKind]string{
 // sendResult is one recipient's outcome.
 type sendResult struct {
 	key                   string // the recipient as the user named it, normalised
+	groupID               string // base64, for results of a group recipient
 	aci, number, username string
 	kind                  resultKind
 	retryAfterMs          int64
@@ -48,21 +49,7 @@ func renderSendResults(asJSON bool, ts uint64, results []sendResult) (string, in
 	if asJSON {
 		top := &jsonObject{}
 		top.add("timestamp", ts)
-		var items []string
-		for _, r := range results {
-			o := &jsonObject{}
-			addr := &jsonObject{}
-			addr.add("uuid", strOrNull(r.aci))
-			addr.add("number", strOrNull(r.number))
-			addr.add("username", strOrNull(r.username))
-			o.add("recipientAddress", addr)
-			o.add("type", resultType[r.kind])
-			if r.kind == resultRateLimit && r.retryAfterMs > 0 {
-				o.add("retryAfterSeconds", ceilSeconds(r.retryAfterMs))
-			}
-			items = append(items, o.String())
-		}
-		top.add("results", rawJSON("["+strings.Join(items, ",")+"]"))
+		top.add("results", resultsJSON(results))
 		out.WriteString(top.String() + "\n")
 	} else {
 		var failures []string
@@ -112,4 +99,26 @@ func renderSendResults(asJSON bool, ts uint64, results []sendResult) (string, in
 		return out.String(), 5, "Failed to send message due to rate limiting"
 	}
 	return out.String(), 1, "Failed to send message"
+}
+
+// resultsJSON is the JSON array of SendMessageResult objects.
+func resultsJSON(results []sendResult) rawJSON {
+	var items []string
+	for _, r := range results {
+		o := &jsonObject{}
+		addr := &jsonObject{}
+		addr.add("uuid", strOrNull(r.aci))
+		addr.add("number", strOrNull(r.number))
+		addr.add("username", strOrNull(r.username))
+		o.add("recipientAddress", addr)
+		if r.groupID != "" {
+			o.add("groupId", r.groupID)
+		}
+		o.add("type", resultType[r.kind])
+		if r.kind == resultRateLimit && r.retryAfterMs > 0 {
+			o.add("retryAfterSeconds", ceilSeconds(r.retryAfterMs))
+		}
+		items = append(items, o.String())
+	}
+	return rawJSON("[" + strings.Join(items, ",") + "]")
 }

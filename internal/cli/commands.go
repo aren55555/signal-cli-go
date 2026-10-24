@@ -179,6 +179,7 @@ type session struct {
 	acct   *store.Account
 	sender *manager.Sender
 	chat   *chat.Conn // the authenticated socket (gRPC calls)
+	groups *manager.Groups
 	close  func()
 }
 
@@ -203,6 +204,7 @@ func openSession(ctx context.Context, e *env, g *globals, a *store.Account) (*se
 		s.sender.Unauth = u
 		closers = append(closers, u.Close)
 	}
+	s.groups = n.groupsManager(g, a, c, s.sender)
 	s.close = func() {
 		for _, f := range closers {
 			f()
@@ -368,7 +370,10 @@ func resultFor(key, aci string, err error) sendResult {
 	return r
 }
 
-type resolved struct{ key, aci string }
+type resolved struct {
+	key, aci string
+	group    []byte // set for a group recipient
+}
 
 // resolveRecipient interprets a RECIPIENT (index.md §10). Phone numbers
 // need CDSI, which signal-cli-go does not have yet, unless the number is

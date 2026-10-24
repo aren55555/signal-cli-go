@@ -2,6 +2,7 @@ package manager
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"slices"
@@ -71,7 +72,7 @@ func (s *Sender) SendStory(ctx context.Context, src attachment.Source, allowsRep
 	if err != nil {
 		return 0, nil, err
 	}
-	results, err := s.sendSenderKey(ctx, MyStory, recipients, c, ts, true)
+	results, err := s.sendSenderKey(ctx, recipients, c, ts, senderKeyOpts{dist: MyStory, story: true, hint: protocol.ContentHintImplicit})
 	if err != nil {
 		return ts, nil, err
 	}
@@ -90,6 +91,11 @@ func hasMediaType(t string) bool {
 
 // storyTranscript is §2.5.
 func (s *Sender) storyTranscript(ctx context.Context, story *signalpb.AppStoryMessage, recipients []string, ts uint64) error {
+	return s.storyTranscriptDist(ctx, story, recipients, ts, MyStory.String())
+}
+
+// storyTranscriptDist is the story transcript for a distribution ID.
+func (s *Sender) storyTranscriptDist(ctx context.Context, story *signalpb.AppStoryMessage, recipients []string, ts uint64, dist string) error {
 	self, _ := protocol.ServiceIDToBinary(s.Acct.Data.ACI)
 	sent := &signalpb.AppSent{
 		Timestamp:                  proto.Uint64(ts),
@@ -104,7 +110,7 @@ func (s *Sender) storyTranscript(ctx context.Context, story *signalpb.AppStoryMe
 	for _, r := range recipients {
 		bin, _ := protocol.ServiceIDToBinary(r)
 		sent.StoryMessageRecipients = append(sent.StoryMessageRecipients, &signalpb.AppStoryMessageRecipient{
-			DestinationServiceIdBinary: bin, DistributionListIds: []string{MyStory.String()}, IsAllowedToReply: proto.Bool(story.GetAllowsReplies())})
+			DestinationServiceIdBinary: bin, DistributionListIds: []string{dist}, IsAllowedToReply: proto.Bool(story.GetAllowsReplies())})
 	}
 	return s.sendSync(ctx, &signalpb.AppSyncMessage{Sent: sent}, ts, false)
 }
@@ -178,7 +184,8 @@ func (s *Sender) saveSenderKey(name string, rec *protocol.SenderKeyRecord) error
 // sendSenderKey is §3: SKDM fan-out, sender-key encryption, sealed sender
 // v2 and the multi-recipient request, up to 4 attempts. Per-recipient
 // outcomes are results; an error means the whole send failed.
-func (s *Sender) sendSenderKey(ctx context.Context, dist protocol.DistributionID, recipients []string, plaintext []byte, ts uint64, story bool) ([]SendResult, error) {
+func (s *Sender) sendSenderKey(ctx context.Context, recipients []string, plaintext []byte, ts uint64, o senderKeyOpts) ([]SendResult, error) {
+	dist, story := o.dist, o.story
 	if s.Unauth == nil {
 		return nil, errors.New("no unauthenticated connection for the multi-recipient send")
 	}
@@ -227,7 +234,7 @@ func (s *Sender) sendSenderKey(ctx context.Context, dist protocol.DistributionID
 			c, _ := proto.Marshal(&signalpb.AppContent{SenderKeyDistributionMessage: skdm})
 			failed := map[string]error{}
 			for _, r := range needs {
-				_, _, err := s.deliver(ctx, r, c, uint64(s.now().UnixMilli()), deliverOpts{story: story, hint: protocol.ContentHintImplicit})
+				_, _, err := s.deliver(ctx, r, c, uint64(s.now().UnixMilli()), deliverOpts{story: story, hint: protocol.ContentHintImplicit, groupID: o.groupID, groupToken: o.tokens[r]})
 				if err != nil {
 					failed[r] = err
 					continue
@@ -259,11 +266,15 @@ func (s *Sender) sendSenderKey(ctx context.Context, dist protocol.DistributionID
 			}
 		}
 
-		body, err := s.sealSenderKey(ctx, dist, recipients, all, sessions, plaintext)
+		body, err := s.sealSenderKey(ctx, dist, recipients, all, sessions, plaintext, o)
 		if err != nil {
 			return nil, err
 		}
-		r, err := s.Unauth.Request(ctx, "PUT", multiRecipientPath(ts, false, false, story), []chat.Header{{Name: "content-type", Value: mrmContentType}}, body)
+		headers := []chat.Header{{Name: "content-type", Value: mrmContentType}}
+		if o.combinedToken != nil && !story {
+			headers = append(headers, chat.Header{Name: "group-send-token", Value: base64.StdEncoding.EncodeToString(o.combinedToken(recipients))})
+		}
+		r, err := s.Unauth.Request(ctx, "PUT", multiRecipientPath(ts, o.online, o.urgent, story), headers, body)
 		if err != nil {
 			return nil, err
 		}
@@ -311,7 +322,7 @@ func (s *Sender) handleMismatches(ctx context.Context, ms []mismatch) error {
 
 // sealSenderKey is §3.3: pad, sender-key encrypt, USMC type 7 with our
 // certificate and content hint IMPLICIT, sealed sender v2 to every device.
-func (s *Sender) sealSenderKey(ctx context.Context, dist protocol.DistributionID, recipients []string, all []device, sessions map[device]*protocol.SessionRecord, plaintext []byte) ([]byte, error) {
+func (s *Sender) sealSenderKey(ctx context.Context, dist protocol.DistributionID, recipients []string, all []device, sessions map[device]*protocol.SessionRecord, plaintext []byte, o senderKeyOpts) ([]byte, error) {
 	cert := s.senderCertificate(ctx)
 	if !s.anyAccess(ctx, recipients) || cert == nil {
 		return nil, ErrNoStoryAccess
@@ -327,7 +338,7 @@ func (s *Sender) sealSenderKey(ctx context.Context, dist protocol.DistributionID
 	if err := s.saveSenderKey(name, rec); err != nil {
 		return nil, err
 	}
-	usmc := protocol.EncodeSealedContent(protocol.SealedContentSenderKey, cert, skm, protocol.ContentHintImplicit, nil)
+	usmc := protocol.EncodeSealedContent(protocol.SealedContentSenderKey, cert, skm, o.hint, o.groupID)
 	var mrs []protocol.MultiRecipient
 	index := map[string]int{}
 	for _, d := range all {
@@ -368,4 +379,18 @@ func (s *Sender) anyAccess(ctx context.Context, recipients []string) bool {
 		}
 	}
 	return false
+}
+
+// senderKeyOpts parameterize the sender-key path for stories and group
+// messages (stories.md §3, groups.md §12.3).
+type senderKeyOpts struct {
+	dist           protocol.DistributionID
+	story          bool
+	urgent, online bool
+	hint           uint32
+	groupID        []byte            // USMC group ID: the group ID, or a group story's master key
+	tokens         map[string][]byte // per-recipient full tokens (SKDM fallback)
+	// combinedToken gives the group-send-token header for the targets of
+	// a non-story send.
+	combinedToken func(targets []string) []byte
 }

@@ -50,6 +50,7 @@ type Receiver struct {
 	SendReadReceipts bool
 	Attachments      *AttachmentStore // nil: nothing is downloaded
 	Stickers         *StickerStore    // nil: no sticker packs are fetched
+	Groups           *Groups          // nil: group contexts are not processed
 	OnEvent          func(Event)
 	Log              func(string)
 	Now              func() time.Time
@@ -232,6 +233,9 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 		bare.Content = nil
 		r.emit(Event{Envelope: &env, ServerDelivered: delivered, Message: &bare, Err: err})
 		return
+	}
+	if r.Groups != nil && !r.handleGroupContexts(ctx, m.Sender.ServiceID, &c) {
+		return // blocked group or not allowed (groups.md §6.4)
 	}
 	applyPNI(r.Acct, m, &c)
 	if sm := c.GetSyncMessage(); sm != nil {

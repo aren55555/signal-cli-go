@@ -226,6 +226,43 @@ func commandParser(name string) *argparse.Parser {
 			boolArg("--unidentified-delivery-indicators", "Indicates if Signal should show unidentified delivery indicators."),
 			boolArg("--typing-indicators", "Indicates if Signal should send/show typing indicators."),
 			boolArg("--link-previews", "Indicates if Signal should generate link previews."))
+	case "updateGroup":
+		many := func(names []string, dest, metavar, help string) *argparse.Arg {
+			return &argparse.Arg{Names: names, Dest: dest, Metavars: []string{metavar}, Nargs: argparse.ZeroOrMore, Help: help}
+		}
+		perm := func(name, help string) *argparse.Arg {
+			return &argparse.Arg{Names: []string{name}, Dest: strings.TrimPrefix(name, "--"), Choices: []string{"every-member", "only-admins"}, Help: help}
+		}
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"-g", "--group-id", "--group"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Help: "Specify the group ID."},
+			&argparse.Arg{Names: []string{"-n", "--name"}, Dest: "name", Metavars: []string{"NAME"}, Help: "Specify the new group name."},
+			&argparse.Arg{Names: []string{"-d", "--description"}, Dest: "description", Metavars: []string{"DESCRIPTION"}, Help: "Specify the new group description."},
+			&argparse.Arg{Names: []string{"-a", "--avatar"}, Dest: "avatar", Metavars: []string{"AVATAR"}, Help: "Specify a new group avatar image file"},
+			many([]string{"-m", "--member"}, "member", "MEMBER", "Specify one or more members to add to the group"),
+			many([]string{"-r", "--remove-member"}, "remove-member", "REMOVE_MEMBER", "Specify one or more members to remove from the group"),
+			many([]string{"--admin"}, "admin", "ADMIN", "Specify one or more members to make a group admin"),
+			many([]string{"--remove-admin"}, "remove-admin", "REMOVE_ADMIN", "Specify one or more members to remove group admin privileges"),
+			many([]string{"--ban"}, "ban", "BAN", "Specify one or more members to ban from joining the group"),
+			many([]string{"--unban"}, "unban", "UNBAN", "Specify one or more members to remove from the ban list"),
+			&argparse.Arg{Names: []string{"--reset-link"}, Action: argparse.StoreTrue, Help: "Reset group link and create new link password"},
+			&argparse.Arg{Names: []string{"--link"}, Dest: "link", Choices: []string{"enabled", "enabled-with-approval", "disabled"}, Help: "Set group link state, with or without admin approval"},
+			perm("--set-permission-add-member", "Set permission to add new group members"),
+			perm("--set-permission-edit-details", "Set permission to edit group details"),
+			perm("--set-permission-send-messages", "Set permission to send messages"),
+			&argparse.Arg{Names: []string{"-e", "--expiration"}, Dest: "expiration", Metavars: []string{"EXPIRATION"}, Kind: argparse.Int32, Help: "Set expiration time of messages (seconds)"},
+			&argparse.Arg{Names: []string{"--member-label-emoji"}, Dest: "member-label-emoji", Metavars: []string{"MEMBER_LABEL_EMOJI"}, Help: "Specify the emoji for the member label."},
+			&argparse.Arg{Names: []string{"--member-label"}, Dest: "member-label", Metavars: []string{"MEMBER_LABEL"}, Help: "Specify the string for the member label."})
+	case "joinGroup":
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"--uri"}, Dest: "uri", Metavars: []string{"URI"}, Required: true, Help: "Specify the uri with the group invitation link."})
+	case "quitGroup":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"-g", "--group-id", "--group"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Required: true, Help: "Specify the recipient group ID."},
+			&argparse.Arg{Names: []string{"--delete"}, Action: argparse.StoreTrue, Help: "Delete local group data completely after quitting group."},
+			&argparse.Arg{Names: []string{"--admin"}, Dest: "admin", Metavars: []string{"ADMIN"}, Nargs: argparse.ZeroOrMore, Help: "Specify one or more members to make a group admin, required if you're currently the only admin."})
+	case "listGroups":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"-d", "--detailed"}, Action: argparse.StoreTrue, Help: "List the members and group invite links of each group. If output=json, then this is always set"},
+			&argparse.Arg{Names: []string{"-g", "--group-id"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Nargs: argparse.ZeroOrMore, Help: "Specify one or more group IDs to show."})
 	case "getAttachment":
 		recipient := &argparse.Arg{Names: []string{"--recipient"}, Dest: "recipient", Metavars: []string{"RECIPIENT"}, Help: "Sender of the attachment"}
 		group := &argparse.Arg{Names: []string{"-g", "--group-id"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Help: "Group in which the attachment was received"}
