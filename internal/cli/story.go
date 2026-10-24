@@ -17,8 +17,12 @@ func runSendStory(ctx context.Context, e *env, g *globals, path string, noReplie
 		if path == "" {
 			return userError("An attachment is required for sending a story.")
 		}
+		var gid []byte
 		if group != "" {
-			return userError("Group stories are not supported by signal-cli-go yet")
+			var err error
+			if gid, err = parseGroupArg(group); err != nil {
+				return err
+			}
 		}
 		src, err := attachmentSource(path, g)
 		if err != nil {
@@ -31,7 +35,16 @@ func runSendStory(ctx context.Context, e *env, g *globals, path string, noReplie
 			return err
 		}
 		defer s.close()
-		ts, results, err := s.sender.SendStory(ctx, src, !noReplies)
+		var ts uint64
+		var results []manager.SendResult
+		if gid != nil {
+			ts, results, err = s.groups.SendStory(ctx, gid, src, !noReplies)
+			if errors.Is(err, manager.ErrGroupNotFound) || errors.Is(err, manager.ErrNotAMember) {
+				return groupSendError(s, gid, err)
+			}
+		} else {
+			ts, results, err = s.sender.SendStory(ctx, src, !noReplies)
+		}
 		switch {
 		case errors.Is(err, manager.ErrStoryMedia):
 			return &cliError{msg: fmt.Sprintf("Failed to send story: %s: %v (AttachmentInvalidException)", path, err), code: 2}

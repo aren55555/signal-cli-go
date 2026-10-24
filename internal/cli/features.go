@@ -551,7 +551,7 @@ func runPin(ctx context.Context, e *env, g *globals, rs recipientSpec, notifySel
 }
 
 // runAdminDelete is `sendAdminDelete`: groups only (§3.15).
-func runAdminDelete(ctx context.Context, e *env, g *globals, groups []string, author string) error {
+func runAdminDelete(ctx context.Context, e *env, g *globals, groups []string, notifySelf bool, author string, target int64, story bool) error {
 	return withAccount(g, func(a *store.Account) error {
 		for _, id := range groups {
 			if err := checkGroupID(id); err != nil {
@@ -561,10 +561,19 @@ func runAdminDelete(ctx context.Context, e *env, g *globals, groups []string, au
 		if len(groups) == 0 {
 			return userError("Admin delete requires group IDs")
 		}
-		if _, err := resolveRecipient(a, author); err != nil {
+		targets, err := recipientSpec{groups: groups}.targets(a)
+		if err != nil {
 			return err
 		}
-		return userError("Groups are not supported by signal-cli-go yet")
+		bin, err := authorBinary(a, author)
+		if err != nil {
+			return err
+		}
+		dm := &signalpb.AppDataMessage{AdminDelete: &signalpb.AppAdminDelete{TargetAuthorAciBinary: bin, TargetSentTimestamp: proto.Uint64(uint64(target))}}
+		if story {
+			dm.StoryContext = &signalpb.AppStoryContext{SentTimestamp: proto.Uint64(uint64(target)), AuthorAciBinary: bin}
+		}
+		return sendDataCommand(ctx, e, g, a, targets, manager.DataSend{Message: dm, NotifySelf: notifySelf, Urgent: true})
 	})
 }
 

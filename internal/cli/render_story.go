@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/base64"
 	"fmt"
 	"strings"
 
@@ -8,8 +9,7 @@ import (
 )
 
 // The STORY block and StoryMessage JSON
-// (spec/surface/cli/_received-message-output.md). Group stories need the
-// group store (milestone 6); their group lines are not printed yet.
+// (spec/surface/cli/_received-message-output.md).
 
 func (c *RenderContext) plainPreview(p *plain, l int, pv *signalpb.AppPreview) {
 	p.line(l, "Title: %s", pv.GetTitle())
@@ -24,6 +24,10 @@ func (c *RenderContext) plainPreview(p *plain, l int, pv *signalpb.AppPreview) {
 
 func (c *RenderContext) plainStory(p *plain, l int, st *signalpb.AppStoryMessage) {
 	p.line(l, "Story: with replies: %t", st.GetAllowsReplies())
+	if id := groupIDOf(st.GetGroup()); id != nil {
+		p.line(l, "Group info:")
+		c.plainGroupInfo(p, l+1, id)
+	}
 	if ta := st.GetTextAttachment(); ta != nil {
 		p.line(l, "Body: %s", ta.GetText())
 		if ta.Preview != nil {
@@ -53,9 +57,12 @@ func jsonPreview(pv *signalpb.AppPreview) *jsonObject {
 	return po
 }
 
-func jsonStory(st *signalpb.AppStoryMessage) *jsonObject {
+func (c *RenderContext) jsonStory(st *signalpb.AppStoryMessage) *jsonObject {
 	o := &jsonObject{}
 	o.add("allowsReplies", st.GetAllowsReplies())
+	if id := groupIDOf(st.GetGroup()); id != nil {
+		o.add("groupId", base64.StdEncoding.EncodeToString(id))
+	}
 	if f := st.GetFileAttachment(); f != nil {
 		o.add("fileAttachment", jsonAttachment(f))
 	}

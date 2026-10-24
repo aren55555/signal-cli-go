@@ -103,8 +103,7 @@ func (c *RenderContext) plainSync(p *plain, sm *signalpb.AppSyncMessage) {
 		p.line(1, "Type: %s", mrrTypeName(m.GetType()))
 		if m.GroupId != nil {
 			p.line(0, "For group:")
-			p.line(1, "Id: %s", base64.StdEncoding.EncodeToString(m.GetGroupId()))
-			p.line(1, "Name: <Unknown group>") // no group store yet
+			c.plainGroupInfo(p, 1, m.GetGroupId())
 		} else {
 			p.line(1, "For Person: %s", c.contactOf(aciOf(m.GetThreadAciBinary(), m.GetThreadAci())))
 		}
@@ -125,7 +124,7 @@ func (c *RenderContext) jsonSync(sm *signalpb.AppSyncMessage) *jsonObject {
 				story.add("destinationNumber", nil)
 				story.add("destinationUuid", nil)
 			}
-			story.addAll(jsonStory(st))
+			story.addAll(c.jsonStory(st))
 			so.add("sentStoryMessage", story)
 			break
 		}

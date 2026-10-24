@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/groups"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/protocol"
 	"github.com/aren55555/signal-cli-go/internal/service/agent"
@@ -283,17 +284,22 @@ func runSend(ctx context.Context, e *env, g *globals, o sendOpts) error {
 }
 
 // runSendTyping is `sendTyping [-s] RECIPIENT…`.
-func runSendTyping(ctx context.Context, e *env, g *globals, recipients, groups []string, stop bool) error {
+func runSendTyping(ctx context.Context, e *env, g *globals, recipients, groupArgs []string, stop bool) error {
 	a, err := selectAccount(g.root(), g.account)
 	if err != nil {
 		return err
 	}
 	defer a.Close()
-	if len(recipients) == 0 && len(groups) == 0 {
+	if len(recipients) == 0 && len(groupArgs) == 0 {
 		return userError("No recipients given")
 	}
-	if len(groups) > 0 {
-		return userError("Groups are not supported by signal-cli-go yet")
+	var groupIDs [][]byte
+	for _, id := range groupArgs {
+		gid, err := parseGroupArg(id)
+		if err != nil {
+			return err
+		}
+		groupIDs = append(groupIDs, gid)
 	}
 	targets, err := resolveAll(a, recipients)
 	if err != nil {
@@ -312,6 +318,17 @@ func runSendTyping(ctx context.Context, e *env, g *globals, recipients, groups [
 		var err error
 		ts, err = s.sender.SendTyping(ctx, t.aci, stop, ts)
 		results = append(results, resultFor(t.key, t.aci, err))
+	}
+	for _, id := range groupIDs {
+		gts, res, err := s.groups.SendTyping(ctx, id, stop)
+		if err != nil {
+			if ce, ok := groupSendError(s, id, err).(*cliError); ok && ce.code == 1 {
+				return userError("Failed to send to group: " + ce.msg)
+			}
+			return &cliError{msg: fmt.Sprintf("Failed to send message: %v (IOException)", err), code: 1}
+		}
+		ts = gts
+		results = append(results, groupResults(a, groups.FormatGroupID(id), res)...)
 	}
 	return finishSend(e, g, ts, results)
 }
@@ -453,11 +470,26 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 	cd := n.cdn()
 	rc := &RenderContext{Self: a.Data.Number, SelfACI: a.Data.ACI, AttachmentsDir: strings.TrimRight(g.dataDir, "/") + "/attachments", Lookup: func(aci string) (string, string) {
 		return a.Recipients[aci].Number, ""
+	}, Group: func(id []byte) (string, bool, bool) {
+		rec := a.Group(id)
+		if rec == nil {
+			return "", false, false
+		}
+		st := manager.StateOf(rec)
+		if st == nil {
+			return "", true, true
+		}
+		return st.Title, false, true
 	}}
+	sender := &manager.Sender{Acct: a, Chat: c, Unauth: unauth, CDN: cd}
+	gm := n.groupsManager(g, a, c, sender)
+	gm.IgnoreAvatars = o.ignoreAvatars
+	gm.Log = func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  GroupHelper - "+f+"\n", args...) }
 	r := &manager.Receiver{
 		Acct:      a,
 		Decryptor: &manager.Decryptor{Acct: a},
-		Sender:    &manager.Sender{Acct: a, Chat: c, Unauth: unauth, CDN: cd},
+		Sender:    sender,
+		Groups:    gm,
 		Stickers: &manager.StickerStore{Dir: filepath.Join(g.dataDir, "stickers"), CDN: cd, Ignore: o.ignoreStickers,
 			Log: func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  StickerHelper - "+f+"\n", args...) }},
 		Attachments: &manager.AttachmentStore{Dir: filepath.Join(g.dataDir, "attachments"), CDN: cd, Ignore: o.ignoreAttachments, AvatarsDir: filepath.Join(g.dataDir, "avatars"), IgnoreAvatars: o.ignoreAvatars,

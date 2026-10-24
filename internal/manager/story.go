@@ -61,13 +61,11 @@ func (s *Sender) SendStory(ctx context.Context, src attachment.Source, allowsRep
 	if len(recipients) == 0 {
 		return 0, nil, ErrNoStoryRecipients
 	}
-	ps, err := s.UploadAttachments(ctx, []attachment.Source{src}, 0)
+	story, err := s.storyMessage(ctx, src, allowsReplies)
 	if err != nil {
 		return 0, nil, err
 	}
 	ts := s.timestamp()
-	story := &signalpb.AppStoryMessage{ProfileKey: s.Acct.Data.ProfileKey,
-		Attachment: &signalpb.AppStoryMessage_FileAttachment{FileAttachment: ps[0]}, AllowsReplies: proto.Bool(allowsReplies)}
 	c, err := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_StoryMessage{StoryMessage: story}})
 	if err != nil {
 		return 0, nil, err
@@ -83,6 +81,20 @@ func (s *Sender) SendStory(ctx context.Context, src attachment.Source, allowsRep
 		}
 	}
 	return ts, results, nil
+}
+
+// storyMessage checks the medium, uploads it and builds the StoryMessage
+// (§2.1).
+func (s *Sender) storyMessage(ctx context.Context, src attachment.Source, allowsReplies bool) (*signalpb.AppStoryMessage, error) {
+	if !hasMediaType(src.ContentType) {
+		return nil, ErrStoryMedia
+	}
+	ps, err := s.UploadAttachments(ctx, []attachment.Source{src}, 0)
+	if err != nil {
+		return nil, err
+	}
+	return &signalpb.AppStoryMessage{ProfileKey: s.Acct.Data.ProfileKey,
+		Attachment: &signalpb.AppStoryMessage_FileAttachment{FileAttachment: ps[0]}, AllowsReplies: proto.Bool(allowsReplies)}, nil
 }
 
 func hasMediaType(t string) bool {

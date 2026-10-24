@@ -28,6 +28,9 @@ type RenderContext struct {
 	// Lookup returns a peer's phone number and contact or profile name,
 	// either possibly empty.
 	Lookup func(aci string) (number, name string)
+	// Group returns a stored group's title; null when it has no state,
+	// ok false when it is not stored.
+	Group func(id []byte) (title string, null, ok bool)
 }
 
 // DataMessage flags (content.md §4.2).
@@ -206,6 +209,10 @@ func RenderPlain(c *RenderContext, e manager.Event) string {
 		p.line(0, "Received a typing message")
 		p.line(1, "Action: %s", tm.GetAction().String())
 		p.line(1, "Timestamp: %s", ts(tm.GetTimestamp()))
+		if g := tm.GetGroupId(); g != nil {
+			p.line(1, "Group Info:")
+			c.plainGroupInfo(&p, 2, g)
+		}
 	}
 	p.b.WriteByte('\n')
 	return p.b.String()
@@ -280,7 +287,7 @@ func RenderJSON(c *RenderContext, e manager.Event) string {
 		env.add("editMessage", eo)
 	}
 	if st := ct.GetStoryMessage(); st != nil {
-		env.add("storyMessage", jsonStory(st))
+		env.add("storyMessage", c.jsonStory(st))
 	}
 	if sm := ct.GetSyncMessage(); sm != nil {
 		env.add("syncMessage", c.jsonSync(sm))

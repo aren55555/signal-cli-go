@@ -179,7 +179,8 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		}
 		runErr = runPin(ctx, e, g, recipientsOf(s), s.Bool("notify_self"), s.String("target-author"), ts, s.Bool("story"), cmd == "sendUnpinMessage", d)
 	case "sendAdminDelete":
-		runErr = runAdminDelete(ctx, e, g, s.Strings("group-id"), s.String("target-author"))
+		ts, _ := s.Int64("target-timestamp")
+		runErr = runAdminDelete(ctx, e, g, s.Strings("group-id"), s.Bool("notify_self"), s.String("target-author"), ts, s.Bool("story"))
 	case "sendPaymentNotification":
 		runErr = runPaymentNotification(ctx, e, g, s.String("recipient"), s.String("receipt"), s.String("note"), s.Has("note"))
 	case "sendMessageRequestResponse":

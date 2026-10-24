@@ -34,6 +34,9 @@ func (c *RenderContext) plainData(p *plain, l int, dm *signalpb.AppDataMessage) 
 	if dm.Body != nil {
 		p.line(l, "Body: %s", dm.GetBody())
 	}
+	if gc := dm.GetGroupV2(); gc != nil {
+		c.plainDataGroup(p, l, gc)
+	}
 	if sc := dm.GetStoryContext(); sc != nil {
 		p.line(l, "Story reply:")
 		p.line(l+1, "Sender: %s", c.contactOf(aciOf(sc.GetAuthorAciBinary(), sc.GetAuthorAci())))
@@ -431,6 +434,9 @@ func (c *RenderContext) jsonData(dm *signalpb.AppDataMessage) *jsonObject {
 	}
 	if dm.Body != nil && len(styles(dm.GetBodyRanges())) > 0 {
 		o.add("textStyles", jsonStyles(dm.GetBodyRanges()))
+	}
+	if gi := c.jsonGroupInfo(dm.GetGroupV2()); gi != nil {
+		o.add("groupInfo", gi)
 	}
 	if sc := dm.GetStoryContext(); sc != nil {
 		so := &jsonObject{}

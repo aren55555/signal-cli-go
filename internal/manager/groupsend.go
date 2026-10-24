@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"errors"
+	"github.com/aren55555/signal-cli-go/internal/attachment"
 	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/crypto/zkgroup"
@@ -277,8 +278,12 @@ func (m *Groups) SendTyping(ctx context.Context, id []byte, stop bool) (uint64, 
 }
 
 // SendStory posts a group story (§13): sender key only, no fan-out.
-func (m *Groups) SendStory(ctx context.Context, id []byte, story *signalpb.AppStoryMessage) (uint64, []SendResult, error) {
+func (m *Groups) SendStory(ctx context.Context, id []byte, src attachment.Source, allowsReplies bool) (uint64, []SendResult, error) {
 	rec, st, err := m.memberGroup(ctx, id)
+	if err != nil {
+		return 0, nil, err
+	}
+	story, err := m.Sender.storyMessage(ctx, src, allowsReplies)
 	if err != nil {
 		return 0, nil, err
 	}
