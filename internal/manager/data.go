@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"errors"
+	"strings"
 
 	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
@@ -148,7 +149,10 @@ func (s *Sender) sendDataTo(ctx context.Context, dest string, d DataSend, ts uin
 	if self && (!d.NotifySelf || d.EditTarget != 0) {
 		// Only a sent transcript to our other devices (§1.3).
 		dm := s.enrich(dest, d.Message, ts, true)
-		return s.transcript(ctx, dest, dm, d.EditTarget, ts, false)
+		if !s.Acct.IsMultiDevice() {
+			return nil // nothing to sync to (sync.md §4.2)
+		}
+		return s.transcript(ctx, dest, dm, d.EditTarget, ts)
 	}
 	dm := s.enrich(dest, d.Message, ts, false)
 	content := &signalpb.AppContent{}
@@ -173,7 +177,7 @@ func (s *Sender) sendDataTo(ctx context.Context, dest string, d DataSend, ts uin
 	if err != nil {
 		return err
 	}
-	needsSync, unidentified, err := s.send(ctx, dest, c, ts, d.Urgent, protocol.ContentHintResendable)
+	needsSync, _, err := s.send(ctx, dest, c, ts, d.Urgent, protocol.ContentHintResendable)
 	if err != nil {
 		return err
 	}
@@ -181,7 +185,7 @@ func (s *Sender) sendDataTo(ctx context.Context, dest string, d DataSend, ts uin
 		return nil
 	}
 	if needsSync || s.Acct.IsMultiDevice() {
-		if err := s.transcript(ctx, dest, dm, d.EditTarget, ts, unidentified); err != nil {
+		if err := s.transcript(ctx, dest, dm, d.EditTarget, ts); err != nil {
 			return errTranscript{err}
 		}
 	}
@@ -211,13 +215,30 @@ func (s *Sender) addPNISignature(content *signalpb.AppContent, dest string) erro
 }
 
 // transcript sends the SyncMessage.Sent for dm (or its edit) to our other
-// devices.
-func (s *Sender) transcript(ctx context.Context, dest string, dm *signalpb.AppDataMessage, editTarget, ts uint64, unidentified bool) error {
+// devices (sync.md §4.1, §4.2).
+func (s *Sender) transcript(ctx context.Context, dest string, dm *signalpb.AppDataMessage, editTarget, ts uint64) error {
+	bin, _ := protocol.ServiceIDToBinary(dest)
+	status := &signalpb.AppUnidentifiedStatus{DestinationServiceIdBinary: bin, Unidentified: proto.Bool(false)}
+	if strings.HasPrefix(dest, "PNI:") {
+		if id, ok := s.Acct.Identities[dest]; ok {
+			status.DestinationPniIdentityKey = id.Key
+		}
+	}
 	sent := &signalpb.AppSent{
-		DestinationServiceId: proto.String(dest),
-		Timestamp:            proto.Uint64(ts),
-		UnidentifiedStatus:   []*signalpb.AppUnidentifiedStatus{{DestinationServiceId: proto.String(dest), Unidentified: proto.Bool(unidentified)}},
-		IsRecipientUpdate:    proto.Bool(false),
+		Timestamp:                  proto.Uint64(ts),
+		UnidentifiedStatus:         []*signalpb.AppUnidentifiedStatus{status},
+		IsRecipientUpdate:          proto.Bool(false),
+		DestinationServiceIdBinary: bin,
+	}
+	number := s.Acct.Recipients[dest].Number
+	if dest == s.Acct.Data.ACI {
+		number = s.Acct.Data.Number
+	}
+	if number != "" {
+		sent.DestinationE164 = proto.String(number)
+	}
+	if dm.GetExpireTimer() > 0 {
+		sent.ExpirationStartTimestamp = proto.Uint64(uint64(s.now().UnixMilli()))
 	}
 	if editTarget != 0 {
 		sent.EditMessage = &signalpb.AppEdit{TargetSentTimestamp: proto.Uint64(editTarget), DataMessage: dm}
@@ -228,7 +249,7 @@ func (s *Sender) transcript(ctx context.Context, dest string, dm *signalpb.AppDa
 		}
 		sent.Message = dm
 	}
-	return s.sendSync(ctx, &signalpb.AppSyncMessage{Sent: sent}, ts)
+	return s.sendSync(ctx, &signalpb.AppSyncMessage{Sent: sent}, ts, false)
 }
 
 // SendMessageRequestResponse syncs a message request response for a
@@ -252,5 +273,5 @@ func (s *Sender) SendMessageRequestResponse(ctx context.Context, aci string, acc
 	if accept {
 		t = signalpb.AppMessageRequestResponse_ACCEPT
 	}
-	return s.sendSync(ctx, &signalpb.AppSyncMessage{MessageRequestResponse: &signalpb.AppMessageRequestResponse{Type: t.Enum(), ThreadAciBinary: bin[:]}}, 0)
+	return s.sendSync(ctx, &signalpb.AppSyncMessage{MessageRequestResponse: &signalpb.AppMessageRequestResponse{Type: t.Enum(), ThreadAciBinary: bin[:]}}, 0, false)
 }

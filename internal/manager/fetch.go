@@ -18,7 +18,11 @@ type AttachmentStore struct {
 	Dir    string
 	CDN    CDN
 	Ignore bool // --ignore-attachments: only long text, in memory
-	Log    func(format string, args ...any)
+
+	// AvatarsDir is <config>/avatars, for contact avatars from a sync.
+	AvatarsDir    string
+	IgnoreAvatars bool
+	Log           func(format string, args ...any)
 }
 
 func (s *AttachmentStore) logf(format string, args ...any) {

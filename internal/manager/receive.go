@@ -63,6 +63,9 @@ type actions struct {
 	renew    map[string]bool // "toPNI|serviceID"
 	retry    []retryReceipt
 	refresh  bool
+	// syncAnswers are the sync requests to answer (primary only).
+	syncAnswers map[signalpb.AppSyncMessage_Request_Type]bool
+	ownProfile  bool // a FetchLatest LOCAL_PROFILE arrived
 }
 
 type retryReceipt struct {
@@ -208,6 +211,9 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 	if c.GetNullMessage() != nil {
 		return // no output, no side effects (content-features.md §5)
 	}
+	if sm := c.GetSyncMessage(); sm != nil && !validSync(sm, &env, m.Sender.ServiceID, r.Acct.Data.ACI) {
+		return // dropped silently (sync.md §2.1)
+	}
 	if err := convert(&c); err != nil {
 		bare := *m
 		bare.Content = nil
@@ -215,6 +221,9 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 		return
 	}
 	applyPNI(r.Acct, m, &c)
+	if sm := c.GetSyncMessage(); sm != nil {
+		r.applySync(ctx, sm)
+	}
 	if c.GetEditMessage() != nil && c.GetPniSignatureMessage() != nil {
 		// A PNI signature hides an edit (content-features.md §4.4 item 5).
 		c.Body = nil
@@ -364,6 +373,12 @@ func (r *Receiver) flush(ctx context.Context) {
 		if err := r.Sender.SendRetryReceipt(ctx, rr.dest, rr.device, rr.dem); err != nil {
 			r.logf("Failed to send a retry receipt to %s: %v", rr.dest, err)
 		}
+	}
+	if len(p.syncAnswers) > 0 {
+		r.answerSyncRequests(ctx, p.syncAnswers)
+	}
+	if p.ownProfile {
+		r.Sender.RefreshProfile(ctx, r.Acct.Data.ACI)
 	}
 	if p.refresh {
 		if err := RefreshPreKeys(ctx, r.Acct, r.Sender.Chat, r.now()); err != nil {

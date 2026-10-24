@@ -115,9 +115,10 @@ func (s *Sender) SendTextAt(ctx context.Context, recipientACI, text string, ts u
 	return ts, res[0].Err
 }
 
-// sendSync sends a SyncMessage to our other devices with 1..512 random
-// padding bytes (content.md §8).
-func (s *Sender) sendSync(ctx context.Context, sm *signalpb.AppSyncMessage, ts uint64) error {
+// sendSync sends a SyncMessage to our own other devices (sync.md §3):
+// random padding, unsealed, content hint IMPLICIT, not online; ts 0 means
+// the current wall-clock time. Callers apply the multi-device gate.
+func (s *Sender) sendSync(ctx context.Context, sm *signalpb.AppSyncMessage, ts uint64, urgent bool) error {
 	var n [2]byte
 	if _, err := io.ReadFull(s.rand(), n[:]); err != nil {
 		return err
@@ -131,10 +132,19 @@ func (s *Sender) sendSync(ctx context.Context, sm *signalpb.AppSyncMessage, ts u
 		return err
 	}
 	if ts == 0 {
-		ts = s.timestamp()
+		ts = uint64(s.now().UnixMilli())
 	}
-	_, _, err = s.send(ctx, s.Acct.Data.ACI, c, ts, false, protocol.ContentHintResendable)
+	_, _, err = s.send(ctx, s.Acct.Data.ACI, c, ts, urgent, protocol.ContentHintImplicit)
 	return err
+}
+
+// SendSync sends sm if the account is multi-device; otherwise nothing is
+// sent and it succeeds (sync.md §3 rule 1).
+func (s *Sender) SendSync(ctx context.Context, sm *signalpb.AppSyncMessage, urgent bool) error {
+	if !s.Acct.IsMultiDevice() {
+		return nil
+	}
+	return s.sendSync(ctx, sm, 0, urgent)
 }
 
 func (s *Sender) local() protocol.Address {

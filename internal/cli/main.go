@@ -197,6 +197,10 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		runErr = runRegister(ctx, e, g, s.Bool("voice"), s.String("captcha"), s.Bool("reregister"))
 	case "verify":
 		runErr = runVerify(ctx, e, g, s.String("verification_code"), s.String("pin"))
+	case "sendSyncRequest":
+		runErr = runSyncCommand(ctx, e, g, false)
+	case "sendContacts":
+		runErr = runSyncCommand(ctx, e, g, true)
 	case "getAttachment":
 		runErr = runGetAttachment(e, g, s.String("id"))
 	case "receive":
@@ -206,7 +210,7 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 			timeout = 0
 		}
 		runErr = runReceive(ctx, e, g, receiveOpts{timeout: timeout, maxMessages: s.Int("max-messages"),
-			sendReadReceipts: s.Bool("send_read_receipts"), ignoreStories: s.Bool("ignore_stories"), ignoreAttachments: s.Bool("ignore_attachments")})
+			sendReadReceipts: s.Bool("send_read_receipts"), ignoreStories: s.Bool("ignore_stories"), ignoreAttachments: s.Bool("ignore_attachments"), ignoreAvatars: s.Bool("ignore_avatars")})
 	default:
 		// Not implemented yet: report like an unexpected error.
 		fmt.Fprintf(stderr, "Command %s is not implemented in signal-cli-go yet\n", cmd)

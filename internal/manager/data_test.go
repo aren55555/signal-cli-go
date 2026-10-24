@@ -1,10 +1,12 @@
 package manager
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
@@ -55,7 +57,7 @@ func TestDataEnrichment(t *testing.T) {
 		t.Errorf("enriched %v", got)
 	}
 	sent := deliveredTo(t, fc, testACI)[0].GetSyncMessage().GetSent()
-	if sent.GetMessage().GetBody() != "hi @B" || sent.GetDestinationServiceId() != dataBACI {
+	if sent.GetMessage().GetBody() != "hi @B" || !bytes.Equal(sent.GetDestinationServiceIdBinary(), bin[:]) {
 		t.Errorf("transcript %v", sent)
 	}
 	if !s.Acct.Recipients[dataBACI].ProfileSharing {
@@ -131,5 +133,40 @@ func TestViewOnceTranscript(t *testing.T) {
 	sent := deliveredTo(t, fc, testACI)[0].GetSyncMessage().GetSent().GetMessage()
 	if len(sent.GetAttachments()) != 0 || !sent.GetIsViewOnce() {
 		t.Errorf("transcript %v", sent)
+	}
+}
+
+// TestTranscriptFields: sync.md §4.1 — e164 and binary destination, one
+// unidentified status with unidentified=false, no string service IDs,
+// expiration start only with a timer, isRecipientUpdate written.
+func TestTranscriptFields(t *testing.T) {
+	fc, s := dataWorld(t)
+	clock := int64(1800000000000)
+	s.Now = func() time.Time { clock++; return time.UnixMilli(clock) }
+	s.Acct.Recipients[dataBACI] = store.Recipient{Number: "+15555550101", Timer: 60}
+	if _, res := s.SendData(context.Background(), []string{dataBACI}, DataSend{Message: &signalpb.AppDataMessage{Body: proto.String("x")}, Urgent: true}); res[0].Err != nil {
+		t.Fatal(res[0].Err)
+	}
+	bin, _ := uuidRaw(dataBACI)
+	sent := deliveredTo(t, fc, testACI)[0].GetSyncMessage().GetSent()
+	if sent.GetDestinationE164() != "+15555550101" || !bytes.Equal(sent.GetDestinationServiceIdBinary(), bin[:]) || sent.DestinationServiceId != nil ||
+		sent.GetExpirationStartTimestamp() <= 1800000000000 || sent.IsRecipientUpdate == nil || sent.GetIsRecipientUpdate() {
+		t.Errorf("sent %v", sent)
+	}
+	us := sent.GetUnidentifiedStatus()
+	if len(us) != 1 || !bytes.Equal(us[0].GetDestinationServiceIdBinary(), bin[:]) || us[0].Unidentified == nil || us[0].GetUnidentified() || us[0].DestinationServiceId != nil {
+		t.Errorf("unidentified status %v", us)
+	}
+	d := fc.delivered[len(fc.delivered)-1]
+	if d.to != testACI || d.msg.Sealed {
+		t.Errorf("transcript delivery %+v", d)
+	}
+
+	// No timer: no expiration start.
+	s.Acct.Recipients[dataBACI] = store.Recipient{}
+	s.SendData(context.Background(), []string{dataBACI}, DataSend{Message: &signalpb.AppDataMessage{Body: proto.String("y")}, Urgent: true})
+	got := deliveredTo(t, fc, testACI)
+	if sent := got[len(got)-1].GetSyncMessage().GetSent(); sent.ExpirationStartTimestamp != nil || sent.DestinationE164 != nil {
+		t.Errorf("no timer: %v", sent)
 	}
 }

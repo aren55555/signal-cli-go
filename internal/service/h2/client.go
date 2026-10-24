@@ -522,14 +522,16 @@ func (c *Conn) OpenConnect(ctx context.Context, protocol, path string, headers [
 	}
 	c.mu.Unlock()
 	switch {
+	case status != 0 && (status < 200 || status > 299):
+		// A refusal is often followed at once by RST_STREAM; the status
+		// wins over the reset.
+		s.reset()
+		return nil, &StatusError{Status: status, Header: s.header}
 	case serr != nil:
 		return nil, serr
 	case ctx.Err() != nil:
 		s.reset()
 		return nil, ctx.Err()
-	case status < 200 || status > 299:
-		s.reset()
-		return nil, &StatusError{Status: status, Header: s.header}
 	}
 	return s, nil
 }

@@ -300,6 +300,14 @@ func convertData(dm *signalpb.AppDataMessage) error {
 
 // convert is stage X for a Content.
 func convert(c *signalpb.AppContent) error {
+	if sm := c.GetSyncMessage(); sm != nil {
+		if SyncMemberOf(sm) == SyncFetchLatest && sm.FetchLatest.GetType() == signalpb.AppSyncMessage_FetchLatest_UNKNOWN {
+			return &StructureError{"Unknown fetch latest type"}
+		}
+		if err := convertData(sm.GetSent().GetMessage()); err != nil {
+			return err
+		}
+	}
 	if err := convertData(c.GetDataMessage()); err != nil {
 		return err
 	}

@@ -201,6 +201,251 @@ func (AppTyping_Action) EnumDescriptor() ([]byte, []int) {
 	return file_content_proto_rawDescGZIP(), []int{6, 0}
 }
 
+type AppSyncMessage_Request_Type int32
+
+const (
+	AppSyncMessage_Request_UNKNOWN       AppSyncMessage_Request_Type = 0
+	AppSyncMessage_Request_CONTACTS      AppSyncMessage_Request_Type = 1
+	AppSyncMessage_Request_GROUPS        AppSyncMessage_Request_Type = 2
+	AppSyncMessage_Request_BLOCKED       AppSyncMessage_Request_Type = 3
+	AppSyncMessage_Request_CONFIGURATION AppSyncMessage_Request_Type = 4
+	AppSyncMessage_Request_KEYS          AppSyncMessage_Request_Type = 5
+)
+
+// Enum value maps for AppSyncMessage_Request_Type.
+var (
+	AppSyncMessage_Request_Type_name = map[int32]string{
+		0: "UNKNOWN",
+		1: "CONTACTS",
+		2: "GROUPS",
+		3: "BLOCKED",
+		4: "CONFIGURATION",
+		5: "KEYS",
+	}
+	AppSyncMessage_Request_Type_value = map[string]int32{
+		"UNKNOWN":       0,
+		"CONTACTS":      1,
+		"GROUPS":        2,
+		"BLOCKED":       3,
+		"CONFIGURATION": 4,
+		"KEYS":          5,
+	}
+)
+
+func (x AppSyncMessage_Request_Type) Enum() *AppSyncMessage_Request_Type {
+	p := new(AppSyncMessage_Request_Type)
+	*p = x
+	return p
+}
+
+func (x AppSyncMessage_Request_Type) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AppSyncMessage_Request_Type) Descriptor() protoreflect.EnumDescriptor {
+	return file_content_proto_enumTypes[3].Descriptor()
+}
+
+func (AppSyncMessage_Request_Type) Type() protoreflect.EnumType {
+	return &file_content_proto_enumTypes[3]
+}
+
+func (x AppSyncMessage_Request_Type) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Do not use.
+func (x *AppSyncMessage_Request_Type) UnmarshalJSON(b []byte) error {
+	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
+	if err != nil {
+		return err
+	}
+	*x = AppSyncMessage_Request_Type(num)
+	return nil
+}
+
+// Deprecated: Use AppSyncMessage_Request_Type.Descriptor instead.
+func (AppSyncMessage_Request_Type) EnumDescriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 2, 0}
+}
+
+type AppSyncMessage_StickerPackOperation_Type int32
+
+const (
+	AppSyncMessage_StickerPackOperation_INSTALL AppSyncMessage_StickerPackOperation_Type = 0
+	AppSyncMessage_StickerPackOperation_REMOVE  AppSyncMessage_StickerPackOperation_Type = 1
+)
+
+// Enum value maps for AppSyncMessage_StickerPackOperation_Type.
+var (
+	AppSyncMessage_StickerPackOperation_Type_name = map[int32]string{
+		0: "INSTALL",
+		1: "REMOVE",
+	}
+	AppSyncMessage_StickerPackOperation_Type_value = map[string]int32{
+		"INSTALL": 0,
+		"REMOVE":  1,
+	}
+)
+
+func (x AppSyncMessage_StickerPackOperation_Type) Enum() *AppSyncMessage_StickerPackOperation_Type {
+	p := new(AppSyncMessage_StickerPackOperation_Type)
+	*p = x
+	return p
+}
+
+func (x AppSyncMessage_StickerPackOperation_Type) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AppSyncMessage_StickerPackOperation_Type) Descriptor() protoreflect.EnumDescriptor {
+	return file_content_proto_enumTypes[4].Descriptor()
+}
+
+func (AppSyncMessage_StickerPackOperation_Type) Type() protoreflect.EnumType {
+	return &file_content_proto_enumTypes[4]
+}
+
+func (x AppSyncMessage_StickerPackOperation_Type) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Do not use.
+func (x *AppSyncMessage_StickerPackOperation_Type) UnmarshalJSON(b []byte) error {
+	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
+	if err != nil {
+		return err
+	}
+	*x = AppSyncMessage_StickerPackOperation_Type(num)
+	return nil
+}
+
+// Deprecated: Use AppSyncMessage_StickerPackOperation_Type.Descriptor instead.
+func (AppSyncMessage_StickerPackOperation_Type) EnumDescriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 6, 0}
+}
+
+type AppSyncMessage_FetchLatest_Type int32
+
+const (
+	AppSyncMessage_FetchLatest_UNKNOWN             AppSyncMessage_FetchLatest_Type = 0
+	AppSyncMessage_FetchLatest_LOCAL_PROFILE       AppSyncMessage_FetchLatest_Type = 1
+	AppSyncMessage_FetchLatest_STORAGE_MANIFEST    AppSyncMessage_FetchLatest_Type = 2
+	AppSyncMessage_FetchLatest_SUBSCRIPTION_STATUS AppSyncMessage_FetchLatest_Type = 3
+)
+
+// Enum value maps for AppSyncMessage_FetchLatest_Type.
+var (
+	AppSyncMessage_FetchLatest_Type_name = map[int32]string{
+		0: "UNKNOWN",
+		1: "LOCAL_PROFILE",
+		2: "STORAGE_MANIFEST",
+		3: "SUBSCRIPTION_STATUS",
+	}
+	AppSyncMessage_FetchLatest_Type_value = map[string]int32{
+		"UNKNOWN":             0,
+		"LOCAL_PROFILE":       1,
+		"STORAGE_MANIFEST":    2,
+		"SUBSCRIPTION_STATUS": 3,
+	}
+)
+
+func (x AppSyncMessage_FetchLatest_Type) Enum() *AppSyncMessage_FetchLatest_Type {
+	p := new(AppSyncMessage_FetchLatest_Type)
+	*p = x
+	return p
+}
+
+func (x AppSyncMessage_FetchLatest_Type) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AppSyncMessage_FetchLatest_Type) Descriptor() protoreflect.EnumDescriptor {
+	return file_content_proto_enumTypes[5].Descriptor()
+}
+
+func (AppSyncMessage_FetchLatest_Type) Type() protoreflect.EnumType {
+	return &file_content_proto_enumTypes[5]
+}
+
+func (x AppSyncMessage_FetchLatest_Type) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Do not use.
+func (x *AppSyncMessage_FetchLatest_Type) UnmarshalJSON(b []byte) error {
+	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
+	if err != nil {
+		return err
+	}
+	*x = AppSyncMessage_FetchLatest_Type(num)
+	return nil
+}
+
+// Deprecated: Use AppSyncMessage_FetchLatest_Type.Descriptor instead.
+func (AppSyncMessage_FetchLatest_Type) EnumDescriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 7, 0}
+}
+
+type AppVerified_State int32
+
+const (
+	AppVerified_DEFAULT    AppVerified_State = 0
+	AppVerified_VERIFIED   AppVerified_State = 1
+	AppVerified_UNVERIFIED AppVerified_State = 2
+)
+
+// Enum value maps for AppVerified_State.
+var (
+	AppVerified_State_name = map[int32]string{
+		0: "DEFAULT",
+		1: "VERIFIED",
+		2: "UNVERIFIED",
+	}
+	AppVerified_State_value = map[string]int32{
+		"DEFAULT":    0,
+		"VERIFIED":   1,
+		"UNVERIFIED": 2,
+	}
+)
+
+func (x AppVerified_State) Enum() *AppVerified_State {
+	p := new(AppVerified_State)
+	*p = x
+	return p
+}
+
+func (x AppVerified_State) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AppVerified_State) Descriptor() protoreflect.EnumDescriptor {
+	return file_content_proto_enumTypes[6].Descriptor()
+}
+
+func (AppVerified_State) Type() protoreflect.EnumType {
+	return &file_content_proto_enumTypes[6]
+}
+
+func (x AppVerified_State) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Do not use.
+func (x *AppVerified_State) UnmarshalJSON(b []byte) error {
+	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
+	if err != nil {
+		return err
+	}
+	*x = AppVerified_State(num)
+	return nil
+}
+
+// Deprecated: Use AppVerified_State.Descriptor instead.
+func (AppVerified_State) EnumDescriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{10, 0}
+}
+
 type AppBodyRange_Style int32
 
 const (
@@ -243,11 +488,11 @@ func (x AppBodyRange_Style) String() string {
 }
 
 func (AppBodyRange_Style) Descriptor() protoreflect.EnumDescriptor {
-	return file_content_proto_enumTypes[3].Descriptor()
+	return file_content_proto_enumTypes[7].Descriptor()
 }
 
 func (AppBodyRange_Style) Type() protoreflect.EnumType {
-	return &file_content_proto_enumTypes[3]
+	return &file_content_proto_enumTypes[7]
 }
 
 func (x AppBodyRange_Style) Number() protoreflect.EnumNumber {
@@ -266,7 +511,7 @@ func (x *AppBodyRange_Style) UnmarshalJSON(b []byte) error {
 
 // Deprecated: Use AppBodyRange_Style.Descriptor instead.
 func (AppBodyRange_Style) EnumDescriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{14, 0}
+	return file_content_proto_rawDescGZIP(), []int{15, 0}
 }
 
 type AppQuote_Type int32
@@ -302,11 +547,11 @@ func (x AppQuote_Type) String() string {
 }
 
 func (AppQuote_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_content_proto_enumTypes[4].Descriptor()
+	return file_content_proto_enumTypes[8].Descriptor()
 }
 
 func (AppQuote_Type) Type() protoreflect.EnumType {
-	return &file_content_proto_enumTypes[4]
+	return &file_content_proto_enumTypes[8]
 }
 
 func (x AppQuote_Type) Number() protoreflect.EnumNumber {
@@ -325,7 +570,7 @@ func (x *AppQuote_Type) UnmarshalJSON(b []byte) error {
 
 // Deprecated: Use AppQuote_Type.Descriptor instead.
 func (AppQuote_Type) EnumDescriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{15, 0}
+	return file_content_proto_rawDescGZIP(), []int{16, 0}
 }
 
 type AppSharedContact_Phone_Type int32
@@ -364,11 +609,11 @@ func (x AppSharedContact_Phone_Type) String() string {
 }
 
 func (AppSharedContact_Phone_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_content_proto_enumTypes[5].Descriptor()
+	return file_content_proto_enumTypes[9].Descriptor()
 }
 
 func (AppSharedContact_Phone_Type) Type() protoreflect.EnumType {
-	return &file_content_proto_enumTypes[5]
+	return &file_content_proto_enumTypes[9]
 }
 
 func (x AppSharedContact_Phone_Type) Number() protoreflect.EnumNumber {
@@ -387,7 +632,7 @@ func (x *AppSharedContact_Phone_Type) UnmarshalJSON(b []byte) error {
 
 // Deprecated: Use AppSharedContact_Phone_Type.Descriptor instead.
 func (AppSharedContact_Phone_Type) EnumDescriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{20, 1, 0}
+	return file_content_proto_rawDescGZIP(), []int{21, 1, 0}
 }
 
 type AppSharedContact_PostalAddress_Type int32
@@ -423,11 +668,11 @@ func (x AppSharedContact_PostalAddress_Type) String() string {
 }
 
 func (AppSharedContact_PostalAddress_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_content_proto_enumTypes[6].Descriptor()
+	return file_content_proto_enumTypes[10].Descriptor()
 }
 
 func (AppSharedContact_PostalAddress_Type) Type() protoreflect.EnumType {
-	return &file_content_proto_enumTypes[6]
+	return &file_content_proto_enumTypes[10]
 }
 
 func (x AppSharedContact_PostalAddress_Type) Number() protoreflect.EnumNumber {
@@ -446,7 +691,7 @@ func (x *AppSharedContact_PostalAddress_Type) UnmarshalJSON(b []byte) error {
 
 // Deprecated: Use AppSharedContact_PostalAddress_Type.Descriptor instead.
 func (AppSharedContact_PostalAddress_Type) EnumDescriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{20, 2, 0}
+	return file_content_proto_rawDescGZIP(), []int{21, 2, 0}
 }
 
 type AppPayment_Activation_Type int32
@@ -479,11 +724,11 @@ func (x AppPayment_Activation_Type) String() string {
 }
 
 func (AppPayment_Activation_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_content_proto_enumTypes[7].Descriptor()
+	return file_content_proto_enumTypes[11].Descriptor()
 }
 
 func (AppPayment_Activation_Type) Type() protoreflect.EnumType {
-	return &file_content_proto_enumTypes[7]
+	return &file_content_proto_enumTypes[11]
 }
 
 func (x AppPayment_Activation_Type) Number() protoreflect.EnumNumber {
@@ -502,7 +747,7 @@ func (x *AppPayment_Activation_Type) UnmarshalJSON(b []byte) error {
 
 // Deprecated: Use AppPayment_Activation_Type.Descriptor instead.
 func (AppPayment_Activation_Type) EnumDescriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{24, 1, 0}
+	return file_content_proto_rawDescGZIP(), []int{25, 1, 0}
 }
 
 type AppMessageRequestResponse_Type int32
@@ -550,11 +795,11 @@ func (x AppMessageRequestResponse_Type) String() string {
 }
 
 func (AppMessageRequestResponse_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_content_proto_enumTypes[8].Descriptor()
+	return file_content_proto_enumTypes[12].Descriptor()
 }
 
 func (AppMessageRequestResponse_Type) Type() protoreflect.EnumType {
-	return &file_content_proto_enumTypes[8]
+	return &file_content_proto_enumTypes[12]
 }
 
 func (x AppMessageRequestResponse_Type) Number() protoreflect.EnumNumber {
@@ -573,7 +818,7 @@ func (x *AppMessageRequestResponse_Type) UnmarshalJSON(b []byte) error {
 
 // Deprecated: Use AppMessageRequestResponse_Type.Descriptor instead.
 func (AppMessageRequestResponse_Type) EnumDescriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{31, 0}
+	return file_content_proto_rawDescGZIP(), []int{32, 0}
 }
 
 // The top-level plaintext (§3). At most one of the oneof members is set;
@@ -1378,14 +1623,38 @@ func (x *AppPniSignature) GetSignature() []byte {
 	return nil
 }
 
-// §8: SyncMessage, only the members signal-cli-go handles so far.
+// SyncMessage, from spec/service/sync.md §2. The members of the upstream
+// "content" oneof are plain optional fields here; receivers apply the
+// priority order of §2.1.
 type AppSyncMessage struct {
-	state                  protoimpl.MessageState     `protogen:"open.v1"`
-	Sent                   *AppSent                   `protobuf:"bytes,1,opt,name=sent" json:"sent,omitempty"`
-	MessageRequestResponse *AppMessageRequestResponse `protobuf:"bytes,14,opt,name=message_request_response,json=messageRequestResponse" json:"message_request_response,omitempty"`
-	Padding                []byte                     `protobuf:"bytes,8,opt,name=padding" json:"padding,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                      protoimpl.MessageState                 `protogen:"open.v1"`
+	Sent                       *AppSent                               `protobuf:"bytes,1,opt,name=sent" json:"sent,omitempty"`
+	Contacts                   *AppSyncMessage_Contacts               `protobuf:"bytes,2,opt,name=contacts" json:"contacts,omitempty"`
+	Groups                     *AppSyncMessage_Groups                 `protobuf:"bytes,3,opt,name=groups" json:"groups,omitempty"`
+	Request                    *AppSyncMessage_Request                `protobuf:"bytes,4,opt,name=request" json:"request,omitempty"`
+	Read                       []*AppSyncMessage_Read                 `protobuf:"bytes,5,rep,name=read" json:"read,omitempty"`
+	Blocked                    *AppSyncMessage_Blocked                `protobuf:"bytes,6,opt,name=blocked" json:"blocked,omitempty"`
+	Verified                   *AppVerified                           `protobuf:"bytes,7,opt,name=verified" json:"verified,omitempty"`
+	Padding                    []byte                                 `protobuf:"bytes,8,opt,name=padding" json:"padding,omitempty"`
+	Configuration              *AppSyncMessage_Configuration          `protobuf:"bytes,9,opt,name=configuration" json:"configuration,omitempty"`
+	StickerPackOperation       []*AppSyncMessage_StickerPackOperation `protobuf:"bytes,10,rep,name=sticker_pack_operation,json=stickerPackOperation" json:"sticker_pack_operation,omitempty"`
+	ViewOnceOpen               *AppSyncMessage_Read                   `protobuf:"bytes,11,opt,name=view_once_open,json=viewOnceOpen" json:"view_once_open,omitempty"`
+	FetchLatest                *AppSyncMessage_FetchLatest            `protobuf:"bytes,12,opt,name=fetch_latest,json=fetchLatest" json:"fetch_latest,omitempty"`
+	Keys                       *AppSyncMessage_Keys                   `protobuf:"bytes,13,opt,name=keys" json:"keys,omitempty"`
+	MessageRequestResponse     *AppMessageRequestResponse             `protobuf:"bytes,14,opt,name=message_request_response,json=messageRequestResponse" json:"message_request_response,omitempty"`
+	OutgoingPayment            []byte                                 `protobuf:"bytes,15,opt,name=outgoing_payment,json=outgoingPayment" json:"outgoing_payment,omitempty"`
+	Viewed                     []*AppSyncMessage_Read                 `protobuf:"bytes,16,rep,name=viewed" json:"viewed,omitempty"`
+	PniChangeNumber            *AppSyncMessage_PniChangeNumber        `protobuf:"bytes,18,opt,name=pni_change_number,json=pniChangeNumber" json:"pni_change_number,omitempty"`
+	CallEvent                  *AppSyncMessage_CallEvent              `protobuf:"bytes,19,opt,name=call_event,json=callEvent" json:"call_event,omitempty"`
+	CallLinkUpdate             []byte                                 `protobuf:"bytes,20,opt,name=call_link_update,json=callLinkUpdate" json:"call_link_update,omitempty"`
+	CallLogEvent               []byte                                 `protobuf:"bytes,21,opt,name=call_log_event,json=callLogEvent" json:"call_log_event,omitempty"`
+	DeleteForMe                []byte                                 `protobuf:"bytes,22,opt,name=delete_for_me,json=deleteForMe" json:"delete_for_me,omitempty"`
+	DeviceNameChange           *AppSyncMessage_DeviceNameChange       `protobuf:"bytes,23,opt,name=device_name_change,json=deviceNameChange" json:"device_name_change,omitempty"`
+	AttachmentBackfillRequest  []byte                                 `protobuf:"bytes,24,opt,name=attachment_backfill_request,json=attachmentBackfillRequest" json:"attachment_backfill_request,omitempty"`
+	AttachmentBackfillResponse []byte                                 `protobuf:"bytes,25,opt,name=attachment_backfill_response,json=attachmentBackfillResponse" json:"attachment_backfill_response,omitempty"`
+	UsernameChange             []byte                                 `protobuf:"bytes,26,opt,name=username_change,json=usernameChange" json:"username_change,omitempty"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *AppSyncMessage) Reset() {
@@ -1425,9 +1694,44 @@ func (x *AppSyncMessage) GetSent() *AppSent {
 	return nil
 }
 
-func (x *AppSyncMessage) GetMessageRequestResponse() *AppMessageRequestResponse {
+func (x *AppSyncMessage) GetContacts() *AppSyncMessage_Contacts {
 	if x != nil {
-		return x.MessageRequestResponse
+		return x.Contacts
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetGroups() *AppSyncMessage_Groups {
+	if x != nil {
+		return x.Groups
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetRequest() *AppSyncMessage_Request {
+	if x != nil {
+		return x.Request
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetRead() []*AppSyncMessage_Read {
+	if x != nil {
+		return x.Read
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetBlocked() *AppSyncMessage_Blocked {
+	if x != nil {
+		return x.Blocked
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetVerified() *AppVerified {
+	if x != nil {
+		return x.Verified
 	}
 	return nil
 }
@@ -1435,6 +1739,202 @@ func (x *AppSyncMessage) GetMessageRequestResponse() *AppMessageRequestResponse 
 func (x *AppSyncMessage) GetPadding() []byte {
 	if x != nil {
 		return x.Padding
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetConfiguration() *AppSyncMessage_Configuration {
+	if x != nil {
+		return x.Configuration
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetStickerPackOperation() []*AppSyncMessage_StickerPackOperation {
+	if x != nil {
+		return x.StickerPackOperation
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetViewOnceOpen() *AppSyncMessage_Read {
+	if x != nil {
+		return x.ViewOnceOpen
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetFetchLatest() *AppSyncMessage_FetchLatest {
+	if x != nil {
+		return x.FetchLatest
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetKeys() *AppSyncMessage_Keys {
+	if x != nil {
+		return x.Keys
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetMessageRequestResponse() *AppMessageRequestResponse {
+	if x != nil {
+		return x.MessageRequestResponse
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetOutgoingPayment() []byte {
+	if x != nil {
+		return x.OutgoingPayment
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetViewed() []*AppSyncMessage_Read {
+	if x != nil {
+		return x.Viewed
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetPniChangeNumber() *AppSyncMessage_PniChangeNumber {
+	if x != nil {
+		return x.PniChangeNumber
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetCallEvent() *AppSyncMessage_CallEvent {
+	if x != nil {
+		return x.CallEvent
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetCallLinkUpdate() []byte {
+	if x != nil {
+		return x.CallLinkUpdate
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetCallLogEvent() []byte {
+	if x != nil {
+		return x.CallLogEvent
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetDeleteForMe() []byte {
+	if x != nil {
+		return x.DeleteForMe
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetDeviceNameChange() *AppSyncMessage_DeviceNameChange {
+	if x != nil {
+		return x.DeviceNameChange
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetAttachmentBackfillRequest() []byte {
+	if x != nil {
+		return x.AttachmentBackfillRequest
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetAttachmentBackfillResponse() []byte {
+	if x != nil {
+		return x.AttachmentBackfillResponse
+	}
+	return nil
+}
+
+func (x *AppSyncMessage) GetUsernameChange() []byte {
+	if x != nil {
+		return x.UsernameChange
+	}
+	return nil
+}
+
+// The top-level Verified message (sync.md §2.3).
+type AppVerified struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	DestinationAci       *string                `protobuf:"bytes,5,opt,name=destination_aci,json=destinationAci" json:"destination_aci,omitempty"`
+	IdentityKey          []byte                 `protobuf:"bytes,2,opt,name=identity_key,json=identityKey" json:"identity_key,omitempty"`
+	State                *AppVerified_State     `protobuf:"varint,3,opt,name=state,enum=signalcligo.AppVerified_State" json:"state,omitempty"`
+	NullMessage          []byte                 `protobuf:"bytes,4,opt,name=null_message,json=nullMessage" json:"null_message,omitempty"`
+	DestinationAciBinary []byte                 `protobuf:"bytes,6,opt,name=destination_aci_binary,json=destinationAciBinary" json:"destination_aci_binary,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *AppVerified) Reset() {
+	*x = AppVerified{}
+	mi := &file_content_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppVerified) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppVerified) ProtoMessage() {}
+
+func (x *AppVerified) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppVerified.ProtoReflect.Descriptor instead.
+func (*AppVerified) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *AppVerified) GetDestinationAci() string {
+	if x != nil && x.DestinationAci != nil {
+		return *x.DestinationAci
+	}
+	return ""
+}
+
+func (x *AppVerified) GetIdentityKey() []byte {
+	if x != nil {
+		return x.IdentityKey
+	}
+	return nil
+}
+
+func (x *AppVerified) GetState() AppVerified_State {
+	if x != nil && x.State != nil {
+		return *x.State
+	}
+	return AppVerified_DEFAULT
+}
+
+func (x *AppVerified) GetNullMessage() []byte {
+	if x != nil {
+		return x.NullMessage
+	}
+	return nil
+}
+
+func (x *AppVerified) GetDestinationAciBinary() []byte {
+	if x != nil {
+		return x.DestinationAciBinary
 	}
 	return nil
 }
@@ -1457,7 +1957,7 @@ type AppSent struct {
 
 func (x *AppSent) Reset() {
 	*x = AppSent{}
-	mi := &file_content_proto_msgTypes[10]
+	mi := &file_content_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1469,7 +1969,7 @@ func (x *AppSent) String() string {
 func (*AppSent) ProtoMessage() {}
 
 func (x *AppSent) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[10]
+	mi := &file_content_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1482,7 +1982,7 @@ func (x *AppSent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppSent.ProtoReflect.Descriptor instead.
 func (*AppSent) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{10}
+	return file_content_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *AppSent) GetDestinationE164() string {
@@ -1560,7 +2060,7 @@ type AppUnidentifiedStatus struct {
 
 func (x *AppUnidentifiedStatus) Reset() {
 	*x = AppUnidentifiedStatus{}
-	mi := &file_content_proto_msgTypes[11]
+	mi := &file_content_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1572,7 +2072,7 @@ func (x *AppUnidentifiedStatus) String() string {
 func (*AppUnidentifiedStatus) ProtoMessage() {}
 
 func (x *AppUnidentifiedStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[11]
+	mi := &file_content_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1585,7 +2085,7 @@ func (x *AppUnidentifiedStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppUnidentifiedStatus.ProtoReflect.Descriptor instead.
 func (*AppUnidentifiedStatus) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{11}
+	return file_content_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *AppUnidentifiedStatus) GetUnidentified() bool {
@@ -1628,7 +2128,7 @@ type AppDecryptionErrorMessage struct {
 
 func (x *AppDecryptionErrorMessage) Reset() {
 	*x = AppDecryptionErrorMessage{}
-	mi := &file_content_proto_msgTypes[12]
+	mi := &file_content_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1640,7 +2140,7 @@ func (x *AppDecryptionErrorMessage) String() string {
 func (*AppDecryptionErrorMessage) ProtoMessage() {}
 
 func (x *AppDecryptionErrorMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[12]
+	mi := &file_content_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1653,7 +2153,7 @@ func (x *AppDecryptionErrorMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppDecryptionErrorMessage.ProtoReflect.Descriptor instead.
 func (*AppDecryptionErrorMessage) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{12}
+	return file_content_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AppDecryptionErrorMessage) GetRatchetKey() []byte {
@@ -1707,7 +2207,7 @@ type AppAttachmentPointer struct {
 
 func (x *AppAttachmentPointer) Reset() {
 	*x = AppAttachmentPointer{}
-	mi := &file_content_proto_msgTypes[13]
+	mi := &file_content_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1719,7 +2219,7 @@ func (x *AppAttachmentPointer) String() string {
 func (*AppAttachmentPointer) ProtoMessage() {}
 
 func (x *AppAttachmentPointer) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[13]
+	mi := &file_content_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1732,7 +2232,7 @@ func (x *AppAttachmentPointer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppAttachmentPointer.ProtoReflect.Descriptor instead.
 func (*AppAttachmentPointer) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{13}
+	return file_content_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *AppAttachmentPointer) GetAttachmentIdentifier() isAppAttachmentPointer_AttachmentIdentifier {
@@ -1904,7 +2404,7 @@ type AppBodyRange struct {
 
 func (x *AppBodyRange) Reset() {
 	*x = AppBodyRange{}
-	mi := &file_content_proto_msgTypes[14]
+	mi := &file_content_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1916,7 +2416,7 @@ func (x *AppBodyRange) String() string {
 func (*AppBodyRange) ProtoMessage() {}
 
 func (x *AppBodyRange) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[14]
+	mi := &file_content_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1929,7 +2429,7 @@ func (x *AppBodyRange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppBodyRange.ProtoReflect.Descriptor instead.
 func (*AppBodyRange) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{14}
+	return file_content_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *AppBodyRange) GetStart() uint32 {
@@ -2017,7 +2517,7 @@ type AppQuote struct {
 
 func (x *AppQuote) Reset() {
 	*x = AppQuote{}
-	mi := &file_content_proto_msgTypes[15]
+	mi := &file_content_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2029,7 +2529,7 @@ func (x *AppQuote) String() string {
 func (*AppQuote) ProtoMessage() {}
 
 func (x *AppQuote) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[15]
+	mi := &file_content_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2042,7 +2542,7 @@ func (x *AppQuote) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppQuote.ProtoReflect.Descriptor instead.
 func (*AppQuote) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{15}
+	return file_content_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *AppQuote) GetId() uint64 {
@@ -2105,7 +2605,7 @@ type AppQuotedAttachment struct {
 
 func (x *AppQuotedAttachment) Reset() {
 	*x = AppQuotedAttachment{}
-	mi := &file_content_proto_msgTypes[16]
+	mi := &file_content_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2117,7 +2617,7 @@ func (x *AppQuotedAttachment) String() string {
 func (*AppQuotedAttachment) ProtoMessage() {}
 
 func (x *AppQuotedAttachment) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[16]
+	mi := &file_content_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2130,7 +2630,7 @@ func (x *AppQuotedAttachment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppQuotedAttachment.ProtoReflect.Descriptor instead.
 func (*AppQuotedAttachment) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{16}
+	return file_content_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *AppQuotedAttachment) GetContentType() string {
@@ -2167,7 +2667,7 @@ type AppReaction struct {
 
 func (x *AppReaction) Reset() {
 	*x = AppReaction{}
-	mi := &file_content_proto_msgTypes[17]
+	mi := &file_content_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2179,7 +2679,7 @@ func (x *AppReaction) String() string {
 func (*AppReaction) ProtoMessage() {}
 
 func (x *AppReaction) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[17]
+	mi := &file_content_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2192,7 +2692,7 @@ func (x *AppReaction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppReaction.ProtoReflect.Descriptor instead.
 func (*AppReaction) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{17}
+	return file_content_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *AppReaction) GetEmoji() string {
@@ -2243,7 +2743,7 @@ type AppPreview struct {
 
 func (x *AppPreview) Reset() {
 	*x = AppPreview{}
-	mi := &file_content_proto_msgTypes[18]
+	mi := &file_content_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2255,7 +2755,7 @@ func (x *AppPreview) String() string {
 func (*AppPreview) ProtoMessage() {}
 
 func (x *AppPreview) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[18]
+	mi := &file_content_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2268,7 +2768,7 @@ func (x *AppPreview) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppPreview.ProtoReflect.Descriptor instead.
 func (*AppPreview) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{18}
+	return file_content_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *AppPreview) GetUrl() string {
@@ -2319,7 +2819,7 @@ type AppSticker struct {
 
 func (x *AppSticker) Reset() {
 	*x = AppSticker{}
-	mi := &file_content_proto_msgTypes[19]
+	mi := &file_content_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2331,7 +2831,7 @@ func (x *AppSticker) String() string {
 func (*AppSticker) ProtoMessage() {}
 
 func (x *AppSticker) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[19]
+	mi := &file_content_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2344,7 +2844,7 @@ func (x *AppSticker) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppSticker.ProtoReflect.Descriptor instead.
 func (*AppSticker) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{19}
+	return file_content_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *AppSticker) GetPackId() []byte {
@@ -2396,7 +2896,7 @@ type AppSharedContact struct {
 
 func (x *AppSharedContact) Reset() {
 	*x = AppSharedContact{}
-	mi := &file_content_proto_msgTypes[20]
+	mi := &file_content_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2408,7 +2908,7 @@ func (x *AppSharedContact) String() string {
 func (*AppSharedContact) ProtoMessage() {}
 
 func (x *AppSharedContact) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[20]
+	mi := &file_content_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2421,7 +2921,7 @@ func (x *AppSharedContact) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppSharedContact.ProtoReflect.Descriptor instead.
 func (*AppSharedContact) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{20}
+	return file_content_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *AppSharedContact) GetName() *AppSharedContact_Name {
@@ -2477,7 +2977,7 @@ type AppStoryContext struct {
 
 func (x *AppStoryContext) Reset() {
 	*x = AppStoryContext{}
-	mi := &file_content_proto_msgTypes[21]
+	mi := &file_content_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2489,7 +2989,7 @@ func (x *AppStoryContext) String() string {
 func (*AppStoryContext) ProtoMessage() {}
 
 func (x *AppStoryContext) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[21]
+	mi := &file_content_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2502,7 +3002,7 @@ func (x *AppStoryContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppStoryContext.ProtoReflect.Descriptor instead.
 func (*AppStoryContext) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{21}
+	return file_content_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *AppStoryContext) GetAuthorAci() string {
@@ -2535,7 +3035,7 @@ type AppGroupCallUpdate struct {
 
 func (x *AppGroupCallUpdate) Reset() {
 	*x = AppGroupCallUpdate{}
-	mi := &file_content_proto_msgTypes[22]
+	mi := &file_content_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2547,7 +3047,7 @@ func (x *AppGroupCallUpdate) String() string {
 func (*AppGroupCallUpdate) ProtoMessage() {}
 
 func (x *AppGroupCallUpdate) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[22]
+	mi := &file_content_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2560,7 +3060,7 @@ func (x *AppGroupCallUpdate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppGroupCallUpdate.ProtoReflect.Descriptor instead.
 func (*AppGroupCallUpdate) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{22}
+	return file_content_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *AppGroupCallUpdate) GetEraId() string {
@@ -2579,7 +3079,7 @@ type AppGiftBadge struct {
 
 func (x *AppGiftBadge) Reset() {
 	*x = AppGiftBadge{}
-	mi := &file_content_proto_msgTypes[23]
+	mi := &file_content_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2591,7 +3091,7 @@ func (x *AppGiftBadge) String() string {
 func (*AppGiftBadge) ProtoMessage() {}
 
 func (x *AppGiftBadge) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[23]
+	mi := &file_content_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2604,7 +3104,7 @@ func (x *AppGiftBadge) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppGiftBadge.ProtoReflect.Descriptor instead.
 func (*AppGiftBadge) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{23}
+	return file_content_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *AppGiftBadge) GetReceiptCredentialPresentation() []byte {
@@ -2627,7 +3127,7 @@ type AppPayment struct {
 
 func (x *AppPayment) Reset() {
 	*x = AppPayment{}
-	mi := &file_content_proto_msgTypes[24]
+	mi := &file_content_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2639,7 +3139,7 @@ func (x *AppPayment) String() string {
 func (*AppPayment) ProtoMessage() {}
 
 func (x *AppPayment) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[24]
+	mi := &file_content_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2652,7 +3152,7 @@ func (x *AppPayment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppPayment.ProtoReflect.Descriptor instead.
 func (*AppPayment) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{24}
+	return file_content_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *AppPayment) GetItem() isAppPayment_Item {
@@ -2707,7 +3207,7 @@ type AppPollCreate struct {
 
 func (x *AppPollCreate) Reset() {
 	*x = AppPollCreate{}
-	mi := &file_content_proto_msgTypes[25]
+	mi := &file_content_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2719,7 +3219,7 @@ func (x *AppPollCreate) String() string {
 func (*AppPollCreate) ProtoMessage() {}
 
 func (x *AppPollCreate) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[25]
+	mi := &file_content_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2732,7 +3232,7 @@ func (x *AppPollCreate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppPollCreate.ProtoReflect.Descriptor instead.
 func (*AppPollCreate) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{25}
+	return file_content_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *AppPollCreate) GetQuestion() string {
@@ -2765,7 +3265,7 @@ type AppPollTerminate struct {
 
 func (x *AppPollTerminate) Reset() {
 	*x = AppPollTerminate{}
-	mi := &file_content_proto_msgTypes[26]
+	mi := &file_content_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2777,7 +3277,7 @@ func (x *AppPollTerminate) String() string {
 func (*AppPollTerminate) ProtoMessage() {}
 
 func (x *AppPollTerminate) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[26]
+	mi := &file_content_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2790,7 +3290,7 @@ func (x *AppPollTerminate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppPollTerminate.ProtoReflect.Descriptor instead.
 func (*AppPollTerminate) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{26}
+	return file_content_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *AppPollTerminate) GetTargetSentTimestamp() uint64 {
@@ -2812,7 +3312,7 @@ type AppPollVote struct {
 
 func (x *AppPollVote) Reset() {
 	*x = AppPollVote{}
-	mi := &file_content_proto_msgTypes[27]
+	mi := &file_content_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2824,7 +3324,7 @@ func (x *AppPollVote) String() string {
 func (*AppPollVote) ProtoMessage() {}
 
 func (x *AppPollVote) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[27]
+	mi := &file_content_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2837,7 +3337,7 @@ func (x *AppPollVote) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppPollVote.ProtoReflect.Descriptor instead.
 func (*AppPollVote) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{27}
+	return file_content_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *AppPollVote) GetTargetAuthorAciBinary() []byte {
@@ -2883,7 +3383,7 @@ type AppPinMessage struct {
 
 func (x *AppPinMessage) Reset() {
 	*x = AppPinMessage{}
-	mi := &file_content_proto_msgTypes[28]
+	mi := &file_content_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2895,7 +3395,7 @@ func (x *AppPinMessage) String() string {
 func (*AppPinMessage) ProtoMessage() {}
 
 func (x *AppPinMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[28]
+	mi := &file_content_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2908,7 +3408,7 @@ func (x *AppPinMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppPinMessage.ProtoReflect.Descriptor instead.
 func (*AppPinMessage) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{28}
+	return file_content_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *AppPinMessage) GetTargetAuthorAciBinary() []byte {
@@ -2976,7 +3476,7 @@ type AppUnpinMessage struct {
 
 func (x *AppUnpinMessage) Reset() {
 	*x = AppUnpinMessage{}
-	mi := &file_content_proto_msgTypes[29]
+	mi := &file_content_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2988,7 +3488,7 @@ func (x *AppUnpinMessage) String() string {
 func (*AppUnpinMessage) ProtoMessage() {}
 
 func (x *AppUnpinMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[29]
+	mi := &file_content_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3001,7 +3501,7 @@ func (x *AppUnpinMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppUnpinMessage.ProtoReflect.Descriptor instead.
 func (*AppUnpinMessage) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{29}
+	return file_content_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *AppUnpinMessage) GetTargetAuthorAciBinary() []byte {
@@ -3028,7 +3528,7 @@ type AppAdminDelete struct {
 
 func (x *AppAdminDelete) Reset() {
 	*x = AppAdminDelete{}
-	mi := &file_content_proto_msgTypes[30]
+	mi := &file_content_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3040,7 +3540,7 @@ func (x *AppAdminDelete) String() string {
 func (*AppAdminDelete) ProtoMessage() {}
 
 func (x *AppAdminDelete) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[30]
+	mi := &file_content_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3053,7 +3553,7 @@ func (x *AppAdminDelete) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppAdminDelete.ProtoReflect.Descriptor instead.
 func (*AppAdminDelete) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{30}
+	return file_content_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *AppAdminDelete) GetTargetAuthorAciBinary() []byte {
@@ -3083,7 +3583,7 @@ type AppMessageRequestResponse struct {
 
 func (x *AppMessageRequestResponse) Reset() {
 	*x = AppMessageRequestResponse{}
-	mi := &file_content_proto_msgTypes[31]
+	mi := &file_content_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3095,7 +3595,7 @@ func (x *AppMessageRequestResponse) String() string {
 func (*AppMessageRequestResponse) ProtoMessage() {}
 
 func (x *AppMessageRequestResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[31]
+	mi := &file_content_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3108,7 +3608,7 @@ func (x *AppMessageRequestResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppMessageRequestResponse.ProtoReflect.Descriptor instead.
 func (*AppMessageRequestResponse) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{31}
+	return file_content_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *AppMessageRequestResponse) GetThreadAci() string {
@@ -3139,6 +3639,810 @@ func (x *AppMessageRequestResponse) GetThreadAciBinary() []byte {
 	return nil
 }
 
+// A record of the contact stream (sync.md §5.1), length-prefixed in the
+// blob and followed by the avatar bytes.
+type AppContactDetails struct {
+	state              protoimpl.MessageState    `protogen:"open.v1"`
+	Number             *string                   `protobuf:"bytes,1,opt,name=number" json:"number,omitempty"`
+	Aci                *string                   `protobuf:"bytes,9,opt,name=aci" json:"aci,omitempty"`
+	AciBinary          []byte                    `protobuf:"bytes,13,opt,name=aci_binary,json=aciBinary" json:"aci_binary,omitempty"`
+	Name               *string                   `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	Avatar             *AppContactDetails_Avatar `protobuf:"bytes,3,opt,name=avatar" json:"avatar,omitempty"`
+	ExpireTimer        *uint32                   `protobuf:"varint,8,opt,name=expire_timer,json=expireTimer" json:"expire_timer,omitempty"`
+	ExpireTimerVersion *uint32                   `protobuf:"varint,12,opt,name=expire_timer_version,json=expireTimerVersion" json:"expire_timer_version,omitempty"`
+	InboxPosition      *uint32                   `protobuf:"varint,10,opt,name=inbox_position,json=inboxPosition" json:"inbox_position,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *AppContactDetails) Reset() {
+	*x = AppContactDetails{}
+	mi := &file_content_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppContactDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppContactDetails) ProtoMessage() {}
+
+func (x *AppContactDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppContactDetails.ProtoReflect.Descriptor instead.
+func (*AppContactDetails) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *AppContactDetails) GetNumber() string {
+	if x != nil && x.Number != nil {
+		return *x.Number
+	}
+	return ""
+}
+
+func (x *AppContactDetails) GetAci() string {
+	if x != nil && x.Aci != nil {
+		return *x.Aci
+	}
+	return ""
+}
+
+func (x *AppContactDetails) GetAciBinary() []byte {
+	if x != nil {
+		return x.AciBinary
+	}
+	return nil
+}
+
+func (x *AppContactDetails) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+func (x *AppContactDetails) GetAvatar() *AppContactDetails_Avatar {
+	if x != nil {
+		return x.Avatar
+	}
+	return nil
+}
+
+func (x *AppContactDetails) GetExpireTimer() uint32 {
+	if x != nil && x.ExpireTimer != nil {
+		return *x.ExpireTimer
+	}
+	return 0
+}
+
+func (x *AppContactDetails) GetExpireTimerVersion() uint32 {
+	if x != nil && x.ExpireTimerVersion != nil {
+		return *x.ExpireTimerVersion
+	}
+	return 0
+}
+
+func (x *AppContactDetails) GetInboxPosition() uint32 {
+	if x != nil && x.InboxPosition != nil {
+		return *x.InboxPosition
+	}
+	return 0
+}
+
+type AppSyncMessage_Contacts struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Blob          *AppAttachmentPointer  `protobuf:"bytes,1,opt,name=blob" json:"blob,omitempty"`
+	Complete      *bool                  `protobuf:"varint,2,opt,name=complete,def=0" json:"complete,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+// Default values for AppSyncMessage_Contacts fields.
+const (
+	Default_AppSyncMessage_Contacts_Complete = bool(false)
+)
+
+func (x *AppSyncMessage_Contacts) Reset() {
+	*x = AppSyncMessage_Contacts{}
+	mi := &file_content_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage_Contacts) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage_Contacts) ProtoMessage() {}
+
+func (x *AppSyncMessage_Contacts) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage_Contacts.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage_Contacts) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 0}
+}
+
+func (x *AppSyncMessage_Contacts) GetBlob() *AppAttachmentPointer {
+	if x != nil {
+		return x.Blob
+	}
+	return nil
+}
+
+func (x *AppSyncMessage_Contacts) GetComplete() bool {
+	if x != nil && x.Complete != nil {
+		return *x.Complete
+	}
+	return Default_AppSyncMessage_Contacts_Complete
+}
+
+type AppSyncMessage_Groups struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Blob          *AppAttachmentPointer  `protobuf:"bytes,1,opt,name=blob" json:"blob,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSyncMessage_Groups) Reset() {
+	*x = AppSyncMessage_Groups{}
+	mi := &file_content_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage_Groups) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage_Groups) ProtoMessage() {}
+
+func (x *AppSyncMessage_Groups) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage_Groups.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage_Groups) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 1}
+}
+
+func (x *AppSyncMessage_Groups) GetBlob() *AppAttachmentPointer {
+	if x != nil {
+		return x.Blob
+	}
+	return nil
+}
+
+type AppSyncMessage_Request struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Type          *AppSyncMessage_Request_Type `protobuf:"varint,1,opt,name=type,enum=signalcligo.AppSyncMessage_Request_Type" json:"type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSyncMessage_Request) Reset() {
+	*x = AppSyncMessage_Request{}
+	mi := &file_content_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage_Request) ProtoMessage() {}
+
+func (x *AppSyncMessage_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage_Request.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage_Request) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 2}
+}
+
+func (x *AppSyncMessage_Request) GetType() AppSyncMessage_Request_Type {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return AppSyncMessage_Request_UNKNOWN
+}
+
+// Read, Viewed and ViewOnceOpen share one shape.
+type AppSyncMessage_Read struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Timestamp       *uint64                `protobuf:"varint,2,opt,name=timestamp" json:"timestamp,omitempty"`
+	SenderAci       *string                `protobuf:"bytes,3,opt,name=sender_aci,json=senderAci" json:"sender_aci,omitempty"`
+	SenderAciBinary []byte                 `protobuf:"bytes,4,opt,name=sender_aci_binary,json=senderAciBinary" json:"sender_aci_binary,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *AppSyncMessage_Read) Reset() {
+	*x = AppSyncMessage_Read{}
+	mi := &file_content_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage_Read) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage_Read) ProtoMessage() {}
+
+func (x *AppSyncMessage_Read) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage_Read.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage_Read) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 3}
+}
+
+func (x *AppSyncMessage_Read) GetTimestamp() uint64 {
+	if x != nil && x.Timestamp != nil {
+		return *x.Timestamp
+	}
+	return 0
+}
+
+func (x *AppSyncMessage_Read) GetSenderAci() string {
+	if x != nil && x.SenderAci != nil {
+		return *x.SenderAci
+	}
+	return ""
+}
+
+func (x *AppSyncMessage_Read) GetSenderAciBinary() []byte {
+	if x != nil {
+		return x.SenderAciBinary
+	}
+	return nil
+}
+
+type AppSyncMessage_Blocked struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Numbers       []string               `protobuf:"bytes,1,rep,name=numbers" json:"numbers,omitempty"`
+	Acis          []string               `protobuf:"bytes,3,rep,name=acis" json:"acis,omitempty"`
+	GroupIds      [][]byte               `protobuf:"bytes,2,rep,name=group_ids,json=groupIds" json:"group_ids,omitempty"`
+	AcisBinary    [][]byte               `protobuf:"bytes,4,rep,name=acis_binary,json=acisBinary" json:"acis_binary,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSyncMessage_Blocked) Reset() {
+	*x = AppSyncMessage_Blocked{}
+	mi := &file_content_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage_Blocked) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage_Blocked) ProtoMessage() {}
+
+func (x *AppSyncMessage_Blocked) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage_Blocked.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage_Blocked) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 4}
+}
+
+func (x *AppSyncMessage_Blocked) GetNumbers() []string {
+	if x != nil {
+		return x.Numbers
+	}
+	return nil
+}
+
+func (x *AppSyncMessage_Blocked) GetAcis() []string {
+	if x != nil {
+		return x.Acis
+	}
+	return nil
+}
+
+func (x *AppSyncMessage_Blocked) GetGroupIds() [][]byte {
+	if x != nil {
+		return x.GroupIds
+	}
+	return nil
+}
+
+func (x *AppSyncMessage_Blocked) GetAcisBinary() [][]byte {
+	if x != nil {
+		return x.AcisBinary
+	}
+	return nil
+}
+
+type AppSyncMessage_Configuration struct {
+	state                          protoimpl.MessageState `protogen:"open.v1"`
+	ReadReceipts                   *bool                  `protobuf:"varint,1,opt,name=read_receipts,json=readReceipts" json:"read_receipts,omitempty"`
+	UnidentifiedDeliveryIndicators *bool                  `protobuf:"varint,2,opt,name=unidentified_delivery_indicators,json=unidentifiedDeliveryIndicators" json:"unidentified_delivery_indicators,omitempty"`
+	TypingIndicators               *bool                  `protobuf:"varint,3,opt,name=typing_indicators,json=typingIndicators" json:"typing_indicators,omitempty"`
+	LinkPreviews                   *bool                  `protobuf:"varint,6,opt,name=link_previews,json=linkPreviews" json:"link_previews,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
+}
+
+func (x *AppSyncMessage_Configuration) Reset() {
+	*x = AppSyncMessage_Configuration{}
+	mi := &file_content_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage_Configuration) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage_Configuration) ProtoMessage() {}
+
+func (x *AppSyncMessage_Configuration) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage_Configuration.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage_Configuration) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 5}
+}
+
+func (x *AppSyncMessage_Configuration) GetReadReceipts() bool {
+	if x != nil && x.ReadReceipts != nil {
+		return *x.ReadReceipts
+	}
+	return false
+}
+
+func (x *AppSyncMessage_Configuration) GetUnidentifiedDeliveryIndicators() bool {
+	if x != nil && x.UnidentifiedDeliveryIndicators != nil {
+		return *x.UnidentifiedDeliveryIndicators
+	}
+	return false
+}
+
+func (x *AppSyncMessage_Configuration) GetTypingIndicators() bool {
+	if x != nil && x.TypingIndicators != nil {
+		return *x.TypingIndicators
+	}
+	return false
+}
+
+func (x *AppSyncMessage_Configuration) GetLinkPreviews() bool {
+	if x != nil && x.LinkPreviews != nil {
+		return *x.LinkPreviews
+	}
+	return false
+}
+
+type AppSyncMessage_StickerPackOperation struct {
+	state         protoimpl.MessageState                    `protogen:"open.v1"`
+	PackId        []byte                                    `protobuf:"bytes,1,opt,name=pack_id,json=packId" json:"pack_id,omitempty"`
+	PackKey       []byte                                    `protobuf:"bytes,2,opt,name=pack_key,json=packKey" json:"pack_key,omitempty"`
+	Type          *AppSyncMessage_StickerPackOperation_Type `protobuf:"varint,3,opt,name=type,enum=signalcligo.AppSyncMessage_StickerPackOperation_Type" json:"type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSyncMessage_StickerPackOperation) Reset() {
+	*x = AppSyncMessage_StickerPackOperation{}
+	mi := &file_content_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage_StickerPackOperation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage_StickerPackOperation) ProtoMessage() {}
+
+func (x *AppSyncMessage_StickerPackOperation) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage_StickerPackOperation.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage_StickerPackOperation) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 6}
+}
+
+func (x *AppSyncMessage_StickerPackOperation) GetPackId() []byte {
+	if x != nil {
+		return x.PackId
+	}
+	return nil
+}
+
+func (x *AppSyncMessage_StickerPackOperation) GetPackKey() []byte {
+	if x != nil {
+		return x.PackKey
+	}
+	return nil
+}
+
+func (x *AppSyncMessage_StickerPackOperation) GetType() AppSyncMessage_StickerPackOperation_Type {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return AppSyncMessage_StickerPackOperation_INSTALL
+}
+
+type AppSyncMessage_FetchLatest struct {
+	state         protoimpl.MessageState           `protogen:"open.v1"`
+	Type          *AppSyncMessage_FetchLatest_Type `protobuf:"varint,1,opt,name=type,enum=signalcligo.AppSyncMessage_FetchLatest_Type" json:"type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSyncMessage_FetchLatest) Reset() {
+	*x = AppSyncMessage_FetchLatest{}
+	mi := &file_content_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage_FetchLatest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage_FetchLatest) ProtoMessage() {}
+
+func (x *AppSyncMessage_FetchLatest) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage_FetchLatest.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage_FetchLatest) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 7}
+}
+
+func (x *AppSyncMessage_FetchLatest) GetType() AppSyncMessage_FetchLatest_Type {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return AppSyncMessage_FetchLatest_UNKNOWN
+}
+
+type AppSyncMessage_Keys struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	AccountEntropyPool *string                `protobuf:"bytes,3,opt,name=account_entropy_pool,json=accountEntropyPool" json:"account_entropy_pool,omitempty"`
+	MediaRootBackupKey []byte                 `protobuf:"bytes,4,opt,name=media_root_backup_key,json=mediaRootBackupKey" json:"media_root_backup_key,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *AppSyncMessage_Keys) Reset() {
+	*x = AppSyncMessage_Keys{}
+	mi := &file_content_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage_Keys) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage_Keys) ProtoMessage() {}
+
+func (x *AppSyncMessage_Keys) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage_Keys.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage_Keys) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 8}
+}
+
+func (x *AppSyncMessage_Keys) GetAccountEntropyPool() string {
+	if x != nil && x.AccountEntropyPool != nil {
+		return *x.AccountEntropyPool
+	}
+	return ""
+}
+
+func (x *AppSyncMessage_Keys) GetMediaRootBackupKey() []byte {
+	if x != nil {
+		return x.MediaRootBackupKey
+	}
+	return nil
+}
+
+type AppSyncMessage_PniChangeNumber struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	IdentityKeyPair       []byte                 `protobuf:"bytes,1,opt,name=identity_key_pair,json=identityKeyPair" json:"identity_key_pair,omitempty"`
+	SignedPreKey          []byte                 `protobuf:"bytes,2,opt,name=signed_pre_key,json=signedPreKey" json:"signed_pre_key,omitempty"`
+	LastResortKyberPreKey []byte                 `protobuf:"bytes,5,opt,name=last_resort_kyber_pre_key,json=lastResortKyberPreKey" json:"last_resort_kyber_pre_key,omitempty"`
+	RegistrationId        *uint32                `protobuf:"varint,3,opt,name=registration_id,json=registrationId" json:"registration_id,omitempty"`
+	NewE164               *string                `protobuf:"bytes,4,opt,name=new_e164,json=newE164" json:"new_e164,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *AppSyncMessage_PniChangeNumber) Reset() {
+	*x = AppSyncMessage_PniChangeNumber{}
+	mi := &file_content_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage_PniChangeNumber) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage_PniChangeNumber) ProtoMessage() {}
+
+func (x *AppSyncMessage_PniChangeNumber) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage_PniChangeNumber.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage_PniChangeNumber) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 9}
+}
+
+func (x *AppSyncMessage_PniChangeNumber) GetIdentityKeyPair() []byte {
+	if x != nil {
+		return x.IdentityKeyPair
+	}
+	return nil
+}
+
+func (x *AppSyncMessage_PniChangeNumber) GetSignedPreKey() []byte {
+	if x != nil {
+		return x.SignedPreKey
+	}
+	return nil
+}
+
+func (x *AppSyncMessage_PniChangeNumber) GetLastResortKyberPreKey() []byte {
+	if x != nil {
+		return x.LastResortKyberPreKey
+	}
+	return nil
+}
+
+func (x *AppSyncMessage_PniChangeNumber) GetRegistrationId() uint32 {
+	if x != nil && x.RegistrationId != nil {
+		return *x.RegistrationId
+	}
+	return 0
+}
+
+func (x *AppSyncMessage_PniChangeNumber) GetNewE164() string {
+	if x != nil && x.NewE164 != nil {
+		return *x.NewE164
+	}
+	return ""
+}
+
+type AppSyncMessage_CallEvent struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ConversationId []byte                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId" json:"conversation_id,omitempty"`
+	CallId         *uint64                `protobuf:"varint,2,opt,name=call_id,json=callId" json:"call_id,omitempty"`
+	Timestamp      *uint64                `protobuf:"varint,3,opt,name=timestamp" json:"timestamp,omitempty"`
+	Type           *uint32                `protobuf:"varint,4,opt,name=type" json:"type,omitempty"`
+	Direction      *uint32                `protobuf:"varint,5,opt,name=direction" json:"direction,omitempty"`
+	Event          *uint32                `protobuf:"varint,6,opt,name=event" json:"event,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *AppSyncMessage_CallEvent) Reset() {
+	*x = AppSyncMessage_CallEvent{}
+	mi := &file_content_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage_CallEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage_CallEvent) ProtoMessage() {}
+
+func (x *AppSyncMessage_CallEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage_CallEvent.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage_CallEvent) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 10}
+}
+
+func (x *AppSyncMessage_CallEvent) GetConversationId() []byte {
+	if x != nil {
+		return x.ConversationId
+	}
+	return nil
+}
+
+func (x *AppSyncMessage_CallEvent) GetCallId() uint64 {
+	if x != nil && x.CallId != nil {
+		return *x.CallId
+	}
+	return 0
+}
+
+func (x *AppSyncMessage_CallEvent) GetTimestamp() uint64 {
+	if x != nil && x.Timestamp != nil {
+		return *x.Timestamp
+	}
+	return 0
+}
+
+func (x *AppSyncMessage_CallEvent) GetType() uint32 {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return 0
+}
+
+func (x *AppSyncMessage_CallEvent) GetDirection() uint32 {
+	if x != nil && x.Direction != nil {
+		return *x.Direction
+	}
+	return 0
+}
+
+func (x *AppSyncMessage_CallEvent) GetEvent() uint32 {
+	if x != nil && x.Event != nil {
+		return *x.Event
+	}
+	return 0
+}
+
+type AppSyncMessage_DeviceNameChange struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeviceId      *uint32                `protobuf:"varint,2,opt,name=device_id,json=deviceId" json:"device_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSyncMessage_DeviceNameChange) Reset() {
+	*x = AppSyncMessage_DeviceNameChange{}
+	mi := &file_content_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSyncMessage_DeviceNameChange) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSyncMessage_DeviceNameChange) ProtoMessage() {}
+
+func (x *AppSyncMessage_DeviceNameChange) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSyncMessage_DeviceNameChange.ProtoReflect.Descriptor instead.
+func (*AppSyncMessage_DeviceNameChange) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{9, 11}
+}
+
+func (x *AppSyncMessage_DeviceNameChange) GetDeviceId() uint32 {
+	if x != nil && x.DeviceId != nil {
+		return *x.DeviceId
+	}
+	return 0
+}
+
 type AppSharedContact_Name struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GivenName     *string                `protobuf:"bytes,1,opt,name=given_name,json=givenName" json:"given_name,omitempty"`
@@ -3153,7 +4457,7 @@ type AppSharedContact_Name struct {
 
 func (x *AppSharedContact_Name) Reset() {
 	*x = AppSharedContact_Name{}
-	mi := &file_content_proto_msgTypes[32]
+	mi := &file_content_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3165,7 +4469,7 @@ func (x *AppSharedContact_Name) String() string {
 func (*AppSharedContact_Name) ProtoMessage() {}
 
 func (x *AppSharedContact_Name) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[32]
+	mi := &file_content_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3178,7 +4482,7 @@ func (x *AppSharedContact_Name) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppSharedContact_Name.ProtoReflect.Descriptor instead.
 func (*AppSharedContact_Name) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{20, 0}
+	return file_content_proto_rawDescGZIP(), []int{21, 0}
 }
 
 func (x *AppSharedContact_Name) GetGivenName() string {
@@ -3234,7 +4538,7 @@ type AppSharedContact_Phone struct {
 
 func (x *AppSharedContact_Phone) Reset() {
 	*x = AppSharedContact_Phone{}
-	mi := &file_content_proto_msgTypes[33]
+	mi := &file_content_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3246,7 +4550,7 @@ func (x *AppSharedContact_Phone) String() string {
 func (*AppSharedContact_Phone) ProtoMessage() {}
 
 func (x *AppSharedContact_Phone) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[33]
+	mi := &file_content_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3259,7 +4563,7 @@ func (x *AppSharedContact_Phone) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppSharedContact_Phone.ProtoReflect.Descriptor instead.
 func (*AppSharedContact_Phone) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{20, 1}
+	return file_content_proto_rawDescGZIP(), []int{21, 1}
 }
 
 func (x *AppSharedContact_Phone) GetValue() string {
@@ -3300,7 +4604,7 @@ type AppSharedContact_PostalAddress struct {
 
 func (x *AppSharedContact_PostalAddress) Reset() {
 	*x = AppSharedContact_PostalAddress{}
-	mi := &file_content_proto_msgTypes[34]
+	mi := &file_content_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3312,7 +4616,7 @@ func (x *AppSharedContact_PostalAddress) String() string {
 func (*AppSharedContact_PostalAddress) ProtoMessage() {}
 
 func (x *AppSharedContact_PostalAddress) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[34]
+	mi := &file_content_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3325,7 +4629,7 @@ func (x *AppSharedContact_PostalAddress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppSharedContact_PostalAddress.ProtoReflect.Descriptor instead.
 func (*AppSharedContact_PostalAddress) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{20, 2}
+	return file_content_proto_rawDescGZIP(), []int{21, 2}
 }
 
 func (x *AppSharedContact_PostalAddress) GetType() AppSharedContact_PostalAddress_Type {
@@ -3401,7 +4705,7 @@ type AppSharedContact_Avatar struct {
 
 func (x *AppSharedContact_Avatar) Reset() {
 	*x = AppSharedContact_Avatar{}
-	mi := &file_content_proto_msgTypes[35]
+	mi := &file_content_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3413,7 +4717,7 @@ func (x *AppSharedContact_Avatar) String() string {
 func (*AppSharedContact_Avatar) ProtoMessage() {}
 
 func (x *AppSharedContact_Avatar) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[35]
+	mi := &file_content_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3426,7 +4730,7 @@ func (x *AppSharedContact_Avatar) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppSharedContact_Avatar.ProtoReflect.Descriptor instead.
 func (*AppSharedContact_Avatar) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{20, 3}
+	return file_content_proto_rawDescGZIP(), []int{21, 3}
 }
 
 func (x *AppSharedContact_Avatar) GetAvatar() *AppAttachmentPointer {
@@ -3456,7 +4760,7 @@ type AppPayment_Notification struct {
 
 func (x *AppPayment_Notification) Reset() {
 	*x = AppPayment_Notification{}
-	mi := &file_content_proto_msgTypes[36]
+	mi := &file_content_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3468,7 +4772,7 @@ func (x *AppPayment_Notification) String() string {
 func (*AppPayment_Notification) ProtoMessage() {}
 
 func (x *AppPayment_Notification) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[36]
+	mi := &file_content_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3481,7 +4785,7 @@ func (x *AppPayment_Notification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppPayment_Notification.ProtoReflect.Descriptor instead.
 func (*AppPayment_Notification) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{24, 0}
+	return file_content_proto_rawDescGZIP(), []int{25, 0}
 }
 
 func (x *AppPayment_Notification) GetTransaction() isAppPayment_Notification_Transaction {
@@ -3526,7 +4830,7 @@ type AppPayment_Activation struct {
 
 func (x *AppPayment_Activation) Reset() {
 	*x = AppPayment_Activation{}
-	mi := &file_content_proto_msgTypes[37]
+	mi := &file_content_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3538,7 +4842,7 @@ func (x *AppPayment_Activation) String() string {
 func (*AppPayment_Activation) ProtoMessage() {}
 
 func (x *AppPayment_Activation) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[37]
+	mi := &file_content_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3551,7 +4855,7 @@ func (x *AppPayment_Activation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppPayment_Activation.ProtoReflect.Descriptor instead.
 func (*AppPayment_Activation) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{24, 1}
+	return file_content_proto_rawDescGZIP(), []int{25, 1}
 }
 
 func (x *AppPayment_Activation) GetType() AppPayment_Activation_Type {
@@ -3570,7 +4874,7 @@ type AppPayment_Notification_MobileCoin struct {
 
 func (x *AppPayment_Notification_MobileCoin) Reset() {
 	*x = AppPayment_Notification_MobileCoin{}
-	mi := &file_content_proto_msgTypes[38]
+	mi := &file_content_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3582,7 +4886,7 @@ func (x *AppPayment_Notification_MobileCoin) String() string {
 func (*AppPayment_Notification_MobileCoin) ProtoMessage() {}
 
 func (x *AppPayment_Notification_MobileCoin) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[38]
+	mi := &file_content_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3595,7 +4899,7 @@ func (x *AppPayment_Notification_MobileCoin) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use AppPayment_Notification_MobileCoin.ProtoReflect.Descriptor instead.
 func (*AppPayment_Notification_MobileCoin) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{24, 0, 0}
+	return file_content_proto_rawDescGZIP(), []int{25, 0, 0}
 }
 
 func (x *AppPayment_Notification_MobileCoin) GetReceipt() []byte {
@@ -3603,6 +4907,58 @@ func (x *AppPayment_Notification_MobileCoin) GetReceipt() []byte {
 		return x.Receipt
 	}
 	return nil
+}
+
+type AppContactDetails_Avatar struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ContentType   *string                `protobuf:"bytes,1,opt,name=content_type,json=contentType" json:"content_type,omitempty"`
+	Length        *uint32                `protobuf:"varint,2,opt,name=length" json:"length,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppContactDetails_Avatar) Reset() {
+	*x = AppContactDetails_Avatar{}
+	mi := &file_content_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppContactDetails_Avatar) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppContactDetails_Avatar) ProtoMessage() {}
+
+func (x *AppContactDetails_Avatar) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppContactDetails_Avatar.ProtoReflect.Descriptor instead.
+func (*AppContactDetails_Avatar) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{33, 0}
+}
+
+func (x *AppContactDetails_Avatar) GetContentType() string {
+	if x != nil && x.ContentType != nil {
+		return *x.ContentType
+	}
+	return ""
+}
+
+func (x *AppContactDetails_Avatar) GetLength() uint32 {
+	if x != nil && x.Length != nil {
+		return *x.Length
+	}
+	return 0
 }
 
 var File_content_proto protoreflect.FileDescriptor
@@ -3694,11 +5050,110 @@ const file_content_proto_rawDesc = "" +
 	"\apadding\x18\x01 \x01(\fR\apadding\"A\n" +
 	"\x0fAppPniSignature\x12\x10\n" +
 	"\x03pni\x18\x01 \x01(\fR\x03pni\x12\x1c\n" +
-	"\tsignature\x18\x02 \x01(\fR\tsignature\"\xb6\x01\n" +
+	"\tsignature\x18\x02 \x01(\fR\tsignature\"\xef\x19\n" +
 	"\x0eAppSyncMessage\x12(\n" +
-	"\x04sent\x18\x01 \x01(\v2\x14.signalcligo.AppSentR\x04sent\x12`\n" +
-	"\x18message_request_response\x18\x0e \x01(\v2&.signalcligo.AppMessageRequestResponseR\x16messageRequestResponse\x12\x18\n" +
-	"\apadding\x18\b \x01(\fR\apadding\"\x84\x04\n" +
+	"\x04sent\x18\x01 \x01(\v2\x14.signalcligo.AppSentR\x04sent\x12@\n" +
+	"\bcontacts\x18\x02 \x01(\v2$.signalcligo.AppSyncMessage.ContactsR\bcontacts\x12:\n" +
+	"\x06groups\x18\x03 \x01(\v2\".signalcligo.AppSyncMessage.GroupsR\x06groups\x12=\n" +
+	"\arequest\x18\x04 \x01(\v2#.signalcligo.AppSyncMessage.RequestR\arequest\x124\n" +
+	"\x04read\x18\x05 \x03(\v2 .signalcligo.AppSyncMessage.ReadR\x04read\x12=\n" +
+	"\ablocked\x18\x06 \x01(\v2#.signalcligo.AppSyncMessage.BlockedR\ablocked\x124\n" +
+	"\bverified\x18\a \x01(\v2\x18.signalcligo.AppVerifiedR\bverified\x12\x18\n" +
+	"\apadding\x18\b \x01(\fR\apadding\x12O\n" +
+	"\rconfiguration\x18\t \x01(\v2).signalcligo.AppSyncMessage.ConfigurationR\rconfiguration\x12f\n" +
+	"\x16sticker_pack_operation\x18\n" +
+	" \x03(\v20.signalcligo.AppSyncMessage.StickerPackOperationR\x14stickerPackOperation\x12F\n" +
+	"\x0eview_once_open\x18\v \x01(\v2 .signalcligo.AppSyncMessage.ReadR\fviewOnceOpen\x12J\n" +
+	"\ffetch_latest\x18\f \x01(\v2'.signalcligo.AppSyncMessage.FetchLatestR\vfetchLatest\x124\n" +
+	"\x04keys\x18\r \x01(\v2 .signalcligo.AppSyncMessage.KeysR\x04keys\x12`\n" +
+	"\x18message_request_response\x18\x0e \x01(\v2&.signalcligo.AppMessageRequestResponseR\x16messageRequestResponse\x12)\n" +
+	"\x10outgoing_payment\x18\x0f \x01(\fR\x0foutgoingPayment\x128\n" +
+	"\x06viewed\x18\x10 \x03(\v2 .signalcligo.AppSyncMessage.ReadR\x06viewed\x12W\n" +
+	"\x11pni_change_number\x18\x12 \x01(\v2+.signalcligo.AppSyncMessage.PniChangeNumberR\x0fpniChangeNumber\x12D\n" +
+	"\n" +
+	"call_event\x18\x13 \x01(\v2%.signalcligo.AppSyncMessage.CallEventR\tcallEvent\x12(\n" +
+	"\x10call_link_update\x18\x14 \x01(\fR\x0ecallLinkUpdate\x12$\n" +
+	"\x0ecall_log_event\x18\x15 \x01(\fR\fcallLogEvent\x12\"\n" +
+	"\rdelete_for_me\x18\x16 \x01(\fR\vdeleteForMe\x12Z\n" +
+	"\x12device_name_change\x18\x17 \x01(\v2,.signalcligo.AppSyncMessage.DeviceNameChangeR\x10deviceNameChange\x12>\n" +
+	"\x1battachment_backfill_request\x18\x18 \x01(\fR\x19attachmentBackfillRequest\x12@\n" +
+	"\x1cattachment_backfill_response\x18\x19 \x01(\fR\x1aattachmentBackfillResponse\x12'\n" +
+	"\x0fusername_change\x18\x1a \x01(\fR\x0eusernameChange\x1ad\n" +
+	"\bContacts\x125\n" +
+	"\x04blob\x18\x01 \x01(\v2!.signalcligo.AppAttachmentPointerR\x04blob\x12!\n" +
+	"\bcomplete\x18\x02 \x01(\b:\x05falseR\bcomplete\x1a?\n" +
+	"\x06Groups\x125\n" +
+	"\x04blob\x18\x01 \x01(\v2!.signalcligo.AppAttachmentPointerR\x04blob\x1a\xa6\x01\n" +
+	"\aRequest\x12<\n" +
+	"\x04type\x18\x01 \x01(\x0e2(.signalcligo.AppSyncMessage.Request.TypeR\x04type\"]\n" +
+	"\x04Type\x12\v\n" +
+	"\aUNKNOWN\x10\x00\x12\f\n" +
+	"\bCONTACTS\x10\x01\x12\n" +
+	"\n" +
+	"\x06GROUPS\x10\x02\x12\v\n" +
+	"\aBLOCKED\x10\x03\x12\x11\n" +
+	"\rCONFIGURATION\x10\x04\x12\b\n" +
+	"\x04KEYS\x10\x05\"\x04\b\x06\x10\x06\x1au\n" +
+	"\x04Read\x12\x1c\n" +
+	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x12\x1d\n" +
+	"\n" +
+	"sender_aci\x18\x03 \x01(\tR\tsenderAci\x12*\n" +
+	"\x11sender_aci_binary\x18\x04 \x01(\fR\x0fsenderAciBinaryJ\x04\b\x01\x10\x02\x1au\n" +
+	"\aBlocked\x12\x18\n" +
+	"\anumbers\x18\x01 \x03(\tR\anumbers\x12\x12\n" +
+	"\x04acis\x18\x03 \x03(\tR\x04acis\x12\x1b\n" +
+	"\tgroup_ids\x18\x02 \x03(\fR\bgroupIds\x12\x1f\n" +
+	"\vacis_binary\x18\x04 \x03(\fR\n" +
+	"acisBinary\x1a\xdc\x01\n" +
+	"\rConfiguration\x12#\n" +
+	"\rread_receipts\x18\x01 \x01(\bR\freadReceipts\x12H\n" +
+	" unidentified_delivery_indicators\x18\x02 \x01(\bR\x1eunidentifiedDeliveryIndicators\x12+\n" +
+	"\x11typing_indicators\x18\x03 \x01(\bR\x10typingIndicators\x12#\n" +
+	"\rlink_previews\x18\x06 \x01(\bR\flinkPreviewsJ\x04\b\x04\x10\x05J\x04\b\x05\x10\x06\x1a\xb6\x01\n" +
+	"\x14StickerPackOperation\x12\x17\n" +
+	"\apack_id\x18\x01 \x01(\fR\x06packId\x12\x19\n" +
+	"\bpack_key\x18\x02 \x01(\fR\apackKey\x12I\n" +
+	"\x04type\x18\x03 \x01(\x0e25.signalcligo.AppSyncMessage.StickerPackOperation.TypeR\x04type\"\x1f\n" +
+	"\x04Type\x12\v\n" +
+	"\aINSTALL\x10\x00\x12\n" +
+	"\n" +
+	"\x06REMOVE\x10\x01\x1a\xa6\x01\n" +
+	"\vFetchLatest\x12@\n" +
+	"\x04type\x18\x01 \x01(\x0e2,.signalcligo.AppSyncMessage.FetchLatest.TypeR\x04type\"U\n" +
+	"\x04Type\x12\v\n" +
+	"\aUNKNOWN\x10\x00\x12\x11\n" +
+	"\rLOCAL_PROFILE\x10\x01\x12\x14\n" +
+	"\x10STORAGE_MANIFEST\x10\x02\x12\x17\n" +
+	"\x13SUBSCRIPTION_STATUS\x10\x03\x1aw\n" +
+	"\x04Keys\x120\n" +
+	"\x14account_entropy_pool\x18\x03 \x01(\tR\x12accountEntropyPool\x121\n" +
+	"\x15media_root_backup_key\x18\x04 \x01(\fR\x12mediaRootBackupKeyJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03\x1a\xe1\x01\n" +
+	"\x0fPniChangeNumber\x12*\n" +
+	"\x11identity_key_pair\x18\x01 \x01(\fR\x0fidentityKeyPair\x12$\n" +
+	"\x0esigned_pre_key\x18\x02 \x01(\fR\fsignedPreKey\x128\n" +
+	"\x19last_resort_kyber_pre_key\x18\x05 \x01(\fR\x15lastResortKyberPreKey\x12'\n" +
+	"\x0fregistration_id\x18\x03 \x01(\rR\x0eregistrationId\x12\x19\n" +
+	"\bnew_e164\x18\x04 \x01(\tR\anewE164\x1a\xb3\x01\n" +
+	"\tCallEvent\x12'\n" +
+	"\x0fconversation_id\x18\x01 \x01(\fR\x0econversationId\x12\x17\n" +
+	"\acall_id\x18\x02 \x01(\x04R\x06callId\x12\x1c\n" +
+	"\ttimestamp\x18\x03 \x01(\x04R\ttimestamp\x12\x12\n" +
+	"\x04type\x18\x04 \x01(\rR\x04type\x12\x1c\n" +
+	"\tdirection\x18\x05 \x01(\rR\tdirection\x12\x14\n" +
+	"\x05event\x18\x06 \x01(\rR\x05event\x1a5\n" +
+	"\x10DeviceNameChange\x12\x1b\n" +
+	"\tdevice_id\x18\x02 \x01(\rR\bdeviceIdJ\x04\b\x01\x10\x02J\x04\b\x11\x10\x12\"\xa2\x02\n" +
+	"\vAppVerified\x12'\n" +
+	"\x0fdestination_aci\x18\x05 \x01(\tR\x0edestinationAci\x12!\n" +
+	"\fidentity_key\x18\x02 \x01(\fR\videntityKey\x124\n" +
+	"\x05state\x18\x03 \x01(\x0e2\x1e.signalcligo.AppVerified.StateR\x05state\x12!\n" +
+	"\fnull_message\x18\x04 \x01(\fR\vnullMessage\x124\n" +
+	"\x16destination_aci_binary\x18\x06 \x01(\fR\x14destinationAciBinary\"2\n" +
+	"\x05State\x12\v\n" +
+	"\aDEFAULT\x10\x00\x12\f\n" +
+	"\bVERIFIED\x10\x01\x12\x0e\n" +
+	"\n" +
+	"UNVERIFIED\x10\x02J\x04\b\x01\x10\x02\"\x84\x04\n" +
 	"\aAppSent\x12)\n" +
 	"\x10destination_e164\x18\x01 \x01(\tR\x0fdestinationE164\x12\x1c\n" +
 	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x125\n" +
@@ -3917,7 +5372,21 @@ const file_content_proto_rawDesc = "" +
 	"\x05BLOCK\x10\x03\x12\x14\n" +
 	"\x10BLOCK_AND_DELETE\x10\x04\x12\b\n" +
 	"\x04SPAM\x10\x05\x12\x12\n" +
-	"\x0eBLOCK_AND_SPAM\x10\x06J\x04\b\x01\x10\x02B<Z:github.com/aren55555/signal-cli-go/internal/proto/signalpb"
+	"\x0eBLOCK_AND_SPAM\x10\x06J\x04\b\x01\x10\x02\"\x8e\x03\n" +
+	"\x11AppContactDetails\x12\x16\n" +
+	"\x06number\x18\x01 \x01(\tR\x06number\x12\x10\n" +
+	"\x03aci\x18\t \x01(\tR\x03aci\x12\x1d\n" +
+	"\n" +
+	"aci_binary\x18\r \x01(\fR\taciBinary\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12=\n" +
+	"\x06avatar\x18\x03 \x01(\v2%.signalcligo.AppContactDetails.AvatarR\x06avatar\x12!\n" +
+	"\fexpire_timer\x18\b \x01(\rR\vexpireTimer\x120\n" +
+	"\x14expire_timer_version\x18\f \x01(\rR\x12expireTimerVersion\x12%\n" +
+	"\x0einbox_position\x18\n" +
+	" \x01(\rR\rinboxPosition\x1aC\n" +
+	"\x06Avatar\x12!\n" +
+	"\fcontent_type\x18\x01 \x01(\tR\vcontentType\x12\x16\n" +
+	"\x06length\x18\x02 \x01(\rR\x06lengthJ\x04\b\x04\x10\x05J\x04\b\x05\x10\x06J\x04\b\x06\x10\aJ\x04\b\a\x10\bJ\x04\b\v\x10\fB<Z:github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 
 var (
 	file_content_proto_rawDescOnce sync.Once
@@ -3931,118 +5400,159 @@ func file_content_proto_rawDescGZIP() []byte {
 	return file_content_proto_rawDescData
 }
 
-var file_content_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
-var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
+var file_content_proto_enumTypes = make([]protoimpl.EnumInfo, 13)
+var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 54)
 var file_content_proto_goTypes = []any{
-	(AppDataMessage_Flag)(0),                   // 0: signalcligo.AppDataMessage.Flag
-	(AppReceipt_Kind)(0),                       // 1: signalcligo.AppReceipt.Kind
-	(AppTyping_Action)(0),                      // 2: signalcligo.AppTyping.Action
-	(AppBodyRange_Style)(0),                    // 3: signalcligo.AppBodyRange.Style
-	(AppQuote_Type)(0),                         // 4: signalcligo.AppQuote.Type
-	(AppSharedContact_Phone_Type)(0),           // 5: signalcligo.AppSharedContact.Phone.Type
-	(AppSharedContact_PostalAddress_Type)(0),   // 6: signalcligo.AppSharedContact.PostalAddress.Type
-	(AppPayment_Activation_Type)(0),            // 7: signalcligo.AppPayment.Activation.Type
-	(AppMessageRequestResponse_Type)(0),        // 8: signalcligo.AppMessageRequestResponse.Type
-	(*AppContent)(nil),                         // 9: signalcligo.AppContent
-	(*AppDataMessage)(nil),                     // 10: signalcligo.AppDataMessage
-	(*AppGroupContextV2)(nil),                  // 11: signalcligo.AppGroupContextV2
-	(*AppDelete)(nil),                          // 12: signalcligo.AppDelete
-	(*AppEdit)(nil),                            // 13: signalcligo.AppEdit
-	(*AppReceipt)(nil),                         // 14: signalcligo.AppReceipt
-	(*AppTyping)(nil),                          // 15: signalcligo.AppTyping
-	(*AppNullMessage)(nil),                     // 16: signalcligo.AppNullMessage
-	(*AppPniSignature)(nil),                    // 17: signalcligo.AppPniSignature
-	(*AppSyncMessage)(nil),                     // 18: signalcligo.AppSyncMessage
-	(*AppSent)(nil),                            // 19: signalcligo.AppSent
-	(*AppUnidentifiedStatus)(nil),              // 20: signalcligo.AppUnidentifiedStatus
-	(*AppDecryptionErrorMessage)(nil),          // 21: signalcligo.AppDecryptionErrorMessage
-	(*AppAttachmentPointer)(nil),               // 22: signalcligo.AppAttachmentPointer
-	(*AppBodyRange)(nil),                       // 23: signalcligo.AppBodyRange
-	(*AppQuote)(nil),                           // 24: signalcligo.AppQuote
-	(*AppQuotedAttachment)(nil),                // 25: signalcligo.AppQuotedAttachment
-	(*AppReaction)(nil),                        // 26: signalcligo.AppReaction
-	(*AppPreview)(nil),                         // 27: signalcligo.AppPreview
-	(*AppSticker)(nil),                         // 28: signalcligo.AppSticker
-	(*AppSharedContact)(nil),                   // 29: signalcligo.AppSharedContact
-	(*AppStoryContext)(nil),                    // 30: signalcligo.AppStoryContext
-	(*AppGroupCallUpdate)(nil),                 // 31: signalcligo.AppGroupCallUpdate
-	(*AppGiftBadge)(nil),                       // 32: signalcligo.AppGiftBadge
-	(*AppPayment)(nil),                         // 33: signalcligo.AppPayment
-	(*AppPollCreate)(nil),                      // 34: signalcligo.AppPollCreate
-	(*AppPollTerminate)(nil),                   // 35: signalcligo.AppPollTerminate
-	(*AppPollVote)(nil),                        // 36: signalcligo.AppPollVote
-	(*AppPinMessage)(nil),                      // 37: signalcligo.AppPinMessage
-	(*AppUnpinMessage)(nil),                    // 38: signalcligo.AppUnpinMessage
-	(*AppAdminDelete)(nil),                     // 39: signalcligo.AppAdminDelete
-	(*AppMessageRequestResponse)(nil),          // 40: signalcligo.AppMessageRequestResponse
-	(*AppSharedContact_Name)(nil),              // 41: signalcligo.AppSharedContact.Name
-	(*AppSharedContact_Phone)(nil),             // 42: signalcligo.AppSharedContact.Phone
-	(*AppSharedContact_PostalAddress)(nil),     // 43: signalcligo.AppSharedContact.PostalAddress
-	(*AppSharedContact_Avatar)(nil),            // 44: signalcligo.AppSharedContact.Avatar
-	(*AppPayment_Notification)(nil),            // 45: signalcligo.AppPayment.Notification
-	(*AppPayment_Activation)(nil),              // 46: signalcligo.AppPayment.Activation
-	(*AppPayment_Notification_MobileCoin)(nil), // 47: signalcligo.AppPayment.Notification.MobileCoin
+	(AppDataMessage_Flag)(0),                      // 0: signalcligo.AppDataMessage.Flag
+	(AppReceipt_Kind)(0),                          // 1: signalcligo.AppReceipt.Kind
+	(AppTyping_Action)(0),                         // 2: signalcligo.AppTyping.Action
+	(AppSyncMessage_Request_Type)(0),              // 3: signalcligo.AppSyncMessage.Request.Type
+	(AppSyncMessage_StickerPackOperation_Type)(0), // 4: signalcligo.AppSyncMessage.StickerPackOperation.Type
+	(AppSyncMessage_FetchLatest_Type)(0),          // 5: signalcligo.AppSyncMessage.FetchLatest.Type
+	(AppVerified_State)(0),                        // 6: signalcligo.AppVerified.State
+	(AppBodyRange_Style)(0),                       // 7: signalcligo.AppBodyRange.Style
+	(AppQuote_Type)(0),                            // 8: signalcligo.AppQuote.Type
+	(AppSharedContact_Phone_Type)(0),              // 9: signalcligo.AppSharedContact.Phone.Type
+	(AppSharedContact_PostalAddress_Type)(0),      // 10: signalcligo.AppSharedContact.PostalAddress.Type
+	(AppPayment_Activation_Type)(0),               // 11: signalcligo.AppPayment.Activation.Type
+	(AppMessageRequestResponse_Type)(0),           // 12: signalcligo.AppMessageRequestResponse.Type
+	(*AppContent)(nil),                            // 13: signalcligo.AppContent
+	(*AppDataMessage)(nil),                        // 14: signalcligo.AppDataMessage
+	(*AppGroupContextV2)(nil),                     // 15: signalcligo.AppGroupContextV2
+	(*AppDelete)(nil),                             // 16: signalcligo.AppDelete
+	(*AppEdit)(nil),                               // 17: signalcligo.AppEdit
+	(*AppReceipt)(nil),                            // 18: signalcligo.AppReceipt
+	(*AppTyping)(nil),                             // 19: signalcligo.AppTyping
+	(*AppNullMessage)(nil),                        // 20: signalcligo.AppNullMessage
+	(*AppPniSignature)(nil),                       // 21: signalcligo.AppPniSignature
+	(*AppSyncMessage)(nil),                        // 22: signalcligo.AppSyncMessage
+	(*AppVerified)(nil),                           // 23: signalcligo.AppVerified
+	(*AppSent)(nil),                               // 24: signalcligo.AppSent
+	(*AppUnidentifiedStatus)(nil),                 // 25: signalcligo.AppUnidentifiedStatus
+	(*AppDecryptionErrorMessage)(nil),             // 26: signalcligo.AppDecryptionErrorMessage
+	(*AppAttachmentPointer)(nil),                  // 27: signalcligo.AppAttachmentPointer
+	(*AppBodyRange)(nil),                          // 28: signalcligo.AppBodyRange
+	(*AppQuote)(nil),                              // 29: signalcligo.AppQuote
+	(*AppQuotedAttachment)(nil),                   // 30: signalcligo.AppQuotedAttachment
+	(*AppReaction)(nil),                           // 31: signalcligo.AppReaction
+	(*AppPreview)(nil),                            // 32: signalcligo.AppPreview
+	(*AppSticker)(nil),                            // 33: signalcligo.AppSticker
+	(*AppSharedContact)(nil),                      // 34: signalcligo.AppSharedContact
+	(*AppStoryContext)(nil),                       // 35: signalcligo.AppStoryContext
+	(*AppGroupCallUpdate)(nil),                    // 36: signalcligo.AppGroupCallUpdate
+	(*AppGiftBadge)(nil),                          // 37: signalcligo.AppGiftBadge
+	(*AppPayment)(nil),                            // 38: signalcligo.AppPayment
+	(*AppPollCreate)(nil),                         // 39: signalcligo.AppPollCreate
+	(*AppPollTerminate)(nil),                      // 40: signalcligo.AppPollTerminate
+	(*AppPollVote)(nil),                           // 41: signalcligo.AppPollVote
+	(*AppPinMessage)(nil),                         // 42: signalcligo.AppPinMessage
+	(*AppUnpinMessage)(nil),                       // 43: signalcligo.AppUnpinMessage
+	(*AppAdminDelete)(nil),                        // 44: signalcligo.AppAdminDelete
+	(*AppMessageRequestResponse)(nil),             // 45: signalcligo.AppMessageRequestResponse
+	(*AppContactDetails)(nil),                     // 46: signalcligo.AppContactDetails
+	(*AppSyncMessage_Contacts)(nil),               // 47: signalcligo.AppSyncMessage.Contacts
+	(*AppSyncMessage_Groups)(nil),                 // 48: signalcligo.AppSyncMessage.Groups
+	(*AppSyncMessage_Request)(nil),                // 49: signalcligo.AppSyncMessage.Request
+	(*AppSyncMessage_Read)(nil),                   // 50: signalcligo.AppSyncMessage.Read
+	(*AppSyncMessage_Blocked)(nil),                // 51: signalcligo.AppSyncMessage.Blocked
+	(*AppSyncMessage_Configuration)(nil),          // 52: signalcligo.AppSyncMessage.Configuration
+	(*AppSyncMessage_StickerPackOperation)(nil),   // 53: signalcligo.AppSyncMessage.StickerPackOperation
+	(*AppSyncMessage_FetchLatest)(nil),            // 54: signalcligo.AppSyncMessage.FetchLatest
+	(*AppSyncMessage_Keys)(nil),                   // 55: signalcligo.AppSyncMessage.Keys
+	(*AppSyncMessage_PniChangeNumber)(nil),        // 56: signalcligo.AppSyncMessage.PniChangeNumber
+	(*AppSyncMessage_CallEvent)(nil),              // 57: signalcligo.AppSyncMessage.CallEvent
+	(*AppSyncMessage_DeviceNameChange)(nil),       // 58: signalcligo.AppSyncMessage.DeviceNameChange
+	(*AppSharedContact_Name)(nil),                 // 59: signalcligo.AppSharedContact.Name
+	(*AppSharedContact_Phone)(nil),                // 60: signalcligo.AppSharedContact.Phone
+	(*AppSharedContact_PostalAddress)(nil),        // 61: signalcligo.AppSharedContact.PostalAddress
+	(*AppSharedContact_Avatar)(nil),               // 62: signalcligo.AppSharedContact.Avatar
+	(*AppPayment_Notification)(nil),               // 63: signalcligo.AppPayment.Notification
+	(*AppPayment_Activation)(nil),                 // 64: signalcligo.AppPayment.Activation
+	(*AppPayment_Notification_MobileCoin)(nil),    // 65: signalcligo.AppPayment.Notification.MobileCoin
+	(*AppContactDetails_Avatar)(nil),              // 66: signalcligo.AppContactDetails.Avatar
 }
 var file_content_proto_depIdxs = []int32{
-	10, // 0: signalcligo.AppContent.data_message:type_name -> signalcligo.AppDataMessage
-	18, // 1: signalcligo.AppContent.sync_message:type_name -> signalcligo.AppSyncMessage
-	16, // 2: signalcligo.AppContent.null_message:type_name -> signalcligo.AppNullMessage
-	14, // 3: signalcligo.AppContent.receipt_message:type_name -> signalcligo.AppReceipt
-	15, // 4: signalcligo.AppContent.typing_message:type_name -> signalcligo.AppTyping
-	13, // 5: signalcligo.AppContent.edit_message:type_name -> signalcligo.AppEdit
-	17, // 6: signalcligo.AppContent.pni_signature_message:type_name -> signalcligo.AppPniSignature
-	11, // 7: signalcligo.AppDataMessage.group_v2:type_name -> signalcligo.AppGroupContextV2
-	22, // 8: signalcligo.AppDataMessage.attachments:type_name -> signalcligo.AppAttachmentPointer
-	24, // 9: signalcligo.AppDataMessage.quote:type_name -> signalcligo.AppQuote
-	29, // 10: signalcligo.AppDataMessage.contact:type_name -> signalcligo.AppSharedContact
-	27, // 11: signalcligo.AppDataMessage.preview:type_name -> signalcligo.AppPreview
-	28, // 12: signalcligo.AppDataMessage.sticker:type_name -> signalcligo.AppSticker
-	26, // 13: signalcligo.AppDataMessage.reaction:type_name -> signalcligo.AppReaction
-	12, // 14: signalcligo.AppDataMessage.delete:type_name -> signalcligo.AppDelete
-	23, // 15: signalcligo.AppDataMessage.body_ranges:type_name -> signalcligo.AppBodyRange
-	31, // 16: signalcligo.AppDataMessage.group_call_update:type_name -> signalcligo.AppGroupCallUpdate
-	33, // 17: signalcligo.AppDataMessage.payment:type_name -> signalcligo.AppPayment
-	30, // 18: signalcligo.AppDataMessage.story_context:type_name -> signalcligo.AppStoryContext
-	32, // 19: signalcligo.AppDataMessage.gift_badge:type_name -> signalcligo.AppGiftBadge
-	34, // 20: signalcligo.AppDataMessage.poll_create:type_name -> signalcligo.AppPollCreate
-	35, // 21: signalcligo.AppDataMessage.poll_terminate:type_name -> signalcligo.AppPollTerminate
-	36, // 22: signalcligo.AppDataMessage.poll_vote:type_name -> signalcligo.AppPollVote
-	37, // 23: signalcligo.AppDataMessage.pin_message:type_name -> signalcligo.AppPinMessage
-	38, // 24: signalcligo.AppDataMessage.unpin_message:type_name -> signalcligo.AppUnpinMessage
-	39, // 25: signalcligo.AppDataMessage.admin_delete:type_name -> signalcligo.AppAdminDelete
-	10, // 26: signalcligo.AppEdit.data_message:type_name -> signalcligo.AppDataMessage
+	14, // 0: signalcligo.AppContent.data_message:type_name -> signalcligo.AppDataMessage
+	22, // 1: signalcligo.AppContent.sync_message:type_name -> signalcligo.AppSyncMessage
+	20, // 2: signalcligo.AppContent.null_message:type_name -> signalcligo.AppNullMessage
+	18, // 3: signalcligo.AppContent.receipt_message:type_name -> signalcligo.AppReceipt
+	19, // 4: signalcligo.AppContent.typing_message:type_name -> signalcligo.AppTyping
+	17, // 5: signalcligo.AppContent.edit_message:type_name -> signalcligo.AppEdit
+	21, // 6: signalcligo.AppContent.pni_signature_message:type_name -> signalcligo.AppPniSignature
+	15, // 7: signalcligo.AppDataMessage.group_v2:type_name -> signalcligo.AppGroupContextV2
+	27, // 8: signalcligo.AppDataMessage.attachments:type_name -> signalcligo.AppAttachmentPointer
+	29, // 9: signalcligo.AppDataMessage.quote:type_name -> signalcligo.AppQuote
+	34, // 10: signalcligo.AppDataMessage.contact:type_name -> signalcligo.AppSharedContact
+	32, // 11: signalcligo.AppDataMessage.preview:type_name -> signalcligo.AppPreview
+	33, // 12: signalcligo.AppDataMessage.sticker:type_name -> signalcligo.AppSticker
+	31, // 13: signalcligo.AppDataMessage.reaction:type_name -> signalcligo.AppReaction
+	16, // 14: signalcligo.AppDataMessage.delete:type_name -> signalcligo.AppDelete
+	28, // 15: signalcligo.AppDataMessage.body_ranges:type_name -> signalcligo.AppBodyRange
+	36, // 16: signalcligo.AppDataMessage.group_call_update:type_name -> signalcligo.AppGroupCallUpdate
+	38, // 17: signalcligo.AppDataMessage.payment:type_name -> signalcligo.AppPayment
+	35, // 18: signalcligo.AppDataMessage.story_context:type_name -> signalcligo.AppStoryContext
+	37, // 19: signalcligo.AppDataMessage.gift_badge:type_name -> signalcligo.AppGiftBadge
+	39, // 20: signalcligo.AppDataMessage.poll_create:type_name -> signalcligo.AppPollCreate
+	40, // 21: signalcligo.AppDataMessage.poll_terminate:type_name -> signalcligo.AppPollTerminate
+	41, // 22: signalcligo.AppDataMessage.poll_vote:type_name -> signalcligo.AppPollVote
+	42, // 23: signalcligo.AppDataMessage.pin_message:type_name -> signalcligo.AppPinMessage
+	43, // 24: signalcligo.AppDataMessage.unpin_message:type_name -> signalcligo.AppUnpinMessage
+	44, // 25: signalcligo.AppDataMessage.admin_delete:type_name -> signalcligo.AppAdminDelete
+	14, // 26: signalcligo.AppEdit.data_message:type_name -> signalcligo.AppDataMessage
 	1,  // 27: signalcligo.AppReceipt.kind:type_name -> signalcligo.AppReceipt.Kind
 	2,  // 28: signalcligo.AppTyping.action:type_name -> signalcligo.AppTyping.Action
-	19, // 29: signalcligo.AppSyncMessage.sent:type_name -> signalcligo.AppSent
-	40, // 30: signalcligo.AppSyncMessage.message_request_response:type_name -> signalcligo.AppMessageRequestResponse
-	10, // 31: signalcligo.AppSent.message:type_name -> signalcligo.AppDataMessage
-	20, // 32: signalcligo.AppSent.unidentified_status:type_name -> signalcligo.AppUnidentifiedStatus
-	13, // 33: signalcligo.AppSent.edit_message:type_name -> signalcligo.AppEdit
-	3,  // 34: signalcligo.AppBodyRange.style:type_name -> signalcligo.AppBodyRange.Style
-	25, // 35: signalcligo.AppQuote.attachments:type_name -> signalcligo.AppQuotedAttachment
-	23, // 36: signalcligo.AppQuote.body_ranges:type_name -> signalcligo.AppBodyRange
-	4,  // 37: signalcligo.AppQuote.type:type_name -> signalcligo.AppQuote.Type
-	22, // 38: signalcligo.AppQuotedAttachment.thumbnail:type_name -> signalcligo.AppAttachmentPointer
-	22, // 39: signalcligo.AppPreview.image:type_name -> signalcligo.AppAttachmentPointer
-	22, // 40: signalcligo.AppSticker.data:type_name -> signalcligo.AppAttachmentPointer
-	41, // 41: signalcligo.AppSharedContact.name:type_name -> signalcligo.AppSharedContact.Name
-	42, // 42: signalcligo.AppSharedContact.number:type_name -> signalcligo.AppSharedContact.Phone
-	42, // 43: signalcligo.AppSharedContact.email:type_name -> signalcligo.AppSharedContact.Phone
-	43, // 44: signalcligo.AppSharedContact.address:type_name -> signalcligo.AppSharedContact.PostalAddress
-	44, // 45: signalcligo.AppSharedContact.avatar:type_name -> signalcligo.AppSharedContact.Avatar
-	45, // 46: signalcligo.AppPayment.notification:type_name -> signalcligo.AppPayment.Notification
-	46, // 47: signalcligo.AppPayment.activation:type_name -> signalcligo.AppPayment.Activation
-	8,  // 48: signalcligo.AppMessageRequestResponse.type:type_name -> signalcligo.AppMessageRequestResponse.Type
-	5,  // 49: signalcligo.AppSharedContact.Phone.type:type_name -> signalcligo.AppSharedContact.Phone.Type
-	6,  // 50: signalcligo.AppSharedContact.PostalAddress.type:type_name -> signalcligo.AppSharedContact.PostalAddress.Type
-	22, // 51: signalcligo.AppSharedContact.Avatar.avatar:type_name -> signalcligo.AppAttachmentPointer
-	47, // 52: signalcligo.AppPayment.Notification.mobile_coin:type_name -> signalcligo.AppPayment.Notification.MobileCoin
-	7,  // 53: signalcligo.AppPayment.Activation.type:type_name -> signalcligo.AppPayment.Activation.Type
-	54, // [54:54] is the sub-list for method output_type
-	54, // [54:54] is the sub-list for method input_type
-	54, // [54:54] is the sub-list for extension type_name
-	54, // [54:54] is the sub-list for extension extendee
-	0,  // [0:54] is the sub-list for field type_name
+	24, // 29: signalcligo.AppSyncMessage.sent:type_name -> signalcligo.AppSent
+	47, // 30: signalcligo.AppSyncMessage.contacts:type_name -> signalcligo.AppSyncMessage.Contacts
+	48, // 31: signalcligo.AppSyncMessage.groups:type_name -> signalcligo.AppSyncMessage.Groups
+	49, // 32: signalcligo.AppSyncMessage.request:type_name -> signalcligo.AppSyncMessage.Request
+	50, // 33: signalcligo.AppSyncMessage.read:type_name -> signalcligo.AppSyncMessage.Read
+	51, // 34: signalcligo.AppSyncMessage.blocked:type_name -> signalcligo.AppSyncMessage.Blocked
+	23, // 35: signalcligo.AppSyncMessage.verified:type_name -> signalcligo.AppVerified
+	52, // 36: signalcligo.AppSyncMessage.configuration:type_name -> signalcligo.AppSyncMessage.Configuration
+	53, // 37: signalcligo.AppSyncMessage.sticker_pack_operation:type_name -> signalcligo.AppSyncMessage.StickerPackOperation
+	50, // 38: signalcligo.AppSyncMessage.view_once_open:type_name -> signalcligo.AppSyncMessage.Read
+	54, // 39: signalcligo.AppSyncMessage.fetch_latest:type_name -> signalcligo.AppSyncMessage.FetchLatest
+	55, // 40: signalcligo.AppSyncMessage.keys:type_name -> signalcligo.AppSyncMessage.Keys
+	45, // 41: signalcligo.AppSyncMessage.message_request_response:type_name -> signalcligo.AppMessageRequestResponse
+	50, // 42: signalcligo.AppSyncMessage.viewed:type_name -> signalcligo.AppSyncMessage.Read
+	56, // 43: signalcligo.AppSyncMessage.pni_change_number:type_name -> signalcligo.AppSyncMessage.PniChangeNumber
+	57, // 44: signalcligo.AppSyncMessage.call_event:type_name -> signalcligo.AppSyncMessage.CallEvent
+	58, // 45: signalcligo.AppSyncMessage.device_name_change:type_name -> signalcligo.AppSyncMessage.DeviceNameChange
+	6,  // 46: signalcligo.AppVerified.state:type_name -> signalcligo.AppVerified.State
+	14, // 47: signalcligo.AppSent.message:type_name -> signalcligo.AppDataMessage
+	25, // 48: signalcligo.AppSent.unidentified_status:type_name -> signalcligo.AppUnidentifiedStatus
+	17, // 49: signalcligo.AppSent.edit_message:type_name -> signalcligo.AppEdit
+	7,  // 50: signalcligo.AppBodyRange.style:type_name -> signalcligo.AppBodyRange.Style
+	30, // 51: signalcligo.AppQuote.attachments:type_name -> signalcligo.AppQuotedAttachment
+	28, // 52: signalcligo.AppQuote.body_ranges:type_name -> signalcligo.AppBodyRange
+	8,  // 53: signalcligo.AppQuote.type:type_name -> signalcligo.AppQuote.Type
+	27, // 54: signalcligo.AppQuotedAttachment.thumbnail:type_name -> signalcligo.AppAttachmentPointer
+	27, // 55: signalcligo.AppPreview.image:type_name -> signalcligo.AppAttachmentPointer
+	27, // 56: signalcligo.AppSticker.data:type_name -> signalcligo.AppAttachmentPointer
+	59, // 57: signalcligo.AppSharedContact.name:type_name -> signalcligo.AppSharedContact.Name
+	60, // 58: signalcligo.AppSharedContact.number:type_name -> signalcligo.AppSharedContact.Phone
+	60, // 59: signalcligo.AppSharedContact.email:type_name -> signalcligo.AppSharedContact.Phone
+	61, // 60: signalcligo.AppSharedContact.address:type_name -> signalcligo.AppSharedContact.PostalAddress
+	62, // 61: signalcligo.AppSharedContact.avatar:type_name -> signalcligo.AppSharedContact.Avatar
+	63, // 62: signalcligo.AppPayment.notification:type_name -> signalcligo.AppPayment.Notification
+	64, // 63: signalcligo.AppPayment.activation:type_name -> signalcligo.AppPayment.Activation
+	12, // 64: signalcligo.AppMessageRequestResponse.type:type_name -> signalcligo.AppMessageRequestResponse.Type
+	66, // 65: signalcligo.AppContactDetails.avatar:type_name -> signalcligo.AppContactDetails.Avatar
+	27, // 66: signalcligo.AppSyncMessage.Contacts.blob:type_name -> signalcligo.AppAttachmentPointer
+	27, // 67: signalcligo.AppSyncMessage.Groups.blob:type_name -> signalcligo.AppAttachmentPointer
+	3,  // 68: signalcligo.AppSyncMessage.Request.type:type_name -> signalcligo.AppSyncMessage.Request.Type
+	4,  // 69: signalcligo.AppSyncMessage.StickerPackOperation.type:type_name -> signalcligo.AppSyncMessage.StickerPackOperation.Type
+	5,  // 70: signalcligo.AppSyncMessage.FetchLatest.type:type_name -> signalcligo.AppSyncMessage.FetchLatest.Type
+	9,  // 71: signalcligo.AppSharedContact.Phone.type:type_name -> signalcligo.AppSharedContact.Phone.Type
+	10, // 72: signalcligo.AppSharedContact.PostalAddress.type:type_name -> signalcligo.AppSharedContact.PostalAddress.Type
+	27, // 73: signalcligo.AppSharedContact.Avatar.avatar:type_name -> signalcligo.AppAttachmentPointer
+	65, // 74: signalcligo.AppPayment.Notification.mobile_coin:type_name -> signalcligo.AppPayment.Notification.MobileCoin
+	11, // 75: signalcligo.AppPayment.Activation.type:type_name -> signalcligo.AppPayment.Activation.Type
+	76, // [76:76] is the sub-list for method output_type
+	76, // [76:76] is the sub-list for method input_type
+	76, // [76:76] is the sub-list for extension type_name
+	76, // [76:76] is the sub-list for extension extendee
+	0,  // [0:76] is the sub-list for field type_name
 }
 
 func init() { file_content_proto_init() }
@@ -4059,24 +5569,24 @@ func file_content_proto_init() {
 		(*AppContent_DecryptionErrorMessage)(nil),
 		(*AppContent_EditMessage)(nil),
 	}
-	file_content_proto_msgTypes[13].OneofWrappers = []any{
+	file_content_proto_msgTypes[14].OneofWrappers = []any{
 		(*AppAttachmentPointer_CdnId)(nil),
 		(*AppAttachmentPointer_CdnKey)(nil),
 	}
-	file_content_proto_msgTypes[14].OneofWrappers = []any{
+	file_content_proto_msgTypes[15].OneofWrappers = []any{
 		(*AppBodyRange_MentionAci)(nil),
 		(*AppBodyRange_Style_)(nil),
 		(*AppBodyRange_MentionAciBinary)(nil),
 	}
-	file_content_proto_msgTypes[24].OneofWrappers = []any{
+	file_content_proto_msgTypes[25].OneofWrappers = []any{
 		(*AppPayment_Notification_)(nil),
 		(*AppPayment_Activation_)(nil),
 	}
-	file_content_proto_msgTypes[28].OneofWrappers = []any{
+	file_content_proto_msgTypes[29].OneofWrappers = []any{
 		(*AppPinMessage_PinDurationSeconds)(nil),
 		(*AppPinMessage_PinDurationForever)(nil),
 	}
-	file_content_proto_msgTypes[36].OneofWrappers = []any{
+	file_content_proto_msgTypes[50].OneofWrappers = []any{
 		(*AppPayment_Notification_MobileCoin_)(nil),
 	}
 	type x struct{}
@@ -4084,8 +5594,8 @@ func file_content_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_content_proto_rawDesc), len(file_content_proto_rawDesc)),
-			NumEnums:      9,
-			NumMessages:   39,
+			NumEnums:      13,
+			NumMessages:   54,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

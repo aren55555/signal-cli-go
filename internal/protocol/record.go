@@ -427,3 +427,16 @@ func (r *SessionRecord) newResponderState(pm *preKeyMessage, localID LocalIdenti
 	}
 	return r.withCurrent(st), used, nil
 }
+
+// ServiceIDToBinary is the compact binary form used in messages: 16 bytes
+// for an ACI, the 0x01 kind byte and 16 bytes for a PNI.
+func ServiceIDToBinary(id string) ([]byte, bool) {
+	b, ok := serviceIDBinary(id)
+	if !ok {
+		return nil, false
+	}
+	if b[0] == 0x00 {
+		return b[1:], true
+	}
+	return b, true
+}

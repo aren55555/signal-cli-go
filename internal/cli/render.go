@@ -180,22 +180,7 @@ func RenderPlain(c *RenderContext, e manager.Event) string {
 		}
 	}
 	if sm := ct.GetSyncMessage(); sm != nil {
-		p.line(0, "Received a sync message")
-		if s := sm.GetSent(); s != nil {
-			p.line(0, "Received sync sent message")
-			to := "<unknown>"
-			if d := s.GetDestinationServiceId(); d != "" {
-				to = c.address(d, 0).contact()
-			}
-			p.line(1, "To: %s", to)
-			p.line(1, "Timestamp: %s", ts(s.GetTimestamp()))
-			if x := s.GetExpirationStartTimestamp(); x > 0 {
-				p.line(1, "Expiration started at: %s", ts(x))
-			}
-			if s.GetMessage() != nil {
-				c.plainData(&p, 1, s.GetMessage())
-			}
-		}
+		c.plainSync(&p, sm)
 	}
 	if r := eventReceipt(e, ct); r != nil {
 		p.line(0, "Received a receipt message")
@@ -292,26 +277,7 @@ func RenderJSON(c *RenderContext, e manager.Event) string {
 		env.add("editMessage", eo)
 	}
 	if sm := ct.GetSyncMessage(); sm != nil {
-		so := &jsonObject{}
-		if s := sm.GetSent(); s != nil {
-			sent := &jsonObject{}
-			d := s.GetDestinationServiceId()
-			if d != "" {
-				a := c.address(d, 0)
-				sent.add("destination", a.ident())
-				sent.add("destinationNumber", strOrNull(a.number))
-				sent.add("destinationUuid", d)
-			} else {
-				sent.add("destination", nil)
-				sent.add("destinationNumber", nil)
-				sent.add("destinationUuid", nil)
-			}
-			if s.GetMessage() != nil {
-				sent.addAll(c.jsonData(s.GetMessage()))
-			}
-			so.add("sentMessage", sent)
-		}
-		env.add("syncMessage", so)
+		env.add("syncMessage", c.jsonSync(sm))
 	}
 	if r := eventReceipt(e, ct); r != nil {
 		ro := &jsonObject{}

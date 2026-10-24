@@ -218,8 +218,8 @@ func TestSendText(t *testing.T) {
 		}
 	}
 	sent := got[testACI+".1"].GetSyncMessage().GetSent()
-	if sent.GetDestinationServiceId() != bACI || sent.GetTimestamp() != ts || sent.GetMessage().GetBody() != "hello B" ||
-		len(sent.GetUnidentifiedStatus()) != 1 || sent.GetUnidentifiedStatus()[0].GetDestinationServiceId() != bACI {
+	if formatUUIDBytes(sent.GetDestinationServiceIdBinary()) != bACI || sent.GetTimestamp() != ts || sent.GetMessage().GetBody() != "hello B" ||
+		len(sent.GetUnidentifiedStatus()) != 1 || formatUUIDBytes(sent.GetUnidentifiedStatus()[0].GetDestinationServiceIdBinary()) != bACI {
 		t.Errorf("sync transcript %v", sent)
 	}
 	if len(got[testACI+".1"].GetSyncMessage().GetPadding()) == 0 {

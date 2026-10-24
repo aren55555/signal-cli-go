@@ -58,28 +58,38 @@ type PreKeyState struct {
 
 // AccountData is account.json.
 type AccountData struct {
-	Version                        int         `json:"version"`
-	Environment                    string      `json:"environment"`
-	Number                         string      `json:"number"`
-	ACI                            string      `json:"aci,omitempty"`
-	PNI                            string      `json:"pni,omitempty"`
-	DeviceID                       int         `json:"deviceId"`
-	Password                       string      `json:"password"`
-	Registered                     bool        `json:"registered"`
-	ACIIdentity                    KeyPair     `json:"aciIdentity"`
-	PNIIdentity                    KeyPair     `json:"pniIdentity"`
-	ACIRegistrationID              uint32      `json:"aciRegistrationId"`
-	PNIRegistrationID              uint32      `json:"pniRegistrationId"`
-	ProfileKey                     []byte      `json:"profileKey,omitempty"`
-	AccountEntropyPool             string      `json:"accountEntropyPool,omitempty"`
-	MediaRootBackupKey             []byte      `json:"mediaRootBackupKey,omitempty"`
-	DeviceName                     string      `json:"deviceName,omitempty"` // encrypted, unpadded base64 (linked devices)
-	UnrestrictedUnidentifiedAccess bool        `json:"unrestrictedUnidentifiedAccess,omitempty"`
-	Unlisted                       bool        `json:"unlisted,omitempty"`
-	SessionID                      string      `json:"sessionId,omitempty"`   // verification session (registration.md §2.5)
-	MultiDevice                    bool        `json:"multiDevice,omitempty"` // sync messages are sent (sync.md §1)
-	ACIKeys                        PreKeyState `json:"aciKeys"`
-	PNIKeys                        PreKeyState `json:"pniKeys"`
+	Version                        int           `json:"version"`
+	Environment                    string        `json:"environment"`
+	Number                         string        `json:"number"`
+	ACI                            string        `json:"aci,omitempty"`
+	PNI                            string        `json:"pni,omitempty"`
+	DeviceID                       int           `json:"deviceId"`
+	Password                       string        `json:"password"`
+	Registered                     bool          `json:"registered"`
+	ACIIdentity                    KeyPair       `json:"aciIdentity"`
+	PNIIdentity                    KeyPair       `json:"pniIdentity"`
+	ACIRegistrationID              uint32        `json:"aciRegistrationId"`
+	PNIRegistrationID              uint32        `json:"pniRegistrationId"`
+	ProfileKey                     []byte        `json:"profileKey,omitempty"`
+	AccountEntropyPool             string        `json:"accountEntropyPool,omitempty"`
+	MediaRootBackupKey             []byte        `json:"mediaRootBackupKey,omitempty"`
+	DeviceName                     string        `json:"deviceName,omitempty"` // encrypted, unpadded base64 (linked devices)
+	UnrestrictedUnidentifiedAccess bool          `json:"unrestrictedUnidentifiedAccess,omitempty"`
+	Unlisted                       bool          `json:"unlisted,omitempty"`
+	SessionID                      string        `json:"sessionId,omitempty"`   // verification session (registration.md §2.5)
+	MultiDevice                    bool          `json:"multiDevice,omitempty"` // sync messages are sent (sync.md §1)
+	Configuration                  Configuration `json:"configuration"`
+	ACIKeys                        PreKeyState   `json:"aciKeys"`
+	PNIKeys                        PreKeyState   `json:"pniKeys"`
+}
+
+// Configuration is the account settings synced between devices (sync.md
+// §6.6); nil means unset.
+type Configuration struct {
+	ReadReceipts                   *bool `json:"readReceipts,omitempty"`
+	UnidentifiedDeliveryIndicators *bool `json:"unidentifiedDeliveryIndicators,omitempty"`
+	TypingIndicators               *bool `json:"typingIndicators,omitempty"`
+	LinkPreviews                   *bool `json:"linkPreviews,omitempty"`
 }
 
 // StoredKey is a serialized prekey record with its bookkeeping.
@@ -426,6 +436,9 @@ type Recipient struct {
 	TimerVersion      uint32 `json:"timerVersion,omitempty"` // 0 means no contact entry yet
 	ProfileSharing    bool   `json:"profileSharing,omitempty"`
 	Blocked           bool   `json:"blocked,omitempty"`
+	// GivenName and FamilyName are the contact name (from a contacts sync).
+	GivenName  string `json:"givenName,omitempty"`
+	FamilyName string `json:"familyName,omitempty"`
 }
 
 type recipientsDoc struct {

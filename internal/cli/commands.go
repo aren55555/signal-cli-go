@@ -133,7 +133,15 @@ func runLink(ctx context.Context, e *env, g *globals, name string) error {
 				return err
 			}
 			defer c.Close()
-			return manager.CheckAccount(ctx, a, c, time.Now())
+			if err := manager.CheckAccount(ctx, a, c, time.Now()); err != nil {
+				return err
+			}
+			// The post-link sync requests (sync.md §7).
+			s := &manager.Sender{Acct: a, Chat: c}
+			if err := s.SendSyncRequests(ctx); err != nil {
+				fmt.Fprintln(e.stderr, "WARN  ProvisioningManagerImpl - Failed to request sync messages from linked device, data can be requested again with `sendSyncRequest`.")
+			}
+			return nil
 		},
 	}
 	ctx, cancel := context.WithTimeout(ctx, 150*time.Second)
@@ -325,8 +333,19 @@ func runSendReceipt(ctx context.Context, e *env, g *globals, recipient string, t
 	if kind == "viewed" {
 		rk = manager.ReceiptViewed
 	}
-	ts, err := s.sender.SendReceiptAt(ctx, t.aci, rk, timestamps)
-	return finishSend(e, g, ts, []sendResult{resultFor(t.key, t.aci, err)})
+	// An explicit read or viewed receipt is skipped when read receipts are
+	// configured off (content.md §5.1); the sync goes out either way
+	// (sync.md §6.8).
+	var ts uint64
+	var results []sendResult
+	if rr := a.Data.Configuration.ReadReceipts; rr == nil || *rr {
+		ts, err = s.sender.SendReceiptAt(ctx, t.aci, rk, timestamps)
+		results = append(results, resultFor(t.key, t.aci, err))
+	}
+	if err := s.sender.SendReadSync(ctx, t.aci, kind == "viewed", timestamps); err != nil {
+		fmt.Fprintf(e.stderr, "WARN  SendHelper - Failed to send read sync: %v\n", err)
+	}
+	return finishSend(e, g, ts, results)
 }
 
 func resultFor(key, aci string, err error) sendResult {
@@ -395,6 +414,7 @@ type receiveOpts struct {
 	sendReadReceipts  bool
 	ignoreStories     bool
 	ignoreAttachments bool
+	ignoreAvatars     bool
 }
 
 // runReceive is `receive` (spec/surface/cli/receive.md).
@@ -429,7 +449,7 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 		Acct:      a,
 		Decryptor: &manager.Decryptor{Acct: a},
 		Sender:    &manager.Sender{Acct: a, Chat: c, Unauth: unauth, CDN: cd},
-		Attachments: &manager.AttachmentStore{Dir: filepath.Join(g.dataDir, "attachments"), CDN: cd, Ignore: o.ignoreAttachments,
+		Attachments: &manager.AttachmentStore{Dir: filepath.Join(g.dataDir, "attachments"), CDN: cd, Ignore: o.ignoreAttachments, AvatarsDir: filepath.Join(g.dataDir, "avatars"), IgnoreAvatars: o.ignoreAvatars,
 			Log: func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  AttachmentHelper - "+f+"\n", args...) }},
 		SendReadReceipts: o.sendReadReceipts,
 		Log:              func(s string) { fmt.Fprintln(e.stderr, "WARN  ReceiveHelper - "+s) },
@@ -448,4 +468,27 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 		return ioError("Error while receiving messages: %v", err)
 	}
 	return nil
+}
+
+// runSyncCommand is sendSyncRequest and sendContacts (sync.md §8.5,
+// §8.6): exit 0, no output; failures are logged.
+func runSyncCommand(ctx context.Context, e *env, g *globals, contacts bool) error {
+	return withAccount(g, func(a *store.Account) error {
+		ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+		defer cancel()
+		s, err := openSession(ctx, e, g, a)
+		if err != nil {
+			return err
+		}
+		defer s.close()
+		if contacts {
+			err = s.sender.SendContacts(ctx)
+		} else {
+			err = s.sender.SendSyncRequests(ctx)
+		}
+		if err != nil {
+			fmt.Fprintf(e.stderr, "WARN  SyncHelper - %v\n", err)
+		}
+		return nil
+	})
 }

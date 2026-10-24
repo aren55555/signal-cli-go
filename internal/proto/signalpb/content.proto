@@ -111,11 +111,133 @@ message AppPniSignature {
   optional bytes signature = 2; // by the PNI identity key over the ACI identity key
 }
 
-// §8: SyncMessage, only the members signal-cli-go handles so far.
+// SyncMessage, from spec/service/sync.md §2. The members of the upstream
+// "content" oneof are plain optional fields here; receivers apply the
+// priority order of §2.1.
 message AppSyncMessage {
   optional AppSent sent = 1;
-  optional AppMessageRequestResponse message_request_response = 14;
+  optional Contacts contacts = 2;
+  optional Groups groups = 3;
+  optional Request request = 4;
+  repeated Read read = 5;
+  optional Blocked blocked = 6;
+  optional AppVerified verified = 7;
   optional bytes padding = 8;
+  optional Configuration configuration = 9;
+  repeated StickerPackOperation sticker_pack_operation = 10;
+  optional Read view_once_open = 11;
+  optional FetchLatest fetch_latest = 12;
+  optional Keys keys = 13;
+  optional AppMessageRequestResponse message_request_response = 14;
+  optional bytes outgoing_payment = 15;
+  repeated Read viewed = 16;
+  reserved 17;
+  optional PniChangeNumber pni_change_number = 18;
+  optional CallEvent call_event = 19;
+  optional bytes call_link_update = 20;
+  optional bytes call_log_event = 21;
+  optional bytes delete_for_me = 22;
+  optional DeviceNameChange device_name_change = 23;
+  optional bytes attachment_backfill_request = 24;
+  optional bytes attachment_backfill_response = 25;
+  optional bytes username_change = 26;
+
+  message Contacts {
+    optional AppAttachmentPointer blob = 1;
+    optional bool complete = 2 [default = false];
+  }
+  message Groups {
+    optional AppAttachmentPointer blob = 1;
+  }
+  message Request {
+    enum Type {
+      UNKNOWN = 0;
+      CONTACTS = 1;
+      GROUPS = 2;
+      BLOCKED = 3;
+      CONFIGURATION = 4;
+      KEYS = 5;
+      reserved 6;
+    }
+    optional Type type = 1;
+  }
+  // Read, Viewed and ViewOnceOpen share one shape.
+  message Read {
+    reserved 1;
+    optional uint64 timestamp = 2;
+    optional string sender_aci = 3;
+    optional bytes sender_aci_binary = 4;
+  }
+  message Blocked {
+    repeated string numbers = 1;
+    repeated string acis = 3;
+    repeated bytes group_ids = 2;
+    repeated bytes acis_binary = 4;
+  }
+  message Configuration {
+    optional bool read_receipts = 1;
+    optional bool unidentified_delivery_indicators = 2;
+    optional bool typing_indicators = 3;
+    reserved 4, 5;
+    optional bool link_previews = 6;
+  }
+  message StickerPackOperation {
+    optional bytes pack_id = 1;
+    optional bytes pack_key = 2;
+    enum Type {
+      INSTALL = 0;
+      REMOVE = 1;
+    }
+    optional Type type = 3;
+  }
+  message FetchLatest {
+    enum Type {
+      UNKNOWN = 0;
+      LOCAL_PROFILE = 1;
+      STORAGE_MANIFEST = 2;
+      SUBSCRIPTION_STATUS = 3;
+    }
+    optional Type type = 1;
+  }
+  message Keys {
+    reserved 1, 2;
+    optional string account_entropy_pool = 3;
+    optional bytes media_root_backup_key = 4;
+  }
+  message PniChangeNumber {
+    optional bytes identity_key_pair = 1;
+    optional bytes signed_pre_key = 2;
+    optional bytes last_resort_kyber_pre_key = 5;
+    optional uint32 registration_id = 3;
+    optional string new_e164 = 4;
+  }
+  message CallEvent {
+    optional bytes conversation_id = 1;
+    optional uint64 call_id = 2;
+    optional uint64 timestamp = 3;
+    optional uint32 type = 4;
+    optional uint32 direction = 5;
+    optional uint32 event = 6;
+  }
+  message DeviceNameChange {
+    reserved 1;
+    optional uint32 device_id = 2;
+  }
+}
+
+// The top-level Verified message (sync.md §2.3).
+message AppVerified {
+  reserved 1;
+  optional string destination_aci = 5;
+  optional bytes identity_key = 2;
+  enum State {
+    DEFAULT = 0;
+    VERIFIED = 1;
+    UNVERIFIED = 2;
+  }
+  optional State state = 3;
+  optional bytes null_message = 4;
+  optional bytes destination_aci_binary = 6;
 }
 
 // §8: the sent transcript for one's own other devices.
@@ -377,4 +499,22 @@ message AppMessageRequestResponse {
   }
   optional Type type = 4;
   optional bytes thread_aci_binary = 5;
+}
+
+// A record of the contact stream (sync.md §5.1), length-prefixed in the
+// blob and followed by the avatar bytes.
+message AppContactDetails {
+  optional string number = 1;
+  optional string aci = 9;
+  optional bytes aci_binary = 13;
+  optional string name = 2;
+  message Avatar {
+    optional string content_type = 1;
+    optional uint32 length = 2;
+  }
+  optional Avatar avatar = 3;
+  optional uint32 expire_timer = 8;
+  optional uint32 expire_timer_version = 12;
+  optional uint32 inbox_position = 10;
+  reserved 4, 5, 6, 7, 11;
 }
