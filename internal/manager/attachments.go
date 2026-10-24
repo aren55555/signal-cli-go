@@ -19,6 +19,7 @@ type CDN interface {
 	Upload(ctx context.Context, f cdn.Form, location string, blob []byte) error
 	Download(ctx context.Context, cdnNumber uint32, id string, limit int64) ([]byte, error)
 	Fetch(ctx context.Context, path string, limit int64) ([]byte, error)
+	PostCDN0(ctx context.Context, fields []cdn.FormField, blob []byte) error
 }
 
 // UploadError is a failed attachment upload; the send is aborted.

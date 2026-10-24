@@ -107,6 +107,10 @@ func sendDataCommand(ctx context.Context, e *env, g *globals, a *store.Account, 
 	defer s.close()
 	if d.Prepare != nil {
 		if err := d.Prepare(ctx, s.sender); err != nil {
+			var ce *cliError
+			if errors.As(err, &ce) {
+				return ce
+			}
 			return &cliError{msg: fmt.Sprintf("Failed to send message: %v (IOException)", err), code: 2}
 		}
 	}
@@ -339,14 +343,21 @@ func runSendFull(ctx context.Context, e *env, g *globals, o fullSendOpts) error 
 			}
 			previewSrc = &src
 		}
-		if o.sticker != "" {
-			return userError("Failed to send sticker: Sticker pack not found")
-		}
-		if text == "" && len(srcs) == 0 && !o.hasQuote {
+		if text == "" && len(srcs) == 0 && !o.hasQuote && o.sticker == "" {
 			return userError("Sending empty message is not allowed, either a message, attachment or sticker must be given.")
 		}
 		d := manager.DataSend{Message: dm, NotifySelf: o.notifySelf, Urgent: !o.noUrgent}
 		d.Prepare = func(ctx context.Context, s *manager.Sender) error {
+			if o.sticker != "" {
+				pack, num, _ := strings.Cut(o.sticker, ":")
+				n, _ := strconv.ParseUint(num, 10, 32)
+				net, _ := e.network(g)
+				st, err := s.StickerMessage(ctx, net.stickerStore(g), strings.ToLower(pack), uint32(n))
+				if err != nil {
+					return userError("Failed to send sticker: " + err.Error())
+				}
+				dm.Sticker = st
+			}
 			if err := s.Attach(ctx, dm, srcs, o.voiceNote); err != nil {
 				return err
 			}

@@ -10,7 +10,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"strconv"
 	"strings"
@@ -332,4 +334,39 @@ func formEncode(s string) string {
 		}
 	}
 	return b.String()
+}
+
+// FormField is one field of a CDN 0 upload form.
+type FormField struct{ Name, Value string }
+
+// PostCDN0 uploads a blob to CDN 0 as multipart/form-data: the fields in
+// order, then the file part named "file" (attachments.md §4.9).
+func (c *Client) PostCDN0(ctx context.Context, fields []FormField, blob []byte) error {
+	var body bytes.Buffer
+	mw := multipart.NewWriter(&body)
+	for _, f := range fields {
+		if err := mw.WriteField(f.Name, f.Value); err != nil {
+			return err
+		}
+	}
+	h := textproto.MIMEHeader{}
+	h.Set("Content-Disposition", `form-data; name="file"; filename="file"`)
+	h.Set("Content-Type", "application/octet-stream")
+	w, err := mw.CreatePart(h)
+	if err != nil {
+		return err
+	}
+	w.Write(blob)
+	if err := mw.Close(); err != nil {
+		return err
+	}
+	resp, err := c.do(ctx, "POST", c.bases[0]+"/", []header{{"Content-Type", mw.FormDataContentType()}}, body.Bytes())
+	if err != nil {
+		return err
+	}
+	defer drain(resp)
+	if !ok(resp.StatusCode) {
+		return &StatusError{"POST", resp.StatusCode}
+	}
+	return nil
 }

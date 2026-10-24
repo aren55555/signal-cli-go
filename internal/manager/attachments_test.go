@@ -195,3 +195,18 @@ func TestAttachLongText(t *testing.T) {
 		t.Errorf("short text: %v %v", err, cd.log)
 	}
 }
+
+func (f *fakeCDN) PostCDN0(ctx context.Context, fields []cdn.FormField, blob []byte) error {
+	key := ""
+	for _, fl := range fields {
+		if fl.Name == "key" {
+			key = fl.Value
+		}
+	}
+	f.log = append(f.log, "post "+key)
+	if f.blobs == nil {
+		f.blobs = map[string][]byte{}
+	}
+	f.blobs[key] = blob
+	return nil
+}

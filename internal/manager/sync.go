@@ -292,6 +292,8 @@ func (r *Receiver) applySync(ctx context.Context, sm *signalpb.AppSyncMessage) {
 		}
 	case SyncContacts:
 		r.importContacts(ctx, sm.Contacts)
+	case SyncStickerPackOperation:
+		r.applyStickerOperations(sm.StickerPackOperation)
 	}
 }
 

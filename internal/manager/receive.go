@@ -49,6 +49,7 @@ type Receiver struct {
 	Sender           *Sender // for receipts, renewals and the prekey refresh
 	SendReadReceipts bool
 	Attachments      *AttachmentStore // nil: nothing is downloaded
+	Stickers         *StickerStore    // nil: no sticker packs are fetched
 	OnEvent          func(Event)
 	Log              func(string)
 	Now              func() time.Time
@@ -65,7 +66,8 @@ type actions struct {
 	refresh  bool
 	// syncAnswers are the sync requests to answer (primary only).
 	syncAnswers map[signalpb.AppSyncMessage_Request_Type]bool
-	ownProfile  bool // a FetchLatest LOCAL_PROFILE arrived
+	ownProfile  bool        // a FetchLatest LOCAL_PROFILE arrived
+	stickers    [][2][]byte // sticker packs to download (id, key)
 }
 
 type retryReceipt struct {
@@ -267,6 +269,7 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 	ev := Event{Envelope: &env, ServerDelivered: delivered, Message: m}
 	sent := c.GetSyncMessage().GetSent()
 	for _, dm := range []*signalpb.AppDataMessage{c.GetDataMessage(), c.GetEditMessage().GetDataMessage(), sent.GetMessage(), sent.GetEditMessage().GetDataMessage()} {
+		r.noteSticker(dm.GetSticker())
 		if text, ok := r.Attachments.FetchData(ctx, dm); ok {
 			if ev.LongText == nil {
 				ev.LongText = map[uint64]string{}
@@ -392,6 +395,9 @@ func (r *Receiver) flush(ctx context.Context) {
 	}
 	if p.ownProfile {
 		r.Sender.RefreshProfile(ctx, r.Acct.Data.ACI)
+	}
+	if len(p.stickers) > 0 {
+		r.downloadStickers(ctx, p.stickers)
 	}
 	if p.refresh {
 		if err := RefreshPreKeys(ctx, r.Acct, r.Sender.Chat, r.now()); err != nil {

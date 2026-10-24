@@ -29,6 +29,7 @@ const (
 	keysVersion       = 1
 	sessionsVersion   = 1
 	senderKeysVersion = 1
+	stickersVersion   = 1
 	identitiesVersion = 1
 )
 
@@ -241,6 +242,7 @@ type Account struct {
 	Sessions   map[string][]byte   // "aci:<address>.<device>" -> SessionRecord
 	Identities map[string]Identity // service ID -> identity
 	SenderKeys SenderKeys
+	Stickers   []StickerPack
 	Recipients map[string]Recipient // ACI -> recipient
 }
 
@@ -343,6 +345,9 @@ func (r *Root) Load(path string) (*Account, error) {
 		return fail(err)
 	}
 	if err := a.LoadSenderKeys(); err != nil {
+		return fail(err)
+	}
+	if err := a.LoadStickers(); err != nil {
 		return fail(err)
 	}
 	if a.Identities == nil {
@@ -517,4 +522,41 @@ func (a *Account) LoadSenderKeys() error {
 // SaveSenderKeys writes senderkeys.json.
 func (a *Account) SaveSenderKeys() error {
 	return WriteJSON(a.file("senderkeys.json"), &senderKeysDoc{Version: senderKeysVersion, SenderKeys: a.SenderKeys})
+}
+
+// StickerPack is a known sticker pack (attachments.md §6.6).
+type StickerPack struct {
+	ID        string `json:"id"` // lowercase hex
+	Key       []byte `json:"key"`
+	Installed bool   `json:"installed"`
+}
+
+type stickersDoc struct {
+	Version int           `json:"version"`
+	Packs   []StickerPack `json:"packs"` // in the order they became known
+}
+
+// LoadStickers reads stickers.json into a.Stickers.
+func (a *Account) LoadStickers() error {
+	var d stickersDoc
+	if err := ReadJSON(a.file("stickers.json"), stickersVersion, Migrations{}, &d); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	a.Stickers = d.Packs
+	return nil
+}
+
+// SaveStickers writes stickers.json.
+func (a *Account) SaveStickers() error {
+	return WriteJSON(a.file("stickers.json"), &stickersDoc{Version: stickersVersion, Packs: a.Stickers})
+}
+
+// StickerPackByID returns the index of a pack, or -1.
+func (a *Account) StickerPackByID(id string) int {
+	for i, p := range a.Stickers {
+		if p.ID == id {
+			return i
+		}
+	}
+	return -1
 }

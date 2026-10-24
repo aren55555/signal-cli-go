@@ -418,6 +418,7 @@ type receiveOpts struct {
 	ignoreStories     bool
 	ignoreAttachments bool
 	ignoreAvatars     bool
+	ignoreStickers    bool
 }
 
 // runReceive is `receive` (spec/surface/cli/receive.md).
@@ -452,6 +453,8 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 		Acct:      a,
 		Decryptor: &manager.Decryptor{Acct: a},
 		Sender:    &manager.Sender{Acct: a, Chat: c, Unauth: unauth, CDN: cd},
+		Stickers: &manager.StickerStore{Dir: filepath.Join(g.dataDir, "stickers"), CDN: cd, Ignore: o.ignoreStickers,
+			Log: func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  StickerHelper - "+f+"\n", args...) }},
 		Attachments: &manager.AttachmentStore{Dir: filepath.Join(g.dataDir, "attachments"), CDN: cd, Ignore: o.ignoreAttachments, AvatarsDir: filepath.Join(g.dataDir, "avatars"), IgnoreAvatars: o.ignoreAvatars,
 			Log: func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  AttachmentHelper - "+f+"\n", args...) }},
 		SendReadReceipts: o.sendReadReceipts,

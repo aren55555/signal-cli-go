@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/aren55555/signal-cli-go/internal/cli/argparse"
+	"strings"
 )
 
 // The parser definitions transcribe spec/surface/cli/index.md and the
@@ -205,6 +206,26 @@ func commandParser(name string) *argparse.Parser {
 			&argparse.Arg{Names: []string{"-a", "--attachment"}, Dest: "attachment", Metavars: []string{"ATTACHMENT"}, Required: true, Help: "Specify the file path to the image or video to post as a story."},
 			&argparse.Arg{Names: []string{"--no-replies"}, Action: argparse.StoreTrue, Help: "Disable replies on this story."},
 			&argparse.Arg{Names: []string{"-g", "--group-id"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Help: "Specify a group to post the story to. Without this, posts to My Story."})
+	case "addStickerPack":
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"--uri"}, Dest: "uri", Metavars: []string{"URI"}, Nargs: argparse.OneOrMore, Required: true,
+			Help: "Specify the uri of the sticker pack. (e.g. https://signal.art/addstickers/#pack_id=XXX&pack_key=XXX)"})
+	case "getSticker":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"--pack-id"}, Dest: "pack-id", Metavars: []string{"PACK_ID"}, Required: true, Help: "The ID of the sticker pack."},
+			&argparse.Arg{Names: []string{"--sticker-id"}, Dest: "sticker-id", Metavars: []string{"STICKER_ID"}, Kind: argparse.Int32, Required: true, Help: "The ID of the sticker."})
+	case "listStickerPacks":
+	case "uploadStickerPack":
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"path"}, Dest: "path", Metavars: []string{"path"},
+			Help: "The path of the manifest.json or a zip file containing the sticker pack you wish to upload."})
+	case "updateConfiguration":
+		boolArg := func(name, help string) *argparse.Arg {
+			return &argparse.Arg{Names: []string{name}, Dest: strings.TrimPrefix(name, "--"), Kind: argparse.Boolean, Help: help}
+		}
+		p.Args = append(p.Args,
+			boolArg("--read-receipts", "Indicates if Signal should send read receipts."),
+			boolArg("--unidentified-delivery-indicators", "Indicates if Signal should show unidentified delivery indicators."),
+			boolArg("--typing-indicators", "Indicates if Signal should send/show typing indicators."),
+			boolArg("--link-previews", "Indicates if Signal should generate link previews."))
 	case "getAttachment":
 		recipient := &argparse.Arg{Names: []string{"--recipient"}, Dest: "recipient", Metavars: []string{"RECIPIENT"}, Help: "Sender of the attachment"}
 		group := &argparse.Arg{Names: []string{"-g", "--group-id"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Help: "Group in which the attachment was received"}

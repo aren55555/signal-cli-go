@@ -570,3 +570,16 @@ message AppStoryMessageRecipient {
   reserved 4;
   optional bytes destination_service_id_binary = 5;
 }
+
+// A sticker pack manifest, encrypted on CDN 0 (attachments.md §6.6).
+message AppStickerPack {
+  optional string title = 1;
+  optional string author = 2;
+  message Sticker {
+    optional uint32 id = 1;
+    optional string emoji = 2;
+    optional string content_type = 3;
+  }
+  optional Sticker cover = 3;
+  repeated Sticker stickers = 4;
+}

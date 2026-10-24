@@ -209,6 +209,23 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		runErr = runUnregister(ctx, e, g, s.Bool("delete_account"))
 	case "sendStory":
 		runErr = runSendStory(ctx, e, g, s.String("attachment"), s.Bool("no_replies"), s.String("group-id"))
+	case "addStickerPack":
+		runErr = runAddStickerPack(ctx, e, g, s.Strings("uri"))
+	case "getSticker":
+		runErr = runGetSticker(e, g, s.String("pack-id"), s.Int("sticker-id"))
+	case "listStickerPacks":
+		runErr = runListStickerPacks(e, g)
+	case "uploadStickerPack":
+		runErr = runUploadStickerPack(ctx, e, g, s.String("path"))
+	case "updateConfiguration":
+		set := map[string]*bool{}
+		for _, k := range []string{"read-receipts", "unidentified-delivery-indicators", "typing-indicators", "link-previews"} {
+			if s.Has(k) {
+				v := s.Bool(k)
+				set[k] = &v
+			}
+		}
+		runErr = runUpdateConfiguration(ctx, e, g, set)
 	case "trust":
 		sn := s.String("verified_safety_number")
 		runErr = runTrust(ctx, e, g, s.String("recipient"), s.Bool("trust_all_known_keys"), sn, s.Has("verified_safety_number"))
@@ -225,7 +242,7 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 			timeout = 0
 		}
 		runErr = runReceive(ctx, e, g, receiveOpts{timeout: timeout, maxMessages: s.Int("max-messages"),
-			sendReadReceipts: s.Bool("send_read_receipts"), ignoreStories: s.Bool("ignore_stories"), ignoreAttachments: s.Bool("ignore_attachments"), ignoreAvatars: s.Bool("ignore_avatars")})
+			sendReadReceipts: s.Bool("send_read_receipts"), ignoreStories: s.Bool("ignore_stories"), ignoreAttachments: s.Bool("ignore_attachments"), ignoreAvatars: s.Bool("ignore_avatars"), ignoreStickers: s.Bool("ignore_stickers")})
 	default:
 		// Not implemented yet: report like an unexpected error.
 		fmt.Fprintf(stderr, "Command %s is not implemented in signal-cli-go yet\n", cmd)
