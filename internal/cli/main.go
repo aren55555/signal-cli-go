@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/cli/argparse"
@@ -36,10 +37,7 @@ var (
 // returns the exit code.
 func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.Writer, getenv func(string) string) int {
 	e := &env{stdout: stdout, stderr: stderr, stdin: stdin, getenv: getenv}
-	width := 75
-	if c, err := strconv.Atoi(getenv("COLUMNS")); err == nil && c > 0 {
-		width = c
-	}
+	width := formatWidth(getenv)
 	d := globalDefaults{dataDir: defaultDataDir(getenv), busName: "org.asamk.Signal", serviceEnv: "live", trustNew: "on-first-use"}
 	if _, err := os.Stat("/.flatpak-info"); err == nil {
 		d.busName = "org.asamk.SignalCli"
@@ -49,11 +47,16 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		return 1
 	}
 	p := newParser(d)
+	p.Width = width
+	showLoggingHelp := loggingPreparse(args)
 	r, err := p.Parse(args)
 	if err != nil {
 		var pe *argparse.Error
 		if errors.As(err, &pe) {
-			io.WriteString(stderr, argparse.FormatError(pe, width))
+			if showLoggingHelp {
+				io.WriteString(stdout, loggingHelp)
+			}
+			io.WriteString(stderr, argparse.FormatError(pe))
 			return 1
 		}
 		fmt.Fprintln(stderr, err)
@@ -61,8 +64,10 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 	}
 	switch {
 	case r.Help:
-		io.WriteString(stdout, loggingHelp)
-		io.WriteString(stdout, argparse.FormatHelp(r.HelpParser, width, r.HelpParser == p))
+		if showLoggingHelp {
+			io.WriteString(stdout, loggingHelp)
+		}
+		io.WriteString(stdout, argparse.FormatHelp(r.HelpParser))
 		return 0
 	case r.Version:
 		fmt.Fprintf(stdout, "signal-cli %s\n", Version)
@@ -75,7 +80,7 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		output:         r.String("output"),
 		serviceEnv:     r.String("service-environment"),
 		trustNew:       r.String("trust-new-identities"),
-		disableSendLog: r.Bool("disable-send-log"),
+		disableSendLog: r.Bool("disable_send_log"),
 	}
 	if g.dataDir == "" {
 		g.dataDir = d.dataDir
@@ -94,18 +99,18 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		fmt.Fprintf(stderr, "Command doesn't support output type %s\n", g.output)
 		return 1
 	}
-	if cmd == "link" && g.account != "" {
-		fmt.Fprintln(stderr, "You cannot specify a account (phone number) when linking")
-		return 1
-	}
-	if r.Bool("dbus") || r.Bool("dbus-system") {
+	if r.Bool("dbus") || r.Bool("dbus_system") {
 		// D-Bus is out of scope; behave as the reference does without a bus.
 		detail := "DISPLAY variable not set"
-		if r.Bool("dbus-system") {
+		if r.Bool("dbus_system") {
 			detail = "MachineId file can not be found"
 		}
 		fmt.Fprintf(stderr, "Dbus client failed: Cannot Resolve Session Bus Address: %s\n", detail)
 		return 2
+	}
+	if cmd == "link" && g.account != "" {
+		fmt.Fprintln(stderr, "You cannot specify a account (phone number) when linking")
+		return 1
 	}
 	var runErr error
 	s := r.Sub
@@ -127,9 +132,9 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 			recipients: s.Strings("recipient"),
 			message:    s.String("message"),
 			hasMessage: s.Has("message"),
-			fromStdin:  s.Bool("message-from-stdin"),
-			noteToSelf: s.Bool("note-to-self"),
-			noUrgent:   s.Bool("no-urgent"),
+			fromStdin:  s.Bool("message_from_stdin"),
+			noteToSelf: s.Bool("note_to_self"),
+			noUrgent:   s.Bool("no_urgent"),
 		})
 	case "receive":
 		t := s.Float("timeout")
@@ -138,7 +143,7 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 			timeout = 0
 		}
 		runErr = runReceive(ctx, e, g, receiveOpts{timeout: timeout, maxMessages: s.Int("max-messages"),
-			sendReadReceipts: s.Bool("send-read-receipts"), ignoreStories: s.Bool("ignore-stories")})
+			sendReadReceipts: s.Bool("send_read_receipts"), ignoreStories: s.Bool("ignore_stories")})
 	default:
 		// Not implemented yet: report like an unexpected error.
 		fmt.Fprintf(stderr, "Command %s is not implemented in signal-cli-go yet\n", cmd)
@@ -164,4 +169,101 @@ func defaultDataDir(getenv func(string) string) string {
 		return filepath.Join(x, "signal-cli")
 	}
 	return filepath.Join(getenv("HOME"), ".local", "share", "signal-cli")
+}
+
+// formatWidth is W (argparse.md §1): COLUMNS − 5, else the terminal's
+// columns − 5, and 75 when that is ≤ 0 or unknown.
+func formatWidth(getenv func(string) string) int {
+	cols := -1
+	if c, ok := os.LookupEnv("COLUMNS"); ok || getenv("COLUMNS") != "" {
+		if getenv("COLUMNS") != "" {
+			c = getenv("COLUMNS")
+		}
+		if n, err := strconv.Atoi(c); err == nil {
+			cols = n
+		}
+	} else if n := ttyColumns(); n > 0 {
+		cols = n
+	}
+	if w := cols - 5; w > 0 {
+		return w
+	}
+	return 75
+}
+
+// loggingPreparse runs the early logging parser in known-arguments mode
+// (argparse.md §7.7) and reports whether it reaches -h, which prints its
+// 7-line help block.
+func loggingPreparse(args []string) bool {
+	flags := []string{"-h", "--help", "-v", "--verbose", "--log-file", "--scrub-log"}
+	resolve := func(part string) string {
+		for _, f := range flags {
+			if f == part {
+				return f
+			}
+		}
+		var match string
+		n := 0
+		for _, f := range flags {
+			if strings.HasPrefix(f, part) {
+				match, n = f, n+1
+			}
+		}
+		if n == 1 {
+			return match
+		}
+		return ""
+	}
+	isFlag := func(s string) bool {
+		return strings.HasPrefix(s, "-") && strings.Trim(s, "-") != "" && !negativeInteger(s)
+	}
+	for i := 0; i < len(args); i++ {
+		tok := args[i]
+		if tok == "--" {
+			return false
+		}
+		if !isFlag(tok) {
+			continue
+		}
+		part, _, attached := strings.Cut(tok, "=")
+		f := resolve(part)
+		if f == "" && !strings.HasPrefix(tok, "--") {
+			// Concatenated short flags: -vvh.
+		cluster:
+			for _, c := range tok[1:] {
+				switch c {
+				case 'h':
+					return true
+				case 'v':
+				default:
+					break cluster
+				}
+			}
+			continue
+		}
+		switch f {
+		case "-h", "--help":
+			return !attached
+		case "--log-file":
+			if !attached {
+				if i+1 >= len(args) || isFlag(args[i+1]) || args[i+1] == "--" {
+					return false // an error: signal-cli ignores this pass
+				}
+				i++
+			}
+		}
+	}
+	return false
+}
+
+func negativeInteger(s string) bool {
+	if len(s) < 2 || s[0] != '-' {
+		return false
+	}
+	for _, c := range s[1:] {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
 }

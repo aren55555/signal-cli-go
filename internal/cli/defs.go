@@ -85,17 +85,18 @@ var commandHelp = [][2]string{
 // globalDefaults are the option defaults, possibly overridden by config
 // files (index.md §7).
 type globalDefaults struct {
-	verbose        int
-	scrubLog       bool
-	dataDir        string
-	busName        string
-	dbus           bool
-	dbusSystem     bool
-	output         string // "" when unset
-	serviceEnv     string
-	trustNew       string
-	disableSendLog bool
-	logFile        string
+	verbose           int
+	scrubLog          bool
+	dataDir           string
+	dataDirConfigured bool
+	busName           string
+	dbus              bool
+	dbusSystem        bool
+	output            string // "" when unset
+	serviceEnv        string
+	trustNew          string
+	disableSendLog    bool
+	logFile           string
 }
 
 func newParser(d globalDefaults) *argparse.Parser {
@@ -105,26 +106,32 @@ func newParser(d globalDefaults) *argparse.Parser {
 	if d.output != "" {
 		output = d.output
 	}
+	var dataDirDefault any
+	if d.dataDirConfigured {
+		dataDirDefault = d.dataDir
+	}
 	var logFile any
 	if d.logFile != "" {
 		logFile = d.logFile
 	}
 	p := &argparse.Parser{
-		Prog:        "signal-cli",
-		Description: description,
-		Epilog:      epilog,
-		CommandDest: "command",
+		Prog:          "signal-cli",
+		ShowDefaults:  true,
+		CommandsTitle: "subcommands",
+		Description:   description,
+		Epilog:        epilog,
+		CommandDest:   "command",
 		Args: []*argparse.Arg{
 			helpArg(),
 			{Names: []string{"--version"}, Action: argparse.Version, Help: "Show package version."},
 			{Names: []string{"-v", "--verbose"}, Action: argparse.Count, Help: "Raise log level and include lib signal logs. Specify multiple times for even more logs.", Default: d.verbose},
-			{Names: []string{"--log-file"}, Dest: "log-file", Metavar: "LOG_FILE", Help: "Write log output to the given file. If --verbose is also given, the detailed logs will only be written to the log file.", Default: logFile},
+			{Names: []string{"--log-file"}, Dest: "log-file", Metavars: []string{"LOG_FILE"}, Help: "Write log output to the given file. If --verbose is also given, the detailed logs will only be written to the log file.", Default: logFile},
 			{Names: []string{"--scrub-log"}, Action: argparse.StoreTrue, Help: "Scrub possibly sensitive information from the log, like phone numbers and UUIDs.", Default: d.scrubLog},
-			{Names: []string{"-d", "--data-dir", "-c", "--config"}, Dest: "data-dir", Metavar: "DATA_DIR", Help: "Set the path where to store data (Default: $XDG_DATA_HOME/signal-cli , $HOME/.local/share/signal-cli)."},
-			{Names: []string{"-a", "--account", "-u", "--username"}, Dest: "account", Metavar: "ACCOUNT", Help: "Specify your phone number, that will be your identifier."},
+			{Names: []string{"-d", "--data-dir", "-c", "--config"}, Dest: "data-dir", Metavars: []string{"DATA_DIR"}, Help: "Set the path where to store data (Default: $XDG_DATA_HOME/signal-cli , $HOME/.local/share/signal-cli).", Default: dataDirDefault},
+			{Names: []string{"-a", "--account", "-u", "--username"}, Dest: "account", Metavars: []string{"ACCOUNT"}, Help: "Specify your phone number, that will be your identifier."},
 			dbus,
 			dbusSystem,
-			{Names: []string{"--bus-name"}, Dest: "bus-name", Metavar: "GLOBAL-BUS-NAME", Help: "Specify the D-Bus bus name to connect to.", Default: d.busName},
+			{Names: []string{"--bus-name"}, Dest: "bus-name", Metavars: []string{"GLOBAL-BUS-NAME"}, Help: "Specify the D-Bus bus name to connect to.", Default: d.busName},
 			{Names: []string{"-o", "--output"}, Dest: "output", Kind: argparse.Enum, Choices: []string{"plain-text", "json"}, Help: "Choose to output in plain text or JSON", Default: output},
 			{Names: []string{"--service-environment"}, Dest: "service-environment", Kind: argparse.Enum, Choices: []string{"live", "staging"}, Help: "Choose the server environment to use.", Default: d.serviceEnv},
 			{Names: []string{"--trust-new-identities"}, Dest: "trust-new-identities", Kind: argparse.Enum, Choices: []string{"always", "on-first-use", "never"}, Help: "Choose when to trust new identities.", Default: d.trustNew},
@@ -135,20 +142,21 @@ func newParser(d globalDefaults) *argparse.Parser {
 	for _, c := range commandHelp {
 		p.Commands = append(p.Commands, &argparse.Command{Name: c[0], Help: c[1], Parser: commandParser(c[0])})
 	}
+	p.Link()
 	return p
 }
 
 // commandParser returns a subcommand's parser. Commands signal-cli-go
 // does not implement yet get only -h.
 func commandParser(name string) *argparse.Parser {
-	p := &argparse.Parser{Prog: "signal-cli " + name, Args: []*argparse.Arg{helpArg()}}
+	p := &argparse.Parser{Prog: "signal-cli", Args: []*argparse.Arg{helpArg()}}
 	switch name {
 	case "link":
-		p.Args = append(p.Args, &argparse.Arg{Names: []string{"-n", "--name"}, Dest: "name", Metavar: "NAME", Help: "Specify a name to describe this new device."})
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"-n", "--name"}, Dest: "name", Metavars: []string{"NAME"}, Help: "Specify a name to describe this new device."})
 	case "receive":
 		p.Args = append(p.Args,
-			&argparse.Arg{Names: []string{"-t", "--timeout"}, Dest: "timeout", Metavar: "TIMEOUT", Kind: argparse.Double, Help: "Number of seconds to wait for new messages (negative values disable timeout)", Default: 3.0},
-			&argparse.Arg{Names: []string{"--max-messages"}, Dest: "max-messages", Metavar: "MAX_MESSAGES", Kind: argparse.Int32, Help: "Maximum number of messages to receive, before returning.", Default: -1},
+			&argparse.Arg{Names: []string{"-t", "--timeout"}, Dest: "timeout", Metavars: []string{"TIMEOUT"}, Kind: argparse.Double, Help: "Number of seconds to wait for new messages (negative values disable timeout)", Default: 3.0},
+			&argparse.Arg{Names: []string{"--max-messages"}, Dest: "max-messages", Metavars: []string{"MAX_MESSAGES"}, Kind: argparse.Int32, Help: "Maximum number of messages to receive, before returning.", Default: -1},
 			&argparse.Arg{Names: []string{"--ignore-attachments"}, Action: argparse.StoreTrue, Help: "Don’t download attachments of received messages."},
 			&argparse.Arg{Names: []string{"--ignore-stories"}, Action: argparse.StoreTrue, Help: "Don’t receive story messages from the server."},
 			&argparse.Arg{Names: []string{"--ignore-avatars"}, Action: argparse.StoreTrue, Help: "Don't download avatars of received messages."},
@@ -157,13 +165,13 @@ func commandParser(name string) *argparse.Parser {
 		)
 	case "send":
 		many := func(names []string, dest, metavar, help string) *argparse.Arg {
-			return &argparse.Arg{Names: names, Dest: dest, Metavar: metavar, Nargs: argparse.ZeroOrMore, Help: help}
+			return &argparse.Arg{Names: names, Dest: dest, Metavars: []string{metavar}, Nargs: argparse.ZeroOrMore, Help: help}
 		}
 		one := func(names []string, dest, metavar, help string) *argparse.Arg {
-			return &argparse.Arg{Names: names, Dest: dest, Metavar: metavar, Help: help}
+			return &argparse.Arg{Names: names, Dest: dest, Metavars: []string{metavar}, Help: help}
 		}
 		int64Arg := func(names []string, dest, metavar, help string) *argparse.Arg {
-			return &argparse.Arg{Names: names, Dest: dest, Metavar: metavar, Kind: argparse.Int64, Help: help}
+			return &argparse.Arg{Names: names, Dest: dest, Metavars: []string{metavar}, Kind: argparse.Int64, Help: help}
 		}
 		flag := func(names []string, help string) *argparse.Arg {
 			return &argparse.Arg{Names: names, Action: argparse.StoreTrue, Help: help}
@@ -171,7 +179,7 @@ func commandParser(name string) *argparse.Parser {
 		message := one([]string{"-m", "--message"}, "message", "MESSAGE", "Specify the message to be sent.")
 		fromStdin := flag([]string{"--message-from-stdin"}, "Read the message from standard input.")
 		p.Args = append(p.Args,
-			&argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Metavar: "recipient", Nargs: argparse.ZeroOrMore, Help: "Specify the recipients' phone number."},
+			&argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Metavars: []string{"recipient"}, Nargs: argparse.ZeroOrMore, Help: "Specify the recipients' phone number."},
 			many([]string{"-g", "--group-id", "--group"}, "group-id", "GROUP_ID", "Specify the recipient group ID."),
 			many([]string{"-u", "--username"}, "username", "USERNAME", "Specify the recipient username or username link."),
 			flag([]string{"--note-to-self"}, "Send the message to self."),

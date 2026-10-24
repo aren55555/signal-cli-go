@@ -164,7 +164,7 @@ func applyConfig(d *globalDefaults, getenv func(string) string) error {
 		d.logFile = s
 	}
 	if s, ok := str("dataDir"); ok {
-		d.dataDir = s
+		d.dataDir, d.dataDirConfigured = s, true
 	}
 	if s, ok := str("busName"); ok {
 		d.busName = s
