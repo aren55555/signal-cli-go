@@ -46,6 +46,11 @@ func (e *env) registrar(g *globals, n *network) *manager.Registrar {
 		Root:     g.root(),
 		REST:     rest.New(rest.Config{Proxy: n.proxy, UserAgentOverride: n.userAgent}),
 		Language: "en-US",
+		Log: func(s string) {
+			if g.verbose > 0 {
+				fmt.Fprintln(e.stderr, "DEBUG RegistrationManager - "+s)
+			}
+		},
 		PostRegister: func(ctx context.Context, a *store.Account) error {
 			c, err := n.dialChat(ctx, a, false)
 			if err != nil {

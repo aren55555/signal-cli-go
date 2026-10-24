@@ -67,6 +67,7 @@ type Registrar struct {
 	Rand         io.Reader
 	Now          func() time.Time
 	PostRegister func(context.Context, *store.Account) error // prekey refresh, profile
+	Log          func(string)                                // debug log of each call's outcome
 }
 
 func (r *Registrar) rand() io.Reader {
@@ -133,6 +134,14 @@ func (r *Registrar) auth(a *store.Account) *rest.Basic {
 func (r *Registrar) call(ctx context.Context, a *store.Account, method, path string, headers map[string]string, body any) (*sessionMeta, int, error) {
 	var m sessionMeta
 	err := r.REST.DoHeaders(ctx, method, path, r.auth(a), headers, body, &m)
+	if r.Log != nil {
+		var se *rest.StatusError
+		if errors.As(err, &se) {
+			r.Log(fmt.Sprintf("%s %s: status %d, body %.300s", method, path, se.Status, se.Body))
+		} else {
+			r.Log(fmt.Sprintf("%s %s: %v", method, path, err))
+		}
+	}
 	var se *rest.StatusError
 	var rl *rest.RateLimitError
 	switch {

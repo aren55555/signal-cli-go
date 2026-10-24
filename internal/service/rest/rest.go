@@ -152,8 +152,11 @@ func (c *Client) DoHeaders(ctx context.Context, method, path string, auth *Basic
 			e.After = time.Duration(n) * time.Second
 		}
 		return e
-	case 401, 403:
-		return fmt.Errorf("%w (%d)", ErrAuthorization, resp.StatusCode)
 	}
 	return &StatusError{Status: resp.StatusCode, Header: resp.Header, Body: data}
+}
+
+// Is lets a 401 or 403 match ErrAuthorization (api.md §4.1).
+func (e *StatusError) Is(target error) bool {
+	return target == ErrAuthorization && (e.Status == 401 || e.Status == 403)
 }
