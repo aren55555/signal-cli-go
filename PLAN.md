@@ -585,3 +585,21 @@ vectors.
   - Follow-up: one envelope from A rendered with header lines only
     (content type not rendered yet, probably a null message or
     profile-key update); check against the reference's rendering.
+- **Milestone 5, data-message features (2026-10-24).** Four spec
+  subagents wrote content-features.md, attachments.md, sync.md and
+  stories.md. Implemented from content-features.md:
+  - the common send path (PNI signatures, edits, self sends, timer and
+    protocol-version rules);
+  - receive validation, the PNI flag and verification, and the timer
+    rule;
+  - rendering of every feature;
+  - the commands send (mentions, styles, quotes, previews, story
+    replies, edits, view-once, end session), sendReaction, remoteDelete,
+    polls, pins, sendPaymentNotification, sendMessageRequestResponse,
+    sendTyping and sendReceipt.
+  Live with our registered B and the reference's A, both directions: the
+  reference renders our mention, style, quote, reaction, edit, delete,
+  poll and pin; ours renders its mention, style, reaction, poll vote,
+  edit and delete. Note for invocations: options taking several values
+  (`--mention`, `-o`, `-t`) swallow a following recipient, as in
+  signal-cli, so the recipient goes first.
