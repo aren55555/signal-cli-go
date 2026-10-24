@@ -570,3 +570,18 @@ vectors.
   - Live: the CLI's receive printed a message exactly as the reference
     did on A's primary; send reached B sealed in both output modes; link
     added a device named by `-n`.
+- **Registration over REST, live (2026-10-24).** `signal-cli-go register`
+  and `verify` registered staging number B as a primary device (the
+  reference's `.data/capture-b` is now stale, as agreed). The first
+  captcha was rejected with 403 (most likely expired). That exposed a
+  mapping bug: 401/403 had lost their status, so the rejection read as an
+  I/O failure. Fixed; `-v` now logs each registration call. A fresh
+  captcha went through the session, code request, code submission and
+  `/v1/registration`, followed by the prekey upload and the initial
+  versioned profile.
+  - Interop: our B → reference A decrypted (after `trust`; A had B's old
+    key, and the new key it recorded is byte-identical to our B's ACI
+    identity), and reference A → our B arrived sealed and rendered.
+  - Follow-up: one envelope from A rendered with header lines only
+    (content type not rendered yet, probably a null message or
+    profile-key update); check against the reference's rendering.
