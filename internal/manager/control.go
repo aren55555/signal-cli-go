@@ -30,8 +30,12 @@ func (s *Sender) SendReceipt(ctx context.Context, dest string, kind signalpb.App
 
 // SendReceiptAt is SendReceipt returning the receipt's timestamp.
 func (s *Sender) SendReceiptAt(ctx context.Context, dest string, kind signalpb.AppReceipt_Kind, timestamps []uint64) (uint64, error) {
-	c, err := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_ReceiptMessage{
-		ReceiptMessage: &signalpb.AppReceipt{Kind: kind.Enum(), Timestamps: timestamps}}})
+	content := &signalpb.AppContent{Body: &signalpb.AppContent_ReceiptMessage{
+		ReceiptMessage: &signalpb.AppReceipt{Kind: kind.Enum(), Timestamps: timestamps}}}
+	if err := s.addPNISignature(content, dest); err != nil {
+		return 0, err
+	}
+	c, err := proto.Marshal(content)
 	if err != nil {
 		return 0, err
 	}

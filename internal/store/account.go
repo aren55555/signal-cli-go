@@ -417,6 +417,14 @@ type Recipient struct {
 	Profile      *Profile `json:"profile,omitempty"`
 	Unregistered bool     `json:"unregistered,omitempty"`
 	Number       string   `json:"number,omitempty"`
+	PNI          string   `json:"pni,omitempty"` // a PNI learned from a verified PNI signature
+	// NeedsPNISignature: our replies carry a PNI signature (content-features.md §4.3).
+	NeedsPNISignature bool   `json:"needsPniSignature,omitempty"`
+	PNIVerified       bool   `json:"pniVerified,omitempty"`
+	Timer             uint32 `json:"timer,omitempty"`        // disappearing-message timer, seconds
+	TimerVersion      uint32 `json:"timerVersion,omitempty"` // 0 means no contact entry yet
+	ProfileSharing    bool   `json:"profileSharing,omitempty"`
+	Blocked           bool   `json:"blocked,omitempty"`
 }
 
 type recipientsDoc struct {

@@ -201,6 +201,310 @@ func (AppTyping_Action) EnumDescriptor() ([]byte, []int) {
 	return file_content_proto_rawDescGZIP(), []int{6, 0}
 }
 
+type AppBodyRange_Style int32
+
+const (
+	AppBodyRange_NONE          AppBodyRange_Style = 0
+	AppBodyRange_BOLD          AppBodyRange_Style = 1
+	AppBodyRange_ITALIC        AppBodyRange_Style = 2
+	AppBodyRange_SPOILER       AppBodyRange_Style = 3
+	AppBodyRange_STRIKETHROUGH AppBodyRange_Style = 4
+	AppBodyRange_MONOSPACE     AppBodyRange_Style = 5
+)
+
+// Enum value maps for AppBodyRange_Style.
+var (
+	AppBodyRange_Style_name = map[int32]string{
+		0: "NONE",
+		1: "BOLD",
+		2: "ITALIC",
+		3: "SPOILER",
+		4: "STRIKETHROUGH",
+		5: "MONOSPACE",
+	}
+	AppBodyRange_Style_value = map[string]int32{
+		"NONE":          0,
+		"BOLD":          1,
+		"ITALIC":        2,
+		"SPOILER":       3,
+		"STRIKETHROUGH": 4,
+		"MONOSPACE":     5,
+	}
+)
+
+func (x AppBodyRange_Style) Enum() *AppBodyRange_Style {
+	p := new(AppBodyRange_Style)
+	*p = x
+	return p
+}
+
+func (x AppBodyRange_Style) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AppBodyRange_Style) Descriptor() protoreflect.EnumDescriptor {
+	return file_content_proto_enumTypes[3].Descriptor()
+}
+
+func (AppBodyRange_Style) Type() protoreflect.EnumType {
+	return &file_content_proto_enumTypes[3]
+}
+
+func (x AppBodyRange_Style) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Do not use.
+func (x *AppBodyRange_Style) UnmarshalJSON(b []byte) error {
+	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
+	if err != nil {
+		return err
+	}
+	*x = AppBodyRange_Style(num)
+	return nil
+}
+
+// Deprecated: Use AppBodyRange_Style.Descriptor instead.
+func (AppBodyRange_Style) EnumDescriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{14, 0}
+}
+
+type AppQuote_Type int32
+
+const (
+	AppQuote_NORMAL     AppQuote_Type = 0
+	AppQuote_GIFT_BADGE AppQuote_Type = 1
+	AppQuote_POLL       AppQuote_Type = 2
+)
+
+// Enum value maps for AppQuote_Type.
+var (
+	AppQuote_Type_name = map[int32]string{
+		0: "NORMAL",
+		1: "GIFT_BADGE",
+		2: "POLL",
+	}
+	AppQuote_Type_value = map[string]int32{
+		"NORMAL":     0,
+		"GIFT_BADGE": 1,
+		"POLL":       2,
+	}
+)
+
+func (x AppQuote_Type) Enum() *AppQuote_Type {
+	p := new(AppQuote_Type)
+	*p = x
+	return p
+}
+
+func (x AppQuote_Type) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AppQuote_Type) Descriptor() protoreflect.EnumDescriptor {
+	return file_content_proto_enumTypes[4].Descriptor()
+}
+
+func (AppQuote_Type) Type() protoreflect.EnumType {
+	return &file_content_proto_enumTypes[4]
+}
+
+func (x AppQuote_Type) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Do not use.
+func (x *AppQuote_Type) UnmarshalJSON(b []byte) error {
+	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
+	if err != nil {
+		return err
+	}
+	*x = AppQuote_Type(num)
+	return nil
+}
+
+// Deprecated: Use AppQuote_Type.Descriptor instead.
+func (AppQuote_Type) EnumDescriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{15, 0}
+}
+
+type AppSharedContact_Phone_Type int32
+
+const (
+	AppSharedContact_Phone_HOME   AppSharedContact_Phone_Type = 1
+	AppSharedContact_Phone_MOBILE AppSharedContact_Phone_Type = 2
+	AppSharedContact_Phone_WORK   AppSharedContact_Phone_Type = 3
+	AppSharedContact_Phone_CUSTOM AppSharedContact_Phone_Type = 4
+)
+
+// Enum value maps for AppSharedContact_Phone_Type.
+var (
+	AppSharedContact_Phone_Type_name = map[int32]string{
+		1: "HOME",
+		2: "MOBILE",
+		3: "WORK",
+		4: "CUSTOM",
+	}
+	AppSharedContact_Phone_Type_value = map[string]int32{
+		"HOME":   1,
+		"MOBILE": 2,
+		"WORK":   3,
+		"CUSTOM": 4,
+	}
+)
+
+func (x AppSharedContact_Phone_Type) Enum() *AppSharedContact_Phone_Type {
+	p := new(AppSharedContact_Phone_Type)
+	*p = x
+	return p
+}
+
+func (x AppSharedContact_Phone_Type) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AppSharedContact_Phone_Type) Descriptor() protoreflect.EnumDescriptor {
+	return file_content_proto_enumTypes[5].Descriptor()
+}
+
+func (AppSharedContact_Phone_Type) Type() protoreflect.EnumType {
+	return &file_content_proto_enumTypes[5]
+}
+
+func (x AppSharedContact_Phone_Type) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Do not use.
+func (x *AppSharedContact_Phone_Type) UnmarshalJSON(b []byte) error {
+	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
+	if err != nil {
+		return err
+	}
+	*x = AppSharedContact_Phone_Type(num)
+	return nil
+}
+
+// Deprecated: Use AppSharedContact_Phone_Type.Descriptor instead.
+func (AppSharedContact_Phone_Type) EnumDescriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{20, 1, 0}
+}
+
+type AppSharedContact_PostalAddress_Type int32
+
+const (
+	AppSharedContact_PostalAddress_HOME   AppSharedContact_PostalAddress_Type = 1
+	AppSharedContact_PostalAddress_WORK   AppSharedContact_PostalAddress_Type = 2
+	AppSharedContact_PostalAddress_CUSTOM AppSharedContact_PostalAddress_Type = 3
+)
+
+// Enum value maps for AppSharedContact_PostalAddress_Type.
+var (
+	AppSharedContact_PostalAddress_Type_name = map[int32]string{
+		1: "HOME",
+		2: "WORK",
+		3: "CUSTOM",
+	}
+	AppSharedContact_PostalAddress_Type_value = map[string]int32{
+		"HOME":   1,
+		"WORK":   2,
+		"CUSTOM": 3,
+	}
+)
+
+func (x AppSharedContact_PostalAddress_Type) Enum() *AppSharedContact_PostalAddress_Type {
+	p := new(AppSharedContact_PostalAddress_Type)
+	*p = x
+	return p
+}
+
+func (x AppSharedContact_PostalAddress_Type) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AppSharedContact_PostalAddress_Type) Descriptor() protoreflect.EnumDescriptor {
+	return file_content_proto_enumTypes[6].Descriptor()
+}
+
+func (AppSharedContact_PostalAddress_Type) Type() protoreflect.EnumType {
+	return &file_content_proto_enumTypes[6]
+}
+
+func (x AppSharedContact_PostalAddress_Type) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Do not use.
+func (x *AppSharedContact_PostalAddress_Type) UnmarshalJSON(b []byte) error {
+	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
+	if err != nil {
+		return err
+	}
+	*x = AppSharedContact_PostalAddress_Type(num)
+	return nil
+}
+
+// Deprecated: Use AppSharedContact_PostalAddress_Type.Descriptor instead.
+func (AppSharedContact_PostalAddress_Type) EnumDescriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{20, 2, 0}
+}
+
+type AppPayment_Activation_Type int32
+
+const (
+	AppPayment_Activation_REQUEST   AppPayment_Activation_Type = 0
+	AppPayment_Activation_ACTIVATED AppPayment_Activation_Type = 1
+)
+
+// Enum value maps for AppPayment_Activation_Type.
+var (
+	AppPayment_Activation_Type_name = map[int32]string{
+		0: "REQUEST",
+		1: "ACTIVATED",
+	}
+	AppPayment_Activation_Type_value = map[string]int32{
+		"REQUEST":   0,
+		"ACTIVATED": 1,
+	}
+)
+
+func (x AppPayment_Activation_Type) Enum() *AppPayment_Activation_Type {
+	p := new(AppPayment_Activation_Type)
+	*p = x
+	return p
+}
+
+func (x AppPayment_Activation_Type) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AppPayment_Activation_Type) Descriptor() protoreflect.EnumDescriptor {
+	return file_content_proto_enumTypes[7].Descriptor()
+}
+
+func (AppPayment_Activation_Type) Type() protoreflect.EnumType {
+	return &file_content_proto_enumTypes[7]
+}
+
+func (x AppPayment_Activation_Type) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Do not use.
+func (x *AppPayment_Activation_Type) UnmarshalJSON(b []byte) error {
+	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
+	if err != nil {
+		return err
+	}
+	*x = AppPayment_Activation_Type(num)
+	return nil
+}
+
+// Deprecated: Use AppPayment_Activation_Type.Descriptor instead.
+func (AppPayment_Activation_Type) EnumDescriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{24, 1, 0}
+}
+
 // The top-level plaintext (§3). At most one of the oneof members is set;
 // fields 7 and 10 may accompany any of them.
 type AppContent struct {
@@ -383,17 +687,34 @@ func (*AppContent_EditMessage) isAppContent_Body() {}
 
 // §4.1.
 type AppDataMessage struct {
-	state                   protoimpl.MessageState `protogen:"open.v1"`
-	Body                    *string                `protobuf:"bytes,1,opt,name=body" json:"body,omitempty"`
-	Flags                   *uint32                `protobuf:"varint,4,opt,name=flags" json:"flags,omitempty"`
-	ExpireTimer             *uint32                `protobuf:"varint,5,opt,name=expire_timer,json=expireTimer" json:"expire_timer,omitempty"`
-	ProfileKey              []byte                 `protobuf:"bytes,6,opt,name=profile_key,json=profileKey" json:"profile_key,omitempty"`
-	Timestamp               *uint64                `protobuf:"varint,7,opt,name=timestamp" json:"timestamp,omitempty"` // must equal the envelope's client timestamp
-	RequiredProtocolVersion *uint32                `protobuf:"varint,12,opt,name=required_protocol_version,json=requiredProtocolVersion" json:"required_protocol_version,omitempty"`
-	IsViewOnce              *bool                  `protobuf:"varint,14,opt,name=is_view_once,json=isViewOnce" json:"is_view_once,omitempty"`
-	GroupV2                 *AppGroupContextV2     `protobuf:"bytes,15,opt,name=group_v2,json=groupV2" json:"group_v2,omitempty"`
-	Delete                  *AppDelete             `protobuf:"bytes,17,opt,name=delete" json:"delete,omitempty"`
-	ExpireTimerVersion      *uint32                `protobuf:"varint,23,opt,name=expire_timer_version,json=expireTimerVersion" json:"expire_timer_version,omitempty"`
+	state                   protoimpl.MessageState  `protogen:"open.v1"`
+	Body                    *string                 `protobuf:"bytes,1,opt,name=body" json:"body,omitempty"`
+	Flags                   *uint32                 `protobuf:"varint,4,opt,name=flags" json:"flags,omitempty"`
+	ExpireTimer             *uint32                 `protobuf:"varint,5,opt,name=expire_timer,json=expireTimer" json:"expire_timer,omitempty"`
+	ProfileKey              []byte                  `protobuf:"bytes,6,opt,name=profile_key,json=profileKey" json:"profile_key,omitempty"`
+	Timestamp               *uint64                 `protobuf:"varint,7,opt,name=timestamp" json:"timestamp,omitempty"` // must equal the envelope's client timestamp
+	RequiredProtocolVersion *uint32                 `protobuf:"varint,12,opt,name=required_protocol_version,json=requiredProtocolVersion" json:"required_protocol_version,omitempty"`
+	IsViewOnce              *bool                   `protobuf:"varint,14,opt,name=is_view_once,json=isViewOnce" json:"is_view_once,omitempty"`
+	GroupV2                 *AppGroupContextV2      `protobuf:"bytes,15,opt,name=group_v2,json=groupV2" json:"group_v2,omitempty"`
+	Attachments             []*AppAttachmentPointer `protobuf:"bytes,2,rep,name=attachments" json:"attachments,omitempty"`
+	Quote                   *AppQuote               `protobuf:"bytes,8,opt,name=quote" json:"quote,omitempty"`
+	Contact                 []*AppSharedContact     `protobuf:"bytes,9,rep,name=contact" json:"contact,omitempty"`
+	Preview                 []*AppPreview           `protobuf:"bytes,10,rep,name=preview" json:"preview,omitempty"`
+	Sticker                 *AppSticker             `protobuf:"bytes,11,opt,name=sticker" json:"sticker,omitempty"`
+	Reaction                *AppReaction            `protobuf:"bytes,16,opt,name=reaction" json:"reaction,omitempty"`
+	Delete                  *AppDelete              `protobuf:"bytes,17,opt,name=delete" json:"delete,omitempty"`
+	BodyRanges              []*AppBodyRange         `protobuf:"bytes,18,rep,name=body_ranges,json=bodyRanges" json:"body_ranges,omitempty"`
+	GroupCallUpdate         *AppGroupCallUpdate     `protobuf:"bytes,19,opt,name=group_call_update,json=groupCallUpdate" json:"group_call_update,omitempty"`
+	Payment                 *AppPayment             `protobuf:"bytes,20,opt,name=payment" json:"payment,omitempty"`
+	StoryContext            *AppStoryContext        `protobuf:"bytes,21,opt,name=story_context,json=storyContext" json:"story_context,omitempty"`
+	GiftBadge               *AppGiftBadge           `protobuf:"bytes,22,opt,name=gift_badge,json=giftBadge" json:"gift_badge,omitempty"`
+	PollCreate              *AppPollCreate          `protobuf:"bytes,24,opt,name=poll_create,json=pollCreate" json:"poll_create,omitempty"`
+	PollTerminate           *AppPollTerminate       `protobuf:"bytes,25,opt,name=poll_terminate,json=pollTerminate" json:"poll_terminate,omitempty"`
+	PollVote                *AppPollVote            `protobuf:"bytes,26,opt,name=poll_vote,json=pollVote" json:"poll_vote,omitempty"`
+	PinMessage              *AppPinMessage          `protobuf:"bytes,27,opt,name=pin_message,json=pinMessage" json:"pin_message,omitempty"`
+	UnpinMessage            *AppUnpinMessage        `protobuf:"bytes,28,opt,name=unpin_message,json=unpinMessage" json:"unpin_message,omitempty"`
+	AdminDelete             *AppAdminDelete         `protobuf:"bytes,29,opt,name=admin_delete,json=adminDelete" json:"admin_delete,omitempty"`
+	ExpireTimerVersion      *uint32                 `protobuf:"varint,23,opt,name=expire_timer_version,json=expireTimerVersion" json:"expire_timer_version,omitempty"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -484,9 +805,128 @@ func (x *AppDataMessage) GetGroupV2() *AppGroupContextV2 {
 	return nil
 }
 
+func (x *AppDataMessage) GetAttachments() []*AppAttachmentPointer {
+	if x != nil {
+		return x.Attachments
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetQuote() *AppQuote {
+	if x != nil {
+		return x.Quote
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetContact() []*AppSharedContact {
+	if x != nil {
+		return x.Contact
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetPreview() []*AppPreview {
+	if x != nil {
+		return x.Preview
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetSticker() *AppSticker {
+	if x != nil {
+		return x.Sticker
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetReaction() *AppReaction {
+	if x != nil {
+		return x.Reaction
+	}
+	return nil
+}
+
 func (x *AppDataMessage) GetDelete() *AppDelete {
 	if x != nil {
 		return x.Delete
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetBodyRanges() []*AppBodyRange {
+	if x != nil {
+		return x.BodyRanges
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetGroupCallUpdate() *AppGroupCallUpdate {
+	if x != nil {
+		return x.GroupCallUpdate
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetPayment() *AppPayment {
+	if x != nil {
+		return x.Payment
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetStoryContext() *AppStoryContext {
+	if x != nil {
+		return x.StoryContext
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetGiftBadge() *AppGiftBadge {
+	if x != nil {
+		return x.GiftBadge
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetPollCreate() *AppPollCreate {
+	if x != nil {
+		return x.PollCreate
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetPollTerminate() *AppPollTerminate {
+	if x != nil {
+		return x.PollTerminate
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetPollVote() *AppPollVote {
+	if x != nil {
+		return x.PollVote
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetPinMessage() *AppPinMessage {
+	if x != nil {
+		return x.PinMessage
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetUnpinMessage() *AppUnpinMessage {
+	if x != nil {
+		return x.UnpinMessage
+	}
+	return nil
+}
+
+func (x *AppDataMessage) GetAdminDelete() *AppAdminDelete {
+	if x != nil {
+		return x.AdminDelete
 	}
 	return nil
 }
@@ -930,6 +1370,7 @@ type AppSent struct {
 	UnidentifiedStatus         []*AppUnidentifiedStatus `protobuf:"bytes,5,rep,name=unidentified_status,json=unidentifiedStatus" json:"unidentified_status,omitempty"`
 	IsRecipientUpdate          *bool                    `protobuf:"varint,6,opt,name=is_recipient_update,json=isRecipientUpdate" json:"is_recipient_update,omitempty"`
 	DestinationServiceId       *string                  `protobuf:"bytes,7,opt,name=destination_service_id,json=destinationServiceId" json:"destination_service_id,omitempty"`
+	EditMessage                *AppEdit                 `protobuf:"bytes,10,opt,name=edit_message,json=editMessage" json:"edit_message,omitempty"`
 	DestinationServiceIdBinary []byte                   `protobuf:"bytes,12,opt,name=destination_service_id_binary,json=destinationServiceIdBinary" json:"destination_service_id_binary,omitempty"`
 	unknownFields              protoimpl.UnknownFields
 	sizeCache                  protoimpl.SizeCache
@@ -1012,6 +1453,13 @@ func (x *AppSent) GetDestinationServiceId() string {
 		return *x.DestinationServiceId
 	}
 	return ""
+}
+
+func (x *AppSent) GetEditMessage() *AppEdit {
+	if x != nil {
+		return x.EditMessage
+	}
+	return nil
 }
 
 func (x *AppSent) GetDestinationServiceIdBinary() []byte {
@@ -1150,6 +1598,1692 @@ func (x *AppDecryptionErrorMessage) GetDeviceId() uint32 {
 	return 0
 }
 
+// Attachment pointers are filled in from the attachments spec; until then
+// their fields survive as unknown fields.
+type AppAttachmentPointer struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppAttachmentPointer) Reset() {
+	*x = AppAttachmentPointer{}
+	mi := &file_content_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppAttachmentPointer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppAttachmentPointer) ProtoMessage() {}
+
+func (x *AppAttachmentPointer) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppAttachmentPointer.ProtoReflect.Descriptor instead.
+func (*AppAttachmentPointer) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{13}
+}
+
+type AppBodyRange struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Start  *uint32                `protobuf:"varint,1,opt,name=start" json:"start,omitempty"`
+	Length *uint32                `protobuf:"varint,2,opt,name=length" json:"length,omitempty"`
+	// Types that are valid to be assigned to AssociatedValue:
+	//
+	//	*AppBodyRange_MentionAci
+	//	*AppBodyRange_Style_
+	//	*AppBodyRange_MentionAciBinary
+	AssociatedValue isAppBodyRange_AssociatedValue `protobuf_oneof:"associated_value"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *AppBodyRange) Reset() {
+	*x = AppBodyRange{}
+	mi := &file_content_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppBodyRange) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppBodyRange) ProtoMessage() {}
+
+func (x *AppBodyRange) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppBodyRange.ProtoReflect.Descriptor instead.
+func (*AppBodyRange) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *AppBodyRange) GetStart() uint32 {
+	if x != nil && x.Start != nil {
+		return *x.Start
+	}
+	return 0
+}
+
+func (x *AppBodyRange) GetLength() uint32 {
+	if x != nil && x.Length != nil {
+		return *x.Length
+	}
+	return 0
+}
+
+func (x *AppBodyRange) GetAssociatedValue() isAppBodyRange_AssociatedValue {
+	if x != nil {
+		return x.AssociatedValue
+	}
+	return nil
+}
+
+func (x *AppBodyRange) GetMentionAci() string {
+	if x != nil {
+		if x, ok := x.AssociatedValue.(*AppBodyRange_MentionAci); ok {
+			return x.MentionAci
+		}
+	}
+	return ""
+}
+
+func (x *AppBodyRange) GetStyle() AppBodyRange_Style {
+	if x != nil {
+		if x, ok := x.AssociatedValue.(*AppBodyRange_Style_); ok {
+			return x.Style
+		}
+	}
+	return AppBodyRange_NONE
+}
+
+func (x *AppBodyRange) GetMentionAciBinary() []byte {
+	if x != nil {
+		if x, ok := x.AssociatedValue.(*AppBodyRange_MentionAciBinary); ok {
+			return x.MentionAciBinary
+		}
+	}
+	return nil
+}
+
+type isAppBodyRange_AssociatedValue interface {
+	isAppBodyRange_AssociatedValue()
+}
+
+type AppBodyRange_MentionAci struct {
+	MentionAci string `protobuf:"bytes,3,opt,name=mention_aci,json=mentionAci,oneof"`
+}
+
+type AppBodyRange_Style_ struct {
+	Style AppBodyRange_Style `protobuf:"varint,4,opt,name=style,enum=signalcligo.AppBodyRange_Style,oneof"`
+}
+
+type AppBodyRange_MentionAciBinary struct {
+	MentionAciBinary []byte `protobuf:"bytes,5,opt,name=mention_aci_binary,json=mentionAciBinary,oneof"`
+}
+
+func (*AppBodyRange_MentionAci) isAppBodyRange_AssociatedValue() {}
+
+func (*AppBodyRange_Style_) isAppBodyRange_AssociatedValue() {}
+
+func (*AppBodyRange_MentionAciBinary) isAppBodyRange_AssociatedValue() {}
+
+type AppQuote struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              *uint64                `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
+	Text            *string                `protobuf:"bytes,3,opt,name=text" json:"text,omitempty"`
+	Attachments     []*AppQuotedAttachment `protobuf:"bytes,4,rep,name=attachments" json:"attachments,omitempty"`
+	AuthorAci       *string                `protobuf:"bytes,5,opt,name=author_aci,json=authorAci" json:"author_aci,omitempty"`
+	BodyRanges      []*AppBodyRange        `protobuf:"bytes,6,rep,name=body_ranges,json=bodyRanges" json:"body_ranges,omitempty"`
+	Type            *AppQuote_Type         `protobuf:"varint,7,opt,name=type,enum=signalcligo.AppQuote_Type" json:"type,omitempty"`
+	AuthorAciBinary []byte                 `protobuf:"bytes,8,opt,name=author_aci_binary,json=authorAciBinary" json:"author_aci_binary,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *AppQuote) Reset() {
+	*x = AppQuote{}
+	mi := &file_content_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppQuote) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppQuote) ProtoMessage() {}
+
+func (x *AppQuote) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppQuote.ProtoReflect.Descriptor instead.
+func (*AppQuote) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *AppQuote) GetId() uint64 {
+	if x != nil && x.Id != nil {
+		return *x.Id
+	}
+	return 0
+}
+
+func (x *AppQuote) GetText() string {
+	if x != nil && x.Text != nil {
+		return *x.Text
+	}
+	return ""
+}
+
+func (x *AppQuote) GetAttachments() []*AppQuotedAttachment {
+	if x != nil {
+		return x.Attachments
+	}
+	return nil
+}
+
+func (x *AppQuote) GetAuthorAci() string {
+	if x != nil && x.AuthorAci != nil {
+		return *x.AuthorAci
+	}
+	return ""
+}
+
+func (x *AppQuote) GetBodyRanges() []*AppBodyRange {
+	if x != nil {
+		return x.BodyRanges
+	}
+	return nil
+}
+
+func (x *AppQuote) GetType() AppQuote_Type {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return AppQuote_NORMAL
+}
+
+func (x *AppQuote) GetAuthorAciBinary() []byte {
+	if x != nil {
+		return x.AuthorAciBinary
+	}
+	return nil
+}
+
+type AppQuotedAttachment struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ContentType   *string                `protobuf:"bytes,1,opt,name=content_type,json=contentType" json:"content_type,omitempty"`
+	FileName      *string                `protobuf:"bytes,2,opt,name=file_name,json=fileName" json:"file_name,omitempty"`
+	Thumbnail     *AppAttachmentPointer  `protobuf:"bytes,3,opt,name=thumbnail" json:"thumbnail,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppQuotedAttachment) Reset() {
+	*x = AppQuotedAttachment{}
+	mi := &file_content_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppQuotedAttachment) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppQuotedAttachment) ProtoMessage() {}
+
+func (x *AppQuotedAttachment) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppQuotedAttachment.ProtoReflect.Descriptor instead.
+func (*AppQuotedAttachment) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *AppQuotedAttachment) GetContentType() string {
+	if x != nil && x.ContentType != nil {
+		return *x.ContentType
+	}
+	return ""
+}
+
+func (x *AppQuotedAttachment) GetFileName() string {
+	if x != nil && x.FileName != nil {
+		return *x.FileName
+	}
+	return ""
+}
+
+func (x *AppQuotedAttachment) GetThumbnail() *AppAttachmentPointer {
+	if x != nil {
+		return x.Thumbnail
+	}
+	return nil
+}
+
+type AppReaction struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Emoji                 *string                `protobuf:"bytes,1,opt,name=emoji" json:"emoji,omitempty"`
+	Remove                *bool                  `protobuf:"varint,2,opt,name=remove" json:"remove,omitempty"`
+	TargetAuthorAci       *string                `protobuf:"bytes,4,opt,name=target_author_aci,json=targetAuthorAci" json:"target_author_aci,omitempty"`
+	TargetSentTimestamp   *uint64                `protobuf:"varint,5,opt,name=target_sent_timestamp,json=targetSentTimestamp" json:"target_sent_timestamp,omitempty"`
+	TargetAuthorAciBinary []byte                 `protobuf:"bytes,6,opt,name=target_author_aci_binary,json=targetAuthorAciBinary" json:"target_author_aci_binary,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *AppReaction) Reset() {
+	*x = AppReaction{}
+	mi := &file_content_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppReaction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppReaction) ProtoMessage() {}
+
+func (x *AppReaction) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppReaction.ProtoReflect.Descriptor instead.
+func (*AppReaction) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *AppReaction) GetEmoji() string {
+	if x != nil && x.Emoji != nil {
+		return *x.Emoji
+	}
+	return ""
+}
+
+func (x *AppReaction) GetRemove() bool {
+	if x != nil && x.Remove != nil {
+		return *x.Remove
+	}
+	return false
+}
+
+func (x *AppReaction) GetTargetAuthorAci() string {
+	if x != nil && x.TargetAuthorAci != nil {
+		return *x.TargetAuthorAci
+	}
+	return ""
+}
+
+func (x *AppReaction) GetTargetSentTimestamp() uint64 {
+	if x != nil && x.TargetSentTimestamp != nil {
+		return *x.TargetSentTimestamp
+	}
+	return 0
+}
+
+func (x *AppReaction) GetTargetAuthorAciBinary() []byte {
+	if x != nil {
+		return x.TargetAuthorAciBinary
+	}
+	return nil
+}
+
+type AppPreview struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Url           *string                `protobuf:"bytes,1,opt,name=url" json:"url,omitempty"`
+	Title         *string                `protobuf:"bytes,2,opt,name=title" json:"title,omitempty"`
+	Image         *AppAttachmentPointer  `protobuf:"bytes,3,opt,name=image" json:"image,omitempty"`
+	Description   *string                `protobuf:"bytes,4,opt,name=description" json:"description,omitempty"`
+	Date          *uint64                `protobuf:"varint,5,opt,name=date" json:"date,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppPreview) Reset() {
+	*x = AppPreview{}
+	mi := &file_content_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppPreview) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppPreview) ProtoMessage() {}
+
+func (x *AppPreview) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppPreview.ProtoReflect.Descriptor instead.
+func (*AppPreview) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *AppPreview) GetUrl() string {
+	if x != nil && x.Url != nil {
+		return *x.Url
+	}
+	return ""
+}
+
+func (x *AppPreview) GetTitle() string {
+	if x != nil && x.Title != nil {
+		return *x.Title
+	}
+	return ""
+}
+
+func (x *AppPreview) GetImage() *AppAttachmentPointer {
+	if x != nil {
+		return x.Image
+	}
+	return nil
+}
+
+func (x *AppPreview) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
+}
+
+func (x *AppPreview) GetDate() uint64 {
+	if x != nil && x.Date != nil {
+		return *x.Date
+	}
+	return 0
+}
+
+type AppSticker struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PackId        []byte                 `protobuf:"bytes,1,opt,name=pack_id,json=packId" json:"pack_id,omitempty"`
+	PackKey       []byte                 `protobuf:"bytes,2,opt,name=pack_key,json=packKey" json:"pack_key,omitempty"`
+	StickerId     *uint32                `protobuf:"varint,3,opt,name=sticker_id,json=stickerId" json:"sticker_id,omitempty"`
+	Data          *AppAttachmentPointer  `protobuf:"bytes,4,opt,name=data" json:"data,omitempty"`
+	Emoji         *string                `protobuf:"bytes,5,opt,name=emoji" json:"emoji,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSticker) Reset() {
+	*x = AppSticker{}
+	mi := &file_content_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSticker) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSticker) ProtoMessage() {}
+
+func (x *AppSticker) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSticker.ProtoReflect.Descriptor instead.
+func (*AppSticker) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *AppSticker) GetPackId() []byte {
+	if x != nil {
+		return x.PackId
+	}
+	return nil
+}
+
+func (x *AppSticker) GetPackKey() []byte {
+	if x != nil {
+		return x.PackKey
+	}
+	return nil
+}
+
+func (x *AppSticker) GetStickerId() uint32 {
+	if x != nil && x.StickerId != nil {
+		return *x.StickerId
+	}
+	return 0
+}
+
+func (x *AppSticker) GetData() *AppAttachmentPointer {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *AppSticker) GetEmoji() string {
+	if x != nil && x.Emoji != nil {
+		return *x.Emoji
+	}
+	return ""
+}
+
+type AppSharedContact struct {
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	Name          *AppSharedContact_Name            `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	Number        []*AppSharedContact_Phone         `protobuf:"bytes,3,rep,name=number" json:"number,omitempty"`
+	Email         []*AppSharedContact_Phone         `protobuf:"bytes,4,rep,name=email" json:"email,omitempty"` // same shape as Phone
+	Address       []*AppSharedContact_PostalAddress `protobuf:"bytes,5,rep,name=address" json:"address,omitempty"`
+	Avatar        *AppSharedContact_Avatar          `protobuf:"bytes,6,opt,name=avatar" json:"avatar,omitempty"`
+	Organization  *string                           `protobuf:"bytes,7,opt,name=organization" json:"organization,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSharedContact) Reset() {
+	*x = AppSharedContact{}
+	mi := &file_content_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSharedContact) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSharedContact) ProtoMessage() {}
+
+func (x *AppSharedContact) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSharedContact.ProtoReflect.Descriptor instead.
+func (*AppSharedContact) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *AppSharedContact) GetName() *AppSharedContact_Name {
+	if x != nil {
+		return x.Name
+	}
+	return nil
+}
+
+func (x *AppSharedContact) GetNumber() []*AppSharedContact_Phone {
+	if x != nil {
+		return x.Number
+	}
+	return nil
+}
+
+func (x *AppSharedContact) GetEmail() []*AppSharedContact_Phone {
+	if x != nil {
+		return x.Email
+	}
+	return nil
+}
+
+func (x *AppSharedContact) GetAddress() []*AppSharedContact_PostalAddress {
+	if x != nil {
+		return x.Address
+	}
+	return nil
+}
+
+func (x *AppSharedContact) GetAvatar() *AppSharedContact_Avatar {
+	if x != nil {
+		return x.Avatar
+	}
+	return nil
+}
+
+func (x *AppSharedContact) GetOrganization() string {
+	if x != nil && x.Organization != nil {
+		return *x.Organization
+	}
+	return ""
+}
+
+type AppStoryContext struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	AuthorAci       *string                `protobuf:"bytes,1,opt,name=author_aci,json=authorAci" json:"author_aci,omitempty"`
+	SentTimestamp   *uint64                `protobuf:"varint,2,opt,name=sent_timestamp,json=sentTimestamp" json:"sent_timestamp,omitempty"`
+	AuthorAciBinary []byte                 `protobuf:"bytes,3,opt,name=author_aci_binary,json=authorAciBinary" json:"author_aci_binary,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *AppStoryContext) Reset() {
+	*x = AppStoryContext{}
+	mi := &file_content_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppStoryContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppStoryContext) ProtoMessage() {}
+
+func (x *AppStoryContext) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppStoryContext.ProtoReflect.Descriptor instead.
+func (*AppStoryContext) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *AppStoryContext) GetAuthorAci() string {
+	if x != nil && x.AuthorAci != nil {
+		return *x.AuthorAci
+	}
+	return ""
+}
+
+func (x *AppStoryContext) GetSentTimestamp() uint64 {
+	if x != nil && x.SentTimestamp != nil {
+		return *x.SentTimestamp
+	}
+	return 0
+}
+
+func (x *AppStoryContext) GetAuthorAciBinary() []byte {
+	if x != nil {
+		return x.AuthorAciBinary
+	}
+	return nil
+}
+
+type AppGroupCallUpdate struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EraId         *string                `protobuf:"bytes,1,opt,name=era_id,json=eraId" json:"era_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppGroupCallUpdate) Reset() {
+	*x = AppGroupCallUpdate{}
+	mi := &file_content_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppGroupCallUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppGroupCallUpdate) ProtoMessage() {}
+
+func (x *AppGroupCallUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppGroupCallUpdate.ProtoReflect.Descriptor instead.
+func (*AppGroupCallUpdate) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *AppGroupCallUpdate) GetEraId() string {
+	if x != nil && x.EraId != nil {
+		return *x.EraId
+	}
+	return ""
+}
+
+type AppGiftBadge struct {
+	state                         protoimpl.MessageState `protogen:"open.v1"`
+	ReceiptCredentialPresentation []byte                 `protobuf:"bytes,1,opt,name=receipt_credential_presentation,json=receiptCredentialPresentation" json:"receipt_credential_presentation,omitempty"`
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
+}
+
+func (x *AppGiftBadge) Reset() {
+	*x = AppGiftBadge{}
+	mi := &file_content_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppGiftBadge) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppGiftBadge) ProtoMessage() {}
+
+func (x *AppGiftBadge) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppGiftBadge.ProtoReflect.Descriptor instead.
+func (*AppGiftBadge) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *AppGiftBadge) GetReceiptCredentialPresentation() []byte {
+	if x != nil {
+		return x.ReceiptCredentialPresentation
+	}
+	return nil
+}
+
+type AppPayment struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Item:
+	//
+	//	*AppPayment_Notification_
+	//	*AppPayment_Activation_
+	Item          isAppPayment_Item `protobuf_oneof:"item"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppPayment) Reset() {
+	*x = AppPayment{}
+	mi := &file_content_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppPayment) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppPayment) ProtoMessage() {}
+
+func (x *AppPayment) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppPayment.ProtoReflect.Descriptor instead.
+func (*AppPayment) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *AppPayment) GetItem() isAppPayment_Item {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+func (x *AppPayment) GetNotification() *AppPayment_Notification {
+	if x != nil {
+		if x, ok := x.Item.(*AppPayment_Notification_); ok {
+			return x.Notification
+		}
+	}
+	return nil
+}
+
+func (x *AppPayment) GetActivation() *AppPayment_Activation {
+	if x != nil {
+		if x, ok := x.Item.(*AppPayment_Activation_); ok {
+			return x.Activation
+		}
+	}
+	return nil
+}
+
+type isAppPayment_Item interface {
+	isAppPayment_Item()
+}
+
+type AppPayment_Notification_ struct {
+	Notification *AppPayment_Notification `protobuf:"bytes,1,opt,name=notification,oneof"`
+}
+
+type AppPayment_Activation_ struct {
+	Activation *AppPayment_Activation `protobuf:"bytes,2,opt,name=activation,oneof"`
+}
+
+func (*AppPayment_Notification_) isAppPayment_Item() {}
+
+func (*AppPayment_Activation_) isAppPayment_Item() {}
+
+type AppPollCreate struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Question      *string                `protobuf:"bytes,1,opt,name=question" json:"question,omitempty"`
+	AllowMultiple *bool                  `protobuf:"varint,2,opt,name=allow_multiple,json=allowMultiple" json:"allow_multiple,omitempty"`
+	Options       []string               `protobuf:"bytes,3,rep,name=options" json:"options,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppPollCreate) Reset() {
+	*x = AppPollCreate{}
+	mi := &file_content_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppPollCreate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppPollCreate) ProtoMessage() {}
+
+func (x *AppPollCreate) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppPollCreate.ProtoReflect.Descriptor instead.
+func (*AppPollCreate) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *AppPollCreate) GetQuestion() string {
+	if x != nil && x.Question != nil {
+		return *x.Question
+	}
+	return ""
+}
+
+func (x *AppPollCreate) GetAllowMultiple() bool {
+	if x != nil && x.AllowMultiple != nil {
+		return *x.AllowMultiple
+	}
+	return false
+}
+
+func (x *AppPollCreate) GetOptions() []string {
+	if x != nil {
+		return x.Options
+	}
+	return nil
+}
+
+type AppPollTerminate struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	TargetSentTimestamp *uint64                `protobuf:"varint,1,opt,name=target_sent_timestamp,json=targetSentTimestamp" json:"target_sent_timestamp,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *AppPollTerminate) Reset() {
+	*x = AppPollTerminate{}
+	mi := &file_content_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppPollTerminate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppPollTerminate) ProtoMessage() {}
+
+func (x *AppPollTerminate) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppPollTerminate.ProtoReflect.Descriptor instead.
+func (*AppPollTerminate) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *AppPollTerminate) GetTargetSentTimestamp() uint64 {
+	if x != nil && x.TargetSentTimestamp != nil {
+		return *x.TargetSentTimestamp
+	}
+	return 0
+}
+
+type AppPollVote struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	TargetAuthorAciBinary []byte                 `protobuf:"bytes,1,opt,name=target_author_aci_binary,json=targetAuthorAciBinary" json:"target_author_aci_binary,omitempty"`
+	TargetSentTimestamp   *uint64                `protobuf:"varint,2,opt,name=target_sent_timestamp,json=targetSentTimestamp" json:"target_sent_timestamp,omitempty"`
+	OptionIndexes         []uint32               `protobuf:"varint,3,rep,name=option_indexes,json=optionIndexes" json:"option_indexes,omitempty"`
+	VoteCount             *uint32                `protobuf:"varint,4,opt,name=vote_count,json=voteCount" json:"vote_count,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *AppPollVote) Reset() {
+	*x = AppPollVote{}
+	mi := &file_content_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppPollVote) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppPollVote) ProtoMessage() {}
+
+func (x *AppPollVote) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppPollVote.ProtoReflect.Descriptor instead.
+func (*AppPollVote) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *AppPollVote) GetTargetAuthorAciBinary() []byte {
+	if x != nil {
+		return x.TargetAuthorAciBinary
+	}
+	return nil
+}
+
+func (x *AppPollVote) GetTargetSentTimestamp() uint64 {
+	if x != nil && x.TargetSentTimestamp != nil {
+		return *x.TargetSentTimestamp
+	}
+	return 0
+}
+
+func (x *AppPollVote) GetOptionIndexes() []uint32 {
+	if x != nil {
+		return x.OptionIndexes
+	}
+	return nil
+}
+
+func (x *AppPollVote) GetVoteCount() uint32 {
+	if x != nil && x.VoteCount != nil {
+		return *x.VoteCount
+	}
+	return 0
+}
+
+type AppPinMessage struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	TargetAuthorAciBinary []byte                 `protobuf:"bytes,1,opt,name=target_author_aci_binary,json=targetAuthorAciBinary" json:"target_author_aci_binary,omitempty"`
+	TargetSentTimestamp   *uint64                `protobuf:"varint,2,opt,name=target_sent_timestamp,json=targetSentTimestamp" json:"target_sent_timestamp,omitempty"`
+	// Types that are valid to be assigned to PinDuration:
+	//
+	//	*AppPinMessage_PinDurationSeconds
+	//	*AppPinMessage_PinDurationForever
+	PinDuration   isAppPinMessage_PinDuration `protobuf_oneof:"pin_duration"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppPinMessage) Reset() {
+	*x = AppPinMessage{}
+	mi := &file_content_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppPinMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppPinMessage) ProtoMessage() {}
+
+func (x *AppPinMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppPinMessage.ProtoReflect.Descriptor instead.
+func (*AppPinMessage) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *AppPinMessage) GetTargetAuthorAciBinary() []byte {
+	if x != nil {
+		return x.TargetAuthorAciBinary
+	}
+	return nil
+}
+
+func (x *AppPinMessage) GetTargetSentTimestamp() uint64 {
+	if x != nil && x.TargetSentTimestamp != nil {
+		return *x.TargetSentTimestamp
+	}
+	return 0
+}
+
+func (x *AppPinMessage) GetPinDuration() isAppPinMessage_PinDuration {
+	if x != nil {
+		return x.PinDuration
+	}
+	return nil
+}
+
+func (x *AppPinMessage) GetPinDurationSeconds() uint32 {
+	if x != nil {
+		if x, ok := x.PinDuration.(*AppPinMessage_PinDurationSeconds); ok {
+			return x.PinDurationSeconds
+		}
+	}
+	return 0
+}
+
+func (x *AppPinMessage) GetPinDurationForever() bool {
+	if x != nil {
+		if x, ok := x.PinDuration.(*AppPinMessage_PinDurationForever); ok {
+			return x.PinDurationForever
+		}
+	}
+	return false
+}
+
+type isAppPinMessage_PinDuration interface {
+	isAppPinMessage_PinDuration()
+}
+
+type AppPinMessage_PinDurationSeconds struct {
+	PinDurationSeconds uint32 `protobuf:"varint,3,opt,name=pin_duration_seconds,json=pinDurationSeconds,oneof"`
+}
+
+type AppPinMessage_PinDurationForever struct {
+	PinDurationForever bool `protobuf:"varint,4,opt,name=pin_duration_forever,json=pinDurationForever,oneof"`
+}
+
+func (*AppPinMessage_PinDurationSeconds) isAppPinMessage_PinDuration() {}
+
+func (*AppPinMessage_PinDurationForever) isAppPinMessage_PinDuration() {}
+
+type AppUnpinMessage struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	TargetAuthorAciBinary []byte                 `protobuf:"bytes,1,opt,name=target_author_aci_binary,json=targetAuthorAciBinary" json:"target_author_aci_binary,omitempty"`
+	TargetSentTimestamp   *uint64                `protobuf:"varint,2,opt,name=target_sent_timestamp,json=targetSentTimestamp" json:"target_sent_timestamp,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *AppUnpinMessage) Reset() {
+	*x = AppUnpinMessage{}
+	mi := &file_content_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppUnpinMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppUnpinMessage) ProtoMessage() {}
+
+func (x *AppUnpinMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppUnpinMessage.ProtoReflect.Descriptor instead.
+func (*AppUnpinMessage) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *AppUnpinMessage) GetTargetAuthorAciBinary() []byte {
+	if x != nil {
+		return x.TargetAuthorAciBinary
+	}
+	return nil
+}
+
+func (x *AppUnpinMessage) GetTargetSentTimestamp() uint64 {
+	if x != nil && x.TargetSentTimestamp != nil {
+		return *x.TargetSentTimestamp
+	}
+	return 0
+}
+
+type AppAdminDelete struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	TargetAuthorAciBinary []byte                 `protobuf:"bytes,1,opt,name=target_author_aci_binary,json=targetAuthorAciBinary" json:"target_author_aci_binary,omitempty"`
+	TargetSentTimestamp   *uint64                `protobuf:"varint,2,opt,name=target_sent_timestamp,json=targetSentTimestamp" json:"target_sent_timestamp,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *AppAdminDelete) Reset() {
+	*x = AppAdminDelete{}
+	mi := &file_content_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppAdminDelete) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppAdminDelete) ProtoMessage() {}
+
+func (x *AppAdminDelete) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppAdminDelete.ProtoReflect.Descriptor instead.
+func (*AppAdminDelete) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *AppAdminDelete) GetTargetAuthorAciBinary() []byte {
+	if x != nil {
+		return x.TargetAuthorAciBinary
+	}
+	return nil
+}
+
+func (x *AppAdminDelete) GetTargetSentTimestamp() uint64 {
+	if x != nil && x.TargetSentTimestamp != nil {
+		return *x.TargetSentTimestamp
+	}
+	return 0
+}
+
+type AppSharedContact_Name struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GivenName     *string                `protobuf:"bytes,1,opt,name=given_name,json=givenName" json:"given_name,omitempty"`
+	FamilyName    *string                `protobuf:"bytes,2,opt,name=family_name,json=familyName" json:"family_name,omitempty"`
+	Prefix        *string                `protobuf:"bytes,3,opt,name=prefix" json:"prefix,omitempty"`
+	Suffix        *string                `protobuf:"bytes,4,opt,name=suffix" json:"suffix,omitempty"`
+	MiddleName    *string                `protobuf:"bytes,5,opt,name=middle_name,json=middleName" json:"middle_name,omitempty"`
+	Nickname      *string                `protobuf:"bytes,7,opt,name=nickname" json:"nickname,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSharedContact_Name) Reset() {
+	*x = AppSharedContact_Name{}
+	mi := &file_content_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSharedContact_Name) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSharedContact_Name) ProtoMessage() {}
+
+func (x *AppSharedContact_Name) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSharedContact_Name.ProtoReflect.Descriptor instead.
+func (*AppSharedContact_Name) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{20, 0}
+}
+
+func (x *AppSharedContact_Name) GetGivenName() string {
+	if x != nil && x.GivenName != nil {
+		return *x.GivenName
+	}
+	return ""
+}
+
+func (x *AppSharedContact_Name) GetFamilyName() string {
+	if x != nil && x.FamilyName != nil {
+		return *x.FamilyName
+	}
+	return ""
+}
+
+func (x *AppSharedContact_Name) GetPrefix() string {
+	if x != nil && x.Prefix != nil {
+		return *x.Prefix
+	}
+	return ""
+}
+
+func (x *AppSharedContact_Name) GetSuffix() string {
+	if x != nil && x.Suffix != nil {
+		return *x.Suffix
+	}
+	return ""
+}
+
+func (x *AppSharedContact_Name) GetMiddleName() string {
+	if x != nil && x.MiddleName != nil {
+		return *x.MiddleName
+	}
+	return ""
+}
+
+func (x *AppSharedContact_Name) GetNickname() string {
+	if x != nil && x.Nickname != nil {
+		return *x.Nickname
+	}
+	return ""
+}
+
+type AppSharedContact_Phone struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Value         *string                      `protobuf:"bytes,1,opt,name=value" json:"value,omitempty"`
+	Type          *AppSharedContact_Phone_Type `protobuf:"varint,2,opt,name=type,enum=signalcligo.AppSharedContact_Phone_Type" json:"type,omitempty"`
+	Label         *string                      `protobuf:"bytes,3,opt,name=label" json:"label,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSharedContact_Phone) Reset() {
+	*x = AppSharedContact_Phone{}
+	mi := &file_content_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSharedContact_Phone) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSharedContact_Phone) ProtoMessage() {}
+
+func (x *AppSharedContact_Phone) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSharedContact_Phone.ProtoReflect.Descriptor instead.
+func (*AppSharedContact_Phone) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{20, 1}
+}
+
+func (x *AppSharedContact_Phone) GetValue() string {
+	if x != nil && x.Value != nil {
+		return *x.Value
+	}
+	return ""
+}
+
+func (x *AppSharedContact_Phone) GetType() AppSharedContact_Phone_Type {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return AppSharedContact_Phone_HOME
+}
+
+func (x *AppSharedContact_Phone) GetLabel() string {
+	if x != nil && x.Label != nil {
+		return *x.Label
+	}
+	return ""
+}
+
+type AppSharedContact_PostalAddress struct {
+	state         protoimpl.MessageState               `protogen:"open.v1"`
+	Type          *AppSharedContact_PostalAddress_Type `protobuf:"varint,1,opt,name=type,enum=signalcligo.AppSharedContact_PostalAddress_Type" json:"type,omitempty"`
+	Label         *string                              `protobuf:"bytes,2,opt,name=label" json:"label,omitempty"`
+	Street        *string                              `protobuf:"bytes,3,opt,name=street" json:"street,omitempty"`
+	Pobox         *string                              `protobuf:"bytes,4,opt,name=pobox" json:"pobox,omitempty"`
+	Neighborhood  *string                              `protobuf:"bytes,5,opt,name=neighborhood" json:"neighborhood,omitempty"`
+	City          *string                              `protobuf:"bytes,6,opt,name=city" json:"city,omitempty"`
+	Region        *string                              `protobuf:"bytes,7,opt,name=region" json:"region,omitempty"`
+	Postcode      *string                              `protobuf:"bytes,8,opt,name=postcode" json:"postcode,omitempty"`
+	Country       *string                              `protobuf:"bytes,9,opt,name=country" json:"country,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSharedContact_PostalAddress) Reset() {
+	*x = AppSharedContact_PostalAddress{}
+	mi := &file_content_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSharedContact_PostalAddress) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSharedContact_PostalAddress) ProtoMessage() {}
+
+func (x *AppSharedContact_PostalAddress) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSharedContact_PostalAddress.ProtoReflect.Descriptor instead.
+func (*AppSharedContact_PostalAddress) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{20, 2}
+}
+
+func (x *AppSharedContact_PostalAddress) GetType() AppSharedContact_PostalAddress_Type {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return AppSharedContact_PostalAddress_HOME
+}
+
+func (x *AppSharedContact_PostalAddress) GetLabel() string {
+	if x != nil && x.Label != nil {
+		return *x.Label
+	}
+	return ""
+}
+
+func (x *AppSharedContact_PostalAddress) GetStreet() string {
+	if x != nil && x.Street != nil {
+		return *x.Street
+	}
+	return ""
+}
+
+func (x *AppSharedContact_PostalAddress) GetPobox() string {
+	if x != nil && x.Pobox != nil {
+		return *x.Pobox
+	}
+	return ""
+}
+
+func (x *AppSharedContact_PostalAddress) GetNeighborhood() string {
+	if x != nil && x.Neighborhood != nil {
+		return *x.Neighborhood
+	}
+	return ""
+}
+
+func (x *AppSharedContact_PostalAddress) GetCity() string {
+	if x != nil && x.City != nil {
+		return *x.City
+	}
+	return ""
+}
+
+func (x *AppSharedContact_PostalAddress) GetRegion() string {
+	if x != nil && x.Region != nil {
+		return *x.Region
+	}
+	return ""
+}
+
+func (x *AppSharedContact_PostalAddress) GetPostcode() string {
+	if x != nil && x.Postcode != nil {
+		return *x.Postcode
+	}
+	return ""
+}
+
+func (x *AppSharedContact_PostalAddress) GetCountry() string {
+	if x != nil && x.Country != nil {
+		return *x.Country
+	}
+	return ""
+}
+
+type AppSharedContact_Avatar struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Avatar        *AppAttachmentPointer  `protobuf:"bytes,1,opt,name=avatar" json:"avatar,omitempty"`
+	IsProfile     *bool                  `protobuf:"varint,2,opt,name=is_profile,json=isProfile" json:"is_profile,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppSharedContact_Avatar) Reset() {
+	*x = AppSharedContact_Avatar{}
+	mi := &file_content_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppSharedContact_Avatar) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppSharedContact_Avatar) ProtoMessage() {}
+
+func (x *AppSharedContact_Avatar) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppSharedContact_Avatar.ProtoReflect.Descriptor instead.
+func (*AppSharedContact_Avatar) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{20, 3}
+}
+
+func (x *AppSharedContact_Avatar) GetAvatar() *AppAttachmentPointer {
+	if x != nil {
+		return x.Avatar
+	}
+	return nil
+}
+
+func (x *AppSharedContact_Avatar) GetIsProfile() bool {
+	if x != nil && x.IsProfile != nil {
+		return *x.IsProfile
+	}
+	return false
+}
+
+type AppPayment_Notification struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Transaction:
+	//
+	//	*AppPayment_Notification_MobileCoin_
+	Transaction   isAppPayment_Notification_Transaction `protobuf_oneof:"transaction"`
+	Note          *string                               `protobuf:"bytes,2,opt,name=note" json:"note,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppPayment_Notification) Reset() {
+	*x = AppPayment_Notification{}
+	mi := &file_content_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppPayment_Notification) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppPayment_Notification) ProtoMessage() {}
+
+func (x *AppPayment_Notification) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppPayment_Notification.ProtoReflect.Descriptor instead.
+func (*AppPayment_Notification) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{24, 0}
+}
+
+func (x *AppPayment_Notification) GetTransaction() isAppPayment_Notification_Transaction {
+	if x != nil {
+		return x.Transaction
+	}
+	return nil
+}
+
+func (x *AppPayment_Notification) GetMobileCoin() *AppPayment_Notification_MobileCoin {
+	if x != nil {
+		if x, ok := x.Transaction.(*AppPayment_Notification_MobileCoin_); ok {
+			return x.MobileCoin
+		}
+	}
+	return nil
+}
+
+func (x *AppPayment_Notification) GetNote() string {
+	if x != nil && x.Note != nil {
+		return *x.Note
+	}
+	return ""
+}
+
+type isAppPayment_Notification_Transaction interface {
+	isAppPayment_Notification_Transaction()
+}
+
+type AppPayment_Notification_MobileCoin_ struct {
+	MobileCoin *AppPayment_Notification_MobileCoin `protobuf:"bytes,1,opt,name=mobile_coin,json=mobileCoin,oneof"`
+}
+
+func (*AppPayment_Notification_MobileCoin_) isAppPayment_Notification_Transaction() {}
+
+type AppPayment_Activation struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Type          *AppPayment_Activation_Type `protobuf:"varint,1,opt,name=type,enum=signalcligo.AppPayment_Activation_Type" json:"type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppPayment_Activation) Reset() {
+	*x = AppPayment_Activation{}
+	mi := &file_content_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppPayment_Activation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppPayment_Activation) ProtoMessage() {}
+
+func (x *AppPayment_Activation) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppPayment_Activation.ProtoReflect.Descriptor instead.
+func (*AppPayment_Activation) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{24, 1}
+}
+
+func (x *AppPayment_Activation) GetType() AppPayment_Activation_Type {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return AppPayment_Activation_REQUEST
+}
+
+type AppPayment_Notification_MobileCoin struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Receipt       []byte                 `protobuf:"bytes,1,opt,name=receipt" json:"receipt,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AppPayment_Notification_MobileCoin) Reset() {
+	*x = AppPayment_Notification_MobileCoin{}
+	mi := &file_content_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AppPayment_Notification_MobileCoin) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AppPayment_Notification_MobileCoin) ProtoMessage() {}
+
+func (x *AppPayment_Notification_MobileCoin) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AppPayment_Notification_MobileCoin.ProtoReflect.Descriptor instead.
+func (*AppPayment_Notification_MobileCoin) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{24, 0, 0}
+}
+
+func (x *AppPayment_Notification_MobileCoin) GetReceipt() []byte {
+	if x != nil {
+		return x.Receipt
+	}
+	return nil
+}
+
 var File_content_proto protoreflect.FileDescriptor
 
 const file_content_proto_rawDesc = "" +
@@ -1167,7 +3301,7 @@ const file_content_proto_rawDesc = "" +
 	"\x1fsender_key_distribution_message\x18\a \x01(\fR\x1csenderKeyDistributionMessage\x12P\n" +
 	"\x15pni_signature_message\x18\n" +
 	" \x01(\v2\x1c.signalcligo.AppPniSignatureR\x13pniSignatureMessageB\x06\n" +
-	"\x04body\"\xe1\x03\n" +
+	"\x04body\"\xdb\v\n" +
 	"\x0eAppDataMessage\x12\x12\n" +
 	"\x04body\x18\x01 \x01(\tR\x04body\x12\x14\n" +
 	"\x05flags\x18\x04 \x01(\rR\x05flags\x12!\n" +
@@ -1178,8 +3312,30 @@ const file_content_proto_rawDesc = "" +
 	"\x19required_protocol_version\x18\f \x01(\rR\x17requiredProtocolVersion\x12 \n" +
 	"\fis_view_once\x18\x0e \x01(\bR\n" +
 	"isViewOnce\x129\n" +
-	"\bgroup_v2\x18\x0f \x01(\v2\x1e.signalcligo.AppGroupContextV2R\agroupV2\x12.\n" +
-	"\x06delete\x18\x11 \x01(\v2\x16.signalcligo.AppDeleteR\x06delete\x120\n" +
+	"\bgroup_v2\x18\x0f \x01(\v2\x1e.signalcligo.AppGroupContextV2R\agroupV2\x12C\n" +
+	"\vattachments\x18\x02 \x03(\v2!.signalcligo.AppAttachmentPointerR\vattachments\x12+\n" +
+	"\x05quote\x18\b \x01(\v2\x15.signalcligo.AppQuoteR\x05quote\x127\n" +
+	"\acontact\x18\t \x03(\v2\x1d.signalcligo.AppSharedContactR\acontact\x121\n" +
+	"\apreview\x18\n" +
+	" \x03(\v2\x17.signalcligo.AppPreviewR\apreview\x121\n" +
+	"\asticker\x18\v \x01(\v2\x17.signalcligo.AppStickerR\asticker\x124\n" +
+	"\breaction\x18\x10 \x01(\v2\x18.signalcligo.AppReactionR\breaction\x12.\n" +
+	"\x06delete\x18\x11 \x01(\v2\x16.signalcligo.AppDeleteR\x06delete\x12:\n" +
+	"\vbody_ranges\x18\x12 \x03(\v2\x19.signalcligo.AppBodyRangeR\n" +
+	"bodyRanges\x12K\n" +
+	"\x11group_call_update\x18\x13 \x01(\v2\x1f.signalcligo.AppGroupCallUpdateR\x0fgroupCallUpdate\x121\n" +
+	"\apayment\x18\x14 \x01(\v2\x17.signalcligo.AppPaymentR\apayment\x12A\n" +
+	"\rstory_context\x18\x15 \x01(\v2\x1c.signalcligo.AppStoryContextR\fstoryContext\x128\n" +
+	"\n" +
+	"gift_badge\x18\x16 \x01(\v2\x19.signalcligo.AppGiftBadgeR\tgiftBadge\x12;\n" +
+	"\vpoll_create\x18\x18 \x01(\v2\x1a.signalcligo.AppPollCreateR\n" +
+	"pollCreate\x12D\n" +
+	"\x0epoll_terminate\x18\x19 \x01(\v2\x1d.signalcligo.AppPollTerminateR\rpollTerminate\x125\n" +
+	"\tpoll_vote\x18\x1a \x01(\v2\x18.signalcligo.AppPollVoteR\bpollVote\x12;\n" +
+	"\vpin_message\x18\x1b \x01(\v2\x1a.signalcligo.AppPinMessageR\n" +
+	"pinMessage\x12A\n" +
+	"\runpin_message\x18\x1c \x01(\v2\x1c.signalcligo.AppUnpinMessageR\funpinMessage\x12>\n" +
+	"\fadmin_delete\x18\x1d \x01(\v2\x1b.signalcligo.AppAdminDeleteR\vadminDelete\x120\n" +
 	"\x14expire_timer_version\x18\x17 \x01(\rR\x12expireTimerVersion\"H\n" +
 	"\x04Flag\x12\x1b\n" +
 	"\x17EXPIRATION_TIMER_UPDATE\x10\x02\x12\x16\n" +
@@ -1220,7 +3376,7 @@ const file_content_proto_rawDesc = "" +
 	"\tsignature\x18\x02 \x01(\fR\tsignature\"T\n" +
 	"\x0eAppSyncMessage\x12(\n" +
 	"\x04sent\x18\x01 \x01(\v2\x14.signalcligo.AppSentR\x04sent\x12\x18\n" +
-	"\apadding\x18\b \x01(\fR\apadding\"\xcb\x03\n" +
+	"\apadding\x18\b \x01(\fR\apadding\"\x84\x04\n" +
 	"\aAppSent\x12)\n" +
 	"\x10destination_e164\x18\x01 \x01(\tR\x0fdestinationE164\x12\x1c\n" +
 	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x125\n" +
@@ -1228,7 +3384,9 @@ const file_content_proto_rawDesc = "" +
 	"\x1aexpiration_start_timestamp\x18\x04 \x01(\x04R\x18expirationStartTimestamp\x12S\n" +
 	"\x13unidentified_status\x18\x05 \x03(\v2\".signalcligo.AppUnidentifiedStatusR\x12unidentifiedStatus\x12.\n" +
 	"\x13is_recipient_update\x18\x06 \x01(\bR\x11isRecipientUpdate\x124\n" +
-	"\x16destination_service_id\x18\a \x01(\tR\x14destinationServiceId\x12A\n" +
+	"\x16destination_service_id\x18\a \x01(\tR\x14destinationServiceId\x127\n" +
+	"\fedit_message\x18\n" +
+	" \x01(\v2\x14.signalcligo.AppEditR\veditMessage\x12A\n" +
 	"\x1ddestination_service_id_binary\x18\f \x01(\fR\x1adestinationServiceIdBinaryJ\x04\b\v\x10\f\"\xf5\x01\n" +
 	"\x15AppUnidentifiedStatus\x12\"\n" +
 	"\funidentified\x18\x02 \x01(\bR\funidentified\x124\n" +
@@ -1239,7 +3397,166 @@ const file_content_proto_rawDesc = "" +
 	"\vratchet_key\x18\x01 \x01(\fR\n" +
 	"ratchetKey\x12\x1c\n" +
 	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x12\x1b\n" +
-	"\tdevice_id\x18\x03 \x01(\rR\bdeviceIdB<Z:github.com/aren55555/signal-cli-go/internal/proto/signalpb"
+	"\tdevice_id\x18\x03 \x01(\rR\bdeviceId\"\x16\n" +
+	"\x14AppAttachmentPointer\"\xb4\x02\n" +
+	"\fAppBodyRange\x12\x14\n" +
+	"\x05start\x18\x01 \x01(\rR\x05start\x12\x16\n" +
+	"\x06length\x18\x02 \x01(\rR\x06length\x12!\n" +
+	"\vmention_aci\x18\x03 \x01(\tH\x00R\n" +
+	"mentionAci\x127\n" +
+	"\x05style\x18\x04 \x01(\x0e2\x1f.signalcligo.AppBodyRange.StyleH\x00R\x05style\x12.\n" +
+	"\x12mention_aci_binary\x18\x05 \x01(\fH\x00R\x10mentionAciBinary\"V\n" +
+	"\x05Style\x12\b\n" +
+	"\x04NONE\x10\x00\x12\b\n" +
+	"\x04BOLD\x10\x01\x12\n" +
+	"\n" +
+	"\x06ITALIC\x10\x02\x12\v\n" +
+	"\aSPOILER\x10\x03\x12\x11\n" +
+	"\rSTRIKETHROUGH\x10\x04\x12\r\n" +
+	"\tMONOSPACE\x10\x05B\x12\n" +
+	"\x10associated_value\"\xdd\x02\n" +
+	"\bAppQuote\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
+	"\x04text\x18\x03 \x01(\tR\x04text\x12B\n" +
+	"\vattachments\x18\x04 \x03(\v2 .signalcligo.AppQuotedAttachmentR\vattachments\x12\x1d\n" +
+	"\n" +
+	"author_aci\x18\x05 \x01(\tR\tauthorAci\x12:\n" +
+	"\vbody_ranges\x18\x06 \x03(\v2\x19.signalcligo.AppBodyRangeR\n" +
+	"bodyRanges\x12.\n" +
+	"\x04type\x18\a \x01(\x0e2\x1a.signalcligo.AppQuote.TypeR\x04type\x12*\n" +
+	"\x11author_aci_binary\x18\b \x01(\fR\x0fauthorAciBinary\",\n" +
+	"\x04Type\x12\n" +
+	"\n" +
+	"\x06NORMAL\x10\x00\x12\x0e\n" +
+	"\n" +
+	"GIFT_BADGE\x10\x01\x12\b\n" +
+	"\x04POLL\x10\x02J\x04\b\x02\x10\x03\"\x96\x01\n" +
+	"\x13AppQuotedAttachment\x12!\n" +
+	"\fcontent_type\x18\x01 \x01(\tR\vcontentType\x12\x1b\n" +
+	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12?\n" +
+	"\tthumbnail\x18\x03 \x01(\v2!.signalcligo.AppAttachmentPointerR\tthumbnail\"\xda\x01\n" +
+	"\vAppReaction\x12\x14\n" +
+	"\x05emoji\x18\x01 \x01(\tR\x05emoji\x12\x16\n" +
+	"\x06remove\x18\x02 \x01(\bR\x06remove\x12*\n" +
+	"\x11target_author_aci\x18\x04 \x01(\tR\x0ftargetAuthorAci\x122\n" +
+	"\x15target_sent_timestamp\x18\x05 \x01(\x04R\x13targetSentTimestamp\x127\n" +
+	"\x18target_author_aci_binary\x18\x06 \x01(\fR\x15targetAuthorAciBinaryJ\x04\b\x03\x10\x04\"\xa3\x01\n" +
+	"\n" +
+	"AppPreview\x12\x10\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x127\n" +
+	"\x05image\x18\x03 \x01(\v2!.signalcligo.AppAttachmentPointerR\x05image\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x12\n" +
+	"\x04date\x18\x05 \x01(\x04R\x04date\"\xac\x01\n" +
+	"\n" +
+	"AppSticker\x12\x17\n" +
+	"\apack_id\x18\x01 \x01(\fR\x06packId\x12\x19\n" +
+	"\bpack_key\x18\x02 \x01(\fR\apackKey\x12\x1d\n" +
+	"\n" +
+	"sticker_id\x18\x03 \x01(\rR\tstickerId\x125\n" +
+	"\x04data\x18\x04 \x01(\v2!.signalcligo.AppAttachmentPointerR\x04data\x12\x14\n" +
+	"\x05emoji\x18\x05 \x01(\tR\x05emoji\"\xfd\b\n" +
+	"\x10AppSharedContact\x126\n" +
+	"\x04name\x18\x01 \x01(\v2\".signalcligo.AppSharedContact.NameR\x04name\x12;\n" +
+	"\x06number\x18\x03 \x03(\v2#.signalcligo.AppSharedContact.PhoneR\x06number\x129\n" +
+	"\x05email\x18\x04 \x03(\v2#.signalcligo.AppSharedContact.PhoneR\x05email\x12E\n" +
+	"\aaddress\x18\x05 \x03(\v2+.signalcligo.AppSharedContact.PostalAddressR\aaddress\x12<\n" +
+	"\x06avatar\x18\x06 \x01(\v2$.signalcligo.AppSharedContact.AvatarR\x06avatar\x12\"\n" +
+	"\forganization\x18\a \x01(\tR\forganization\x1a\xb9\x01\n" +
+	"\x04Name\x12\x1d\n" +
+	"\n" +
+	"given_name\x18\x01 \x01(\tR\tgivenName\x12\x1f\n" +
+	"\vfamily_name\x18\x02 \x01(\tR\n" +
+	"familyName\x12\x16\n" +
+	"\x06prefix\x18\x03 \x01(\tR\x06prefix\x12\x16\n" +
+	"\x06suffix\x18\x04 \x01(\tR\x06suffix\x12\x1f\n" +
+	"\vmiddle_name\x18\x05 \x01(\tR\n" +
+	"middleName\x12\x1a\n" +
+	"\bnickname\x18\a \x01(\tR\bnicknameJ\x04\b\x06\x10\a\x1a\xa5\x01\n" +
+	"\x05Phone\x12\x14\n" +
+	"\x05value\x18\x01 \x01(\tR\x05value\x12<\n" +
+	"\x04type\x18\x02 \x01(\x0e2(.signalcligo.AppSharedContact.Phone.TypeR\x04type\x12\x14\n" +
+	"\x05label\x18\x03 \x01(\tR\x05label\"2\n" +
+	"\x04Type\x12\b\n" +
+	"\x04HOME\x10\x01\x12\n" +
+	"\n" +
+	"\x06MOBILE\x10\x02\x12\b\n" +
+	"\x04WORK\x10\x03\x12\n" +
+	"\n" +
+	"\x06CUSTOM\x10\x04\x1a\xc7\x02\n" +
+	"\rPostalAddress\x12D\n" +
+	"\x04type\x18\x01 \x01(\x0e20.signalcligo.AppSharedContact.PostalAddress.TypeR\x04type\x12\x14\n" +
+	"\x05label\x18\x02 \x01(\tR\x05label\x12\x16\n" +
+	"\x06street\x18\x03 \x01(\tR\x06street\x12\x14\n" +
+	"\x05pobox\x18\x04 \x01(\tR\x05pobox\x12\"\n" +
+	"\fneighborhood\x18\x05 \x01(\tR\fneighborhood\x12\x12\n" +
+	"\x04city\x18\x06 \x01(\tR\x04city\x12\x16\n" +
+	"\x06region\x18\a \x01(\tR\x06region\x12\x1a\n" +
+	"\bpostcode\x18\b \x01(\tR\bpostcode\x12\x18\n" +
+	"\acountry\x18\t \x01(\tR\acountry\"&\n" +
+	"\x04Type\x12\b\n" +
+	"\x04HOME\x10\x01\x12\b\n" +
+	"\x04WORK\x10\x02\x12\n" +
+	"\n" +
+	"\x06CUSTOM\x10\x03\x1ab\n" +
+	"\x06Avatar\x129\n" +
+	"\x06avatar\x18\x01 \x01(\v2!.signalcligo.AppAttachmentPointerR\x06avatar\x12\x1d\n" +
+	"\n" +
+	"is_profile\x18\x02 \x01(\bR\tisProfile\"\x83\x01\n" +
+	"\x0fAppStoryContext\x12\x1d\n" +
+	"\n" +
+	"author_aci\x18\x01 \x01(\tR\tauthorAci\x12%\n" +
+	"\x0esent_timestamp\x18\x02 \x01(\x04R\rsentTimestamp\x12*\n" +
+	"\x11author_aci_binary\x18\x03 \x01(\fR\x0fauthorAciBinary\"+\n" +
+	"\x12AppGroupCallUpdate\x12\x15\n" +
+	"\x06era_id\x18\x01 \x01(\tR\x05eraId\"V\n" +
+	"\fAppGiftBadge\x12F\n" +
+	"\x1freceipt_credential_presentation\x18\x01 \x01(\fR\x1dreceiptCredentialPresentation\"\xdd\x03\n" +
+	"\n" +
+	"AppPayment\x12J\n" +
+	"\fnotification\x18\x01 \x01(\v2$.signalcligo.AppPayment.NotificationH\x00R\fnotification\x12D\n" +
+	"\n" +
+	"activation\x18\x02 \x01(\v2\".signalcligo.AppPayment.ActivationH\x00R\n" +
+	"activation\x1a\xb5\x01\n" +
+	"\fNotification\x12R\n" +
+	"\vmobile_coin\x18\x01 \x01(\v2/.signalcligo.AppPayment.Notification.MobileCoinH\x00R\n" +
+	"mobileCoin\x12\x12\n" +
+	"\x04note\x18\x02 \x01(\tR\x04note\x1a&\n" +
+	"\n" +
+	"MobileCoin\x12\x18\n" +
+	"\areceipt\x18\x01 \x01(\fR\areceiptB\r\n" +
+	"\vtransactionJ\x06\b\xeb\a\x10\xec\a\x1am\n" +
+	"\n" +
+	"Activation\x12;\n" +
+	"\x04type\x18\x01 \x01(\x0e2'.signalcligo.AppPayment.Activation.TypeR\x04type\"\"\n" +
+	"\x04Type\x12\v\n" +
+	"\aREQUEST\x10\x00\x12\r\n" +
+	"\tACTIVATED\x10\x01B\x06\n" +
+	"\x04itemJ\x06\b\xea\a\x10\xeb\aJ\x06\b\xeb\a\x10\xec\a\"l\n" +
+	"\rAppPollCreate\x12\x1a\n" +
+	"\bquestion\x18\x01 \x01(\tR\bquestion\x12%\n" +
+	"\x0eallow_multiple\x18\x02 \x01(\bR\rallowMultiple\x12\x18\n" +
+	"\aoptions\x18\x03 \x03(\tR\aoptions\"F\n" +
+	"\x10AppPollTerminate\x122\n" +
+	"\x15target_sent_timestamp\x18\x01 \x01(\x04R\x13targetSentTimestamp\"\xc0\x01\n" +
+	"\vAppPollVote\x127\n" +
+	"\x18target_author_aci_binary\x18\x01 \x01(\fR\x15targetAuthorAciBinary\x122\n" +
+	"\x15target_sent_timestamp\x18\x02 \x01(\x04R\x13targetSentTimestamp\x12%\n" +
+	"\x0eoption_indexes\x18\x03 \x03(\rR\roptionIndexes\x12\x1d\n" +
+	"\n" +
+	"vote_count\x18\x04 \x01(\rR\tvoteCount\"\xf4\x01\n" +
+	"\rAppPinMessage\x127\n" +
+	"\x18target_author_aci_binary\x18\x01 \x01(\fR\x15targetAuthorAciBinary\x122\n" +
+	"\x15target_sent_timestamp\x18\x02 \x01(\x04R\x13targetSentTimestamp\x122\n" +
+	"\x14pin_duration_seconds\x18\x03 \x01(\rH\x00R\x12pinDurationSeconds\x122\n" +
+	"\x14pin_duration_forever\x18\x04 \x01(\bH\x00R\x12pinDurationForeverB\x0e\n" +
+	"\fpin_duration\"~\n" +
+	"\x0fAppUnpinMessage\x127\n" +
+	"\x18target_author_aci_binary\x18\x01 \x01(\fR\x15targetAuthorAciBinary\x122\n" +
+	"\x15target_sent_timestamp\x18\x02 \x01(\x04R\x13targetSentTimestamp\"}\n" +
+	"\x0eAppAdminDelete\x127\n" +
+	"\x18target_author_aci_binary\x18\x01 \x01(\fR\x15targetAuthorAciBinary\x122\n" +
+	"\x15target_sent_timestamp\x18\x02 \x01(\x04R\x13targetSentTimestampB<Z:github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 
 var (
 	file_content_proto_rawDescOnce sync.Once
@@ -1253,47 +3570,114 @@ func file_content_proto_rawDescGZIP() []byte {
 	return file_content_proto_rawDescData
 }
 
-var file_content_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_content_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
+var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 38)
 var file_content_proto_goTypes = []any{
-	(AppDataMessage_Flag)(0),          // 0: signalcligo.AppDataMessage.Flag
-	(AppReceipt_Kind)(0),              // 1: signalcligo.AppReceipt.Kind
-	(AppTyping_Action)(0),             // 2: signalcligo.AppTyping.Action
-	(*AppContent)(nil),                // 3: signalcligo.AppContent
-	(*AppDataMessage)(nil),            // 4: signalcligo.AppDataMessage
-	(*AppGroupContextV2)(nil),         // 5: signalcligo.AppGroupContextV2
-	(*AppDelete)(nil),                 // 6: signalcligo.AppDelete
-	(*AppEdit)(nil),                   // 7: signalcligo.AppEdit
-	(*AppReceipt)(nil),                // 8: signalcligo.AppReceipt
-	(*AppTyping)(nil),                 // 9: signalcligo.AppTyping
-	(*AppNullMessage)(nil),            // 10: signalcligo.AppNullMessage
-	(*AppPniSignature)(nil),           // 11: signalcligo.AppPniSignature
-	(*AppSyncMessage)(nil),            // 12: signalcligo.AppSyncMessage
-	(*AppSent)(nil),                   // 13: signalcligo.AppSent
-	(*AppUnidentifiedStatus)(nil),     // 14: signalcligo.AppUnidentifiedStatus
-	(*AppDecryptionErrorMessage)(nil), // 15: signalcligo.AppDecryptionErrorMessage
+	(AppDataMessage_Flag)(0),                   // 0: signalcligo.AppDataMessage.Flag
+	(AppReceipt_Kind)(0),                       // 1: signalcligo.AppReceipt.Kind
+	(AppTyping_Action)(0),                      // 2: signalcligo.AppTyping.Action
+	(AppBodyRange_Style)(0),                    // 3: signalcligo.AppBodyRange.Style
+	(AppQuote_Type)(0),                         // 4: signalcligo.AppQuote.Type
+	(AppSharedContact_Phone_Type)(0),           // 5: signalcligo.AppSharedContact.Phone.Type
+	(AppSharedContact_PostalAddress_Type)(0),   // 6: signalcligo.AppSharedContact.PostalAddress.Type
+	(AppPayment_Activation_Type)(0),            // 7: signalcligo.AppPayment.Activation.Type
+	(*AppContent)(nil),                         // 8: signalcligo.AppContent
+	(*AppDataMessage)(nil),                     // 9: signalcligo.AppDataMessage
+	(*AppGroupContextV2)(nil),                  // 10: signalcligo.AppGroupContextV2
+	(*AppDelete)(nil),                          // 11: signalcligo.AppDelete
+	(*AppEdit)(nil),                            // 12: signalcligo.AppEdit
+	(*AppReceipt)(nil),                         // 13: signalcligo.AppReceipt
+	(*AppTyping)(nil),                          // 14: signalcligo.AppTyping
+	(*AppNullMessage)(nil),                     // 15: signalcligo.AppNullMessage
+	(*AppPniSignature)(nil),                    // 16: signalcligo.AppPniSignature
+	(*AppSyncMessage)(nil),                     // 17: signalcligo.AppSyncMessage
+	(*AppSent)(nil),                            // 18: signalcligo.AppSent
+	(*AppUnidentifiedStatus)(nil),              // 19: signalcligo.AppUnidentifiedStatus
+	(*AppDecryptionErrorMessage)(nil),          // 20: signalcligo.AppDecryptionErrorMessage
+	(*AppAttachmentPointer)(nil),               // 21: signalcligo.AppAttachmentPointer
+	(*AppBodyRange)(nil),                       // 22: signalcligo.AppBodyRange
+	(*AppQuote)(nil),                           // 23: signalcligo.AppQuote
+	(*AppQuotedAttachment)(nil),                // 24: signalcligo.AppQuotedAttachment
+	(*AppReaction)(nil),                        // 25: signalcligo.AppReaction
+	(*AppPreview)(nil),                         // 26: signalcligo.AppPreview
+	(*AppSticker)(nil),                         // 27: signalcligo.AppSticker
+	(*AppSharedContact)(nil),                   // 28: signalcligo.AppSharedContact
+	(*AppStoryContext)(nil),                    // 29: signalcligo.AppStoryContext
+	(*AppGroupCallUpdate)(nil),                 // 30: signalcligo.AppGroupCallUpdate
+	(*AppGiftBadge)(nil),                       // 31: signalcligo.AppGiftBadge
+	(*AppPayment)(nil),                         // 32: signalcligo.AppPayment
+	(*AppPollCreate)(nil),                      // 33: signalcligo.AppPollCreate
+	(*AppPollTerminate)(nil),                   // 34: signalcligo.AppPollTerminate
+	(*AppPollVote)(nil),                        // 35: signalcligo.AppPollVote
+	(*AppPinMessage)(nil),                      // 36: signalcligo.AppPinMessage
+	(*AppUnpinMessage)(nil),                    // 37: signalcligo.AppUnpinMessage
+	(*AppAdminDelete)(nil),                     // 38: signalcligo.AppAdminDelete
+	(*AppSharedContact_Name)(nil),              // 39: signalcligo.AppSharedContact.Name
+	(*AppSharedContact_Phone)(nil),             // 40: signalcligo.AppSharedContact.Phone
+	(*AppSharedContact_PostalAddress)(nil),     // 41: signalcligo.AppSharedContact.PostalAddress
+	(*AppSharedContact_Avatar)(nil),            // 42: signalcligo.AppSharedContact.Avatar
+	(*AppPayment_Notification)(nil),            // 43: signalcligo.AppPayment.Notification
+	(*AppPayment_Activation)(nil),              // 44: signalcligo.AppPayment.Activation
+	(*AppPayment_Notification_MobileCoin)(nil), // 45: signalcligo.AppPayment.Notification.MobileCoin
 }
 var file_content_proto_depIdxs = []int32{
-	4,  // 0: signalcligo.AppContent.data_message:type_name -> signalcligo.AppDataMessage
-	12, // 1: signalcligo.AppContent.sync_message:type_name -> signalcligo.AppSyncMessage
-	10, // 2: signalcligo.AppContent.null_message:type_name -> signalcligo.AppNullMessage
-	8,  // 3: signalcligo.AppContent.receipt_message:type_name -> signalcligo.AppReceipt
-	9,  // 4: signalcligo.AppContent.typing_message:type_name -> signalcligo.AppTyping
-	7,  // 5: signalcligo.AppContent.edit_message:type_name -> signalcligo.AppEdit
-	11, // 6: signalcligo.AppContent.pni_signature_message:type_name -> signalcligo.AppPniSignature
-	5,  // 7: signalcligo.AppDataMessage.group_v2:type_name -> signalcligo.AppGroupContextV2
-	6,  // 8: signalcligo.AppDataMessage.delete:type_name -> signalcligo.AppDelete
-	4,  // 9: signalcligo.AppEdit.data_message:type_name -> signalcligo.AppDataMessage
-	1,  // 10: signalcligo.AppReceipt.kind:type_name -> signalcligo.AppReceipt.Kind
-	2,  // 11: signalcligo.AppTyping.action:type_name -> signalcligo.AppTyping.Action
-	13, // 12: signalcligo.AppSyncMessage.sent:type_name -> signalcligo.AppSent
-	4,  // 13: signalcligo.AppSent.message:type_name -> signalcligo.AppDataMessage
-	14, // 14: signalcligo.AppSent.unidentified_status:type_name -> signalcligo.AppUnidentifiedStatus
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	9,  // 0: signalcligo.AppContent.data_message:type_name -> signalcligo.AppDataMessage
+	17, // 1: signalcligo.AppContent.sync_message:type_name -> signalcligo.AppSyncMessage
+	15, // 2: signalcligo.AppContent.null_message:type_name -> signalcligo.AppNullMessage
+	13, // 3: signalcligo.AppContent.receipt_message:type_name -> signalcligo.AppReceipt
+	14, // 4: signalcligo.AppContent.typing_message:type_name -> signalcligo.AppTyping
+	12, // 5: signalcligo.AppContent.edit_message:type_name -> signalcligo.AppEdit
+	16, // 6: signalcligo.AppContent.pni_signature_message:type_name -> signalcligo.AppPniSignature
+	10, // 7: signalcligo.AppDataMessage.group_v2:type_name -> signalcligo.AppGroupContextV2
+	21, // 8: signalcligo.AppDataMessage.attachments:type_name -> signalcligo.AppAttachmentPointer
+	23, // 9: signalcligo.AppDataMessage.quote:type_name -> signalcligo.AppQuote
+	28, // 10: signalcligo.AppDataMessage.contact:type_name -> signalcligo.AppSharedContact
+	26, // 11: signalcligo.AppDataMessage.preview:type_name -> signalcligo.AppPreview
+	27, // 12: signalcligo.AppDataMessage.sticker:type_name -> signalcligo.AppSticker
+	25, // 13: signalcligo.AppDataMessage.reaction:type_name -> signalcligo.AppReaction
+	11, // 14: signalcligo.AppDataMessage.delete:type_name -> signalcligo.AppDelete
+	22, // 15: signalcligo.AppDataMessage.body_ranges:type_name -> signalcligo.AppBodyRange
+	30, // 16: signalcligo.AppDataMessage.group_call_update:type_name -> signalcligo.AppGroupCallUpdate
+	32, // 17: signalcligo.AppDataMessage.payment:type_name -> signalcligo.AppPayment
+	29, // 18: signalcligo.AppDataMessage.story_context:type_name -> signalcligo.AppStoryContext
+	31, // 19: signalcligo.AppDataMessage.gift_badge:type_name -> signalcligo.AppGiftBadge
+	33, // 20: signalcligo.AppDataMessage.poll_create:type_name -> signalcligo.AppPollCreate
+	34, // 21: signalcligo.AppDataMessage.poll_terminate:type_name -> signalcligo.AppPollTerminate
+	35, // 22: signalcligo.AppDataMessage.poll_vote:type_name -> signalcligo.AppPollVote
+	36, // 23: signalcligo.AppDataMessage.pin_message:type_name -> signalcligo.AppPinMessage
+	37, // 24: signalcligo.AppDataMessage.unpin_message:type_name -> signalcligo.AppUnpinMessage
+	38, // 25: signalcligo.AppDataMessage.admin_delete:type_name -> signalcligo.AppAdminDelete
+	9,  // 26: signalcligo.AppEdit.data_message:type_name -> signalcligo.AppDataMessage
+	1,  // 27: signalcligo.AppReceipt.kind:type_name -> signalcligo.AppReceipt.Kind
+	2,  // 28: signalcligo.AppTyping.action:type_name -> signalcligo.AppTyping.Action
+	18, // 29: signalcligo.AppSyncMessage.sent:type_name -> signalcligo.AppSent
+	9,  // 30: signalcligo.AppSent.message:type_name -> signalcligo.AppDataMessage
+	19, // 31: signalcligo.AppSent.unidentified_status:type_name -> signalcligo.AppUnidentifiedStatus
+	12, // 32: signalcligo.AppSent.edit_message:type_name -> signalcligo.AppEdit
+	3,  // 33: signalcligo.AppBodyRange.style:type_name -> signalcligo.AppBodyRange.Style
+	24, // 34: signalcligo.AppQuote.attachments:type_name -> signalcligo.AppQuotedAttachment
+	22, // 35: signalcligo.AppQuote.body_ranges:type_name -> signalcligo.AppBodyRange
+	4,  // 36: signalcligo.AppQuote.type:type_name -> signalcligo.AppQuote.Type
+	21, // 37: signalcligo.AppQuotedAttachment.thumbnail:type_name -> signalcligo.AppAttachmentPointer
+	21, // 38: signalcligo.AppPreview.image:type_name -> signalcligo.AppAttachmentPointer
+	21, // 39: signalcligo.AppSticker.data:type_name -> signalcligo.AppAttachmentPointer
+	39, // 40: signalcligo.AppSharedContact.name:type_name -> signalcligo.AppSharedContact.Name
+	40, // 41: signalcligo.AppSharedContact.number:type_name -> signalcligo.AppSharedContact.Phone
+	40, // 42: signalcligo.AppSharedContact.email:type_name -> signalcligo.AppSharedContact.Phone
+	41, // 43: signalcligo.AppSharedContact.address:type_name -> signalcligo.AppSharedContact.PostalAddress
+	42, // 44: signalcligo.AppSharedContact.avatar:type_name -> signalcligo.AppSharedContact.Avatar
+	43, // 45: signalcligo.AppPayment.notification:type_name -> signalcligo.AppPayment.Notification
+	44, // 46: signalcligo.AppPayment.activation:type_name -> signalcligo.AppPayment.Activation
+	5,  // 47: signalcligo.AppSharedContact.Phone.type:type_name -> signalcligo.AppSharedContact.Phone.Type
+	6,  // 48: signalcligo.AppSharedContact.PostalAddress.type:type_name -> signalcligo.AppSharedContact.PostalAddress.Type
+	21, // 49: signalcligo.AppSharedContact.Avatar.avatar:type_name -> signalcligo.AppAttachmentPointer
+	45, // 50: signalcligo.AppPayment.Notification.mobile_coin:type_name -> signalcligo.AppPayment.Notification.MobileCoin
+	7,  // 51: signalcligo.AppPayment.Activation.type:type_name -> signalcligo.AppPayment.Activation.Type
+	52, // [52:52] is the sub-list for method output_type
+	52, // [52:52] is the sub-list for method input_type
+	52, // [52:52] is the sub-list for extension type_name
+	52, // [52:52] is the sub-list for extension extendee
+	0,  // [0:52] is the sub-list for field type_name
 }
 
 func init() { file_content_proto_init() }
@@ -1310,13 +3694,29 @@ func file_content_proto_init() {
 		(*AppContent_DecryptionErrorMessage)(nil),
 		(*AppContent_EditMessage)(nil),
 	}
+	file_content_proto_msgTypes[14].OneofWrappers = []any{
+		(*AppBodyRange_MentionAci)(nil),
+		(*AppBodyRange_Style_)(nil),
+		(*AppBodyRange_MentionAciBinary)(nil),
+	}
+	file_content_proto_msgTypes[24].OneofWrappers = []any{
+		(*AppPayment_Notification_)(nil),
+		(*AppPayment_Activation_)(nil),
+	}
+	file_content_proto_msgTypes[28].OneofWrappers = []any{
+		(*AppPinMessage_PinDurationSeconds)(nil),
+		(*AppPinMessage_PinDurationForever)(nil),
+	}
+	file_content_proto_msgTypes[35].OneofWrappers = []any{
+		(*AppPayment_Notification_MobileCoin_)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_content_proto_rawDesc), len(file_content_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   13,
+			NumEnums:      8,
+			NumMessages:   38,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

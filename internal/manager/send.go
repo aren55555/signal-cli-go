@@ -100,55 +100,35 @@ func (s *Sender) SendText(ctx context.Context, recipientACI, text string) (uint6
 // SendTextAt is SendText with a given timestamp (0: a new one), so one
 // message to several recipients shares it, and with the urgent flag.
 func (s *Sender) SendTextAt(ctx context.Context, recipientACI, text string, ts uint64, urgent bool) (uint64, error) {
-	if ts == 0 {
-		ts = s.timestamp()
-	}
-	dm := &signalpb.AppDataMessage{
-		ExpireTimerVersion:      proto.Uint32(1),
-		ProfileKey:              s.Acct.Data.ProfileKey,
-		Timestamp:               proto.Uint64(ts),
-		RequiredProtocolVersion: proto.Uint32(0),
-	}
+	dm := &signalpb.AppDataMessage{}
 	if text != "" {
 		dm.Body = proto.String(text)
 	}
-	c, err := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_DataMessage{DataMessage: dm}})
-	if err != nil {
-		return 0, err
+	ts, res := s.SendData(ctx, []string{recipientACI}, DataSend{Message: dm, Urgent: urgent, Timestamp: ts})
+	var te errTranscript
+	if errors.As(res[0].Err, &te) {
+		return ts, nil // the message itself went out
 	}
-	needsSync, unidentified, err := s.send(ctx, recipientACI, c, ts, urgent, protocol.ContentHintResendable)
-	if err != nil {
-		return ts, err
-	}
-	if needsSync || s.Acct.Data.DeviceID != 1 {
-		if err := s.sendTranscript(ctx, recipientACI, dm, ts, unidentified); err != nil {
-			return ts, fmt.Errorf("sent, but the sync transcript failed: %w", err)
-		}
-	}
-	return ts, nil
+	return ts, res[0].Err
 }
 
-// sendTranscript sends SyncMessage.Sent to our other devices (content.md
-// §8), with 1..512 random padding bytes.
-func (s *Sender) sendTranscript(ctx context.Context, dest string, dm *signalpb.AppDataMessage, ts uint64, unidentified bool) error {
+// sendSync sends a SyncMessage to our other devices with 1..512 random
+// padding bytes (content.md §8).
+func (s *Sender) sendSync(ctx context.Context, sm *signalpb.AppSyncMessage, ts uint64) error {
 	var n [2]byte
 	if _, err := io.ReadFull(s.rand(), n[:]); err != nil {
 		return err
 	}
-	padding := make([]byte, 1+int(binary.BigEndian.Uint16(n[:]))%512)
-	if _, err := io.ReadFull(s.rand(), padding); err != nil {
+	sm.Padding = make([]byte, 1+int(binary.BigEndian.Uint16(n[:]))%512)
+	if _, err := io.ReadFull(s.rand(), sm.Padding); err != nil {
 		return err
 	}
-	sent := &signalpb.AppSent{
-		DestinationServiceId: proto.String(dest),
-		Timestamp:            proto.Uint64(ts),
-		Message:              dm,
-		UnidentifiedStatus:   []*signalpb.AppUnidentifiedStatus{{DestinationServiceId: proto.String(dest), Unidentified: proto.Bool(unidentified)}},
-		IsRecipientUpdate:    proto.Bool(false),
-	}
-	c, err := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_SyncMessage{SyncMessage: &signalpb.AppSyncMessage{Sent: sent, Padding: padding}}})
+	c, err := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_SyncMessage{SyncMessage: sm}})
 	if err != nil {
 		return err
+	}
+	if ts == 0 {
+		ts = s.timestamp()
 	}
 	_, _, err = s.send(ctx, s.Acct.Data.ACI, c, ts, false, protocol.ContentHintResendable)
 	return err
