@@ -24,7 +24,7 @@ every session, and update both before ending one.
 | 3  | Signal protocol core (PQXDH, ratchet, SPQR, sender keys, sealed sender) | done (2026-10-23); interop captures for sealed sender, sender keys and post-reply messages deferred until milestone 4 |
 | 4  | Service layer, first Layer C 1:1 exchange on staging | done (2026-10-24); CDSI, registration lock and reactivation moved to milestone 7 |
 | 5  | All message types, attachments, receipts, sync, linked devices | done (2026-10-24); group stories wait for milestone 6, profile and contact avatars and pniChangeNumber for milestone 7, numeric safety numbers need a fingerprint spec |
-| 6  | Groups v2 and zkgroup                        | not started |
+| 6  | Groups v2 and zkgroup                        | done (2026-10-24); sender-key group sends and group stories proven offline only (they need a third account); JSON-RPC group methods with milestone 8 |
 | 7  | Profiles, contacts, usernames, storage service, CDSI, SVR | not started |
 | 8  | Daemon parity (HTTP/SSE, socket, TCP); Layer B fully green | not started |
 | 9  | CLI parity                                   | not started |
@@ -674,3 +674,39 @@ vectors.
   `addStickerPack` install sync marked the pack installed on the
   reference A.1. Found live: our JSON HTML-escaped `&` (Go default);
   fixed for all output. `updateConfiguration` stores and syncs settings.
+- **Milestone 6: groups v2 and zkgroup (2026-10-24).**
+  - Spec subagents wrote `spec/crypto/zkgroup-groups.md`,
+    `spec/crypto/zkgroup-credentials.md` and `spec/service/groups.md`,
+    with vectors in `testdata/vectors/` (the published libsignal vectors
+    plus reference-jar cases with intermediates). Every vector test was
+    seen failing first; mutations caught include the identity-point slot
+    dedupe in Lizard decoding and the endorsement weight mask.
+  - zkgroup: group secret params, ciphertexts, blobs, notary signatures,
+    poksho, zkcredential, auth credentials with PNI, expiring
+    profile-key credentials, group send endorsements. Live: staging's
+    auth credential and our profile-key credential verify, and the
+    groups service accepts our presentations (settles gap G1).
+  - Groups: protos, IDs and invite links, decrypted state and changes,
+    the groups service, the group manager (lazy fill, forced refresh,
+    incoming contexts by signed change or fetch), create, update steps,
+    join, quit, group sends (sender key with combined group-send-token,
+    fan-out with per-recipient tokens), group typing, group stories,
+    admin delete, received GROUPINFO and `groupInfo`.
+  - Live with our B, our A.2 and the reference A: create, rename,
+    description, timer, link, permissions, avatar, leave with `--admin`,
+    join by link, join request and approval, messages and typing both
+    ways, group transcripts from A.2 to A.1. The reference A.1 and our
+    A.2 render the same envelopes (updates, messages) byte-identically
+    in plain text and JSON and store byte-identical group avatars.
+    `listGroups -d` matches the reference.
+  - Live finding, fixed: our group data messages carried our profile
+    key; the reference's do not and content.md §4.4 gives it only for
+    1:1 sends.
+  - Not live: a sender-key group send and a group story each need two
+    qualifying members besides the sender, so with two staging accounts
+    both clients send nothing for a group story (as specified) and use
+    the fan-out for messages. Offline tests with the gse1 endorsements
+    cover both (`TestGroupSendSenderKey`, `TestGroupStory`).
+  - Deviation (COMPAT): endorsements returned at creation are stored;
+    signal-cli loses them (groups.md §5). The state-erasing quirk on a
+    failed fetch (§6.2 step 5) is kept.
