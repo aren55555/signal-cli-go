@@ -42,7 +42,6 @@ obs109-setPin
 obs110-startCall
 obs111-startChangeNumber
 obs112-submitRateLimitChallenge
-obs113-trust
 obs114-unblock
 obs115-unregister
 obs116-updateAccount
@@ -77,7 +76,6 @@ obs169-setPin_--help
 obs170-startCall_--help
 obs171-startChangeNumber_--help
 obs172-submitRateLimitChallenge_--help
-obs173-trust_--help
 obs174-unblock_--help
 obs175-unregister_--help
 obs176-updateAccount_--help
@@ -151,8 +149,6 @@ obs325-removeContact_--hide_--forget_1
 obs326-removeContact_1_2
 obs327--a_15555550123_removeContact_15555550124
 obs330-trust_-a_-v_123_15555550199
-obs331--a_15555550123_trust_15555550199
-obs332--a_15555550123_trust_-a_15555550199
 obs333--a_15555550123_block_15555550199
 obs334--a_15555550123_unblock_-g_abc
 obs340-uploadStickerPack_a_b

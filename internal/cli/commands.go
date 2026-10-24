@@ -2,6 +2,8 @@ package cli
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -490,5 +492,58 @@ func runSyncCommand(ctx context.Context, e *env, g *globals, contacts bool) erro
 			fmt.Fprintf(e.stderr, "WARN  SyncHelper - %v\n", err)
 		}
 		return nil
+	})
+}
+
+// runTrust is `trust` (spec/surface/cli/trust.md): no output on success.
+func runTrust(ctx context.Context, e *env, g *globals, recipient string, all bool, safetyNumber string, hasSafetyNumber bool) error {
+	return withAccount(g, func(a *store.Account) error {
+		t, err := resolveRecipient(a, recipient)
+		if err != nil {
+			return err
+		}
+		var key []byte
+		if !all {
+			if !hasSafetyNumber {
+				return userError("You need to specify the fingerprint/safety number you have verified with -v SAFETY_NUMBER")
+			}
+			code := strings.ReplaceAll(safetyNumber, " ", "")
+			switch len(code) {
+			case 66:
+				key, err = hex.DecodeString(code)
+			case 60:
+				return userError("Numeric safety numbers are not supported by signal-cli-go yet; use the hex fingerprint")
+			default:
+				_, err = base64.StdEncoding.DecodeString(code)
+				if err == nil {
+					return userError("Scannable safety numbers are not supported by signal-cli-go yet; use the hex fingerprint")
+				}
+			}
+			if err != nil {
+				return userError("Safety number has invalid format, either specify the old hex fingerprint or the new safety number")
+			}
+		}
+		ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+		defer cancel()
+		sender := &manager.Sender{Acct: a}
+		// The verified sync needs the network; trusting itself does not.
+		if a.IsMultiDevice() {
+			if s, err := openSession(ctx, e, g, a); err == nil {
+				defer s.close()
+				sender = s.sender
+			}
+		}
+		if all {
+			err = sender.TrustAllKnownKeys(ctx, t.aci)
+			if errors.Is(err, manager.ErrTrustNotChanged) {
+				return userError("Failed to set the trust for this number, make sure the number is correct.")
+			}
+		} else {
+			err = sender.TrustVerifiedKey(ctx, t.aci, key)
+			if errors.Is(err, manager.ErrTrustNotChanged) {
+				return userError("Failed to set the trust for this number, make sure the number and the fingerprint/safety number are correct.")
+			}
+		}
+		return err
 	})
 }

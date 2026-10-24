@@ -332,11 +332,27 @@ func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uin
 
 // sendOnline is send with the online flag (typing messages).
 func (s *Sender) sendOnline(ctx context.Context, dest string, plaintext []byte, ts uint64, urgent, online bool, hint uint32) (needsSync, unidentified bool, err error) {
+	return s.deliver(ctx, dest, plaintext, ts, urgent, online, false, hint)
+}
+
+// sendUnsealed sends on the authenticated socket only, not urgent, with
+// no effect on the recipient's sealed-sender state (sync.md §6.5).
+func (s *Sender) sendUnsealed(ctx context.Context, dest string, plaintext []byte, ts uint64) (needsSync bool, err error) {
+	needsSync, _, err = s.deliver(ctx, dest, plaintext, ts, false, false, true, protocol.ContentHintImplicit)
+	return needsSync, err
+}
+
+// deliver encrypts for dest's devices and puts the message, sealed when
+// access allows unless unsealed is set.
+func (s *Sender) deliver(ctx context.Context, dest string, plaintext []byte, ts uint64, urgent, online, unsealed bool, hint uint32) (needsSync, unidentified bool, err error) {
 	self := dest == s.Acct.Data.ACI
 	padded := content.Pad(plaintext)
-	acc := s.accessFor(ctx, dest)
+	var acc *access
+	if !unsealed {
+		acc = s.accessFor(ctx, dest)
+	}
 	defer func() {
-		if err == nil && !unidentified && !self {
+		if err == nil && !unidentified && !self && !unsealed {
 			s.downgrade(dest)
 		}
 	}()
@@ -368,9 +384,6 @@ func (s *Sender) sendOnline(ctx context.Context, dest string, plaintext []byte, 
 			}
 		}
 		slices.Sort(targets)
-		if self && len(targets) == 0 {
-			return false, false, nil // no other devices known
-		}
 
 		var identity *curve25519.PrivateKey
 		if acc != nil {
@@ -413,9 +426,9 @@ func (s *Sender) sendOnline(ctx context.Context, dest string, plaintext []byte, 
 		if err := s.Acct.SaveSessions(); err != nil {
 			return false, false, err
 		}
-		if self && len(body.Messages) == 0 {
-			return false, false, nil // no other device to tell
-		}
+		// With no session with any other own device the list stays empty:
+		// the server answers 409 with the devices to set up (sync.md §1;
+		// signal-cli encrypts for its own device as a placeholder instead).
 		b, err := api.Marshal(body)
 		if err != nil {
 			return false, false, err
@@ -459,7 +472,13 @@ func (s *Sender) sendOnline(ctx context.Context, dest string, plaintext []byte, 
 				return false, false, err
 			}
 			if self && len(mm.Missing) == 0 && len(body.Messages) == len(mm.Extra) {
-				return false, false, nil // our other devices are gone
+				// Our other devices are gone: single-device from now on
+				// (send.md §5, special case).
+				if s.Acct.Data.MultiDevice {
+					s.Acct.Data.MultiDevice = false
+					s.Acct.Save()
+				}
+				return false, false, nil
 			}
 			for _, id := range mm.Missing {
 				// Always on the authenticated socket (keys.md §4.1).

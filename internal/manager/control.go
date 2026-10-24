@@ -3,7 +3,6 @@ package manager
 import (
 	"context"
 	"encoding/base64"
-	"io"
 
 	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
@@ -66,19 +65,11 @@ func (s *Sender) SendTyping(ctx context.Context, dest string, stop bool, ts uint
 // SendNullMessage sends a NullMessage whose padding is a serialized
 // DataMessage with a base64 body of 1..140 random bytes (content.md §6).
 func (s *Sender) SendNullMessage(ctx context.Context, dest string) error {
-	var n [1]byte
-	if _, err := io.ReadFull(s.rand(), n[:]); err != nil {
-		return err
-	}
-	filler := make([]byte, 1+int(n[0])%140)
-	if _, err := io.ReadFull(s.rand(), filler); err != nil {
-		return err
-	}
-	padding, err := proto.Marshal(&signalpb.AppDataMessage{Body: proto.String(base64.StdEncoding.EncodeToString(filler))})
+	nm, err := s.nullMessage()
 	if err != nil {
 		return err
 	}
-	c, err := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_NullMessage{NullMessage: &signalpb.AppNullMessage{Padding: padding}}})
+	c, err := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_NullMessage{NullMessage: nm}})
 	if err != nil {
 		return err
 	}

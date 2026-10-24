@@ -178,6 +178,14 @@ func commandParser(name string) *argparse.Parser {
 			&argparse.Arg{Names: []string{"-g", "--group-id", "--group"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Nargs: argparse.ZeroOrMore, Help: "Specify the recipient group ID."},
 			&argparse.Arg{Names: []string{"-s", "--stop"}, Action: argparse.StoreTrue, Help: "Send a typing STOP message."},
 		)
+	case "trust":
+		all := &argparse.Arg{Names: []string{"-a", "--trust-all-known-keys"}, Action: argparse.StoreTrue, Help: "Trust all known keys of this user, only use this for testing."}
+		verified := &argparse.Arg{Names: []string{"-v", "--verified-safety-number", "--verified-fingerprint"}, Dest: "verified_safety_number", Metavars: []string{"VERIFIED_SAFETY_NUMBER"},
+			Help: "Specify the safety number of the key, only use this option if you have verified the safety number."}
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Metavars: []string{"recipient"}, Help: "Specify the phone number, for which to set the trust."},
+			all, verified)
+		p.Groups = []*argparse.Group{{Args: []*argparse.Arg{all, verified}}}
 	case "getAttachment":
 		recipient := &argparse.Arg{Names: []string{"--recipient"}, Dest: "recipient", Metavars: []string{"RECIPIENT"}, Help: "Sender of the attachment"}
 		group := &argparse.Arg{Names: []string{"-g", "--group-id"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Help: "Group in which the attachment was received"}

@@ -186,3 +186,26 @@ func TestSendKeysCreatesPool(t *testing.T) {
 		t.Errorf("pool %q", p)
 	}
 }
+
+// TestPrimarySyncToNewDevice: a primary with no session with its other
+// device sends an empty list, learns the device from the 409 and
+// delivers on the retry (sync.md §1, §7).
+func TestPrimarySyncToNewDevice(t *testing.T) {
+	fc, s := dataWorld(t)
+	var a1 *store.Account
+	for id, d := range fc.devices[testACI] {
+		if id == 1 {
+			a1 = d.acct
+		}
+	}
+	fc.sender, fc.senderDev = testACI, 1
+	s = &Sender{Acct: a1, Chat: fc}
+	a1.Data.MultiDevice = true
+	if err := s.SendSync(context.Background(), &signalpb.AppSyncMessage{Configuration: &signalpb.AppSyncMessage_Configuration{}}, false); err != nil {
+		t.Fatal(err)
+	}
+	got := deliveredTo(t, fc, testACI)
+	if len(got) != 1 || got[0].GetSyncMessage().GetConfiguration() == nil || fc.delivered[0].device != 2 {
+		t.Fatalf("delivered %+v", fc.delivered)
+	}
+}

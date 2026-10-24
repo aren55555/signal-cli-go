@@ -197,6 +197,9 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		runErr = runRegister(ctx, e, g, s.Bool("voice"), s.String("captcha"), s.Bool("reregister"))
 	case "verify":
 		runErr = runVerify(ctx, e, g, s.String("verification_code"), s.String("pin"))
+	case "trust":
+		sn := s.String("verified_safety_number")
+		runErr = runTrust(ctx, e, g, s.String("recipient"), s.Bool("trust_all_known_keys"), sn, s.Has("verified_safety_number"))
 	case "sendSyncRequest":
 		runErr = runSyncCommand(ctx, e, g, false)
 	case "sendContacts":
