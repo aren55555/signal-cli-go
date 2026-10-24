@@ -555,3 +555,18 @@ vectors.
     - The live environment is refused, since only staging endpoints
       exist.
     - The post-link sync requests need a sync spec.
+- **CLI link, send, receive (2026-10-24).** The argparse4j engine follows
+  spec/surface/cli/argparse.md (a second spec subagent's work, with
+  vectors from the bundled jars). All text vectors and 169 synthetic
+  parser cases pass, as do the real signal-cli parser cases for global
+  options, link, send, receive and version at W = 40, 60, 75 and 100.
+  Every link, send and receive Layer B golden replays; 263 scenarios
+  remain pending, almost all for subcommands not yet defined.
+  - Correction to argparse.md §10, from the jar-generated outputs: the
+    double-conversion message is `could not convert '<v>' to number
+    (double precision)`, with one space. The doubled space appeared only
+    in a segmentation sample the spec agent wrote; every rendered
+    output shows one.
+  - Live: the CLI's receive printed a message exactly as the reference
+    did on A's primary; send reached B sealed in both output modes; link
+    added a device named by `-n`.

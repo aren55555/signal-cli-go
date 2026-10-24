@@ -120,10 +120,10 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | `--service-environment` | ✅ | ⬜ | n/a | ⬜ | n/a | |
 | `--trust-new-identities` | ✅ | ⬜ | n/a | ⬜ | n/a | |
 | `--disable-send-log` | ✅ | ⬜ | n/a | ⬜ | n/a | |
-| Help layout (width 75 or `$COLUMNS`, fully justified; leading logging-parser block) | ✅ | ⬜ | n/a | ⬜ | n/a | goldens recorded (`help`, `*-help`, `help-columns-*`); replay pending implementation |
-| Parse errors (usage + `signal-cli: error:`, `Did you mean:`, prefix abbreviation, exit 1) | ✅ | ⬜ | n/a | ⬜ | n/a | goldens recorded (`no-args`, `unknown-*`, `bad-output-value`); replay pending implementation |
+| Help layout (width 75 or `$COLUMNS`, fully justified; leading logging-parser block) | ✅ [`argparse.md`](spec/surface/cli/argparse.md) | ✅ [`internal/cli/argparse`](internal/cli/argparse) | ✅ all text vectors (segmentation, justification, wrap, help rows) | 🟡 top-level, link, send, receive helps replay; other subcommands await their definitions | n/a | goldens recorded (`help`, `*-help`, `help-columns-*`); replay pending implementation |
+| Parse errors (usage + `signal-cli: error:`, `Did you mean:`, prefix abbreviation, exit 1) | ✅ [`argparse.md`](spec/surface/cli/argparse.md) | ✅ | ✅ 169 synthetic parser cases, real-parser cases at 4 widths | 🟡 global, link, send, receive errors replay | n/a | goldens recorded (`no-args`, `unknown-*`, `bad-output-value`); replay pending implementation |
 | Exit codes 0–6 | 🟡 | ⬜ | n/a | ⬜ | ⬜ | 4/5/6 known from source only; 0/1 goldens recorded, replay pending |
-| Config file (`SIGNAL_CLI_CONFIG`, per-user file, unknown keys rejected) | ✅ | ⬜ | n/a | ⬜ | n/a | binary differs from man page; binary is authoritative |
+| Config file (`SIGNAL_CLI_CONFIG`, per-user file, unknown keys rejected) | ✅ | ✅ | n/a | ✅ all cfgfile goldens replay | n/a | binary differs from man page; binary is authoritative |
 | Logging to stderr (`-v` levels, `--log-file`, `--scrub-log`) | 🟡 | ⬜ | n/a | ⬜ | n/a | subcommand `-v` also enables global verbose |
 
 ### Subcommands
@@ -146,7 +146,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`hangupCall`](spec/surface/cli/hangupCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`joinGroup`](spec/surface/cli/joinGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`jsonRpc`](spec/surface/cli/jsonRpc.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; json only |
-| [`link`](spec/surface/cli/link.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; provisioning (-a forbidden); plain-text only |
+| [`link`](spec/surface/cli/link.md) | 🟡 | 🟡 no QR code yet | n/a | ✅ all link goldens replay | 🟡 | Live: linked device 3 of A with `-n cli-test` (staging); post-link sync requests need a sync spec |
 | [`listAccounts`](spec/surface/cli/listAccounts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`listCalls`](spec/surface/cli/listCalls.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`listContacts`](spec/surface/cli/listContacts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
@@ -155,14 +155,14 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`listIdentities`](spec/surface/cli/listIdentities.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`listStickerPacks`](spec/surface/cli/listStickerPacks.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`quitGroup`](spec/surface/cli/quitGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`receive`](spec/surface/cli/receive.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`receive`](spec/surface/cli/receive.md) | 🟡 | 🟡 text, receipts, sync transcripts, typing; attachments and other content later | n/a | ✅ all receive goldens replay | 🟡 | Live: printed a message byte-identically to the reference on A.1 (apart from the per-device delivery time) |
 | [`register`](spec/surface/cli/register.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; registration command |
 | [`rejectCall`](spec/surface/cli/rejectCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`remoteDelete`](spec/surface/cli/remoteDelete.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`removeContact`](spec/surface/cli/removeContact.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`removeDevice`](spec/surface/cli/removeDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`removePin`](spec/surface/cli/removePin.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`send`](spec/surface/cli/send.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`send`](spec/surface/cli/send.md) | 🟡 | 🟡 text to ACIs (sealed when possible); attachments, quotes, groups, CDSI later | n/a | ✅ all send goldens replay | 🟡 | from source + account-free runs |
 | [`sendAdminDelete`](spec/surface/cli/sendAdminDelete.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`sendContacts`](spec/surface/cli/sendContacts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`sendMessageRequestResponse`](spec/surface/cli/sendMessageRequestResponse.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
