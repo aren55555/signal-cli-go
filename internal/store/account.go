@@ -76,7 +76,8 @@ type AccountData struct {
 	DeviceName                     string      `json:"deviceName,omitempty"` // encrypted, unpadded base64 (linked devices)
 	UnrestrictedUnidentifiedAccess bool        `json:"unrestrictedUnidentifiedAccess,omitempty"`
 	Unlisted                       bool        `json:"unlisted,omitempty"`
-	SessionID                      string      `json:"sessionId,omitempty"` // verification session (registration.md §2.5)
+	SessionID                      string      `json:"sessionId,omitempty"`   // verification session (registration.md §2.5)
+	MultiDevice                    bool        `json:"multiDevice,omitempty"` // sync messages are sent (sync.md §1)
 	ACIKeys                        PreKeyState `json:"aciKeys"`
 	PNIKeys                        PreKeyState `json:"pniKeys"`
 }
@@ -452,3 +453,7 @@ func (a *Account) loadRecipients() error {
 	}
 	return nil
 }
+
+// IsMultiDevice reports whether sync messages go to other devices: always
+// for a linked device, and for a primary once it has linked one.
+func (a *Account) IsMultiDevice() bool { return a.Data.MultiDevice || a.Data.DeviceID > 1 }

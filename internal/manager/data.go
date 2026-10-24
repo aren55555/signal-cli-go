@@ -177,7 +177,7 @@ func (s *Sender) sendDataTo(ctx context.Context, dest string, d DataSend, ts uin
 	if self {
 		return nil
 	}
-	if needsSync || s.Acct.Data.DeviceID != 1 {
+	if needsSync || s.Acct.IsMultiDevice() {
 		if err := s.transcript(ctx, dest, dm, d.EditTarget, ts, unidentified); err != nil {
 			return errTranscript{err}
 		}
@@ -222,4 +222,28 @@ func (s *Sender) transcript(ctx context.Context, dest string, dm *signalpb.AppDa
 		sent.Message = dm
 	}
 	return s.sendSync(ctx, &signalpb.AppSyncMessage{Sent: sent}, ts)
+}
+
+// SendMessageRequestResponse syncs a message request response for a
+// person to our other devices and sets profile sharing locally (sync.md
+// §6.9). On a single-device account nothing is sent.
+func (s *Sender) SendMessageRequestResponse(ctx context.Context, aci string, accept bool) error {
+	rc := s.Acct.Recipients[aci]
+	rc.ProfileSharing = accept
+	s.Acct.Recipients[aci] = rc
+	if err := s.Acct.SaveRecipients(); err != nil {
+		return err
+	}
+	if !s.Acct.IsMultiDevice() {
+		return nil
+	}
+	bin, ok := uuidRaw(aci)
+	if !ok {
+		return nil
+	}
+	t := signalpb.AppMessageRequestResponse_DELETE
+	if accept {
+		t = signalpb.AppMessageRequestResponse_ACCEPT
+	}
+	return s.sendSync(ctx, &signalpb.AppSyncMessage{MessageRequestResponse: &signalpb.AppMessageRequestResponse{Type: t.Enum(), ThreadAciBinary: bin[:]}}, 0)
 }

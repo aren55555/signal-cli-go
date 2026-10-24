@@ -128,14 +128,60 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		}
 		runErr = runLink(ctx, e, g, name)
 	case "send":
-		runErr = runSend(ctx, e, g, sendOpts{
-			recipients: s.Strings("recipient"),
-			message:    s.String("message"),
-			hasMessage: s.Has("message"),
-			fromStdin:  s.Bool("message_from_stdin"),
-			noteToSelf: s.Bool("note_to_self"),
-			noUrgent:   s.Bool("no_urgent"),
-		})
+		o := fullSendOpts{
+			sendOpts: sendOpts{recipients: s.Strings("recipient"), message: s.String("message"), hasMessage: s.Has("message"),
+				fromStdin: s.Bool("message_from_stdin"), noteToSelf: s.Bool("note_to_self"), noUrgent: s.Bool("no_urgent")},
+			recipients:       recipientsOf(s),
+			notifySelf:       s.Bool("notify_self"),
+			viewOnce:         s.Bool("view_once"),
+			endSes:           s.Bool("end_session"),
+			mentions:         s.Strings("mention"),
+			styles:           s.Strings("text-style"),
+			quoteAuthor:      s.String("quote-author"),
+			quoteMessage:     s.String("quote-message"),
+			hasQuoteMessage:  s.Has("quote-message"),
+			quoteMentions:    s.Strings("quote-mention"),
+			quoteStyles:      s.Strings("quote-text-style"),
+			quoteAttachments: s.Strings("quote-attachment"),
+			sticker:          s.String("sticker"),
+			previewURL:       s.String("preview-url"),
+			hasPreview:       s.Has("preview-url"),
+			previewTitle:     s.String("preview-title"),
+			previewDesc:      s.String("preview-description"),
+			storyAuthor:      s.String("story-author"),
+			attachments:      s.Strings("attachment"),
+		}
+		o.quoteTS, o.hasQuote = s.Int64("quote-timestamp")
+		o.storyTS, o.hasStory = s.Int64("story-timestamp")
+		o.editTS, o.hasEdit = s.Int64("edit-timestamp")
+		runErr = runSendFull(ctx, e, g, o)
+	case "sendReaction":
+		ts, _ := s.Int64("target-timestamp")
+		runErr = runSendReaction(ctx, e, g, recipientsOf(s), s.Bool("notify_self"), s.String("emoji"), s.String("target-author"), ts, s.Bool("remove"), s.Bool("story"))
+	case "remoteDelete":
+		ts, _ := s.Int64("target-timestamp")
+		runErr = runRemoteDelete(ctx, e, g, recipientsOf(s), ts)
+	case "sendPollCreate":
+		runErr = runPollCreate(ctx, e, g, recipientsOf(s), s.Bool("notify_self"), s.String("question"), s.Bool("no_multi"), s.Strings("option"))
+	case "sendPollVote":
+		ts, _ := s.Int64("poll-timestamp")
+		runErr = runPollVote(ctx, e, g, recipientsOf(s), s.Bool("notify_self"), s.String("poll-author"), ts, s.Strings("option"), s.Int("vote-count"))
+	case "sendPollTerminate":
+		ts, _ := s.Int64("poll-timestamp")
+		runErr = runPollTerminate(ctx, e, g, recipientsOf(s), s.Bool("notify_self"), ts)
+	case "sendPinMessage", "sendUnpinMessage":
+		ts, _ := s.Int64("target-timestamp")
+		d := -1
+		if s.Has("pin-duration") {
+			d = s.Int("pin-duration")
+		}
+		runErr = runPin(ctx, e, g, recipientsOf(s), s.Bool("notify_self"), s.String("target-author"), ts, s.Bool("story"), cmd == "sendUnpinMessage", d)
+	case "sendAdminDelete":
+		runErr = runAdminDelete(ctx, e, g, s.Strings("group-id"), s.String("target-author"))
+	case "sendPaymentNotification":
+		runErr = runPaymentNotification(ctx, e, g, s.String("recipient"), s.String("receipt"), s.String("note"), s.Has("note"))
+	case "sendMessageRequestResponse":
+		runErr = runMessageRequestResponse(ctx, e, g, recipientsOf(s), s.String("type"))
 	case "sendTyping":
 		runErr = runSendTyping(ctx, e, g, s.Strings("recipient"), s.Strings("group-id"), s.Bool("stop"))
 	case "sendReceipt":

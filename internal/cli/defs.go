@@ -164,6 +164,8 @@ func commandParser(name string) *argparse.Parser {
 			&argparse.Arg{Names: []string{"verification_code"}, Dest: "verification_code", Help: "The verification code you received via sms or voice call."},
 			&argparse.Arg{Names: []string{"-p", "--pin"}, Dest: "pin", Metavars: []string{"PIN"}, Help: "The registration lock PIN, that was set by the user (Optional)"},
 		)
+	case "sendReaction", "remoteDelete", "sendPollCreate", "sendPollVote", "sendPollTerminate", "sendPinMessage", "sendUnpinMessage", "sendAdminDelete", "sendPaymentNotification", "sendMessageRequestResponse":
+		p.Args = append(p.Args, featureArgs(name)...)
 	case "sendReceipt":
 		p.Args = append(p.Args,
 			&argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Help: "Specify the sender's phone number."},
@@ -234,4 +236,79 @@ func commandParser(name string) *argparse.Parser {
 		p.Groups = []*argparse.Group{{Args: []*argparse.Arg{message, fromStdin}}}
 	}
 	return p
+}
+
+// featureArgs are the arguments of the data-message feature commands,
+// transcribed from their CLI specs and recorded help.
+func featureArgs(name string) []*argparse.Arg {
+	recipients := &argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Nargs: argparse.ZeroOrMore, Help: "Specify the recipients' phone number."}
+	groups := &argparse.Arg{Names: []string{"-g", "--group-id", "--group"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Nargs: argparse.ZeroOrMore, Help: "Specify the recipient group ID."}
+	usernames := &argparse.Arg{Names: []string{"-u", "--username"}, Dest: "username", Metavars: []string{"USERNAME"}, Nargs: argparse.ZeroOrMore, Help: "Specify the recipient username or username link."}
+	noteToSelf := func(help string) *argparse.Arg {
+		return &argparse.Arg{Names: []string{"--note-to-self"}, Action: argparse.StoreTrue, Help: help}
+	}
+	notifySelf := &argparse.Arg{Names: []string{"--notify-self"}, Action: argparse.StoreTrue, Help: "If self is part of recipients/groups send a normal message, not a sync message."}
+	req := func(names []string, dest, metavar, help string, kind argparse.Kind) *argparse.Arg {
+		return &argparse.Arg{Names: names, Dest: dest, Metavars: []string{metavar}, Kind: kind, Required: true, Help: help}
+	}
+	opt := func(names []string, dest, metavar, help string, kind argparse.Kind) *argparse.Arg {
+		return &argparse.Arg{Names: names, Dest: dest, Metavars: []string{metavar}, Kind: kind, Help: help}
+	}
+	flag := func(names []string, help string) *argparse.Arg {
+		return &argparse.Arg{Names: names, Action: argparse.StoreTrue, Help: help}
+	}
+	switch name {
+	case "sendReaction":
+		return []*argparse.Arg{recipients, groups, usernames, noteToSelf("Send the reaction to self."), notifySelf,
+			req([]string{"-e", "--emoji"}, "emoji", "EMOJI", "Specify the emoji, should be a single unicode grapheme cluster.", argparse.String),
+			req([]string{"-a", "--target-author"}, "target-author", "TARGET_AUTHOR", "Specify the number of the author of the message to which to react.", argparse.String),
+			req([]string{"-t", "--target-timestamp"}, "target-timestamp", "TARGET_TIMESTAMP", "Specify the timestamp of the message to which to react.", argparse.Int64),
+			flag([]string{"-r", "--remove"}, "Remove a reaction."),
+			flag([]string{"--story"}, "React to a story instead of a normal message")}
+	case "remoteDelete":
+		return []*argparse.Arg{recipients,
+			req([]string{"-t", "--target-timestamp"}, "target-timestamp", "TARGET_TIMESTAMP", "Specify the timestamp of the message to delete.", argparse.Int64),
+			groups, usernames, noteToSelf("")}
+	case "sendPollCreate":
+		return []*argparse.Arg{recipients, groups, usernames, noteToSelf("Send the message to self"), notifySelf,
+			req([]string{"-q", "--question"}, "question", "QUESTION", "Specify the poll question.", argparse.String),
+			flag([]string{"--no-multi"}, "Allow only one option to be selected by each recipient."),
+			{Names: []string{"-o", "--option"}, Dest: "option", Metavars: []string{"OPTION"}, Nargs: argparse.OneOrMore, Required: true, Help: "The options for the poll"}}
+	case "sendPollVote":
+		return []*argparse.Arg{recipients, groups, usernames, noteToSelf("Send the message to self"), notifySelf,
+			opt([]string{"--poll-author"}, "poll-author", "POLL_AUTHOR", "Specify the number of the author of the poll message.", argparse.String),
+			req([]string{"--poll-timestamp"}, "poll-timestamp", "POLL_TIMESTAMP", "Specify the timestamp of the original poll message.", argparse.Int64),
+			{Names: []string{"-o", "--option"}, Dest: "option", Metavars: []string{"OPTION"}, Kind: argparse.Int32, Nargs: argparse.ZeroOrMore, Help: "The option indexes of the poll to vote for"},
+			req([]string{"--vote-count"}, "vote-count", "VOTE_COUNT", "Specify the number of this vote (increase by one for every time you vote).", argparse.Int32)}
+	case "sendPollTerminate":
+		return []*argparse.Arg{recipients, groups, usernames, noteToSelf("Send the message to self"), notifySelf,
+			req([]string{"--poll-timestamp"}, "poll-timestamp", "POLL_TIMESTAMP", "Specify the timestamp of the original poll message.", argparse.Int64)}
+	case "sendPinMessage":
+		return []*argparse.Arg{recipients, groups, usernames, noteToSelf("Send the pin message to self."), notifySelf,
+			{Names: []string{"-d", "--pin-duration"}, Dest: "pin-duration", Metavars: []string{"PIN_DURATION"}, Kind: argparse.Int32, Default: -1, Help: "Specify the pin duration in seconds. Use -1 for forever."},
+			req([]string{"-a", "--target-author"}, "target-author", "TARGET_AUTHOR", "Specify the number of the author of the message to pin.", argparse.String),
+			req([]string{"-t", "--target-timestamp"}, "target-timestamp", "TARGET_TIMESTAMP", "Specify the timestamp of the message to pin.", argparse.Int64),
+			flag([]string{"--story"}, "Pin a story instead of a normal message")}
+	case "sendUnpinMessage":
+		return []*argparse.Arg{recipients, groups, usernames, noteToSelf("Send the unpin message to self."), notifySelf,
+			req([]string{"-a", "--target-author"}, "target-author", "TARGET_AUTHOR", "Specify the number of the author of the message to unpin.", argparse.String),
+			req([]string{"-t", "--target-timestamp"}, "target-timestamp", "TARGET_TIMESTAMP", "Specify the timestamp of the message to unpin.", argparse.Int64),
+			flag([]string{"--story"}, "Unpin a story instead of a normal message")}
+	case "sendAdminDelete":
+		return []*argparse.Arg{
+			{Names: []string{"-g", "--group-id", "--group"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Nargs: argparse.OneOrMore, Help: "Specify the recipient group ID."},
+			notifySelf,
+			req([]string{"-a", "--target-author"}, "target-author", "TARGET_AUTHOR", "Specify the number of the author of the message to admin delete.", argparse.String),
+			req([]string{"-t", "--target-timestamp"}, "target-timestamp", "TARGET_TIMESTAMP", "Specify the timestamp of the message to admin delete.", argparse.Int64),
+			flag([]string{"--story"}, "Admin delete a story instead of a normal message")}
+	case "sendPaymentNotification":
+		return []*argparse.Arg{
+			{Names: []string{"recipient"}, Dest: "recipient", Help: "Specify the recipient's phone number."},
+			req([]string{"--receipt"}, "receipt", "RECEIPT", "The base64 encoded receipt blob.", argparse.String),
+			opt([]string{"--note"}, "note", "NOTE", "Specify a note for the payment notification.", argparse.String)}
+	case "sendMessageRequestResponse":
+		return []*argparse.Arg{recipients, groups, usernames,
+			{Names: []string{"--type"}, Dest: "type", Kind: argparse.Enum, Choices: []string{"accept", "delete"}, Required: true, Help: "Type of message request response"}}
+	}
+	return nil
 }
