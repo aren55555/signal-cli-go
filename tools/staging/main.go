@@ -36,6 +36,8 @@ func main() {
 		send(args)
 	case "check":
 		check(args)
+	case "capture":
+		capture(args)
 	case "profile":
 		profile(args)
 	case "probe":
