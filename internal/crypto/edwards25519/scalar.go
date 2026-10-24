@@ -233,3 +233,30 @@ func (s *Scalar) bits4() (d [64]byte) {
 	}
 	return d
 }
+
+// Invert sets s = 1/a mod ℓ (0 maps to 0) and returns s.
+func (s *Scalar) Invert(a *Scalar) *Scalar {
+	// a^(ℓ-2) by square-and-multiply over the fixed, public exponent.
+	exp := orderMinus2LE
+	r, _ := NewScalar().SetCanonicalBytes(oneLE[:])
+	base := NewScalar().Set(a)
+	for i := 0; i < 253; i++ {
+		if exp[i/8]>>(i%8)&1 == 1 {
+			r.Multiply(r, base)
+		}
+		base.Multiply(base, base)
+	}
+	return s.Set(r)
+}
+
+// orderMinus2LE is ℓ-2, little-endian; oneLE is 1.
+var orderMinus2LE, oneLE = func() ([32]byte, [32]byte) {
+	l, _ := new(big.Int).SetString("7237005577332262213973186563042994240857116359379907606001950938285454250987", 10)
+	var b, one [32]byte
+	l.FillBytes(b[:])
+	for i, j := 0, 31; i < j; i, j = i+1, j-1 {
+		b[i], b[j] = b[j], b[i]
+	}
+	one[0] = 1
+	return b, one
+}()

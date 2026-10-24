@@ -125,3 +125,15 @@ func TestScalarMatchesBig(t *testing.T) {
 		t.Error("SetUniformBytes accepted 32 bytes")
 	}
 }
+
+func TestScalarInvert(t *testing.T) {
+	for _, n := range []byte{1, 2, 7, 255} {
+		var b [32]byte
+		b[0], b[5] = n, n
+		a, _ := NewScalar().SetCanonicalBytes(b[:])
+		inv := NewScalar().Invert(a)
+		if p := NewScalar().Multiply(a, inv); p.Bytes()[0] != 1 || p.Bytes()[1] != 0 {
+			t.Errorf("%d·%d⁻¹ = %x", n, n, p.Bytes())
+		}
+	}
+}

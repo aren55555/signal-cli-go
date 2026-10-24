@@ -228,3 +228,23 @@ func (e *Element) SetElligatorBytes(b []byte) (*Element, error) {
 	mapToPoint(&e.p, b)
 	return e, nil
 }
+
+// Affine returns the affine Edwards coordinates (x, y) of e's internal
+// representative. Different representatives of one element give
+// different coordinates.
+func (e *Element) Affine() (x, y *field.Element) {
+	X, Y, Z, _ := e.p.ExtendedCoordinates()
+	zInv := fe().Invert(Z)
+	return fe().Multiply(X, zInv), fe().Multiply(Y, zInv)
+}
+
+// SetMap sets e to MAP(r) of RFC 9496 section 4.3.4 for a field element.
+func (e *Element) SetMap(r *field.Element) *Element {
+	mapToPoint(&e.p, r.Bytes())
+	return e
+}
+
+// D, SqrtM1 and InvSqrtAMinusD return copies of RFC 9496 constants.
+func D() *field.Element              { return fe().Set(constD) }
+func SqrtM1() *field.Element         { return fe().Set(constSqrtM1) }
+func InvSqrtAMinusD() *field.Element { return fe().Set(constInvSqrtAMinusD) }
