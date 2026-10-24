@@ -217,34 +217,6 @@ func RenderPlain(c *RenderContext, e manager.Event) string {
 	return p.b.String()
 }
 
-func (c *RenderContext) plainData(p *plain, l int, dm *signalpb.AppDataMessage) {
-	p.line(l, "Message timestamp: %s", ts(dm.GetTimestamp()))
-	if dm.GetIsViewOnce() {
-		p.line(l, "=VIEW ONCE=")
-	}
-	if dm.Body != nil {
-		p.line(l, "Body: %s", dm.GetBody())
-	}
-	if dm.GetFlags()&flagEndSession != 0 {
-		p.line(l, "Is end session")
-	}
-	if dm.GetFlags()&flagExpirationUpdate != 0 {
-		p.line(l, "Is Expiration update: true")
-	}
-	if dm.GetExpireTimer() > 0 {
-		p.line(l, "Expires in: %d seconds", dm.GetExpireTimer())
-	}
-	if dm.GetFlags()&flagProfileKeyUpdate != 0 {
-		p.line(l, "Profile key update")
-	}
-	if len(dm.GetProfileKey()) > 0 {
-		p.line(l, "With profile key")
-	}
-	if d := dm.GetDelete(); d != nil {
-		p.line(l, "Remote delete message: timestamp = %d", d.GetTargetSentTimestamp())
-	}
-}
-
 // jsonObject builds a JSON object with keys in insertion order.
 type jsonObject struct{ parts []string }
 
@@ -360,25 +332,6 @@ func RenderJSON(c *RenderContext, e manager.Event) string {
 	top.add("envelope", env)
 	top.add("account", c.Self)
 	return top.String()
-}
-
-func (c *RenderContext) jsonData(dm *signalpb.AppDataMessage) *jsonObject {
-	o := &jsonObject{}
-	o.add("timestamp", dm.GetTimestamp())
-	if dm.Body != nil {
-		o.add("message", dm.GetBody())
-	} else {
-		o.add("message", nil)
-	}
-	o.add("expiresInSeconds", dm.GetExpireTimer())
-	o.add("isExpirationUpdate", dm.GetFlags()&flagExpirationUpdate != 0)
-	o.add("viewOnce", dm.GetIsViewOnce())
-	if d := dm.GetDelete(); d != nil {
-		do := &jsonObject{}
-		do.add("timestamp", d.GetTargetSentTimestamp())
-		o.add("remoteDelete", do)
-	}
-	return o
 }
 
 // uuidRaw is the 16 bytes of a hyphenated UUID (tests and lookups).
