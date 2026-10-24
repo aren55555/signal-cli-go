@@ -3,11 +3,17 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/aren55555/signal-cli-go/internal/cli"
 )
 
 func main() {
-	fmt.Fprintln(os.Stderr, "signal-cli-go: not implemented yet (see PLAN.md)")
-	os.Exit(1)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	code := cli.Main(ctx, os.Args[1:], os.Stdin, os.Stdout, os.Stderr, os.Getenv)
+	stop()
+	os.Exit(code)
 }
