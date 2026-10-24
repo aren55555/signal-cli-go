@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -221,8 +222,7 @@ func (o *jsonObject) add(key string, v any) {
 	case *jsonObject:
 		val = x.String()
 	default:
-		b, _ := json.Marshal(x)
-		val = string(b)
+		val = marshalJSON(x)
 	}
 	o.parts = append(o.parts, strconv.Quote(key)+":"+val)
 }
@@ -323,4 +323,17 @@ func (c *RenderContext) forEvent(e manager.Event) *RenderContext {
 	cp := *c
 	cp.longText = e.LongText
 	return &cp
+}
+
+// marshalJSON encodes v as Jackson does by default: no HTML escaping of
+// & < >, and U+2028/U+2029 written raw.
+func marshalJSON(v any) string {
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(v); err != nil {
+		return "null"
+	}
+	s := strings.TrimSuffix(buf.String(), "\n")
+	return strings.NewReplacer(`\u2028`, "\u2028", `\u2029`, "\u2029").Replace(s)
 }

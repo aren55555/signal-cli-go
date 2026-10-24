@@ -118,3 +118,13 @@ func TestRenderAttachments(t *testing.T) {
 		}
 	}
 }
+
+// TestJSONNoHTMLEscaping: strings are written as Jackson writes them, with
+// &, <, > and U+2028 raw.
+func TestJSONNoHTMLEscaping(t *testing.T) {
+	dm := &signalpb.AppDataMessage{Body: proto.String("a & b <c>   \"q\" \\ \x01")}
+	got := RenderJSON(ctx, featureEvent(dm))
+	if want := `"message":"a & b <c> ` + " " + ` \"q\" \\ \u0001"`; !strings.Contains(got, want) {
+		t.Errorf("JSON %s\nwant %s", got, want)
+	}
+}
