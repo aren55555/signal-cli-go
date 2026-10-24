@@ -110,11 +110,26 @@ func validSync(sm *signalpb.AppSyncMessage, env *signalpb.ServiceEnvelope, sende
 			return false
 		}
 		dm, edit := s.GetMessage(), s.GetEditMessage().GetDataMessage()
-		if dm == nil && s.EditMessage == nil {
+		manifest := s.GetStoryMessageRecipients()
+		if dm == nil && s.EditMessage == nil && s.StoryMessage == nil && len(manifest) == 0 {
 			return false
 		}
 		hasDest := validServiceID(s.GetDestinationServiceIdBinary(), s.GetDestinationServiceId())
-		if !hasDest && dm.GetGroupV2() == nil && edit.GetGroupV2() == nil && dm.GetDelete() == nil {
+		if !hasDest && dm.GetGroupV2() == nil && edit.GetGroupV2() == nil && s.GetStoryMessage().GetGroup() == nil &&
+			dm.GetDelete() == nil && len(manifest) == 0 {
+			return false
+		}
+		// Story manifests (stories.md §5.3).
+		for _, r := range manifest {
+			hasID := len(r.GetDestinationServiceIdBinary()) > 0 || r.GetDestinationServiceId() != ""
+			if hasID && (!validServiceID(r.GetDestinationServiceIdBinary(), r.GetDestinationServiceId()) || r.IsAllowedToReply == nil) {
+				return false
+			}
+		}
+		if len(manifest) > 0 && s.StoryMessage == nil && !s.GetIsRecipientUpdate() {
+			return false
+		}
+		if s.StoryMessage != nil && !validStory(s.StoryMessage) {
 			return false
 		}
 		for _, u := range s.GetUnidentifiedStatus() {
@@ -283,6 +298,10 @@ func (r *Receiver) applySync(ctx context.Context, sm *signalpb.AppSyncMessage) {
 // applySent handles a transcript's DataMessage as our own outgoing
 // message (§6.1); downloads happen with the incoming ones.
 func (r *Receiver) applySent(s *signalpb.AppSent) {
+	if pk := s.GetStoryMessage().GetProfileKey(); len(pk) == 32 && !bytes.Equal(pk, r.Acct.Data.ProfileKey) {
+		r.Acct.Data.ProfileKey = pk // a story transcript's key is our own (stories.md §5.3)
+		r.Acct.Save()
+	}
 	dm := s.GetMessage()
 	if dm == nil {
 		return

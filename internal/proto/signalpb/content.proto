@@ -20,6 +20,7 @@ message AppContent {
     AppTyping typing_message = 6;
     bytes decryption_error_message = 8; // serialized DecryptionFailureReport
     AppEdit edit_message = 11;
+    AppStoryMessage story_message = 9;
   }
   optional bytes sender_key_distribution_message = 7;
   optional AppPniSignature pni_signature_message = 10;
@@ -252,6 +253,8 @@ message AppSent {
   reserved 11;
   optional AppEdit edit_message = 10;
   optional bytes destination_service_id_binary = 12;
+  optional AppStoryMessage story_message = 8;
+  repeated AppStoryMessageRecipient story_message_recipients = 9;
 }
 
 message AppUnidentifiedStatus {
@@ -517,4 +520,53 @@ message AppContactDetails {
   optional uint32 expire_timer_version = 12;
   optional uint32 inbox_position = 10;
   reserved 4, 5, 6, 7, 11;
+}
+
+// StoryMessage, Content field 9 (stories.md §1.1).
+message AppStoryMessage {
+  optional bytes profile_key = 1;
+  optional AppGroupContextV2 group = 2;
+  oneof attachment {
+    AppAttachmentPointer file_attachment = 3;
+    AppTextAttachment text_attachment = 4;
+  }
+  optional bool allows_replies = 5;
+  repeated AppBodyRange body_ranges = 6;
+}
+
+// stories.md §1.2.
+message AppTextAttachment {
+  optional string text = 1;
+  enum Style {
+    DEFAULT = 0;
+    REGULAR = 1;
+    BOLD = 2;
+    SERIF = 3;
+    SCRIPT = 4;
+    CONDENSED = 5;
+  }
+  optional Style text_style = 2;
+  optional uint32 text_foreground_color = 3;
+  optional uint32 text_background_color = 4;
+  optional AppPreview preview = 5;
+  message Gradient {
+    optional uint32 start_color = 1;
+    optional uint32 end_color = 2;
+    optional uint32 angle = 3;
+    repeated uint32 colors = 4;
+    repeated float positions = 5;
+  }
+  oneof background {
+    Gradient gradient = 6;
+    uint32 color = 7;
+  }
+}
+
+// SyncMessage.Sent field 9 (stories.md §1.4).
+message AppStoryMessageRecipient {
+  optional string destination_service_id = 1;
+  repeated string distribution_list_ids = 2;
+  optional bool is_allowed_to_reply = 3;
+  reserved 4;
+  optional bytes destination_service_id_binary = 5;
 }

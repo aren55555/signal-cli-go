@@ -59,3 +59,33 @@ func TestRenderSync(t *testing.T) {
 		}
 	}
 }
+
+func TestRenderStory(t *testing.T) {
+	img := &signalpb.AppAttachmentPointer{ContentType: proto.String("image/jpeg"), CdnNumber: proto.Uint32(3), Key: make([]byte, 64),
+		AttachmentIdentifier: &signalpb.AppAttachmentPointer_CdnKey{CdnKey: "K"}, Size: proto.Uint32(4)}
+	file := &signalpb.AppContent{Body: &signalpb.AppContent_StoryMessage{StoryMessage: &signalpb.AppStoryMessage{
+		AllowsReplies: proto.Bool(true), Attachment: &signalpb.AppStoryMessage_FileAttachment{FileAttachment: img}}}}
+	e := manager.Event{Envelope: &signalpb.ServiceEnvelope{ClientTimestamp: proto.Uint64(1700000000000), ServerTimestamp: proto.Uint64(1700000000001)},
+		Message: &manager.Message{Sender: protocol.Address{ServiceID: peerACI, DeviceID: 1}, Content: content(file)}}
+	got := RenderPlain(ctx, e)
+	want := "  Story: with replies: true\n  Attachments:\n    Content-Type: image/jpeg\n    Type: Pointer\n    Id: K.jpg\n    Size: 4 bytes\n\n"
+	if !strings.HasSuffix(got, want) {
+		t.Errorf("plain:\n%s\nwant suffix:\n%s", got, want)
+	}
+	if j := RenderJSON(ctx, e); !strings.Contains(j, `"storyMessage":{"allowsReplies":true,"fileAttachment":{"contentType":"image/jpeg","filename":null,"id":"K.jpg"`) {
+		t.Errorf("JSON: %s", j)
+	}
+
+	text := &signalpb.AppContent{Body: &signalpb.AppContent_StoryMessage{StoryMessage: &signalpb.AppStoryMessage{
+		Attachment: &signalpb.AppStoryMessage_TextAttachment{TextAttachment: &signalpb.AppTextAttachment{Text: proto.String("hello"),
+			TextStyle: signalpb.AppTextAttachment_BOLD.Enum(), TextForegroundColor: proto.Uint32(0xff102030),
+			Background: &signalpb.AppTextAttachment_Gradient_{Gradient: &signalpb.AppTextAttachment_Gradient{Colors: []uint32{0xff000000, 0xffffffff}, Positions: []float32{0, 1}, Angle: proto.Uint32(90)}}}}}}}
+	e.Message.Content = content(text)
+	if got := RenderPlain(ctx, e); !strings.HasSuffix(got, "  Story: with replies: false\n  Body: hello\n\n") {
+		t.Errorf("text plain:\n%s", got)
+	}
+	want = `"textAttachment":{"text":"hello","style":"BOLD","textForegroundColor":"#ff102030","backgroundGradient":{"startColor":"#ff000000","endColor":"#ffffffff","colors":["#ff000000","#ffffffff"],"positions":[0.0,1.0],"angle":90}}`
+	if j := RenderJSON(ctx, e); !strings.Contains(j, want) {
+		t.Errorf("text JSON: %s", j)
+	}
+}

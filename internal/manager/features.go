@@ -176,6 +176,29 @@ func valid(c *signalpb.AppContent, env *signalpb.ServiceEnvelope) bool {
 			return false
 		}
 	}
+	if env.GetStory() {
+		// A story-flagged envelope needs story content (stories.md §1.5).
+		dm := c.GetDataMessage()
+		if c.SenderKeyDistributionMessage == nil && c.GetStoryMessage() == nil &&
+			!(dm.GetStoryContext() != nil && dm.GetGroupV2() != nil) && dm.GetDelete() == nil {
+			return false
+		}
+	}
+	if st := c.GetStoryMessage(); st != nil && !validStory(st) {
+		return false
+	}
+	return true
+}
+
+// validStory: a story's attachment pointer needs a CDN location
+// (attachments.md §3.3).
+func validStory(st *signalpb.AppStoryMessage) bool {
+	if f := st.GetFileAttachment(); f != nil && !attachment.HasLocation(f) {
+		return false
+	}
+	if img := st.GetTextAttachment().GetPreview().GetImage(); img != nil && !attachment.HasLocation(img) {
+		return false
+	}
 	return true
 }
 

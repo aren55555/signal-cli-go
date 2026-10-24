@@ -80,6 +80,9 @@ func (c *RenderContext) plainSync(p *plain, sm *signalpb.AppSyncMessage) {
 		if s.GetMessage() != nil {
 			c.plainData(p, 1, s.GetMessage())
 		}
+		if st := s.GetStoryMessage(); st != nil {
+			c.plainStory(p, 1, st)
+		}
 	case manager.SyncBlocked:
 		p.line(0, "Received sync message with block list")
 		p.line(0, "Blocked:")
@@ -113,6 +116,19 @@ func (c *RenderContext) jsonSync(sm *signalpb.AppSyncMessage) *jsonObject {
 	switch manager.SyncMemberOf(sm) {
 	case manager.SyncSent:
 		s := sm.Sent
+		if st := s.GetStoryMessage(); st != nil {
+			story := &jsonObject{}
+			if d := sentDestination(s); d != "" {
+				story.add("destinationNumber", strOrNull(c.address(d, 0).number))
+				story.add("destinationUuid", d)
+			} else {
+				story.add("destinationNumber", nil)
+				story.add("destinationUuid", nil)
+			}
+			story.addAll(jsonStory(st))
+			so.add("sentStoryMessage", story)
+			break
+		}
 		sent := &jsonObject{}
 		if d := sentDestination(s); d != "" {
 			a := c.address(d, 0)

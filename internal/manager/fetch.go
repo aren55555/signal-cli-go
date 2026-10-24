@@ -134,3 +134,17 @@ func (s *AttachmentStore) FetchData(ctx context.Context, dm *signalpb.AppDataMes
 	}
 	return longText, ok
 }
+
+// FetchStory downloads a story's file attachment, or its text
+// attachment's preview image (stories.md §5.2 step 3).
+func (s *AttachmentStore) FetchStory(ctx context.Context, st *signalpb.AppStoryMessage) {
+	if s == nil || st == nil || s.Ignore {
+		return
+	}
+	if f := st.GetFileAttachment(); f != nil {
+		s.store(ctx, f)
+	}
+	if img := st.GetTextAttachment().GetPreview().GetImage(); img != nil {
+		s.store(ctx, img)
+	}
+}

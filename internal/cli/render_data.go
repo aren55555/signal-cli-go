@@ -47,14 +47,7 @@ func (c *RenderContext) plainData(p *plain, l int, dm *signalpb.AppDataMessage) 
 		p.line(l, "Previews:")
 		for _, pv := range dm.GetPreview() {
 			p.line(l, "- Preview")
-			p.line(l+1, "Title: %s", pv.GetTitle())
-			p.line(l+1, "Description: %s", pv.GetDescription())
-			p.line(l+1, "Date: %s", ts(pv.GetDate()))
-			p.line(l+1, "Url: %s", pv.GetUrl())
-			if pv.Image != nil {
-				p.line(l+1, "Image:")
-				c.plainAttachment(p, l+2, pv.Image)
-			}
+			c.plainPreview(p, l+1, pv)
 		}
 	}
 	if len(dm.GetContact()) > 0 {
@@ -383,16 +376,7 @@ func (c *RenderContext) jsonData(dm *signalpb.AppDataMessage) *jsonObject {
 	if len(dm.GetPreview()) > 0 {
 		var items []string
 		for _, pv := range dm.GetPreview() {
-			po := &jsonObject{}
-			po.add("url", pv.GetUrl())
-			po.add("title", pv.GetTitle())
-			po.add("description", pv.GetDescription())
-			if pv.Image != nil {
-				po.add("image", jsonAttachment(pv.Image))
-			} else {
-				po.add("image", nil)
-			}
-			items = append(items, po.String())
+			items = append(items, jsonPreview(pv).String())
 		}
 		o.add("previews", rawJSON("["+strings.Join(items, ",")+"]"))
 	}

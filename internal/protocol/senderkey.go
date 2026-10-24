@@ -283,3 +283,21 @@ func (s *senderKeyState) seedFor(j uint32) ([]byte, error) {
 	s.chainKey, s.iteration = next, j+1
 	return seed, nil
 }
+
+// MessageDistributionID reads the distribution ID of a SenderKeyMessage,
+// to find the record that decrypts it.
+func MessageDistributionID(b []byte) (DistributionID, error) {
+	var id DistributionID
+	if len(b) < 1+signatureSize {
+		return id, ErrMessageTooShort
+	}
+	var pb signalpb.GroupSenderMessage
+	if err := proto.Unmarshal(b[1:len(b)-signatureSize], &pb); err != nil || len(pb.DistributionId) != 16 {
+		return id, fmt.Errorf("%w: no distribution ID", ErrInvalidMessage)
+	}
+	copy(id[:], pb.DistributionId)
+	return id, nil
+}
+
+// String is the distribution ID in canonical UUID form.
+func (d DistributionID) String() string { return formatUUID(d[:]) }

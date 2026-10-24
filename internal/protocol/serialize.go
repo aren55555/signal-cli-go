@@ -80,3 +80,25 @@ func (s *SessionState) stored() *signalpb.StoredSession {
 	}
 	return ps
 }
+
+// Serialize stores a SenderKeyRecord in the form LoadSenderKeyRecord
+// reads.
+func (r *SenderKeyRecord) Serialize() ([]byte, error) {
+	var pb signalpb.StoredSenderKeyRecord
+	for _, s := range r.states {
+		ps := &signalpb.StoredSenderKeyState{
+			ChainId:        s.chainID,
+			ChainKey:       &signalpb.StoredSenderKeyState_ChainKey{Iteration: s.iteration, Seed: s.chainKey},
+			SigningKey:     &signalpb.StoredSenderKeyState_SigningKey{PublicKey: s.signingPub.Bytes()},
+			MessageVersion: uint32(s.version),
+		}
+		if s.signingPriv != nil {
+			ps.SigningKey.PrivateKey = s.signingPriv.Bytes()
+		}
+		for _, k := range s.skipped {
+			ps.MessageKeys = append(ps.MessageKeys, &signalpb.StoredSenderKeyState_ChainKey{Iteration: k.index, Seed: k.seed})
+		}
+		pb.States = append(pb.States, ps)
+	}
+	return proto.Marshal(&pb)
+}

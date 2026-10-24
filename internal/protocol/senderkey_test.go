@@ -3,6 +3,7 @@ package protocol
 import (
 	"bytes"
 	"crypto/hkdf"
+	"crypto/rand"
 	"crypto/sha256"
 	"errors"
 	"fmt"
@@ -263,4 +264,50 @@ func FuzzGroupParsers(f *testing.F) {
 		_, _, _ = new(SenderKeyRecord).ProcessDistribution(in)
 		_, _, _ = g.bob.Decrypt(in)
 	})
+}
+
+// TestSenderKeySerialize: a stored record (sender and receiver side, with
+// skipped keys) reloads and keeps working.
+func TestSenderKeySerialize(t *testing.T) {
+	var id DistributionID
+	alice, skdm, err := new(SenderKeyRecord).NewDistribution(rand.Reader, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bob, _, err := new(SenderKeyRecord).ProcessDistribution(skdm)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var msgs [][]byte
+	for i := 0; i < 3; i++ {
+		var m []byte
+		alice, m, _ = alice.Encrypt(rand.Reader, id, []byte{byte(i)})
+		msgs = append(msgs, m)
+	}
+	bob, _, err = bob.Decrypt(msgs[2]) // skips 0 and 1
+	if err != nil {
+		t.Fatal(err)
+	}
+	reload := func(r *SenderKeyRecord) *SenderKeyRecord {
+		b, err := r.Serialize()
+		if err != nil {
+			t.Fatal(err)
+		}
+		out, err := LoadSenderKeyRecord(b)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return out
+	}
+	alice, bob = reload(alice), reload(bob)
+	if _, pt, err := bob.Decrypt(msgs[0]); err != nil || pt[0] != 0 {
+		t.Fatalf("skipped key after reload: %v", err)
+	}
+	_, m, err := alice.Encrypt(rand.Reader, id, []byte{9})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, pt, err := bob.Decrypt(m); err != nil || pt[0] != 9 {
+		t.Fatalf("next message after reload: %v", err)
+	}
 }

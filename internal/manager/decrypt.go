@@ -26,6 +26,7 @@ const (
 	envUnidentified  = 6
 	envServerReceipt = 5
 	envPlaintext     = 8
+	envSenderKey     = 7 // only inside sealed sender
 )
 
 // ErrUnsupportedEnvelope reports an envelope kind not handled yet.
@@ -167,6 +168,8 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 			kind = envCiphertext
 		case protocol.SealedContentPlaintext:
 			kind = envPlaintext
+		case protocol.SealedContentSenderKey:
+			kind = envSenderKey
 		default:
 			return nil, fmt.Errorf("%w: sealed content kind %d", ErrUnsupportedEnvelope, sc.Kind)
 		}
@@ -175,6 +178,9 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 	m.InnerType = kind
 	if kind == envPlaintext {
 		return plaintextContent(m, wire)
+	}
+	if kind == envSenderKey {
+		return d.decryptSenderKey(m, wire)
 	}
 	key := sessionKey(m.ToPNI, m.Sender)
 	rec := new(protocol.SessionRecord)
@@ -313,4 +319,82 @@ func (d *Decryptor) now() time.Time {
 		return d.Now()
 	}
 	return time.Now()
+}
+
+// SenderKeyName is the sender-key store key for a sender device and
+// distribution.
+func SenderKeyName(serviceID string, device uint32, id protocol.DistributionID) string {
+	return serviceID + "." + strconv.Itoa(int(device)) + "." + id.String()
+}
+
+// decryptSenderKey decrypts a SenderKeyMessage with the record for the
+// sender device and the message's distribution (sender-keys.md §6). The
+// record is stored only after success.
+func (d *Decryptor) decryptSenderKey(m *Message, wire []byte) (*Message, error) {
+	a := d.Acct
+	fail := func(err error) (*Message, error) {
+		if errors.Is(err, protocol.ErrDuplicateMessage) {
+			return nil, err
+		}
+		return nil, &DecryptError{Sender: m.Sender, ToPNI: m.ToPNI, Sealed: m.Sealed, InnerType: envSenderKey, Timestamp: m.ClientTimestamp, Err: err}
+	}
+	id, err := protocol.MessageDistributionID(wire)
+	if err != nil {
+		return fail(err)
+	}
+	name := SenderKeyName(m.Sender.ServiceID, m.Sender.DeviceID, id)
+	rec := new(protocol.SenderKeyRecord)
+	if b, ok := a.SenderKeys.Records[name]; ok {
+		if rec, err = protocol.LoadSenderKeyRecord(b); err != nil {
+			return nil, err
+		}
+	}
+	next, pt, err := rec.Decrypt(wire)
+	if err != nil {
+		return fail(err)
+	}
+	b, err := next.Serialize()
+	if err != nil {
+		return nil, err
+	}
+	a.SenderKeys.Records[name] = b
+	if err := a.SaveSenderKeys(); err != nil {
+		return nil, err
+	}
+	if c, ok := content.Unpad(pt); ok {
+		m.Content = c
+	} else {
+		m.Content = pt
+	}
+	return m, nil
+}
+
+// ProcessSenderKeyDistribution stores a received SKDM under the sender
+// device and the distribution it names (stories.md §3.8).
+func ProcessSenderKeyDistribution(a *store.Account, sender protocol.Address, skdm []byte) error {
+	var probe protocol.SenderKeyRecord
+	_, id, err := probe.ProcessDistribution(skdm)
+	if err != nil {
+		return err
+	}
+	name := SenderKeyName(sender.ServiceID, sender.DeviceID, id)
+	rec := new(protocol.SenderKeyRecord)
+	if b, ok := a.SenderKeys.Records[name]; ok {
+		if rec, err = protocol.LoadSenderKeyRecord(b); err != nil {
+			return err
+		}
+	}
+	next, _, err := rec.ProcessDistribution(skdm)
+	if err != nil {
+		return err
+	}
+	b, err := next.Serialize()
+	if err != nil {
+		return err
+	}
+	if _, ok := a.SenderKeys.Records[name]; !ok {
+		a.SenderKeys.Created[name] = time.Now().UnixMilli()
+	}
+	a.SenderKeys.Records[name] = b
+	return a.SaveSenderKeys()
 }

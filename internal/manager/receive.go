@@ -210,6 +210,15 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 	if proto.Unmarshal(m.Content, &c) != nil || !valid(&c, &env) {
 		return // dropped silently (pipe.md §7 step 4)
 	}
+	if sender := m.Sender.ServiceID; sender != r.Acct.Data.ACI && r.Acct.Recipients[sender].Blocked {
+		return // messages from blocked contacts are dropped (content-features.md §7.1)
+	}
+	if skdm := c.GetSenderKeyDistributionMessage(); skdm != nil {
+		// Before anything else the Content holds (stories.md §3.8).
+		if err := ProcessSenderKeyDistribution(r.Acct, m.Sender, skdm); err != nil {
+			r.logf("Failed to process sender key distribution message: %v", err)
+		}
+	}
 	if c.GetNullMessage() != nil {
 		return // no output, no side effects (content-features.md §5)
 	}
@@ -265,6 +274,8 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 			ev.LongText[dm.GetTimestamp()] = text
 		}
 	}
+	r.Attachments.FetchStory(ctx, c.GetStoryMessage())
+	r.Attachments.FetchStory(ctx, sent.GetStoryMessage())
 	r.emit(ev)
 }
 

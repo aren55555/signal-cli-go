@@ -196,6 +196,9 @@ func ApplyContent(a *store.Account, m *Message, now time.Time) error {
 		return nil // validation drops it elsewhere
 	}
 	key := c.GetDataMessage().GetProfileKey()
+	if sk := c.GetStoryMessage().GetProfileKey(); key == nil && sk != nil {
+		key = sk // a story carries its sender's profile key (stories.md §5.2)
+	}
 	if len(key) != 32 {
 		return nil
 	}

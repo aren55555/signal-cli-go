@@ -179,6 +179,9 @@ func RenderPlain(c *RenderContext, e manager.Event) string {
 			c.plainData(&p, 1, ed.GetDataMessage())
 		}
 	}
+	if st := ct.GetStoryMessage(); st != nil {
+		c.plainStory(&p, 1, st)
+	}
 	if sm := ct.GetSyncMessage(); sm != nil {
 		c.plainSync(&p, sm)
 	}
@@ -275,6 +278,9 @@ func RenderJSON(c *RenderContext, e manager.Event) string {
 		eo.add("targetSentTimestamp", ed.GetTargetSentTimestamp())
 		eo.add("dataMessage", c.jsonData(ed.GetDataMessage()))
 		env.add("editMessage", eo)
+	}
+	if st := ct.GetStoryMessage(); st != nil {
+		env.add("storyMessage", jsonStory(st))
 	}
 	if sm := ct.GetSyncMessage(); sm != nil {
 		env.add("syncMessage", c.jsonSync(sm))

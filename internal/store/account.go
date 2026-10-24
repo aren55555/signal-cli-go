@@ -28,6 +28,7 @@ const (
 	accountVersion    = 1
 	keysVersion       = 1
 	sessionsVersion   = 1
+	senderKeysVersion = 1
 	identitiesVersion = 1
 )
 
@@ -36,6 +37,7 @@ var (
 	accountMigrations    = Migrations{}
 	keysMigrations       = Migrations{}
 	sessionsMigrations   = Migrations{}
+	senderKeysMigrations = Migrations{}
 	identitiesMigrations = Migrations{}
 )
 
@@ -236,8 +238,9 @@ type Account struct {
 	lock       *FileLock
 	Data       AccountData
 	Keys       KeysData
-	Sessions   map[string][]byte    // "aci:<address>.<device>" -> SessionRecord
-	Identities map[string]Identity  // service ID -> identity
+	Sessions   map[string][]byte   // "aci:<address>.<device>" -> SessionRecord
+	Identities map[string]Identity // service ID -> identity
+	SenderKeys SenderKeys
 	Recipients map[string]Recipient // ACI -> recipient
 }
 
@@ -276,7 +279,8 @@ func (r *Root) Create(number, env string) (*Account, error) {
 	if err != nil {
 		return nil, err
 	}
-	a := &Account{root: r, path: path, lock: lock, Sessions: map[string][]byte{}, Identities: map[string]Identity{}, Recipients: map[string]Recipient{}}
+	a := &Account{root: r, path: path, lock: lock, Sessions: map[string][]byte{}, Identities: map[string]Identity{}, Recipients: map[string]Recipient{},
+		SenderKeys: SenderKeys{Records: map[string][]byte{}, Created: map[string]int64{}, Shared: map[string]map[string]int64{}}}
 	a.Data = AccountData{Environment: env, Number: number,
 		ACIKeys: PreKeyState{ActiveSignedPreKeyID: -1, ActiveLastResortKyberID: -1},
 		PNIKeys: PreKeyState{ActiveSignedPreKeyID: -1, ActiveLastResortKyberID: -1}}
@@ -336,6 +340,9 @@ func (r *Root) Load(path string) (*Account, error) {
 		a.Sessions = map[string][]byte{}
 	}
 	if err := a.loadRecipients(); err != nil {
+		return fail(err)
+	}
+	if err := a.LoadSenderKeys(); err != nil {
 		return fail(err)
 	}
 	if a.Identities == nil {
@@ -470,3 +477,44 @@ func (a *Account) loadRecipients() error {
 // IsMultiDevice reports whether sync messages go to other devices: always
 // for a linked device, and for a primary once it has linked one.
 func (a *Account) IsMultiDevice() bool { return a.Data.MultiDevice || a.Data.DeviceID > 1 }
+
+// SenderKeys is the sender-key store (stories.md §3.2, §3.8).
+type SenderKeys struct {
+	// Records: "<service ID>.<device>.<distribution ID>" -> SenderKeyRecord;
+	// our own sending keys are under our ACI and device.
+	Records map[string][]byte `json:"records"`
+	// Created: when each record key was first stored (ms).
+	Created map[string]int64 `json:"created,omitempty"`
+	// Shared: distribution ID -> "<service ID>.<device>" -> ms when our
+	// current sender key was last sent to that device.
+	Shared map[string]map[string]int64 `json:"shared"`
+}
+
+type senderKeysDoc struct {
+	Version int `json:"version"`
+	SenderKeys
+}
+
+// LoadSenderKeys reads senderkeys.json into a.SenderKeys (empty if absent).
+func (a *Account) LoadSenderKeys() error {
+	var d senderKeysDoc
+	if err := ReadJSON(a.file("senderkeys.json"), senderKeysVersion, senderKeysMigrations, &d); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	a.SenderKeys = d.SenderKeys
+	if a.SenderKeys.Records == nil {
+		a.SenderKeys.Records = map[string][]byte{}
+	}
+	if a.SenderKeys.Created == nil {
+		a.SenderKeys.Created = map[string]int64{}
+	}
+	if a.SenderKeys.Shared == nil {
+		a.SenderKeys.Shared = map[string]map[string]int64{}
+	}
+	return nil
+}
+
+// SaveSenderKeys writes senderkeys.json.
+func (a *Account) SaveSenderKeys() error {
+	return WriteJSON(a.file("senderkeys.json"), &senderKeysDoc{Version: senderKeysVersion, SenderKeys: a.SenderKeys})
+}
