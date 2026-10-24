@@ -49,6 +49,7 @@ type fakeChat struct {
 	accessKeys map[string][]byte // dest -> the access key the server accepts
 	sealed401  bool              // answer sealed PUTs with 401
 	mrPaths    []string          // multi_recipient request paths
+	mrTokens   []string          // their group-send-token headers
 	forms      int               // upload forms handed out
 	root       *curve25519.PrivateKey
 }

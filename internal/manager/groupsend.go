@@ -239,7 +239,6 @@ func (m *Groups) SendData(ctx context.Context, id []byte, d DataSend) (uint64, [
 	if st.Timer > 0 && dm.GetFlags()&2 == 0 {
 		dm.ExpireTimer = proto.Uint32(st.Timer)
 	}
-	dm.ProfileKey = m.Acct.Data.ProfileKey
 	dm.RequiredProtocolVersion = proto.Uint32(requiredVersion(dm))
 	c := &signalpb.AppContent{Body: &signalpb.AppContent_DataMessage{DataMessage: dm}}
 	if d.EditTarget != 0 {

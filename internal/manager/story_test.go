@@ -154,6 +154,9 @@ func (f *fakeChat) multiRecipient(unauth bool, path string, headers []chat.Heade
 		if h.Name == "content-type" {
 			ct = h.Value
 		}
+		if h.Name == "group-send-token" {
+			f.mrTokens = append(f.mrTokens, h.Value)
+		}
 	}
 	if ct != mrmContentType {
 		f.t.Errorf("content-type %q", ct)
