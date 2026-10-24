@@ -295,3 +295,23 @@ func TestSendStory(t *testing.T) {
 		t.Errorf("second story delivered %d times", len(deliveredTo(t, fc, sealedBACI)))
 	}
 }
+
+// TestStoryWithoutAccessSendsNothing: with no unidentified access the
+// story fails before any SKDM is sent (gap G1, done safely).
+func TestStoryWithoutAccessSendsNothing(t *testing.T) {
+	fc, s := dataWorld(t)
+	s.Unauth, s.CDN = unauthChat{fc}, &fakeCDN{}
+	s.Acct.Recipients[dataBACI] = store.Recipient{ProfileSharing: true}
+	_, _, err := s.SendStory(context.Background(), attachment.Source{Data: []byte("x"), ContentType: "image/png"}, true)
+	if !errors.Is(err, ErrNoStoryAccess) {
+		t.Fatalf("err %v", err)
+	}
+	for _, r := range fc.requests {
+		if strings.Contains(r, "PUT /v1/messages") {
+			t.Errorf("sent %s", r)
+		}
+	}
+	if len(s.Acct.SenderKeys.Shared[MyStory.String()]) != 0 {
+		t.Error("devices marked as shared")
+	}
+}

@@ -182,6 +182,13 @@ func (s *Sender) sendSenderKey(ctx context.Context, dist protocol.DistributionID
 	if s.Unauth == nil {
 		return nil, errors.New("no unauthenticated connection for the multi-recipient send")
 	}
+	// Without a sender certificate nothing can be sealed; check before the
+	// SKDM fan-out. (signal-cli sends the SKDMs first and then fails, gap
+	// G1; live, those unsealed story SKDMs arrived without a source and
+	// were refused, yet the devices counted as having our key.)
+	if !s.anyAccess(ctx, recipients) || s.senderCertificate(ctx) == nil {
+		return nil, ErrNoStoryAccess
+	}
 	shared := s.Acct.SenderKeys.Shared[dist.String()]
 	if shared == nil {
 		shared = map[string]int64{}
@@ -305,15 +312,8 @@ func (s *Sender) handleMismatches(ctx context.Context, ms []mismatch) error {
 // sealSenderKey is §3.3: pad, sender-key encrypt, USMC type 7 with our
 // certificate and content hint IMPLICIT, sealed sender v2 to every device.
 func (s *Sender) sealSenderKey(ctx context.Context, dist protocol.DistributionID, recipients []string, all []device, sessions map[device]*protocol.SessionRecord, plaintext []byte) ([]byte, error) {
-	hasAccess := false
-	for _, r := range recipients {
-		if s.accessFor(ctx, r) != nil {
-			hasAccess = true
-			break
-		}
-	}
 	cert := s.senderCertificate(ctx)
-	if !hasAccess || cert == nil {
+	if !s.anyAccess(ctx, recipients) || cert == nil {
 		return nil, ErrNoStoryAccess
 	}
 	name, rec, err := s.ownSenderKey(dist)
@@ -358,4 +358,14 @@ func (s *Sender) sealSenderKey(ctx context.Context, dist protocol.DistributionID
 		return nil, err
 	}
 	return protocol.SealV2(s.rand(), identity, mrs, nil, usmc)
+}
+
+// anyAccess: some recipient has an unidentified access (§3.3).
+func (s *Sender) anyAccess(ctx context.Context, recipients []string) bool {
+	for _, r := range recipients {
+		if s.accessFor(ctx, r) != nil {
+			return true
+		}
+	}
+	return false
 }
