@@ -2,7 +2,6 @@ package cli
 
 import (
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -74,11 +73,10 @@ func (c *RenderContext) plainAttachment(p *plain, l int, a *signalpb.AppAttachme
 		p.line(l, "Dimensions: %dx%d", a.GetWidth(), a.GetHeight())
 	}
 	if id != "" && c.AttachmentsDir != "" {
-		path, err := filepath.Abs(filepath.Join(c.AttachmentsDir, id))
-		if err == nil {
-			if _, err := os.Stat(path); err == nil {
-				p.line(l, "Stored plaintext in: %s", path)
-			}
+		// The path as configured, not made absolute (observed).
+		path := strings.TrimRight(c.AttachmentsDir, "/") + "/" + id
+		if _, err := os.Stat(path); err == nil {
+			p.line(l, "Stored plaintext in: %s", path)
 		}
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"image"
 	"image/png"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -377,7 +378,27 @@ func TestFromArgument(t *testing.T) {
 	if err != nil || s.FileName != "a.png" || s.Width != 7 || s.ContentType != "image/png" {
 		t.Errorf("data uri: %v %+v", err, s)
 	}
-	if _, err := FromArgument("data:image/png;base64,not*base64", dataDir); err == nil || err.Error() != "Illegal base64 character 2a" {
+	// Bad base64 is retried as a path (observed), which does not exist.
+	if _, err := FromArgument("data:image/png;base64,not*base64", dataDir); !errors.Is(err, fs.ErrNotExist) {
 		t.Errorf("bad base64: %v", err)
+	}
+}
+
+// TestDataDirRelative: the refusal also holds for a relative data
+// directory, and files beside it are allowed.
+func TestDataDirRelative(t *testing.T) {
+	dir := t.TempDir()
+	os.MkdirAll(filepath.Join(dir, "cfg", "data"), 0o700)
+	os.WriteFile(filepath.Join(dir, "cfg", "data", "accounts.json"), []byte("{}"), 0o600)
+	os.WriteFile(filepath.Join(dir, "cfg", "ok.txt"), []byte("ok"), 0o600)
+	t.Chdir(dir)
+	if _, err := FromArgument("cfg/data/accounts.json", "cfg/data"); !errors.Is(err, ErrDataDirectory) {
+		t.Errorf("relative data dir: %v", err)
+	}
+	if _, err := FromArgument("./cfg/../cfg/data/accounts.json", "./cfg/data/"); !errors.Is(err, ErrDataDirectory) {
+		t.Errorf("unclean paths: %v", err)
+	}
+	if s, err := FromArgument("cfg/ok.txt", "cfg/data"); err != nil || string(s.Data) != "ok" {
+		t.Errorf("sibling file: %v", err)
 	}
 }

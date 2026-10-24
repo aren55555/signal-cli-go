@@ -205,6 +205,9 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 	if proto.Unmarshal(m.Content, &c) != nil || !valid(&c, &env) {
 		return // dropped silently (pipe.md §7 step 4)
 	}
+	if c.GetNullMessage() != nil {
+		return // no output, no side effects (content-features.md §5)
+	}
 	if err := convert(&c); err != nil {
 		bare := *m
 		bare.Content = nil

@@ -96,9 +96,8 @@ func FromArgument(arg, dataDir string) (Source, error) {
 		s.Width, s.Height = dimensions(s.ContentType, s.Data)
 		return s, nil
 	}
-	if !errors.Is(err, ErrNotDataURI) {
-		return Source{}, err
-	}
+	// Any data-URI failure, bad base64 included, falls back to a path
+	// (observed with signal-cli 0.14.7; the spec says otherwise).
 	return FromFile(arg, dataDir)
 }
 
@@ -112,10 +111,15 @@ func FromFile(path, dataDir string) (Source, error) {
 		return Source{}, err
 	}
 	if dataDir != "" {
-		if dd, err := filepath.EvalSymlinks(dataDir); err == nil {
-			if rel, err := filepath.Rel(dd, canon); err == nil && rel != ".." && !strings.HasPrefix(rel, "../") {
-				return Source{}, ErrDataDirectory
-			}
+		dd, err := filepath.Abs(dataDir)
+		if err != nil {
+			return Source{}, err
+		}
+		if r, err := filepath.EvalSymlinks(dd); err == nil {
+			dd = r
+		}
+		if rel, err := filepath.Rel(dd, canon); err == nil && rel != ".." && !strings.HasPrefix(rel, "../") {
+			return Source{}, ErrDataDirectory
 		}
 	}
 	data, err := os.ReadFile(canon)

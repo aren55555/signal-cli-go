@@ -422,7 +422,7 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 		unauth = u
 	}
 	cd := n.cdn()
-	rc := &RenderContext{Self: a.Data.Number, SelfACI: a.Data.ACI, AttachmentsDir: filepath.Join(g.dataDir, "attachments"), Lookup: func(aci string) (string, string) {
+	rc := &RenderContext{Self: a.Data.Number, SelfACI: a.Data.ACI, AttachmentsDir: strings.TrimRight(g.dataDir, "/") + "/attachments", Lookup: func(aci string) (string, string) {
 		return a.Recipients[aci].Number, ""
 	}}
 	r := &manager.Receiver{

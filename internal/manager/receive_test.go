@@ -312,3 +312,18 @@ func TestStructureError(t *testing.T) {
 		t.Errorf("receipt sent: %v", got)
 	}
 }
+
+// TestNullMessageSilent: a Content with only a NullMessage produces no
+// event (content-features.md §5).
+func TestNullMessageSilent(t *testing.T) {
+	w := newReceiveWorld(t)
+	w.push(t, "plain", &signalpb.AppContent{Body: &signalpb.AppContent_NullMessage{NullMessage: &signalpb.AppNullMessage{Padding: []byte{1, 2}}}}, 1000)
+	w.push(t, "plain", dataContent("after", 2000), 2000)
+	w.queueEmpty()
+	if err := w.r.Run(context.Background(), w.pipe, 50*time.Millisecond, 0); err != nil {
+		t.Fatal(err)
+	}
+	if len(w.events) != 1 || len(w.acked) != 2 {
+		t.Fatalf("%d events, %d acked", len(w.events), len(w.acked))
+	}
+}
