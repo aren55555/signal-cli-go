@@ -214,6 +214,10 @@ func ApplyContent(a *store.Account, m *Message, now time.Time) error {
 		return nil
 	}
 	rc.ProfileKey = key
+	// The cached profile was judged with the old key (or none); fetch it
+	// again when next needed. The spec is silent here; without this a
+	// stale "disabled" access mode would last the full 6 hours.
+	rc.Profile = nil
 	a.Recipients[m.Sender.ServiceID] = rc
 	return a.SaveRecipients()
 }

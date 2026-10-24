@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"bytes"
 	"context"
 	"crypto/hmac"
 	"crypto/rand"
@@ -14,6 +15,7 @@ import (
 	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
 	"github.com/aren55555/signal-cli-go/internal/crypto/zkgroup"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
+	"github.com/aren55555/signal-cli-go/internal/protocol"
 	"github.com/aren55555/signal-cli-go/internal/service/api"
 	"github.com/aren55555/signal-cli-go/internal/store"
 	"google.golang.org/protobuf/proto"
@@ -179,5 +181,23 @@ func TestProfileKeyFromMessage(t *testing.T) {
 	}
 	if got := a.Recipients[bobACI].ProfileKey; len(got) != 32 || got[0] != 9 {
 		t.Errorf("stored key %x", got)
+	}
+}
+
+// TestNewProfileKeyDropsCachedProfile: a different profile key clears the
+// cached profile, so the access mode is judged again with it.
+func TestNewProfileKeyDropsCachedProfile(t *testing.T) {
+	a, _ := testAccount(t)
+	a.Recipients[bobACI] = store.Recipient{ProfileKey: make([]byte, 32), Profile: &store.Profile{LastUpdate: time.Now().UnixMilli(), AccessMode: store.AccessDisabled}}
+	c, _ := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_DataMessage{DataMessage: &signalpb.AppDataMessage{ProfileKey: make([]byte, 32)}}})
+	ApplyContent(a, &Message{Sender: protocol.Address{ServiceID: bobACI, DeviceID: 1}, Content: c}, time.Now())
+	if a.Recipients[bobACI].Profile == nil {
+		t.Error("the same key dropped the profile")
+	}
+	newKey := bytes.Repeat([]byte{1}, 32)
+	c, _ = proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_DataMessage{DataMessage: &signalpb.AppDataMessage{ProfileKey: newKey}}})
+	ApplyContent(a, &Message{Sender: protocol.Address{ServiceID: bobACI, DeviceID: 1}, Content: c}, time.Now())
+	if rc := a.Recipients[bobACI]; rc.Profile != nil || !bytes.Equal(rc.ProfileKey, newKey) {
+		t.Errorf("recipient %+v", rc)
 	}
 }
