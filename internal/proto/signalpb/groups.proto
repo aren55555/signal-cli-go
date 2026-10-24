@@ -1,0 +1,192 @@
+// Groups v2 service messages. Written from spec/service/groups.md §2,
+// never copied from upstream. proto3, as the service uses.
+syntax = "proto3";
+
+package signalcligo;
+
+option go_package = "github.com/aren55555/signal-cli-go/internal/proto/signalpb";
+
+message GroupMember {
+  enum Role {
+    UNKNOWN = 0;
+    DEFAULT = 1;
+    ADMINISTRATOR = 2;
+  }
+  bytes user_id = 1;
+  Role role = 2;
+  bytes profile_key = 3;
+  bytes presentation = 4;
+  uint32 joined_at_version = 5;
+  bytes label_emoji = 6;
+  bytes label_string = 7;
+}
+
+message GroupMemberPendingProfileKey {
+  GroupMember member = 1;
+  bytes added_by_user_id = 2;
+  uint64 timestamp = 3;
+}
+
+message GroupMemberPendingAdminApproval {
+  bytes user_id = 1;
+  bytes profile_key = 2;
+  bytes presentation = 3;
+  uint64 timestamp = 4;
+}
+
+message GroupMemberBanned {
+  bytes user_id = 1;
+  uint64 timestamp = 2;
+}
+
+message GroupAccessControl {
+  enum AccessRequired {
+    UNKNOWN = 0;
+    ANY = 1;
+    MEMBER = 2;
+    ADMINISTRATOR = 3;
+    UNSATISFIABLE = 4;
+  }
+  AccessRequired attributes = 1;
+  AccessRequired members = 2;
+  AccessRequired add_from_invite_link = 3;
+  AccessRequired member_label = 4;
+}
+
+message Group {
+  bytes public_key = 1;
+  bytes title = 2;
+  string avatar_url = 3;
+  bytes disappearing_messages_timer = 4;
+  GroupAccessControl access_control = 5;
+  uint32 version = 6;
+  repeated GroupMember members = 7;
+  repeated GroupMemberPendingProfileKey members_pending_profile_key = 8;
+  repeated GroupMemberPendingAdminApproval members_pending_admin_approval = 9;
+  bytes invite_link_password = 10;
+  bytes description = 11;
+  bool announcements_only = 12;
+  repeated GroupMemberBanned members_banned = 13;
+  bool terminated = 14;
+}
+
+message GroupAttributeBlob {
+  oneof content {
+    string title = 1;
+    bytes avatar = 2;
+    uint32 disappearing_messages_duration = 3;
+    string description_text = 4;
+  }
+}
+
+message GroupInviteLink {
+  message V1 {
+    bytes group_master_key = 1;
+    bytes invite_link_password = 2;
+  }
+  oneof contents {
+    V1 contents_v1 = 1;
+  }
+}
+
+message GroupJoinInfo {
+  bytes public_key = 1;
+  bytes title = 2;
+  string avatar = 3;
+  uint32 member_count = 4;
+  GroupAccessControl.AccessRequired add_from_invite_link = 5;
+  uint32 version = 6;
+  bool pending_admin_approval = 7;
+  bytes description = 8;
+}
+
+message GroupChange {
+  message Actions {
+    message AddMember { GroupMember added = 1; bool join_from_invite_link = 2; }
+    message DeleteMember { bytes deleted_user_id = 1; }
+    message ModifyMemberRole { bytes user_id = 1; GroupMember.Role role = 2; }
+    message ModifyMemberProfileKey { bytes presentation = 1; bytes user_id = 2; bytes profile_key = 3; }
+    message AddMemberPendingProfileKey { GroupMemberPendingProfileKey added = 1; }
+    message DeleteMemberPendingProfileKey { bytes deleted_user_id = 1; }
+    message PromoteMemberPendingProfileKey { bytes presentation = 1; bytes user_id = 2; bytes profile_key = 3; }
+    message ModifyTitle { bytes title = 1; }
+    message ModifyAvatar { string avatar = 1; }
+    message ModifyDisappearingMessageTimer { bytes timer = 1; }
+    message ModifyAttributesAccess { GroupAccessControl.AccessRequired attributes_access = 1; }
+    message ModifyMembersAccess { GroupAccessControl.AccessRequired members_access = 1; }
+    message ModifyAddFromInviteLinkAccess { GroupAccessControl.AccessRequired add_from_invite_link_access = 1; }
+    message AddMemberPendingAdminApproval { GroupMemberPendingAdminApproval added = 1; }
+    message DeleteMemberPendingAdminApproval { bytes deleted_user_id = 1; }
+    message PromoteMemberPendingAdminApproval { bytes user_id = 1; GroupMember.Role role = 2; }
+    message ModifyInviteLinkPassword { bytes invite_link_password = 1; }
+    message ModifyDescription { bytes description = 1; }
+    message ModifyAnnouncementsOnly { bool announcements_only = 1; }
+    message AddMemberBanned { GroupMemberBanned added = 1; }
+    message DeleteMemberBanned { bytes deleted_user_id = 1; }
+    message PromoteMemberPendingPniAciProfileKey { bytes presentation = 1; bytes user_id = 2; bytes pni = 3; bytes profile_key = 4; }
+    message ModifyMemberLabel { bytes user_id = 1; bytes label_emoji = 2; bytes label_string = 3; }
+    message ModifyMemberLabelAccess { GroupAccessControl.AccessRequired member_label_access = 1; }
+    message TerminateGroup {}
+
+    bytes source_user_id = 1;
+    bytes group_id = 25;
+    uint32 version = 2;
+    repeated AddMember add_members = 3;
+    repeated DeleteMember delete_members = 4;
+    repeated ModifyMemberRole modify_member_roles = 5;
+    repeated ModifyMemberProfileKey modify_member_profile_keys = 6;
+    repeated AddMemberPendingProfileKey add_members_pending_profile_key = 7;
+    repeated DeleteMemberPendingProfileKey delete_members_pending_profile_key = 8;
+    repeated PromoteMemberPendingProfileKey promote_members_pending_profile_key = 9;
+    ModifyTitle modify_title = 10;
+    ModifyAvatar modify_avatar = 11;
+    ModifyDisappearingMessageTimer modify_disappearing_message_timer = 12;
+    ModifyAttributesAccess modify_attributes_access = 13;
+    ModifyMembersAccess modify_member_access = 14;
+    ModifyAddFromInviteLinkAccess modify_add_from_invite_link_access = 15;
+    repeated AddMemberPendingAdminApproval add_members_pending_admin_approval = 16;
+    repeated DeleteMemberPendingAdminApproval delete_members_pending_admin_approval = 17;
+    repeated PromoteMemberPendingAdminApproval promote_members_pending_admin_approval = 18;
+    ModifyInviteLinkPassword modify_invite_link_password = 19;
+    ModifyDescription modify_description = 20;
+    ModifyAnnouncementsOnly modify_announcements_only = 21;
+    repeated AddMemberBanned add_members_banned = 22;
+    repeated DeleteMemberBanned delete_members_banned = 23;
+    repeated PromoteMemberPendingPniAciProfileKey promote_members_pending_pni_aci_profile_key = 24;
+    repeated ModifyMemberLabel modify_member_labels = 26;
+    ModifyMemberLabelAccess modify_member_label_access = 27;
+    TerminateGroup terminate_group = 28;
+  }
+  bytes actions = 1;
+  bytes server_signature = 2;
+  uint32 change_epoch = 3;
+}
+
+message GroupChanges {
+  message GroupChangeState {
+    GroupChange group_change = 1;
+    Group group_state = 2;
+  }
+  repeated GroupChangeState group_changes = 1;
+  bytes group_send_endorsements_response = 2;
+}
+
+message GroupResponse {
+  Group group = 1;
+  bytes group_send_endorsements_response = 2;
+}
+
+message GroupChangeResponse {
+  GroupChange group_change = 1;
+  bytes group_send_endorsements_response = 2;
+}
+
+message AvatarUploadAttributes {
+  string key = 1;
+  string credential = 2;
+  string acl = 3;
+  string algorithm = 4;
+  string date = 5;
+  string policy = 6;
+  string signature = 7;
+}

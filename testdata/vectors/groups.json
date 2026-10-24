@@ -15,7 +15,7 @@
     "cases": [
       {"master_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", "group_id_base64": "NAJvAquFGBlkB/fLu7nVtwGM203Fjl7nujQs/mWoJ6o=", "group_public_params_hex": "0034026f02ab8518196407f7cbbbb9d5b7018cdb4dc58e5ee7ba342cfe65a827aa22e10f207c77dd19a554c8da52617af7e2ea38cd2c31093c851b912b7cd1b058e8d712a34207c813e1484e1aa7af3cc00dfcb941ed0385d90db43e3204e59b78"},
       {"master_key_hex": "0000000000000000000000000000000000000000000000000000000000000000", "group_id_base64": "d/rq8//fR4RzhvN3G9KcKlQoj7cguQFjTOqLV6JUSbo="},
-      {"master_key_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "group_id_base64": "oNU87d/985rcAmREXz3MK6PxPqxzeNuQJAJzZ5Euw9w="}
+      {"master_key_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "group_id_base64": "oNU87d/985rcAmREXz3MK6PxPqxzeNuQJAJzZ5Euw9w="}
     ]
   },
   "group_id_parse": {
