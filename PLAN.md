@@ -22,8 +22,8 @@ every session, and update both before ending one.
 | 1  | Surface inventory: CLI + JSON-RPC specs, COMPAT.md rows, account-free goldens | done (2026-10-23) |
 | 2  | Crypto primitives with Layer A vectors      | done (2026-10-23) |
 | 3  | Signal protocol core (PQXDH, ratchet, SPQR, sender keys, sealed sender) | done (2026-10-23); interop captures for sealed sender, sender keys and post-reply messages deferred until milestone 4 |
-| 4  | Service layer, first Layer C 1:1 exchange on staging | **in progress** |
-| 5  | All message types, attachments, receipts, sync, linked devices | not started |
+| 4  | Service layer, first Layer C 1:1 exchange on staging | done (2026-10-24); CDSI, registration lock and reactivation moved to milestone 7 |
+| 5  | All message types, attachments, receipts, sync, linked devices | **in progress** |
 | 6  | Groups v2 and zkgroup                        | not started |
 | 7  | Profiles, contacts, usernames, storage service, CDSI, SVR | not started |
 | 8  | Daemon parity (HTTP/SSE, socket, TCP); Layer B fully green | not started |
