@@ -133,7 +133,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | Command | Spec'd | Impl | Layer A | Layer B | Layer C | Notes |
 |---------|--------|------|---------|---------|---------|-------|
 | [`acceptCall`](spec/surface/cli/acceptCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
-| [`addDevice`](spec/surface/cli/addDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`addDevice`](spec/surface/cli/addDevice.md) | 🟡 | ✅ | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: the reference linked as B.2 of our B |
 | [`addStickerPack`](spec/surface/cli/addStickerPack.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`block`](spec/surface/cli/block.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`daemon`](spec/surface/cli/daemon.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
@@ -150,7 +150,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`listAccounts`](spec/surface/cli/listAccounts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`listCalls`](spec/surface/cli/listCalls.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`listContacts`](spec/surface/cli/listContacts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`listDevices`](spec/surface/cli/listDevices.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`listDevices`](spec/surface/cli/listDevices.md) | 🟡 | ✅ gRPC GetDevices, name and HPKE created-at decryption | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: identical to the reference apart from "(this device)" |
 | [`listGroups`](spec/surface/cli/listGroups.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`listIdentities`](spec/surface/cli/listIdentities.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`listStickerPacks`](spec/surface/cli/listStickerPacks.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
@@ -160,7 +160,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`rejectCall`](spec/surface/cli/rejectCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`remoteDelete`](spec/surface/cli/remoteDelete.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`removeContact`](spec/surface/cli/removeContact.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`removeDevice`](spec/surface/cli/removeDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`removeDevice`](spec/surface/cli/removeDevice.md) | 🟡 | ✅ gRPC RemoveDevice, multi-device flag refreshed | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: removed B.2 (the reference then got 403) |
 | [`removePin`](spec/surface/cli/removePin.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`send`](spec/surface/cli/send.md) | 🟡 | 🟡 every 1:1 feature including attachments (files, data URIs), long text, quote thumbnails, preview images; stickers, groups and CDSI later | n/a | ✅ all send goldens replay | ✅ | Live 2026-10-24: the reference stores our attachments byte-identically |
 | [`sendAdminDelete`](spec/surface/cli/sendAdminDelete.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
@@ -173,7 +173,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`sendPollVote`](spec/surface/cli/sendPollVote.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`sendReaction`](spec/surface/cli/sendReaction.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`sendReceipt`](spec/surface/cli/sendReceipt.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`sendStory`](spec/surface/cli/sendStory.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`sendStory`](spec/surface/cli/sendStory.md) | 🟡 | 🟡 My Story; group stories need groups (milestone 6) | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: decrypted by the reference |
 | [`sendSyncRequest`](spec/surface/cli/sendSyncRequest.md) | 🟡 | ✅ | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: our A.2 → reference A, which answered with blocked list, configuration, keys and contacts |
 | [`sendTyping`](spec/surface/cli/sendTyping.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`sendUnpinMessage`](spec/surface/cli/sendUnpinMessage.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
@@ -183,11 +183,11 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`submitRateLimitChallenge`](spec/surface/cli/submitRateLimitChallenge.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`trust`](spec/surface/cli/trust.md) | 🟡 | 🟡 `-a`, `-v` with the hex fingerprint, verified sync; numeric and scannable safety numbers not yet | n/a | 🟡 4 of 6 goldens (the other two need verbose-log emulation) | ✅ | Live 2026-10-24: our A.2 verified B's key; the reference A applied our verified sync |
 | [`unblock`](spec/surface/cli/unblock.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`unregister`](spec/surface/cli/unregister.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`unregister`](spec/surface/cli/unregister.md) | 🟡 | 🟡 gRPC ClearPushToken; `--delete-account` not yet | n/a | ✅ goldens replay | ⬜ | not run live (it would only mark our test account unregistered) |
 | [`updateAccount`](spec/surface/cli/updateAccount.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`updateConfiguration`](spec/surface/cli/updateConfiguration.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`updateContact`](spec/surface/cli/updateContact.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`updateDevice`](spec/surface/cli/updateDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`updateDevice`](spec/surface/cli/updateDevice.md) | 🟡 | ✅ own name stored; other device: request + deviceNameChange sync | n/a | ✅ goldens replay | ✅ | Live 2026-10-24 |
 | [`updateGroup`](spec/surface/cli/updateGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`updateProfile`](spec/surface/cli/updateProfile.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`uploadStickerPack`](spec/surface/cli/uploadStickerPack.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
@@ -204,7 +204,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | PQXDH session setup | ✅ [`pqxdh.md`](spec/protocol/pqxdh.md) | ✅ key schedule (96-byte split), asymmetric init, PreKeySignalMessage framing, responder flow (base-key match, prekey lookup, archive), SPQR seeded from bytes 64–95, in [`internal/protocol`](internal/protocol) | 🟡 key schedule checked against its definition; no fixed upstream session vectors exist | n/a | 🟡 | Reference → signal-cli-go proven offline: capture-1 (4 PreKeySignalMessages from the reference on staging, to the PNI) all decrypt with PQXDH, SPQR and the address binding (opt-in `TestCaptureReplay`, not in CI). Live 2026-10-23, both directions: reference A.1 and B → our A.2 (PreKey messages decrypted), and our A.2 → reference B and A.1 (sessions initiated from fetched bundles, decrypted by the reference). |
 | Double Ratchet | ✅ [`double-ratchet.md`](spec/protocol/double-ratchet.md) | ✅ libsignal session state, limits, MAC over raw bytes, Sesame-style record with 40 archived states, SPQR as the message-key salt ([`internal/protocol/spqr`](internal/protocol/spqr)), in [`internal/protocol`](internal/protocol) | 🟡 `ratchet_kdf.json` (chain step, AES-CBC); behaviour tests; no fixed upstream session vectors exist | n/a | 🟡 | Capture-1 exercises the first chain only (all prekey messages; the recipient never replied). SPQR: all 11 states, erasure code, chain, ML-KEM-768 split encapsulation (100 KATs); no fixed upstream SPQR vectors exist. Stored form: `SessionRecord.Serialize`, differential reload test. Live exchanges so far are still first-chain only (each side's messages were PreKey messages); a reply round trip is next |
 | Sealed sender | ✅ [`sealed-sender.md`](spec/protocol/sealed-sender.md) | ✅ certificates (known IDs, trust roots per environment, revocation, expiry at the server timestamp), v1 seal/unseal, v2 seal, SentMessage parsing and fan-out, v2 unseal, in [`internal/protocol`](internal/protocol) | 🟡 certificate vectors (3 known, 3 sender, 5 roots), all 16 SentMessage vectors including received forms, AES-CTR vector, GCM-SIV RFC 8452; no fixed upstream v1/v2 ciphertexts exist (round trips, mutation-checked) | n/a | 🟡 | Live 2026-10-23, both directions on staging: reference B → our A.2 sealed (unsealed with the real staging trust roots), our A.2 → B sealed (send.md §3 access decision, 401 fallback, sticky downgrade). Group (v2, sender-key) sealed sends not yet |
-| Sender keys | ✅ [`sender-keys.md`](spec/protocol/sender-keys.md) | ✅ [`internal/protocol`](internal/protocol) | 🟡 derivation by definition, behaviour tests; no fixed upstream sender-key vectors exist | n/a | ⬜ | |
+| Sender keys | ✅ [`sender-keys.md`](spec/protocol/sender-keys.md) | ✅ [`internal/protocol`](internal/protocol), store and receive/send in [`internal/manager`](internal/manager) | 🟡 derivation by definition, behaviour and serialization tests; no fixed upstream sender-key vectors exist | n/a | ✅ | Live via stories both ways; capture replay of a reference sender-key story |
 | 1:1 text | ✅ [`send.md`](spec/service/send.md), [`content.md`](spec/service/content.md) | 🟡 unsealed send with the 409/410 loop and receive/decrypt ([`internal/manager`](internal/manager)); sealed send, CDSI and the CLI command not yet | 🟡 offline end-to-end send/receive through a fake chat server | ⬜ | 🟡 | Live 2026-10-23: reference B → our A.2 and our A.2 → reference B, Unicode intact, "With profile key" |
 | Attachments (send and receive) | ✅ [`attachments.md`](spec/service/attachments.md) | 🟡 cipher and padding, pointers, CDN 2/3 upload, download with checks, storage and naming, data URIs, long text, `getAttachment` ([`internal/attachment`](internal/attachment), [`internal/service/cdn`](internal/service/cdn)); stickers, avatars, incremental MAC not yet | ✅ every cipher, padding-bucket, pointer, data-URI, file-name and sticker vector | n/a | ✅ | Live 2026-10-24: our B → reference A (PNG with dimensions, text, binary: byte-identical) and A → our B (voice-note flags, data URI, 2200-byte long text, to our PNI). Observed: bad base64 in a data URI falls back to a path, and the stored path prints as configured, not absolute (both contradict the spec) |
 | Reactions | ✅ [`content-features.md`](spec/service/content-features.md) | ✅ | 🟡 | n/a | ✅ | Live 2026-10-24, both directions |
@@ -214,13 +214,13 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | Remote deletes | ✅ [`content-features.md`](spec/service/content-features.md) | ✅ | 🟡 | n/a | ✅ | Live 2026-10-24, both directions |
 | Read and delivery receipts | ✅ [`pipe.md`](spec/service/pipe.md) §7.1, [`content.md`](spec/service/content.md) §5.1 | 🟡 delivery receipts for sealed messages and `--send-read-receipts`, batched until queue-empty; server delivery receipts rendered; `sendReceipt` command not yet | 🟡 offline receive-loop tests through real decryptors | ⬜ | 🟡 | Live: the reference renders our receipts; we render its server and client receipts |
 | Typing indicators | ✅ [`content.md`](spec/service/content.md) §5.2 | ✅ | 🟡 | n/a | ✅ | Live, both directions |
-| Stories | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
+| Stories | ✅ [`stories.md`](spec/service/stories.md) | 🟡 My Story send and receive, sender keys, sealed v2 multi-recipient, transcripts; group stories need groups | 🟡 multi_recipient vectors; offline send/receive through a fake server | n/a | ✅ | Live 2026-10-24 both directions, byte-identical rendering; capture replay |
 | Groups v2: create, update, join, leave | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
 | zkgroup credentials and proofs | 🟡 [`zkgroup-profile.md`](spec/crypto/zkgroup-profile.md) (profile-key version and commitment only) | 🟡 Sho, profile-key version and commitment ([`internal/crypto/zkgroup`](internal/crypto/zkgroup)); credentials and proofs not yet | 🟡 9 reference-jar cases with intermediates, Sho vectors, system params | n/a | 🟡 | Live: staging returns a profile for our versioned fetch |
 | Sync messages to linked devices | ✅ [`sync.md`](spec/service/sync.md) | 🟡 transcripts per §4.1, every member on receipt (validation, priority, effects), primary answers to requests, contact stream, verified, read/viewed; group/story transcripts, sticker operations, pniChangeNumber and storage sync not yet | 🟡 offline tests | n/a | ✅ | Live 2026-10-24: our A.2 ↔ reference A: sync requests answered, transcripts with destination, verified sync applied |
 | Safety number change and trust | 🟡 [`trust.md`](spec/surface/cli/trust.md) | 🟡 changed keys stored untrusted on receive, `trust -a`, hex fingerprints; numeric safety numbers need a fingerprint spec | 🟡 | 🟡 | ✅ | Live 2026-10-24 |
 | Session recovery after reinstall | ⬜ | ⬜ | n/a | n/a | ⬜ | |
-| Profiles (encryption, fetch, set) | 🟡 [`profile.md`](spec/service/profile.md) | 🟡 fetch (versioned once the key is known), access modes, 6-hour cache, received profile keys stored; profile writes and field decryption not yet | 🟡 offline tests | ⬜ | 🟡 | |
+| Profiles (encryption, fetch, set) | 🟡 [`profile.md`](spec/service/profile.md) | 🟡 fetch (versioned once the key is known), access modes, 6-hour cache, received profile keys stored; profile writes and field decryption not yet | 🟡 offline tests | ⬜ | 🟡 | Our choice where the spec is silent: storing a different profile key drops the cached profile, so the access mode is judged again (live, a stale DISABLED otherwise kept sends unsealed for 6 hours) | |
 | Usernames | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
 | Storage service | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
 | CDSI contact discovery | ⬜ | ⬜ | ⬜ | n/a | ⬜ | enclave attestation |

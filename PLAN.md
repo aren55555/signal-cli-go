@@ -633,3 +633,36 @@ vectors.
   - Next: linked-device management (gRPC on the chat h2 connection),
     addDevice, stories, sender-key multi-recipient sends, and the
     sealed-sender/sender-key/post-reply captures with our own client.
+- **Milestone 5, linked devices, stories, captures (2026-10-24).**
+  - gRPC unary calls on the chat connection's HTTP/2 connection (the
+    upgrade headers minus x-signal-receive-stories), as sync.md §8.1
+    says libsignal does. Live: listDevices matches the reference on A
+    (names decrypted, HPKE creation times opened); the reference linked
+    as B.2 through our `addDevice`, asked for sync data, and our primary
+    answered (contacts, blocked, configuration, keys); our updateDevice
+    renamed B.2 (the reference's deviceNameChange handling then failed
+    with the ClassCastException sync.md §6.14 predicted); removeDevice
+    deauthorized B.2.
+  - A primary with no session to a new device now sends with an empty
+    device list, so the 409 names the device (otherwise the new device
+    never hears from it).
+  - Stories: receive (SKDM before other content, sealed type-7 sender-key
+    messages, story flag rule, attachments, transcripts) renders
+    byte-identically to the reference; send (§2.2 recipients, SKDM
+    fan-out with the shared-with table, sender-key encryption, sealed v2,
+    `multi_recipient` with the 409/410 loop, transcript) is decrypted by
+    the reference A.1 and rendered as a transcript by the reference B.2.
+  - Live findings: an unsealed `story=true` SKDM arrives without a source
+    and is refused ("Non-UD envelope is missing a UUID!"), so the access
+    check now runs before the fan-out; a profile cached before the peer's
+    profile key was known kept sends unsealed for hours, so a new key now
+    drops the cached profile (spec silent; COMPAT notes it).
+  - Captures redone with our own client (`tools/staging capture`,
+    `TestOwnCaptureReplay`, data in `.data/capture-own`): three sealed
+    post-reply SignalMessages and a sender-key story from the reference
+    decrypt offline from the snapshot; a flipped ciphertext byte fails.
+    The other direction is proven live: the reference decrypts our sealed
+    messages, post-reply messages and sender-key stories.
+  - Also live: a quote with a thumbnail and a preview with an image
+    render identically on both clients; our read sync from A.2 shows on
+    the reference A.1.
