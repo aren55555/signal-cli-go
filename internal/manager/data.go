@@ -96,6 +96,9 @@ type DataSend struct {
 	NotifySelf bool   // send to ourselves as a normal message
 	Urgent     bool
 	Timestamp  uint64 // 0: a new one
+	// Prepare runs on the open session before anything is sent (uploads);
+	// an error aborts the send.
+	Prepare func(ctx context.Context, s *Sender) error
 }
 
 // SendResult is one recipient's outcome.
@@ -219,6 +222,10 @@ func (s *Sender) transcript(ctx context.Context, dest string, dm *signalpb.AppDa
 	if editTarget != 0 {
 		sent.EditMessage = &signalpb.AppEdit{TargetSentTimestamp: proto.Uint64(editTarget), DataMessage: dm}
 	} else {
+		if dm.GetIsViewOnce() && len(dm.Attachments) > 0 {
+			dm = proto.Clone(dm).(*signalpb.AppDataMessage)
+			dm.Attachments = nil
+		}
 		sent.Message = dm
 	}
 	return s.sendSync(ctx, &signalpb.AppSyncMessage{Sent: sent}, ts)

@@ -26,6 +26,7 @@ func aciOf(bin []byte, str string) string {
 func (c *RenderContext) contactOf(aci string) string { return c.address(aci, 0).contact() }
 
 func (c *RenderContext) plainData(p *plain, l int, dm *signalpb.AppDataMessage) {
+	dm = c.withLongText(dm)
 	p.line(l, "Message timestamp: %s", ts(dm.GetTimestamp()))
 	if dm.GetIsViewOnce() {
 		p.line(l, "=VIEW ONCE=")
@@ -50,6 +51,10 @@ func (c *RenderContext) plainData(p *plain, l int, dm *signalpb.AppDataMessage) 
 			p.line(l+1, "Description: %s", pv.GetDescription())
 			p.line(l+1, "Date: %s", ts(pv.GetDate()))
 			p.line(l+1, "Url: %s", pv.GetUrl())
+			if pv.Image != nil {
+				p.line(l+1, "Image:")
+				c.plainAttachment(p, l+2, pv.Image)
+			}
 		}
 	}
 	if len(dm.GetContact()) > 0 {
@@ -100,11 +105,7 @@ func (c *RenderContext) plainData(p *plain, l int, dm *signalpb.AppDataMessage) 
 			p.line(l+1, "Attachments:")
 			for _, a := range q.GetAttachments() {
 				p.line(l+1, "- Attachment:")
-				p.line(l+2, "Content-Type: %s", a.GetContentType())
-				p.line(l+2, "Type: Stream")
-				if a.FileName != nil {
-					p.line(l+2, "Filename: %s", a.GetFileName())
-				}
+				c.plainQuotedAttachment(p, l+2, a)
 			}
 		}
 	}
@@ -123,6 +124,13 @@ func (c *RenderContext) plainData(p *plain, l int, dm *signalpb.AppDataMessage) 
 			for _, s := range ss {
 				p.line(l, "- %s: %d (length: %d)", s.GetStyle().String(), s.GetStart(), s.GetLength())
 			}
+		}
+	}
+	if len(dm.GetAttachments()) > 0 {
+		p.line(l, "Attachments:")
+		for _, a := range dm.GetAttachments() {
+			p.line(l, "- Attachment:")
+			c.plainAttachment(p, l+1, a)
 		}
 	}
 	if pc := dm.GetPollCreate(); pc != nil {
@@ -217,6 +225,9 @@ func (c *RenderContext) plainContact(p *plain, l int, sc *signalpb.AppSharedCont
 	}
 	if av := sc.GetAvatar(); av != nil {
 		p.line(l, "Avatar: (profile: %t)", av.GetIsProfile())
+		if av.Avatar != nil {
+			c.plainAttachment(p, l+1, av.Avatar)
+		}
 	}
 	if sc.Organization != nil {
 		p.line(l, "Organisation: %s", sc.GetOrganization())
@@ -313,6 +324,7 @@ func blankNull(s string) any {
 }
 
 func (c *RenderContext) jsonData(dm *signalpb.AppDataMessage) *jsonObject {
+	dm = c.withLongText(dm)
 	o := &jsonObject{}
 	o.add("timestamp", dm.GetTimestamp())
 	if dm.Body != nil {
@@ -348,6 +360,9 @@ func (c *RenderContext) jsonData(dm *signalpb.AppDataMessage) *jsonObject {
 			ao := &jsonObject{}
 			ao.add("contentType", a.GetContentType())
 			ao.add("filename", strOrNull(a.GetFileName()))
+			if a.Thumbnail != nil {
+				ao.add("thumbnail", jsonAttachment(a.Thumbnail))
+			}
 			atts = append(atts, ao.String())
 		}
 		qo.add("attachments", rawJSON("["+strings.Join(atts, ",")+"]"))
@@ -372,10 +387,17 @@ func (c *RenderContext) jsonData(dm *signalpb.AppDataMessage) *jsonObject {
 			po.add("url", pv.GetUrl())
 			po.add("title", pv.GetTitle())
 			po.add("description", pv.GetDescription())
-			po.add("image", nil)
+			if pv.Image != nil {
+				po.add("image", jsonAttachment(pv.Image))
+			} else {
+				po.add("image", nil)
+			}
 			items = append(items, po.String())
 		}
 		o.add("previews", rawJSON("["+strings.Join(items, ",")+"]"))
+	}
+	if len(dm.GetAttachments()) > 0 {
+		o.add("attachments", jsonAttachments(dm.GetAttachments()))
 	}
 	if st := dm.GetSticker(); st != nil {
 		so := &jsonObject{}
@@ -464,6 +486,12 @@ func jsonContact(sc *signalpb.AppSharedContact) *jsonObject {
 	no.add("suffix", blankNull(n.GetSuffix()))
 	no.add("middle", blankNull(n.GetMiddleName()))
 	o.add("name", no)
+	if av := sc.GetAvatar(); av != nil && av.Avatar != nil {
+		ao := &jsonObject{}
+		ao.add("attachment", jsonAttachment(av.Avatar))
+		ao.add("isProfile", av.GetIsProfile())
+		o.add("avatar", ao)
+	}
 	phones := func(ps []*signalpb.AppSharedContact_Phone) rawJSON {
 		var items []string
 		for _, p := range ps {

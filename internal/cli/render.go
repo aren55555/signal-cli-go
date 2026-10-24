@@ -20,6 +20,10 @@ import (
 type RenderContext struct {
 	Self    string // the account's phone number
 	SelfACI string
+	// AttachmentsDir is <config>/attachments, for stored-file lines.
+	AttachmentsDir string
+
+	longText map[uint64]string // the event being rendered
 	// Lookup returns a peer's phone number and contact or profile name,
 	// either possibly empty.
 	Lookup func(aci string) (number, name string)
@@ -141,6 +145,7 @@ func (p *plain) line(level int, format string, args ...any) {
 // RenderPlain renders one event in signal-cli's plain-text form, ending
 // with the blank line that terminates every envelope.
 func RenderPlain(c *RenderContext, e manager.Event) string {
+	c = c.forEvent(e)
 	var p plain
 	src := c.source(e)
 	from := "unknown source"
@@ -250,6 +255,7 @@ func strOrNull(s string) any {
 
 // RenderJSON renders one event as signal-cli's single-line JSON object.
 func RenderJSON(c *RenderContext, e manager.Event) string {
+	c = c.forEvent(e)
 	top := &jsonObject{}
 	if e.Err != nil {
 		msg, typ := javaException(e.Err)
@@ -338,4 +344,11 @@ func RenderJSON(c *RenderContext, e manager.Event) string {
 func uuidRaw(s string) []byte {
 	b, _ := hex.DecodeString(strings.ReplaceAll(s, "-", ""))
 	return b
+}
+
+// forEvent is the context with the event's long texts.
+func (c *RenderContext) forEvent(e manager.Event) *RenderContext {
+	cp := *c
+	cp.longText = e.LongText
+	return &cp
 }

@@ -21,7 +21,6 @@ obs070-addStickerPack
 obs071-block
 obs072-deleteLocalAccountData
 obs073-finishChangeNumber
-obs074-getAttachment
 obs075-getAvatar
 obs076-getSticker
 obs077-getUserStatus
@@ -62,7 +61,6 @@ obs127-block_--help
 obs128-daemon_--help
 obs129-deleteLocalAccountData_--help
 obs130-finishChangeNumber_--help
-obs131-getAttachment_--help
 obs132-getAvatar_--help
 obs133-getSticker_--help
 obs134-getUserStatus_--help
@@ -167,9 +165,6 @@ obs342--a_15555550123_listStickerPacks
 obs343--o_json_listStickerPacks
 obs344-addStickerPack_--uri
 obs345--a_15555550123_addStickerPack_--uri_https_signal.art_addstic
-obs347-getAttachment_--id_x
-obs348-getAttachment_--id_x_--recipient_15555550199_-g_abc
-obs349--a_15555550123_getAttachment_--id_x_-g_abc
 obs351-getAvatar_-c_15555550199_-p_15555550199
 obs352--a_15555550123_getAvatar_-g_abc
 obs354-getSticker_--pack-id_ab_--sticker-id_x

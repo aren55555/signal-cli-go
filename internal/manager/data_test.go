@@ -114,3 +114,22 @@ func TestSendToSelf(t *testing.T) {
 		}
 	}
 }
+
+// TestViewOnceTranscript: the transcript of a view-once message drops
+// its attachments (sync.md, Sent field 3).
+func TestViewOnceTranscript(t *testing.T) {
+	fc, s := dataWorld(t)
+	att := &signalpb.AppAttachmentPointer{ContentType: proto.String("image/png"), CdnNumber: proto.Uint32(3), Key: make([]byte, 64),
+		AttachmentIdentifier: &signalpb.AppAttachmentPointer_CdnKey{CdnKey: "k"}}
+	dm := &signalpb.AppDataMessage{IsViewOnce: proto.Bool(true), Attachments: []*signalpb.AppAttachmentPointer{att}}
+	if _, res := s.SendData(context.Background(), []string{dataBACI}, DataSend{Message: dm, Urgent: true}); res[0].Err != nil {
+		t.Fatal(res[0].Err)
+	}
+	if len(deliveredTo(t, fc, dataBACI)[0].GetDataMessage().GetAttachments()) != 1 {
+		t.Error("recipient lost the attachment")
+	}
+	sent := deliveredTo(t, fc, testACI)[0].GetSyncMessage().GetSent().GetMessage()
+	if len(sent.GetAttachments()) != 0 || !sent.GetIsViewOnce() {
+		t.Errorf("transcript %v", sent)
+	}
+}

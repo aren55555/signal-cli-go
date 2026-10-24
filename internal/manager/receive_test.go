@@ -292,3 +292,23 @@ func TestCacheRetry(t *testing.T) {
 }
 
 func padContent(b []byte) []byte { return content.Pad(b) }
+
+// TestStructureError: a pointer without a CDN number is reported with an
+// exception and gets no receipt (content-features.md §7.1 stage X).
+func TestStructureError(t *testing.T) {
+	w := newReceiveWorld(t)
+	c := dataContent("pic", 1000)
+	c.GetDataMessage().Attachments = []*signalpb.AppAttachmentPointer{{Key: make([]byte, 64), AttachmentIdentifier: &signalpb.AppAttachmentPointer_CdnKey{CdnKey: "k"}}}
+	w.push(t, "sealed", c, 1000)
+	w.queueEmpty()
+	if err := w.r.Run(context.Background(), w.pipe, 50*time.Millisecond, 0); err != nil {
+		t.Fatal(err)
+	}
+	var se *StructureError
+	if len(w.events) != 1 || !errors.As(w.events[0].Err, &se) || se.Msg != "AttachmentPointer CDN number not set" || w.events[0].Message.Content != nil {
+		t.Fatalf("events %+v", w.events)
+	}
+	if got := w.bReceived(t); len(got) != 0 {
+		t.Errorf("receipt sent: %v", got)
+	}
+}

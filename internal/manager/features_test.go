@@ -55,6 +55,32 @@ func TestValidation(t *testing.T) {
 		{"pin without duration", dm(func(d *signalpb.AppDataMessage) {
 			d.PinMessage = &signalpb.AppPinMessage{TargetAuthorAciBinary: good[:], TargetSentTimestamp: proto.Uint64(1)}
 		}), false},
+		{"attachment without location", dm(func(d *signalpb.AppDataMessage) {
+			d.Attachments = []*signalpb.AppAttachmentPointer{{ContentType: proto.String("image/png")}}
+		}), false},
+		{"attachment ok", dm(func(d *signalpb.AppDataMessage) {
+			d.Attachments = []*signalpb.AppAttachmentPointer{located("image/png")}
+		}), true},
+		{"range out of bounds with a plain attachment", dm(func(d *signalpb.AppDataMessage) {
+			d.Attachments = []*signalpb.AppAttachmentPointer{located("image/png")}
+			d.BodyRanges = []*signalpb.AppBodyRange{{Start: proto.Uint32(3), Length: proto.Uint32(9), AssociatedValue: &signalpb.AppBodyRange_Style_{Style: signalpb.AppBodyRange_BOLD}}}
+		}), false},
+		{"range out of bounds with long text", dm(func(d *signalpb.AppDataMessage) {
+			d.Attachments = []*signalpb.AppAttachmentPointer{located("text/x-signal-plain")}
+			d.BodyRanges = []*signalpb.AppBodyRange{{Start: proto.Uint32(3), Length: proto.Uint32(9), AssociatedValue: &signalpb.AppBodyRange_Style_{Style: signalpb.AppBodyRange_BOLD}}}
+		}), true},
+		{"preview image without location", dm(func(d *signalpb.AppDataMessage) {
+			d.Preview = []*signalpb.AppPreview{{Url: proto.String("https://x"), Image: &signalpb.AppAttachmentPointer{}}}
+		}), false},
+		{"contact avatar without location", dm(func(d *signalpb.AppDataMessage) {
+			d.Contact = []*signalpb.AppSharedContact{{Avatar: &signalpb.AppSharedContact_Avatar{Avatar: &signalpb.AppAttachmentPointer{}}}}
+		}), false},
+		{"sticker without data", dm(func(d *signalpb.AppDataMessage) {
+			d.Sticker = &signalpb.AppSticker{PackId: make([]byte, 16), PackKey: make([]byte, 32), StickerId: proto.Uint32(0)}
+		}), false},
+		{"sticker ok", dm(func(d *signalpb.AppDataMessage) {
+			d.Sticker = &signalpb.AppSticker{PackId: make([]byte, 16), PackKey: make([]byte, 32), StickerId: proto.Uint32(0), Data: located("image/webp")}
+		}), true},
 		{"protocol version 9", dm(func(d *signalpb.AppDataMessage) { d.RequiredProtocolVersion = proto.Uint32(9) }), false},
 		{"edit with wrong inner timestamp", &signalpb.AppContent{Body: &signalpb.AppContent_EditMessage{EditMessage: &signalpb.AppEdit{
 			TargetSentTimestamp: proto.Uint64(5), DataMessage: &signalpb.AppDataMessage{Timestamp: proto.Uint64(11)}}}}, false},
@@ -131,4 +157,9 @@ func TestPNIFlagAndSignature(t *testing.T) {
 	if a2.Recipients[bobACI].PNIVerified {
 		t.Error("swapped keys verified")
 	}
+}
+
+func located(contentType string) *signalpb.AppAttachmentPointer {
+	return &signalpb.AppAttachmentPointer{ContentType: proto.String(contentType), CdnNumber: proto.Uint32(3),
+		AttachmentIdentifier: &signalpb.AppAttachmentPointer_CdnKey{CdnKey: "k"}}
 }

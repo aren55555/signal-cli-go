@@ -1677,12 +1677,32 @@ func (x *AppDecryptionErrorMessage) GetDeviceId() uint32 {
 	return 0
 }
 
-// Attachment pointers are filled in from the attachments spec; until then
-// their fields survive as unknown fields.
+// Attachment pointers, from spec/service/attachments.md §3.1.
 type AppAttachmentPointer struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to AttachmentIdentifier:
+	//
+	//	*AppAttachmentPointer_CdnId
+	//	*AppAttachmentPointer_CdnKey
+	AttachmentIdentifier isAppAttachmentPointer_AttachmentIdentifier `protobuf_oneof:"attachment_identifier"`
+	ClientUuid           []byte                                      `protobuf:"bytes,20,opt,name=client_uuid,json=clientUuid" json:"client_uuid,omitempty"`
+	ContentType          *string                                     `protobuf:"bytes,2,opt,name=content_type,json=contentType" json:"content_type,omitempty"`
+	Key                  []byte                                      `protobuf:"bytes,3,opt,name=key" json:"key,omitempty"`
+	Size                 *uint32                                     `protobuf:"varint,4,opt,name=size" json:"size,omitempty"`
+	Thumbnail            []byte                                      `protobuf:"bytes,5,opt,name=thumbnail" json:"thumbnail,omitempty"`
+	Digest               []byte                                      `protobuf:"bytes,6,opt,name=digest" json:"digest,omitempty"`
+	IncrementalMac       []byte                                      `protobuf:"bytes,19,opt,name=incremental_mac,json=incrementalMac" json:"incremental_mac,omitempty"`
+	ChunkSize            *uint32                                     `protobuf:"varint,17,opt,name=chunk_size,json=chunkSize" json:"chunk_size,omitempty"`
+	FileName             *string                                     `protobuf:"bytes,7,opt,name=file_name,json=fileName" json:"file_name,omitempty"`
+	Flags                *uint32                                     `protobuf:"varint,8,opt,name=flags" json:"flags,omitempty"`
+	Width                *uint32                                     `protobuf:"varint,9,opt,name=width" json:"width,omitempty"`
+	Height               *uint32                                     `protobuf:"varint,10,opt,name=height" json:"height,omitempty"`
+	Caption              *string                                     `protobuf:"bytes,11,opt,name=caption" json:"caption,omitempty"`
+	BlurHash             *string                                     `protobuf:"bytes,12,opt,name=blur_hash,json=blurHash" json:"blur_hash,omitempty"`
+	UploadTimestamp      *uint64                                     `protobuf:"varint,13,opt,name=upload_timestamp,json=uploadTimestamp" json:"upload_timestamp,omitempty"`
+	CdnNumber            *uint32                                     `protobuf:"varint,14,opt,name=cdn_number,json=cdnNumber" json:"cdn_number,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *AppAttachmentPointer) Reset() {
@@ -1714,6 +1734,159 @@ func (x *AppAttachmentPointer) ProtoReflect() protoreflect.Message {
 func (*AppAttachmentPointer) Descriptor() ([]byte, []int) {
 	return file_content_proto_rawDescGZIP(), []int{13}
 }
+
+func (x *AppAttachmentPointer) GetAttachmentIdentifier() isAppAttachmentPointer_AttachmentIdentifier {
+	if x != nil {
+		return x.AttachmentIdentifier
+	}
+	return nil
+}
+
+func (x *AppAttachmentPointer) GetCdnId() uint64 {
+	if x != nil {
+		if x, ok := x.AttachmentIdentifier.(*AppAttachmentPointer_CdnId); ok {
+			return x.CdnId
+		}
+	}
+	return 0
+}
+
+func (x *AppAttachmentPointer) GetCdnKey() string {
+	if x != nil {
+		if x, ok := x.AttachmentIdentifier.(*AppAttachmentPointer_CdnKey); ok {
+			return x.CdnKey
+		}
+	}
+	return ""
+}
+
+func (x *AppAttachmentPointer) GetClientUuid() []byte {
+	if x != nil {
+		return x.ClientUuid
+	}
+	return nil
+}
+
+func (x *AppAttachmentPointer) GetContentType() string {
+	if x != nil && x.ContentType != nil {
+		return *x.ContentType
+	}
+	return ""
+}
+
+func (x *AppAttachmentPointer) GetKey() []byte {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+func (x *AppAttachmentPointer) GetSize() uint32 {
+	if x != nil && x.Size != nil {
+		return *x.Size
+	}
+	return 0
+}
+
+func (x *AppAttachmentPointer) GetThumbnail() []byte {
+	if x != nil {
+		return x.Thumbnail
+	}
+	return nil
+}
+
+func (x *AppAttachmentPointer) GetDigest() []byte {
+	if x != nil {
+		return x.Digest
+	}
+	return nil
+}
+
+func (x *AppAttachmentPointer) GetIncrementalMac() []byte {
+	if x != nil {
+		return x.IncrementalMac
+	}
+	return nil
+}
+
+func (x *AppAttachmentPointer) GetChunkSize() uint32 {
+	if x != nil && x.ChunkSize != nil {
+		return *x.ChunkSize
+	}
+	return 0
+}
+
+func (x *AppAttachmentPointer) GetFileName() string {
+	if x != nil && x.FileName != nil {
+		return *x.FileName
+	}
+	return ""
+}
+
+func (x *AppAttachmentPointer) GetFlags() uint32 {
+	if x != nil && x.Flags != nil {
+		return *x.Flags
+	}
+	return 0
+}
+
+func (x *AppAttachmentPointer) GetWidth() uint32 {
+	if x != nil && x.Width != nil {
+		return *x.Width
+	}
+	return 0
+}
+
+func (x *AppAttachmentPointer) GetHeight() uint32 {
+	if x != nil && x.Height != nil {
+		return *x.Height
+	}
+	return 0
+}
+
+func (x *AppAttachmentPointer) GetCaption() string {
+	if x != nil && x.Caption != nil {
+		return *x.Caption
+	}
+	return ""
+}
+
+func (x *AppAttachmentPointer) GetBlurHash() string {
+	if x != nil && x.BlurHash != nil {
+		return *x.BlurHash
+	}
+	return ""
+}
+
+func (x *AppAttachmentPointer) GetUploadTimestamp() uint64 {
+	if x != nil && x.UploadTimestamp != nil {
+		return *x.UploadTimestamp
+	}
+	return 0
+}
+
+func (x *AppAttachmentPointer) GetCdnNumber() uint32 {
+	if x != nil && x.CdnNumber != nil {
+		return *x.CdnNumber
+	}
+	return 0
+}
+
+type isAppAttachmentPointer_AttachmentIdentifier interface {
+	isAppAttachmentPointer_AttachmentIdentifier()
+}
+
+type AppAttachmentPointer_CdnId struct {
+	CdnId uint64 `protobuf:"fixed64,1,opt,name=cdn_id,json=cdnId,oneof"`
+}
+
+type AppAttachmentPointer_CdnKey struct {
+	CdnKey string `protobuf:"bytes,15,opt,name=cdn_key,json=cdnKey,oneof"`
+}
+
+func (*AppAttachmentPointer_CdnId) isAppAttachmentPointer_AttachmentIdentifier() {}
+
+func (*AppAttachmentPointer_CdnKey) isAppAttachmentPointer_AttachmentIdentifier() {}
 
 type AppBodyRange struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
@@ -3546,8 +3719,31 @@ const file_content_proto_rawDesc = "" +
 	"\vratchet_key\x18\x01 \x01(\fR\n" +
 	"ratchetKey\x12\x1c\n" +
 	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x12\x1b\n" +
-	"\tdevice_id\x18\x03 \x01(\rR\bdeviceId\"\x16\n" +
-	"\x14AppAttachmentPointer\"\xb4\x02\n" +
+	"\tdevice_id\x18\x03 \x01(\rR\bdeviceId\"\xad\x04\n" +
+	"\x14AppAttachmentPointer\x12\x17\n" +
+	"\x06cdn_id\x18\x01 \x01(\x06H\x00R\x05cdnId\x12\x19\n" +
+	"\acdn_key\x18\x0f \x01(\tH\x00R\x06cdnKey\x12\x1f\n" +
+	"\vclient_uuid\x18\x14 \x01(\fR\n" +
+	"clientUuid\x12!\n" +
+	"\fcontent_type\x18\x02 \x01(\tR\vcontentType\x12\x10\n" +
+	"\x03key\x18\x03 \x01(\fR\x03key\x12\x12\n" +
+	"\x04size\x18\x04 \x01(\rR\x04size\x12\x1c\n" +
+	"\tthumbnail\x18\x05 \x01(\fR\tthumbnail\x12\x16\n" +
+	"\x06digest\x18\x06 \x01(\fR\x06digest\x12'\n" +
+	"\x0fincremental_mac\x18\x13 \x01(\fR\x0eincrementalMac\x12\x1d\n" +
+	"\n" +
+	"chunk_size\x18\x11 \x01(\rR\tchunkSize\x12\x1b\n" +
+	"\tfile_name\x18\a \x01(\tR\bfileName\x12\x14\n" +
+	"\x05flags\x18\b \x01(\rR\x05flags\x12\x14\n" +
+	"\x05width\x18\t \x01(\rR\x05width\x12\x16\n" +
+	"\x06height\x18\n" +
+	" \x01(\rR\x06height\x12\x18\n" +
+	"\acaption\x18\v \x01(\tR\acaption\x12\x1b\n" +
+	"\tblur_hash\x18\f \x01(\tR\bblurHash\x12)\n" +
+	"\x10upload_timestamp\x18\r \x01(\x04R\x0fuploadTimestamp\x12\x1d\n" +
+	"\n" +
+	"cdn_number\x18\x0e \x01(\rR\tcdnNumberB\x17\n" +
+	"\x15attachment_identifier\"\xb4\x02\n" +
 	"\fAppBodyRange\x12\x14\n" +
 	"\x05start\x18\x01 \x01(\rR\x05start\x12\x16\n" +
 	"\x06length\x18\x02 \x01(\rR\x06length\x12!\n" +
@@ -3862,6 +4058,10 @@ func file_content_proto_init() {
 		(*AppContent_TypingMessage)(nil),
 		(*AppContent_DecryptionErrorMessage)(nil),
 		(*AppContent_EditMessage)(nil),
+	}
+	file_content_proto_msgTypes[13].OneofWrappers = []any{
+		(*AppAttachmentPointer_CdnId)(nil),
+		(*AppAttachmentPointer_CdnKey)(nil),
 	}
 	file_content_proto_msgTypes[14].OneofWrappers = []any{
 		(*AppBodyRange_MentionAci)(nil),

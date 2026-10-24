@@ -58,7 +58,10 @@ type Sender struct {
 
 	// Unauth is the unauthenticated socket for sealed sends; nil sends
 	// everything unsealed.
-	Unauth      Requester
+	Unauth Requester
+
+	// CDN uploads attachments; nil makes attachment sends fail.
+	CDN         CDN
 	cert        []byte
 	certExpires uint64
 }

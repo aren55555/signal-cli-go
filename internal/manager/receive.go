@@ -33,6 +33,9 @@ type Event struct {
 	ServerDelivered uint64
 	Message         *Message
 	Err             error
+	// LongText is the long-text attachment body per DataMessage
+	// timestamp; it replaces the body in output.
+	LongText map[uint64]string
 }
 
 // untrustedRetention is how long an envelope refused for an untrusted
@@ -45,6 +48,7 @@ type Receiver struct {
 	Decryptor        *Decryptor
 	Sender           *Sender // for receipts, renewals and the prekey refresh
 	SendReadReceipts bool
+	Attachments      *AttachmentStore // nil: nothing is downloaded
 	OnEvent          func(Event)
 	Log              func(string)
 	Now              func() time.Time
@@ -201,6 +205,12 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 	if proto.Unmarshal(m.Content, &c) != nil || !valid(&c, &env) {
 		return // dropped silently (pipe.md §7 step 4)
 	}
+	if err := convert(&c); err != nil {
+		bare := *m
+		bare.Content = nil
+		r.emit(Event{Envelope: &env, ServerDelivered: delivered, Message: &bare, Err: err})
+		return
+	}
 	applyPNI(r.Acct, m, &c)
 	if c.GetEditMessage() != nil && c.GetPniSignatureMessage() != nil {
 		// A PNI signature hides an edit (content-features.md §4.4 item 5).
@@ -231,7 +241,17 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 			r.queueRenewal(false, m.Sender.ServiceID)
 		}
 	}
-	r.emit(Event{Envelope: &env, ServerDelivered: delivered, Message: m})
+	ev := Event{Envelope: &env, ServerDelivered: delivered, Message: m}
+	sent := c.GetSyncMessage().GetSent()
+	for _, dm := range []*signalpb.AppDataMessage{c.GetDataMessage(), c.GetEditMessage().GetDataMessage(), sent.GetMessage(), sent.GetEditMessage().GetDataMessage()} {
+		if text, ok := r.Attachments.FetchData(ctx, dm); ok {
+			if ev.LongText == nil {
+				ev.LongText = map[uint64]string{}
+			}
+			ev.LongText[dm.GetTimestamp()] = text
+		}
+	}
+	r.emit(ev)
 }
 
 // currentProtocolVersion is DataMessage.ProtocolVersion CURRENT

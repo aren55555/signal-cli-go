@@ -148,9 +148,29 @@ message AppDecryptionErrorMessage {
 
 // Data-message features, from spec/service/content-features.md §2.
 
-// Attachment pointers are filled in from the attachments spec; until then
-// their fields survive as unknown fields.
-message AppAttachmentPointer {}
+// Attachment pointers, from spec/service/attachments.md §3.1.
+message AppAttachmentPointer {
+  oneof attachment_identifier {
+    fixed64 cdn_id = 1;
+    string cdn_key = 15;
+  }
+  optional bytes client_uuid = 20;
+  optional string content_type = 2;
+  optional bytes key = 3;
+  optional uint32 size = 4;
+  optional bytes thumbnail = 5;
+  optional bytes digest = 6;
+  optional bytes incremental_mac = 19;
+  optional uint32 chunk_size = 17;
+  optional string file_name = 7;
+  optional uint32 flags = 8;
+  optional uint32 width = 9;
+  optional uint32 height = 10;
+  optional string caption = 11;
+  optional string blur_hash = 12;
+  optional uint64 upload_timestamp = 13;
+  optional uint32 cdn_number = 14;
+}
 
 message AppBodyRange {
   optional uint32 start = 1;

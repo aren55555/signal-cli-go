@@ -14,6 +14,7 @@ import (
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/protocol"
 	"github.com/aren55555/signal-cli-go/internal/service/agent"
+	"github.com/aren55555/signal-cli-go/internal/service/cdn"
 	"github.com/aren55555/signal-cli-go/internal/service/chat"
 	"github.com/aren55555/signal-cli-go/internal/service/provision"
 	"github.com/aren55555/signal-cli-go/internal/service/rest"
@@ -68,6 +69,11 @@ func (e *env) network(g *globals) (*network, error) {
 		}
 	}
 	return n, nil
+}
+
+// cdn is the attachment CDN client.
+func (n *network) cdn() *cdn.Client {
+	return cdn.New(cdn.Config{Proxy: n.proxy, UserAgentOverride: n.userAgent})
 }
 
 func (n *network) dialChat(ctx context.Context, a *store.Account, keepAlive bool) (*chat.Conn, error) {
@@ -180,7 +186,7 @@ func openSession(ctx context.Context, e *env, g *globals, a *store.Account) (*se
 		c.Close()
 		return nil, err
 	}
-	s := &session{acct: a, sender: &manager.Sender{Acct: a, Chat: c}}
+	s := &session{acct: a, sender: &manager.Sender{Acct: a, Chat: c, CDN: n.cdn()}}
 	closers := []func() error{c.Close}
 	if u, err := n.dialChat(ctx, nil, false); err == nil {
 		s.sender.Unauth = u
@@ -384,10 +390,11 @@ func resolveRecipient(a *store.Account, s string) (resolved, error) {
 
 // receiveOpts are receive's options.
 type receiveOpts struct {
-	timeout          time.Duration // <= 0: none
-	maxMessages      int
-	sendReadReceipts bool
-	ignoreStories    bool
+	timeout           time.Duration // <= 0: none
+	maxMessages       int
+	sendReadReceipts  bool
+	ignoreStories     bool
+	ignoreAttachments bool
 }
 
 // runReceive is `receive` (spec/surface/cli/receive.md).
@@ -414,13 +421,16 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 		defer u.Close()
 		unauth = u
 	}
-	rc := &RenderContext{Self: a.Data.Number, SelfACI: a.Data.ACI, Lookup: func(aci string) (string, string) {
+	cd := n.cdn()
+	rc := &RenderContext{Self: a.Data.Number, SelfACI: a.Data.ACI, AttachmentsDir: filepath.Join(g.dataDir, "attachments"), Lookup: func(aci string) (string, string) {
 		return a.Recipients[aci].Number, ""
 	}}
 	r := &manager.Receiver{
-		Acct:             a,
-		Decryptor:        &manager.Decryptor{Acct: a},
-		Sender:           &manager.Sender{Acct: a, Chat: c, Unauth: unauth},
+		Acct:      a,
+		Decryptor: &manager.Decryptor{Acct: a},
+		Sender:    &manager.Sender{Acct: a, Chat: c, Unauth: unauth, CDN: cd},
+		Attachments: &manager.AttachmentStore{Dir: filepath.Join(g.dataDir, "attachments"), CDN: cd, Ignore: o.ignoreAttachments,
+			Log: func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  AttachmentHelper - "+f+"\n", args...) }},
 		SendReadReceipts: o.sendReadReceipts,
 		Log:              func(s string) { fmt.Fprintln(e.stderr, "WARN  ReceiveHelper - "+s) },
 		OnEvent: func(ev manager.Event) {

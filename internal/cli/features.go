@@ -3,14 +3,18 @@ package cli
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 	"unicode/utf16"
 
+	"github.com/aren55555/signal-cli-go/internal/attachment"
 	"github.com/aren55555/signal-cli-go/internal/cli/argparse"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
@@ -101,6 +105,11 @@ func sendDataCommand(ctx context.Context, e *env, g *globals, a *store.Account, 
 		return err
 	}
 	defer s.close()
+	if d.Prepare != nil {
+		if err := d.Prepare(ctx, s.sender); err != nil {
+			return &cliError{msg: fmt.Sprintf("Failed to send message: %v (IOException)", err), code: 2}
+		}
+	}
 	acis := make([]string, len(targets))
 	for i, t := range targets {
 		acis[i] = t.aci
@@ -216,6 +225,8 @@ type fullSendOpts struct {
 	editTS                       int64
 	hasEdit                      bool
 	attachments                  []string
+	previewImage                 string
+	voiceNote                    bool
 }
 
 var quoteAttachmentRe = regexp.MustCompile(`^([^:]+)(?::([^:]*)(?::(.*))?)?$`)
@@ -242,6 +253,11 @@ func runSendFull(ctx context.Context, e *env, g *globals, o fullSendOpts) error 
 			}
 			text = b
 		}
+		type thumb struct {
+			att *signalpb.AppQuotedAttachment
+			src attachment.Source
+		}
+		var thumbs []thumb
 		dm := &signalpb.AppDataMessage{}
 		if text != "" {
 			dm.Body = proto.String(text)
@@ -278,7 +294,11 @@ func runSendFull(ctx context.Context, e *env, g *globals, o fullSendOpts) error 
 					att.FileName = proto.String(m[2])
 				}
 				if m[3] != "" {
-					return userError("Quote attachment previews are not supported by signal-cli-go yet")
+					src, err := attachmentSource(m[3], g)
+					if err != nil {
+						return err
+					}
+					thumbs = append(thumbs, thumb{att, src})
 				}
 				qas = append(qas, att)
 			}
@@ -303,16 +323,49 @@ func runSendFull(ctx context.Context, e *env, g *globals, o fullSendOpts) error 
 		if o.viewOnce {
 			dm.IsViewOnce = proto.Bool(true)
 		}
-		if len(o.attachments) > 0 {
-			return userError("Attachments are not supported by signal-cli-go yet")
+		var srcs []attachment.Source
+		for _, arg := range o.attachments {
+			src, err := attachmentSource(arg, g)
+			if err != nil {
+				return err
+			}
+			srcs = append(srcs, src)
+		}
+		var previewSrc *attachment.Source
+		if o.hasPreview && o.previewImage != "" {
+			src, err := attachmentSource(o.previewImage, g)
+			if err != nil {
+				return err
+			}
+			previewSrc = &src
 		}
 		if o.sticker != "" {
 			return userError("Failed to send sticker: Sticker pack not found")
 		}
-		if text == "" && !o.hasQuote {
+		if text == "" && len(srcs) == 0 && !o.hasQuote {
 			return userError("Sending empty message is not allowed, either a message, attachment or sticker must be given.")
 		}
 		d := manager.DataSend{Message: dm, NotifySelf: o.notifySelf, Urgent: !o.noUrgent}
+		d.Prepare = func(ctx context.Context, s *manager.Sender) error {
+			if err := s.Attach(ctx, dm, srcs, o.voiceNote); err != nil {
+				return err
+			}
+			for _, t := range thumbs {
+				ps, err := s.UploadAttachments(ctx, []attachment.Source{t.src}, 0)
+				if err != nil {
+					return err
+				}
+				t.att.Thumbnail = ps[0]
+			}
+			if previewSrc != nil {
+				ps, err := s.UploadAttachments(ctx, []attachment.Source{*previewSrc}, 0)
+				if err != nil {
+					return err
+				}
+				dm.Preview[0].Image = ps[0]
+			}
+			return nil
+		}
 		if o.hasEdit {
 			d.EditTarget = uint64(o.editTS)
 		}
@@ -535,4 +588,22 @@ func runMessageRequestResponse(ctx context.Context, e *env, g *globals, rs recip
 		}
 		return nil
 	})
+}
+
+// attachmentSource reads an -a value, a preview image or a quote preview
+// file (attachments.md §7).
+func attachmentSource(arg string, g *globals) (attachment.Source, error) {
+	src, err := attachment.FromArgument(arg, filepath.Join(g.dataDir, "data"))
+	if err != nil {
+		return src, &cliError{msg: fmt.Sprintf("Failed to send message: %s (AttachmentInvalidException)", attachmentErrorText(arg, err)), code: 2}
+	}
+	return src, nil
+}
+
+func attachmentErrorText(arg string, err error) string {
+	var pe *fs.PathError
+	if errors.As(err, &pe) && errors.Is(err, fs.ErrNotExist) {
+		return arg + ": " + arg + " (No such file or directory)"
+	}
+	return arg + ": " + err.Error()
 }

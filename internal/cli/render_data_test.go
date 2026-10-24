@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -73,5 +75,46 @@ func TestRenderFeatures(t *testing.T) {
 	}
 	if strings.Index(j, `"reaction"`) > strings.Index(j, `"quote"`) || strings.Index(j, `"mentions"`) > strings.Index(j, `"pollVote"`) || strings.Index(j, `"pollVote"`) > strings.Index(j, `"textStyles"`) {
 		t.Errorf("JSON key order: %s", j)
+	}
+}
+
+func TestRenderAttachments(t *testing.T) {
+	dir := t.TempDir()
+	os.WriteFile(filepath.Join(dir, "KeyA.png"), []byte("png"), 0o600)
+	img := &signalpb.AppAttachmentPointer{ContentType: proto.String("image/png"), CdnNumber: proto.Uint32(3), Key: make([]byte, 64),
+		AttachmentIdentifier: &signalpb.AppAttachmentPointer_CdnKey{CdnKey: "KeyA"}, Size: proto.Uint32(1234), Flags: proto.Uint32(9),
+		Width: proto.Uint32(640), Height: proto.Uint32(480), UploadTimestamp: proto.Uint64(1700000000000), Thumbnail: []byte("tt"), Caption: proto.String("cap")}
+	long := &signalpb.AppAttachmentPointer{ContentType: proto.String("text/x-signal-plain"), CdnNumber: proto.Uint32(2), Key: make([]byte, 64),
+		AttachmentIdentifier: &signalpb.AppAttachmentPointer_CdnKey{CdnKey: "a/b"}, Flags: proto.Uint32(0), FileName: proto.String("t.txt")}
+	dm := &signalpb.AppDataMessage{Body: proto.String("short"), Attachments: []*signalpb.AppAttachmentPointer{long, img},
+		Quote: &signalpb.AppQuote{Id: proto.Uint64(5), Text: proto.String("q"), AuthorAciBinary: uuidRaw(peerACI),
+			Attachments: []*signalpb.AppQuotedAttachment{{ContentType: proto.String("image/jpeg"), FileName: proto.String("x.jpg"), Thumbnail: img}}}}
+	e := featureEvent(dm)
+	e.LongText = map[uint64]string{1700000000000: "the full text"}
+	c := *ctx
+	c.AttachmentsDir = dir
+	got := RenderPlain(&c, e)
+	block := "  Content-Type: image/png\n  Type: Pointer\n  Id: KeyA.png\n  Upload timestamp: 1700000000000 (2023-11-14T22:13:20.000Z)\n" +
+		"  Caption: cap\n  Size: 1234 bytes (Preview is available: 2 bytes)\n  Flags: voice note, video gif\n  Dimensions: 640x480\n" +
+		"  Stored plaintext in: " + filepath.Join(dir, "KeyA.png") + "\n"
+	for _, want := range []string{
+		"Body: the full text\n",
+		"Attachments:\n- Attachment:\n  Content-Type: text/x-signal-plain\n  Type: Pointer\n  Id: a_b.txt\n  Filename: t.txt\n- Attachment:\n" + block,
+		"  Attachments:\n  - Attachment:\n    Content-Type: image/jpeg\n    Type: Stream\n    Filename: x.jpg\n    Thumbnail:\n      Content-Type: image/png\n",
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("plain output lacks %q:\n%s", want, got)
+		}
+	}
+	j := RenderJSON(&c, e)
+	for _, want := range []string{
+		`"message":"the full text"`,
+		`"attachments":[{"contentType":"text/x-signal-plain","filename":"t.txt","id":"a_b.txt","size":null,"width":null,"height":null,"caption":null,"uploadTimestamp":null},` +
+			`{"contentType":"image/png","filename":null,"id":"KeyA.png","size":1234,"width":640,"height":480,"caption":"cap","uploadTimestamp":1700000000000}]`,
+		`"attachments":[{"contentType":"image/jpeg","filename":"x.jpg","thumbnail":{"contentType":"image/png"`,
+	} {
+		if !strings.Contains(j, want) {
+			t.Errorf("JSON lacks %s:\n%s", want, j)
+		}
 	}
 }

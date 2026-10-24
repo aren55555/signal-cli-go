@@ -178,6 +178,13 @@ func commandParser(name string) *argparse.Parser {
 			&argparse.Arg{Names: []string{"-g", "--group-id", "--group"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Nargs: argparse.ZeroOrMore, Help: "Specify the recipient group ID."},
 			&argparse.Arg{Names: []string{"-s", "--stop"}, Action: argparse.StoreTrue, Help: "Send a typing STOP message."},
 		)
+	case "getAttachment":
+		recipient := &argparse.Arg{Names: []string{"--recipient"}, Dest: "recipient", Metavars: []string{"RECIPIENT"}, Help: "Sender of the attachment"}
+		group := &argparse.Arg{Names: []string{"-g", "--group-id"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Help: "Group in which the attachment was received"}
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"--id"}, Dest: "id", Metavars: []string{"ID"}, Required: true, Help: "The ID of the attachment file."},
+			recipient, group)
+		p.Groups = []*argparse.Group{{Args: []*argparse.Arg{recipient, group}, Required: true}}
 	case "receive":
 		p.Args = append(p.Args,
 			&argparse.Arg{Names: []string{"-t", "--timeout"}, Dest: "timeout", Metavars: []string{"TIMEOUT"}, Kind: argparse.Double, Help: "Number of seconds to wait for new messages (negative values disable timeout)", Default: 3.0},

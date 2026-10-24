@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"github.com/aren55555/signal-cli-go/internal/attachment"
 	"strings"
 	"unicode/utf16"
 
@@ -56,9 +57,40 @@ func validRanges(rs []*signalpb.AppBodyRange, text string, allowOutOfBounds bool
 }
 
 func hasLongText(dm *signalpb.AppDataMessage) bool {
-	// Attachment pointers are not decoded yet; any attachment may be the
-	// long-text one, so out-of-bounds ranges are allowed with attachments.
-	return len(dm.GetAttachments()) > 0
+	for _, a := range dm.GetAttachments() {
+		if a.GetContentType() == attachment.LongTextType {
+			return true
+		}
+	}
+	return false
+}
+
+// validPointers: every pointer the validator looks at needs a CDN id or
+// key (attachments.md §3.3 step 1).
+func validPointers(dm *signalpb.AppDataMessage) bool {
+	ps := dm.GetAttachments()
+	for _, pv := range dm.GetPreview() {
+		if pv.Image != nil {
+			ps = append(ps, pv.Image)
+		}
+	}
+	for _, sc := range dm.GetContact() {
+		if av := sc.GetAvatar().GetAvatar(); av != nil {
+			ps = append(ps, av)
+		}
+	}
+	if st := dm.GetSticker(); st != nil {
+		if st.Data == nil {
+			return false
+		}
+		ps = append(ps, st.Data)
+	}
+	for _, p := range ps {
+		if !attachment.HasLocation(p) {
+			return false
+		}
+	}
+	return true
 }
 
 // validData is §7.1's stage V for one DataMessage.
@@ -70,6 +102,9 @@ func validData(dm *signalpb.AppDataMessage) bool {
 		if !validACI(q.GetAuthorAciBinary(), q.GetAuthorAci()) || !validRanges(q.GetBodyRanges(), q.GetText(), false) {
 			return false
 		}
+	}
+	if !validPointers(dm) {
+		return false
 	}
 	if !validRanges(dm.GetBodyRanges(), dm.GetBody(), hasLongText(dm)) {
 		return false
@@ -208,4 +243,65 @@ func applyTimer(a *store.Account, partner string, dm *signalpb.AppDataMessage) {
 	rc.Timer, rc.TimerVersion = timer, version
 	a.Recipients[partner] = rc
 	a.SaveRecipients()
+}
+
+// StructureError is §7.1's stage X: the envelope is reported with this
+// error and nothing else happens.
+type StructureError struct{ Msg string }
+
+func (e *StructureError) Error() string { return e.Msg }
+
+// convertData is stage X for one DataMessage: pointer conversion
+// (attachments.md §3.3 step 2) and payments (content-features.md §7.1).
+func convertData(dm *signalpb.AppDataMessage) error {
+	if dm == nil {
+		return nil
+	}
+	ps := append([]*signalpb.AppAttachmentPointer(nil), dm.GetAttachments()...)
+	for _, q := range dm.GetQuote().GetAttachments() {
+		if q.Thumbnail != nil {
+			ps = append(ps, q.Thumbnail)
+		}
+	}
+	for _, pv := range dm.GetPreview() {
+		if pv.Image != nil {
+			ps = append(ps, pv.Image)
+		}
+	}
+	for _, sc := range dm.GetContact() {
+		if av := sc.GetAvatar().GetAvatar(); av != nil {
+			ps = append(ps, av)
+		}
+	}
+	if st := dm.GetSticker(); st != nil && st.Data != nil {
+		ps = append(ps, st.Data)
+	}
+	for _, p := range ps {
+		if err := attachment.Check(p); err != nil {
+			return &StructureError{err.Error()}
+		}
+	}
+	if pay := dm.Payment; pay != nil {
+		switch {
+		case pay.GetNotification() != nil:
+			if pay.GetNotification().GetMobileCoin().Receipt == nil {
+				return &StructureError{"Missing payment receipt"}
+			}
+		case pay.GetActivation() != nil:
+			if pay.GetActivation().Type == nil {
+				return &StructureError{"Missing payment activation type"}
+			}
+		default:
+			return &StructureError{"Unknown payment message"}
+		}
+	}
+	return nil
+}
+
+// convert is stage X for a Content.
+func convert(c *signalpb.AppContent) error {
+	if err := convertData(c.GetDataMessage()); err != nil {
+		return err
+	}
+	return convertData(c.GetEditMessage().GetDataMessage())
 }
