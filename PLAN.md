@@ -666,3 +666,11 @@ vectors.
   - Also live: a quote with a thumbnail and a preview with an image
     render identically on both clients; our read sync from A.2 shows on
     the reference A.1.
+- **Milestone 5, stickers (2026-10-24).** Sticker packs per
+  attachments.md §6.6: our B uploaded a pack (CDN 0 multipart, REST
+  form), sent sticker 0 to A (downloading its own pack back first), the
+  reference fetched the pack on receipt with byte-identical stickers, and
+  `listStickerPacks` (plain and JSON) matches the reference. Our A.2's
+  `addStickerPack` install sync marked the pack installed on the
+  reference A.1. Found live: our JSON HTML-escaped `&` (Go default);
+  fixed for all output. `updateConfiguration` stores and syncs settings.

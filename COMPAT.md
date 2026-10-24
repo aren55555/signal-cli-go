@@ -134,14 +134,14 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 |---------|--------|------|---------|---------|---------|-------|
 | [`acceptCall`](spec/surface/cli/acceptCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`addDevice`](spec/surface/cli/addDevice.md) | 🟡 | ✅ | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: the reference linked as B.2 of our B |
-| [`addStickerPack`](spec/surface/cli/addStickerPack.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`addStickerPack`](spec/surface/cli/addStickerPack.md) | 🟡 | ✅ | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: our A.2 installed our uploaded pack; the reference A.1 applied the install sync |
 | [`block`](spec/surface/cli/block.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`daemon`](spec/surface/cli/daemon.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`deleteLocalAccountData`](spec/surface/cli/deleteLocalAccountData.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; registration command |
 | [`finishChangeNumber`](spec/surface/cli/finishChangeNumber.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`getAttachment`](spec/surface/cli/getAttachment.md) | 🟡 | ✅ | n/a | ✅ all getAttachment goldens replay | ✅ | Live 2026-10-24: returns a file received from the reference |
 | [`getAvatar`](spec/surface/cli/getAvatar.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`getSticker`](spec/surface/cli/getSticker.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`getSticker`](spec/surface/cli/getSticker.md) | 🟡 | ✅ | n/a | ✅ goldens replay | 🟡 | |
 | [`getUserStatus`](spec/surface/cli/getUserStatus.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`hangupCall`](spec/surface/cli/hangupCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
 | [`joinGroup`](spec/surface/cli/joinGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
@@ -153,7 +153,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`listDevices`](spec/surface/cli/listDevices.md) | 🟡 | ✅ gRPC GetDevices, name and HPKE created-at decryption | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: identical to the reference apart from "(this device)" |
 | [`listGroups`](spec/surface/cli/listGroups.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`listIdentities`](spec/surface/cli/listIdentities.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`listStickerPacks`](spec/surface/cli/listStickerPacks.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`listStickerPacks`](spec/surface/cli/listStickerPacks.md) | 🟡 | ✅ | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: plain and JSON identical to the reference for the same pack |
 | [`quitGroup`](spec/surface/cli/quitGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`receive`](spec/surface/cli/receive.md) | 🟡 | 🟡 all data-message features, attachments (download, `--ignore-attachments`, long text), sync messages, receipts, typing; stories and groups later | n/a | ✅ all receive goldens replay | 🟡 | Live: renders the reference's messages byte-identically apart from per-device delivery times |
 | [`register`](spec/surface/cli/register.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; registration command |
@@ -185,12 +185,12 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`unblock`](spec/surface/cli/unblock.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`unregister`](spec/surface/cli/unregister.md) | 🟡 | 🟡 gRPC ClearPushToken; `--delete-account` not yet | n/a | ✅ goldens replay | ⬜ | not run live (it would only mark our test account unregistered) |
 | [`updateAccount`](spec/surface/cli/updateAccount.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`updateConfiguration`](spec/surface/cli/updateConfiguration.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`updateConfiguration`](spec/surface/cli/updateConfiguration.md) | 🟡 | ✅ stored and synced | n/a | ✅ goldens replay | 🟡 | |
 | [`updateContact`](spec/surface/cli/updateContact.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`updateDevice`](spec/surface/cli/updateDevice.md) | 🟡 | ✅ own name stored; other device: request + deviceNameChange sync | n/a | ✅ goldens replay | ✅ | Live 2026-10-24 |
 | [`updateGroup`](spec/surface/cli/updateGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`updateProfile`](spec/surface/cli/updateProfile.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`uploadStickerPack`](spec/surface/cli/uploadStickerPack.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`uploadStickerPack`](spec/surface/cli/uploadStickerPack.md) | 🟡 | ✅ manifest.json and zip, CDN 0 multipart upload | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: the reference downloaded our pack byte-identically |
 | [`verify`](spec/surface/cli/verify.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; registration command |
 | [`version`](spec/surface/cli/version.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 
@@ -206,7 +206,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | Sealed sender | ✅ [`sealed-sender.md`](spec/protocol/sealed-sender.md) | ✅ certificates (known IDs, trust roots per environment, revocation, expiry at the server timestamp), v1 seal/unseal, v2 seal, SentMessage parsing and fan-out, v2 unseal, in [`internal/protocol`](internal/protocol) | 🟡 certificate vectors (3 known, 3 sender, 5 roots), all 16 SentMessage vectors including received forms, AES-CTR vector, GCM-SIV RFC 8452; no fixed upstream v1/v2 ciphertexts exist (round trips, mutation-checked) | n/a | 🟡 | Live 2026-10-23, both directions on staging: reference B → our A.2 sealed (unsealed with the real staging trust roots), our A.2 → B sealed (send.md §3 access decision, 401 fallback, sticky downgrade). Group (v2, sender-key) sealed sends not yet |
 | Sender keys | ✅ [`sender-keys.md`](spec/protocol/sender-keys.md) | ✅ [`internal/protocol`](internal/protocol), store and receive/send in [`internal/manager`](internal/manager) | 🟡 derivation by definition, behaviour and serialization tests; no fixed upstream sender-key vectors exist | n/a | ✅ | Live via stories both ways; capture replay of a reference sender-key story |
 | 1:1 text | ✅ [`send.md`](spec/service/send.md), [`content.md`](spec/service/content.md) | 🟡 unsealed send with the 409/410 loop and receive/decrypt ([`internal/manager`](internal/manager)); sealed send, CDSI and the CLI command not yet | 🟡 offline end-to-end send/receive through a fake chat server | ⬜ | 🟡 | Live 2026-10-23: reference B → our A.2 and our A.2 → reference B, Unicode intact, "With profile key" |
-| Attachments (send and receive) | ✅ [`attachments.md`](spec/service/attachments.md) | 🟡 cipher and padding, pointers, CDN 2/3 upload, download with checks, storage and naming, data URIs, long text, `getAttachment` ([`internal/attachment`](internal/attachment), [`internal/service/cdn`](internal/service/cdn)); stickers, avatars, incremental MAC not yet | ✅ every cipher, padding-bucket, pointer, data-URI, file-name and sticker vector | n/a | ✅ | Live 2026-10-24: our B → reference A (PNG with dimensions, text, binary: byte-identical) and A → our B (voice-note flags, data URI, 2200-byte long text, to our PNI). Observed: bad base64 in a data URI falls back to a path, and the stored path prints as configured, not absolute (both contradict the spec) |
+| Attachments (send and receive) | ✅ [`attachments.md`](spec/service/attachments.md) | 🟡 cipher and padding, pointers, CDN 2/3 upload, download with checks, storage and naming, data URIs, long text, `getAttachment` ([`internal/attachment`](internal/attachment), [`internal/service/cdn`](internal/service/cdn)); sticker packs (download, upload, send, sync); profile/contact avatars and incremental MAC not yet | ✅ every cipher, padding-bucket, pointer, data-URI, file-name and sticker vector | n/a | ✅ | Live 2026-10-24: our B → reference A (PNG with dimensions, text, binary: byte-identical) and A → our B (voice-note flags, data URI, 2200-byte long text, to our PNI). Observed: bad base64 in a data URI falls back to a path, and the stored path prints as configured, not absolute (both contradict the spec) |
 | Reactions | ✅ [`content-features.md`](spec/service/content-features.md) | ✅ | 🟡 | n/a | ✅ | Live 2026-10-24, both directions |
 | Quotes | ✅ [`content-features.md`](spec/service/content-features.md) | ✅ including quote thumbnails | 🟡 | n/a | ✅ | Live 2026-10-24, both directions |
 | Mentions | ✅ [`content-features.md`](spec/service/content-features.md) | ✅ | 🟡 | n/a | ✅ | Live 2026-10-24, both directions |
