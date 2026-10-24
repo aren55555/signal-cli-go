@@ -286,3 +286,34 @@ func (f *fakeChat) special(unauth bool, verb, path string, headers []chat.Header
 	}
 	return nil
 }
+
+// TestSendTyping: content.md §5.2 — online, not urgent, timestamp equal
+// to the envelope's.
+func TestSendTyping(t *testing.T) {
+	const bACI = "b0b0b0b0-0000-4000-8000-000000000002"
+	aID, _ := curve25519.GeneratePrivateKey(rand.Reader)
+	bID, _ := curve25519.GeneratePrivateKey(rand.Reader)
+	a2, a2Bundles := testAccountFor(t, testNumber, testACI, testPNI, 2, aID)
+	b1, b1Bundles := testAccountFor(t, "+15555550101", bACI, "b0b0b0b0-0000-4000-8000-0000000000f2", 1, bID)
+	fc := &fakeChat{t: t, sender: testACI, senderDev: 2, devices: map[string]map[uint32]fakeDevice{
+		bACI: {1: {b1, b1Bundles["aci"]}}, testACI: {2: {a2, a2Bundles["aci"]}}}}
+	s := &Sender{Acct: a2, Chat: fc}
+	ts, err := s.SendTyping(context.Background(), bACI, true, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(fc.puts[0], `"online":true,"urgent":false}`) {
+		t.Errorf("flags: %.300s", fc.puts[0])
+	}
+	var c signalpb.AppContent
+	proto.Unmarshal(fc.delivered[0].msg.Content, &c)
+	tm := c.GetTypingMessage()
+	if tm == nil || tm.GetTimestamp() != ts || tm.GetAction() != signalpb.AppTyping_STOPPED || fc.delivered[0].msg.ClientTimestamp != ts {
+		t.Errorf("typing %v at %d", tm, ts)
+	}
+	for _, p := range fc.puts[1:] {
+		if strings.Contains(p, testACI) {
+			t.Error("typing produced a sync transcript")
+		}
+	}
+}

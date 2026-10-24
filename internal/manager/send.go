@@ -334,6 +334,11 @@ type outgoingMessages struct {
 // returns the response's needsSync and whether the message went out
 // sealed and was accepted on the unauthenticated socket.
 func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uint64, urgent bool, hint uint32) (needsSync, unidentified bool, err error) {
+	return s.sendOnline(ctx, dest, plaintext, ts, urgent, false, hint)
+}
+
+// sendOnline is send with the online flag (typing messages).
+func (s *Sender) sendOnline(ctx context.Context, dest string, plaintext []byte, ts uint64, urgent, online bool, hint uint32) (needsSync, unidentified bool, err error) {
 	self := dest == s.Acct.Data.ACI
 	padded := content.Pad(plaintext)
 	acc := s.accessFor(ctx, dest)
@@ -380,7 +385,7 @@ func (s *Sender) send(ctx context.Context, dest string, plaintext []byte, ts uin
 				return false, false, err
 			}
 		}
-		body := outgoingMessages{Destination: dest, Timestamp: ts, Messages: []outgoingMessage{}, Online: false, Urgent: urgent}
+		body := outgoingMessages{Destination: dest, Timestamp: ts, Messages: []outgoingMessage{}, Online: online, Urgent: urgent}
 		for _, id := range targets {
 			rec := recs[id]
 			if rec == nil {

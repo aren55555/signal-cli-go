@@ -164,6 +164,18 @@ func commandParser(name string) *argparse.Parser {
 			&argparse.Arg{Names: []string{"verification_code"}, Dest: "verification_code", Help: "The verification code you received via sms or voice call."},
 			&argparse.Arg{Names: []string{"-p", "--pin"}, Dest: "pin", Metavars: []string{"PIN"}, Help: "The registration lock PIN, that was set by the user (Optional)"},
 		)
+	case "sendReceipt":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Help: "Specify the sender's phone number."},
+			&argparse.Arg{Names: []string{"-t", "--target-timestamp"}, Dest: "target-timestamp", Metavars: []string{"TARGET_TIMESTAMP"}, Kind: argparse.Int64, Nargs: argparse.OneOrMore, Required: true, Help: "Specify the timestamp of the messages for which a receipt should be sent."},
+			&argparse.Arg{Names: []string{"--type"}, Dest: "type", Choices: []string{"read", "viewed"}, Help: "Specify the receipt type (default is read receipt)."},
+		)
+	case "sendTyping":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Nargs: argparse.ZeroOrMore, Help: "Specify the recipients' phone number."},
+			&argparse.Arg{Names: []string{"-g", "--group-id", "--group"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Nargs: argparse.ZeroOrMore, Help: "Specify the recipient group ID."},
+			&argparse.Arg{Names: []string{"-s", "--stop"}, Action: argparse.StoreTrue, Help: "Send a typing STOP message."},
+		)
 	case "receive":
 		p.Args = append(p.Args,
 			&argparse.Arg{Names: []string{"-t", "--timeout"}, Dest: "timeout", Metavars: []string{"TIMEOUT"}, Kind: argparse.Double, Help: "Number of seconds to wait for new messages (negative values disable timeout)", Default: 3.0},

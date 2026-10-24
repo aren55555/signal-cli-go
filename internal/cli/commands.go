@@ -157,6 +157,70 @@ type sendOpts struct {
 	noUrgent   bool
 }
 
+// session is a loaded, checked account with its sockets, for the send
+// family.
+type session struct {
+	acct   *store.Account
+	sender *manager.Sender
+	close  func()
+}
+
+// openSession runs the start-up account check and opens both sockets
+// (the unauthenticated one may fail: sends then go unsealed).
+func openSession(ctx context.Context, e *env, g *globals, a *store.Account) (*session, error) {
+	n, err := e.network(g)
+	if err != nil {
+		return nil, err
+	}
+	c, err := n.dialChat(ctx, a, false)
+	if err != nil {
+		return nil, ioError("Error while checking account %s: %v", a.Data.Number, err)
+	}
+	if err := checkAccount(ctx, a, c, a.Data.Number); err != nil {
+		c.Close()
+		return nil, err
+	}
+	s := &session{acct: a, sender: &manager.Sender{Acct: a, Chat: c}}
+	closers := []func() error{c.Close}
+	if u, err := n.dialChat(ctx, nil, false); err == nil {
+		s.sender.Unauth = u
+		closers = append(closers, u.Close)
+	}
+	s.close = func() {
+		for _, f := range closers {
+			f()
+		}
+	}
+	return s, nil
+}
+
+// resolveAll resolves recipients, dropping duplicates.
+func resolveAll(a *store.Account, recipients []string) ([]resolved, error) {
+	var out []resolved
+	seen := map[string]bool{}
+	for _, r := range recipients {
+		t, err := resolveRecipient(a, r)
+		if err != nil {
+			return nil, err
+		}
+		if !seen[t.key] {
+			seen[t.key] = true
+			out = append(out, t)
+		}
+	}
+	return out, nil
+}
+
+// finishSend prints the results and maps them to the exit code.
+func finishSend(e *env, g *globals, ts uint64, results []sendResult) error {
+	out, code, msg := renderSendResults(g.json(), ts, results)
+	io.WriteString(e.stdout, out)
+	if code != 0 {
+		return &cliError{msg: msg, code: code}
+	}
+	return nil
+}
+
 // runSend is `send` for text messages to individual recipients.
 func runSend(ctx context.Context, e *env, g *globals, o sendOpts) error {
 	a, err := selectAccount(g.root(), g.account)
@@ -167,18 +231,9 @@ func runSend(ctx context.Context, e *env, g *globals, o sendOpts) error {
 	if len(o.recipients) == 0 && !o.noteToSelf {
 		return userError("No recipients given")
 	}
-	type target struct{ key, aci string }
-	var targets []target
-	seen := map[string]bool{}
-	for _, r := range o.recipients {
-		t, err := resolveRecipient(a, r)
-		if err != nil {
-			return err
-		}
-		if !seen[t.key] {
-			seen[t.key] = true
-			targets = append(targets, target(t))
-		}
+	targets, err := resolveAll(a, o.recipients)
+	if err != nil {
+		return err
 	}
 	text := o.message
 	if o.fromStdin {
@@ -191,43 +246,81 @@ func runSend(ctx context.Context, e *env, g *globals, o sendOpts) error {
 	if text == "" {
 		return userError("Sending empty message is not allowed, either a message, attachment or sticker must be given.")
 	}
-	n, err := e.network(g)
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+	defer cancel()
+	s, err := openSession(ctx, e, g, a)
+	if err != nil {
+		return err
+	}
+	defer s.close()
+	var results []sendResult
+	var ts uint64
+	for _, t := range targets {
+		var err error
+		ts, err = s.sender.SendTextAt(ctx, t.aci, text, ts, !o.noUrgent)
+		results = append(results, resultFor(t.key, t.aci, err))
+	}
+	return finishSend(e, g, ts, results)
+}
+
+// runSendTyping is `sendTyping [-s] RECIPIENT…`.
+func runSendTyping(ctx context.Context, e *env, g *globals, recipients, groups []string, stop bool) error {
+	a, err := selectAccount(g.root(), g.account)
+	if err != nil {
+		return err
+	}
+	defer a.Close()
+	if len(recipients) == 0 && len(groups) == 0 {
+		return userError("No recipients given")
+	}
+	if len(groups) > 0 {
+		return userError("Groups are not supported by signal-cli-go yet")
+	}
+	targets, err := resolveAll(a, recipients)
 	if err != nil {
 		return err
 	}
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 	defer cancel()
-	c, err := n.dialChat(ctx, a, false)
+	s, err := openSession(ctx, e, g, a)
 	if err != nil {
-		return ioError("Error while checking account %s: %v", a.Data.Number, err)
-	}
-	defer c.Close()
-	if err := checkAccount(ctx, a, c, a.Data.Number); err != nil {
 		return err
 	}
-	u, err := n.dialChat(ctx, nil, false)
-	if err != nil {
-		u = nil // sealed sender unavailable; sends go unsealed
-	} else {
-		defer u.Close()
-	}
-	s := &manager.Sender{Acct: a, Chat: c}
-	if u != nil {
-		s.Unauth = u
-	}
+	defer s.close()
 	var results []sendResult
 	var ts uint64
 	for _, t := range targets {
 		var err error
-		ts, err = s.SendTextAt(ctx, t.aci, text, ts, !o.noUrgent)
+		ts, err = s.sender.SendTyping(ctx, t.aci, stop, ts)
 		results = append(results, resultFor(t.key, t.aci, err))
 	}
-	out, code, msg := renderSendResults(g.json(), ts, results)
-	io.WriteString(e.stdout, out)
-	if code != 0 {
-		return &cliError{msg: msg, code: code}
+	return finishSend(e, g, ts, results)
+}
+
+// runSendReceipt is `sendReceipt RECIPIENT -t TS… [--type read|viewed]`.
+func runSendReceipt(ctx context.Context, e *env, g *globals, recipient string, timestamps []uint64, kind string) error {
+	a, err := selectAccount(g.root(), g.account)
+	if err != nil {
+		return err
 	}
-	return nil
+	defer a.Close()
+	t, err := resolveRecipient(a, recipient)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+	defer cancel()
+	s, err := openSession(ctx, e, g, a)
+	if err != nil {
+		return err
+	}
+	defer s.close()
+	rk := manager.ReceiptRead
+	if kind == "viewed" {
+		rk = manager.ReceiptViewed
+	}
+	ts, err := s.sender.SendReceiptAt(ctx, t.aci, rk, timestamps)
+	return finishSend(e, g, ts, []sendResult{resultFor(t.key, t.aci, err)})
 }
 
 func resultFor(key, aci string, err error) sendResult {

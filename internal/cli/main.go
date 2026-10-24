@@ -136,6 +136,15 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 			noteToSelf: s.Bool("note_to_self"),
 			noUrgent:   s.Bool("no_urgent"),
 		})
+	case "sendTyping":
+		runErr = runSendTyping(ctx, e, g, s.Strings("recipient"), s.Strings("group-id"), s.Bool("stop"))
+	case "sendReceipt":
+		var tss []uint64
+		for _, x := range s.Strings("target-timestamp") {
+			v, _ := strconv.ParseUint(x, 10, 64)
+			tss = append(tss, v)
+		}
+		runErr = runSendReceipt(ctx, e, g, s.String("recipient"), tss, s.String("type"))
 	case "register":
 		runErr = runRegister(ctx, e, g, s.Bool("voice"), s.String("captcha"), s.Bool("reregister"))
 	case "verify":
