@@ -35,6 +35,7 @@ var ErrAuthorization = errors.New("rest: authorization failed")
 type RateLimitError struct {
 	Status int
 	After  time.Duration
+	Body   []byte
 }
 
 func (e *RateLimitError) Error() string {
@@ -100,6 +101,11 @@ func New(cfg Config) *Client {
 // Do sends a request with an optional JSON body and decodes a JSON
 // response into out (if non-nil and the body is non-empty).
 func (c *Client) Do(ctx context.Context, method, path string, auth *Basic, body, out any) error {
+	return c.DoHeaders(ctx, method, path, auth, nil, body, out)
+}
+
+// DoHeaders is Do with extra request headers.
+func (c *Client) DoHeaders(ctx context.Context, method, path string, auth *Basic, headers map[string]string, body, out any) error {
 	var rd io.Reader
 	if body != nil {
 		b, err := api.Marshal(body)
@@ -116,6 +122,9 @@ func (c *Client) Do(ctx context.Context, method, path string, auth *Basic, body,
 	req.Header.Set("X-Signal-Agent", c.agent)
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	}
+	for k, v := range headers {
+		req.Header.Set(k, v)
 	}
 	if auth != nil {
 		req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(auth.User+":"+auth.Password)))
@@ -138,7 +147,7 @@ func (c *Client) Do(ctx context.Context, method, path string, auth *Basic, body,
 		}
 		return nil
 	case 413, 429:
-		e := &RateLimitError{Status: resp.StatusCode}
+		e := &RateLimitError{Status: resp.StatusCode, Body: data}
 		if n, err := strconv.ParseUint(strings.TrimSpace(resp.Header.Get("Retry-After")), 10, 32); err == nil {
 			e.After = time.Duration(n) * time.Second
 		}

@@ -76,6 +76,7 @@ type AccountData struct {
 	DeviceName                     string      `json:"deviceName,omitempty"` // encrypted, unpadded base64 (linked devices)
 	UnrestrictedUnidentifiedAccess bool        `json:"unrestrictedUnidentifiedAccess,omitempty"`
 	Unlisted                       bool        `json:"unlisted,omitempty"`
+	SessionID                      string      `json:"sessionId,omitempty"` // verification session (registration.md §2.5)
 	ACIKeys                        PreKeyState `json:"aciKeys"`
 	PNIKeys                        PreKeyState `json:"pniKeys"`
 }

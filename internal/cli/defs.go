@@ -153,6 +153,17 @@ func commandParser(name string) *argparse.Parser {
 	switch name {
 	case "link":
 		p.Args = append(p.Args, &argparse.Arg{Names: []string{"-n", "--name"}, Dest: "name", Metavars: []string{"NAME"}, Help: "Specify a name to describe this new device."})
+	case "register":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"-v", "--voice"}, Action: argparse.StoreTrue, Help: "The verification should be done over voice, not SMS."},
+			&argparse.Arg{Names: []string{"--captcha"}, Dest: "captcha", Metavars: []string{"CAPTCHA"}, Help: "The captcha token, required if registration failed with a captcha required error."},
+			&argparse.Arg{Names: []string{"--reregister"}, Action: argparse.StoreTrue, Help: "Register even if account is already registered"},
+		)
+	case "verify":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"verification_code"}, Dest: "verification_code", Help: "The verification code you received via sms or voice call."},
+			&argparse.Arg{Names: []string{"-p", "--pin"}, Dest: "pin", Metavars: []string{"PIN"}, Help: "The registration lock PIN, that was set by the user (Optional)"},
+		)
 	case "receive":
 		p.Args = append(p.Args,
 			&argparse.Arg{Names: []string{"-t", "--timeout"}, Dest: "timeout", Metavars: []string{"TIMEOUT"}, Kind: argparse.Double, Help: "Number of seconds to wait for new messages (negative values disable timeout)", Default: 3.0},

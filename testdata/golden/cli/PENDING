@@ -8,13 +8,10 @@ two-accounts-listAccounts-json
 obs005--v_--version
 obs038--d_nonexistent_x_version
 obs040--o_json_listAccounts
-obs042-register
 obs043--a_15555550123_listContacts
 obs044--a_15555550123_--account_15555550124_listContacts
 obs045--a_3fa85f64-5717-4562-b3fc-2c963f66afa6_listContacts
 obs046--a_12345_listContacts
-obs047--a_12345_register
-obs048--a_12345_verify_123456
 obs050--a_15555550123_listAccounts
 obs051--a_15555550123_version
 obs052--a_15555550123_-o_json_version
@@ -70,7 +67,6 @@ obs119-updateDevice
 obs120-updateGroup
 obs121-updateProfile
 obs122-uploadStickerPack
-obs123-verify
 obs124-acceptCall_--help
 obs125-addDevice_--help
 obs126-addStickerPack_--help
@@ -89,7 +85,6 @@ obs141-listContacts_--help
 obs143-listGroups_--help
 obs144-listIdentities_--help
 obs146-quitGroup_--help
-obs148-register_--help
 obs149-rejectCall_--help
 obs150-remoteDelete_--help
 obs151-removeContact_--help
@@ -120,11 +115,6 @@ obs179-updateDevice_--help
 obs180-updateGroup_--help
 obs181-updateProfile_--help
 obs182-uploadStickerPack_--help
-obs183-verify_--help
-obs185-register_--bogus
-obs186-register_extra
-obs188--a_0b1c3e2a-1111-2222-3333-444455556666_register
-obs190-verify_1_2
 obs192-unregister_--bogus
 obs193--a_15555550123_unregister
 obs194--a_15555550123_unregister_--delete-account
@@ -160,7 +150,6 @@ obs235-submitRateLimitChallenge_--challenge_x
 obs236-submitRateLimitChallenge_--captcha_x
 obs237--a_15555550123_submitRateLimitChallenge_--challenge_x_--capt
 obs242-register_-v_--bogus
-obs243-register_--voice_--bogus
 obs251-sendAdminDelete_-t_1
 obs252-sendAdminDelete_-a_15555550123
 obs253-sendAdminDelete_-a_15555550123_-t_1_-g

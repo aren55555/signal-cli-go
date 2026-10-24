@@ -136,6 +136,10 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 			noteToSelf: s.Bool("note_to_self"),
 			noUrgent:   s.Bool("no_urgent"),
 		})
+	case "register":
+		runErr = runRegister(ctx, e, g, s.Bool("voice"), s.String("captcha"), s.Bool("reregister"))
+	case "verify":
+		runErr = runVerify(ctx, e, g, s.String("verification_code"), s.String("pin"))
 	case "receive":
 		t := s.Float("timeout")
 		timeout := time.Duration(t * float64(time.Second)).Truncate(time.Millisecond)
