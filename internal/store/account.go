@@ -245,7 +245,9 @@ type Account struct {
 	SenderKeys SenderKeys
 	Stickers   []StickerPack
 	Groups     []GroupRecord
-	Recipients map[string]Recipient // ACI -> recipient
+	Recipients map[string]Recipient // primary key (recipients.go) -> recipient
+
+	recipientsNextID int64
 }
 
 // Path is the account's directory name within the root.
@@ -432,20 +434,33 @@ const (
 	AccessUnrestricted = "UNRESTRICTED"
 )
 
-// Profile is what we keep of a fetched profile.
+// Profile is the stored profile record (spec/service/profiles.md §1.1).
 type Profile struct {
-	LastUpdate   int64    `json:"lastUpdate"` // ms; set on failed fetches too
+	LastUpdate   int64    `json:"lastUpdate"` // ms; set on failed fetches too; 0 = invalidated
 	AccessMode   string   `json:"accessMode"`
 	Capabilities []string `json:"capabilities,omitempty"`
+
+	GivenName          *string `json:"givenName,omitempty"`
+	FamilyName         *string `json:"familyName,omitempty"`
+	About              *string `json:"about,omitempty"`
+	AboutEmoji         *string `json:"aboutEmoji,omitempty"`
+	AvatarURLPath      *string `json:"avatarUrlPath,omitempty"`
+	MobileCoinAddress  []byte  `json:"mobileCoinAddress,omitempty"`
+	PhoneNumberSharing *string `json:"phoneNumberSharing,omitempty"` // EVERYBODY, NOBODY or nil
 }
 
-// Recipient is what we know about a peer, keyed by ACI.
+// Recipient is one row of the recipient store (spec/service/contacts.md
+// §2), stored under its primary key (recipients.go).
 type Recipient struct {
-	ProfileKey   []byte   `json:"profileKey,omitempty"`
-	Profile      *Profile `json:"profile,omitempty"`
-	Unregistered bool     `json:"unregistered,omitempty"`
-	Number       string   `json:"number,omitempty"`
-	PNI          string   `json:"pni,omitempty"` // a PNI learned from a verified PNI signature
+	ID             int64    `json:"id,omitempty"` // stable row number, listing order
+	ProfileKey     []byte   `json:"profileKey,omitempty"`
+	Profile        *Profile `json:"profile,omitempty"`
+	Unregistered   bool     `json:"unregistered,omitempty"`
+	UnregisteredAt int64    `json:"unregisteredAt,omitempty"` // ms
+	Discoverable   *bool    `json:"discoverable,omitempty"`   // from CDSI; nil = never checked
+	Number         string   `json:"number,omitempty"`
+	Username       string   `json:"username,omitempty"`
+	PNI            string   `json:"pni,omitempty"` // bare UUID
 	// NeedsPNISignature: our replies carry a PNI signature (content-features.md §4.3).
 	NeedsPNISignature bool   `json:"needsPniSignature,omitempty"`
 	PNIVerified       bool   `json:"pniVerified,omitempty"`
@@ -453,16 +468,28 @@ type Recipient struct {
 	TimerVersion      uint32 `json:"timerVersion,omitempty"` // 0 means no contact entry yet
 	ProfileSharing    bool   `json:"profileSharing,omitempty"`
 	Blocked           bool   `json:"blocked,omitempty"`
-	// GivenName and FamilyName are the contact name (from a contacts sync).
-	GivenName string `json:"givenName,omitempty"`
 	// ProfileKeyCredential is the stored expiring profile-key credential
 	// (zkgroup-credentials.md §8.4).
 	ProfileKeyCredential []byte `json:"profileKeyCredential,omitempty"`
-	FamilyName           string `json:"familyName,omitempty"`
+
+	// Contact columns (contacts.md §2.1). A non-nil empty string counts as
+	// set for the is-contact predicate.
+	GivenName      *string `json:"givenName,omitempty"`
+	FamilyName     *string `json:"familyName,omitempty"`
+	NickName       *string `json:"nickName,omitempty"`
+	NickGivenName  *string `json:"nickGivenName,omitempty"`
+	NickFamilyName *string `json:"nickFamilyName,omitempty"`
+	Note           *string `json:"note,omitempty"`
+	Color          *string `json:"color,omitempty"`
+	Archived       bool    `json:"archived,omitempty"`
+	Hidden         bool    `json:"hidden,omitempty"`
+	HideStory      bool    `json:"hideStory,omitempty"`
+	MuteUntil      int64   `json:"muteUntil,omitempty"`
 }
 
 type recipientsDoc struct {
 	Version    int                  `json:"version"`
+	NextID     int64                `json:"nextId,omitempty"`
 	Recipients map[string]Recipient `json:"recipients"`
 }
 
@@ -472,7 +499,7 @@ var recipientsMigrations = Migrations{}
 
 // SaveRecipients writes recipients.json.
 func (a *Account) SaveRecipients() error {
-	return WriteJSON(a.file("recipients.json"), &recipientsDoc{Version: recipientsVersion, Recipients: a.Recipients})
+	return WriteJSON(a.file("recipients.json"), &recipientsDoc{Version: recipientsVersion, NextID: a.recipientsNextID, Recipients: a.Recipients})
 }
 
 func (a *Account) loadRecipients() error {
@@ -480,10 +507,11 @@ func (a *Account) loadRecipients() error {
 	if err := ReadJSON(a.file("recipients.json"), recipientsVersion, recipientsMigrations, &d); err != nil && !errors.Is(err, os.ErrNotExist) {
 		return err
 	}
-	a.Recipients = d.Recipients
+	a.Recipients, a.recipientsNextID = d.Recipients, d.NextID
 	if a.Recipients == nil {
 		a.Recipients = map[string]Recipient{}
 	}
+	a.assignIDs()
 	return nil
 }
 

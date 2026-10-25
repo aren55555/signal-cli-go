@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 
 	"github.com/aren55555/signal-cli-go/internal/attachment"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
@@ -354,8 +353,9 @@ func (r *Receiver) importContacts(ctx context.Context, c *signalpb.AppSyncMessag
 		if d.Number != nil {
 			rc.Number = d.GetNumber()
 		}
-		if rc.GivenName == "" && rc.FamilyName == "" && d.Name != nil {
-			rc.GivenName, rc.FamilyName = d.GetName(), ""
+		if rc.GivenName == nil && rc.FamilyName == nil && d.Name != nil {
+			name := d.GetName()
+			rc.GivenName = &name
 		}
 		if t, v := d.GetExpireTimer(), d.GetExpireTimerVersion(); t > 0 && v > 0 && (!existed || v > rc.TimerVersion) {
 			rc.Timer, rc.TimerVersion = t, v
@@ -396,14 +396,11 @@ func (s *Sender) SendSyncRequests(ctx context.Context) error {
 	return first
 }
 
-// isContact is §5.1's contact rule, for what signal-cli-go stores.
-func isContact(rc store.Recipient) bool {
-	return rc.GivenName != "" || rc.FamilyName != "" || rc.Timer > 0 || rc.ProfileSharing || rc.Blocked
-}
+// isContact is §5.1's contact rule: a contact (contacts.md §1) that is not
+// hidden.
+func isContact(rc store.Recipient) bool { return rc.IsContact() && !rc.Hidden }
 
-func contactName(rc store.Recipient) string {
-	return strings.TrimSpace(rc.GivenName + " " + rc.FamilyName)
-}
+func contactName(rc store.Recipient) string { return rc.ContactName() }
 
 // SendContacts builds and sends the contact stream (§5.1, §8.6). The
 // upload form is requested even on a single-device account; nothing is
