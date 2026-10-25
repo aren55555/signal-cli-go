@@ -70,7 +70,9 @@ All captured attestation data is reproduced in
 - The username/password pair comes from the chat service:
   - CDSI: `GET /v2/directory/auth`.
   - SVR2: `GET /v2/backup/auth`. The server also accepts the alias
-    `/v2/svr/auth` (A6 `@Path("/v2/{name: backup|svr}")`). During
+    `/v2/svr/auth` (A6 `@Path("/v2/{name: backup|svr}")`). **Correction
+    (main session, from `spec/service/svr.md` §2.1):** signal-cli sends
+    `/v2/svr/auth`; use that path. During
     registration lock, the 423 body's `svr2Credentials` field supplies the
     pair instead.
   - Formats are specified in `spec/service/cdsi.md` and

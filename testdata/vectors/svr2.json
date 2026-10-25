@@ -1,0 +1,44 @@
+{
+  "source": "Enclave constants: libsignal v0.99.1 (97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8) rust/attest/src/constants.rs; enclave IDs used by signal-cli: signal-cli v0.14.7 (b01b6b370dc063599a1a2b9fde0f5ff4e2d78fe8) lib/src/main/java/org/asamk/signal/manager/config/{StagingConfig,LiveConfig}.java. Message encodings: computed offline with jshell using the Wire-generated SVR2 classes in signal-service-java-2.15.3_unofficial_151.jar (Turasa/libsignal-service-java @ 66956cb4a0394d50cee3590209baf58312084a44) from the signal-cli 0.14.7 distribution; inputs are the libsignal hash.rs published values. JSON shapes: same jar's JsonUtil/PushServiceSocket/AuthCredentials, offline. Credential format: SecureValueRecovery2 v1.26.0 (42a3069a413ea9ca8340744fed7f3fb32337ee35) host/auth/auth.go and Signal-Server v20261022.0.0 (8edf3488f7d97398db7ffa5184c6b769a272ff59) SecureValueRecovery2Controller. No network was used and no Signal server was contacted.",
+  "spec": "spec/service/svr.md",
+  "conventions": "Hex byte strings. group_id is an unsigned 64-bit decimal string.",
+  "enclaves": [
+    {"name": "staging-current", "used_by_signal_cli_order": 1, "environment": "staging", "mrenclave": "3c699f4975aaa3d172c0aad042f94f031b2b03e10b9c19a45116a01693d83302", "libsignal_name": "ENCLAVE_ID_SVR2_2026Q2_STAGING", "raft": {"min_voting_replicas": 3, "max_voting_replicas": 9, "super_majority": 0, "group_id": "5138641357881452604", "db_version": 2, "attestation_timeout": 604800, "simulated": false}, "acceptable_sw_advisories": ["INTEL-SA-00615", "INTEL-SA-00657"], "url": "wss://svr2.staging.signal.org/v1/3c699f4975aaa3d172c0aad042f94f031b2b03e10b9c19a45116a01693d83302"},
+    {"name": "staging-legacy", "used_by_signal_cli_order": 2, "environment": "staging", "mrenclave": "97f151f6ed078edbbfd72fa9cae694dcc08353f1f5e8d9ccd79a971b10ffc535", "libsignal_name": "ENCLAVE_ID_SVR2_2026Q1_STAGING", "raft": {"min_voting_replicas": 3, "max_voting_replicas": 9, "super_majority": 0, "group_id": "2330628069874851020", "db_version": 2, "attestation_timeout": 604800, "simulated": false}, "acceptable_sw_advisories": ["INTEL-SA-00615", "INTEL-SA-00657"], "url": "wss://svr2.staging.signal.org/v1/97f151f6ed078edbbfd72fa9cae694dcc08353f1f5e8d9ccd79a971b10ffc535"},
+    {"name": "prod-current", "used_by_signal_cli_order": 1, "environment": "live", "mrenclave": "ced8217b26228e4b210c985786999d095c4958a94faf37b14acaf25c4cbb02a4", "libsignal_name": "ENCLAVE_ID_SVR2_2026Q2_PROD", "raft": {"min_voting_replicas": 4, "max_voting_replicas": 13, "super_majority": 2, "group_id": "11311619198250676136", "db_version": 2, "attestation_timeout": 604800, "simulated": false}, "acceptable_sw_advisories": ["INTEL-SA-00615", "INTEL-SA-00657"], "url": "wss://svr2.signal.org/v1/ced8217b26228e4b210c985786999d095c4958a94faf37b14acaf25c4cbb02a4"},
+    {"name": "prod-legacy", "used_by_signal_cli_order": 2, "environment": "live", "mrenclave": "1240acbd4aa26974184844c8a46b1022d3957ac8a76c1fd8f5b1a15141ee0708", "libsignal_name": "ENCLAVE_ID_SVR2_2026Q1_PROD", "raft": {"min_voting_replicas": 4, "max_voting_replicas": 13, "super_majority": 2, "group_id": "2076725645304009823", "db_version": 2, "attestation_timeout": 604800, "simulated": false}, "acceptable_sw_advisories": ["INTEL-SA-00615", "INTEL-SA-00657"], "url": "wss://svr2.signal.org/v1/1240acbd4aa26974184844c8a46b1022d3957ac8a76c1fd8f5b1a15141ee0708"}
+  ],
+  "requests_note": "Plaintext Request messages (before Noise encryption). data is HMAC-SHA256-SIV(key=000102...1f, master key 202122...3f); pin is the access key of the published hash.rs known_hash vector.",
+  "requests": [
+    {"name": "backup", "data": "f27036915a60d704b04d452ef0d55a5d1668e7d91339daba9c950d985b7556471d13cc609e59eec62fb1ce27f5c5a342", "pin": "ab7e8499d21f80a6600b3b9ee349ac6d72c07e3359fe885a934ba7aa844429f8", "max_tries": 10, "encoded": "12560a30f27036915a60d704b04d452ef0d55a5d1668e7d91339daba9c950d985b7556471d13cc609e59eec62fb1ce27f5c5a3421220ab7e8499d21f80a6600b3b9ee349ac6d72c07e3359fe885a934ba7aa844429f8180a"},
+    {"name": "expose", "data": "f27036915a60d704b04d452ef0d55a5d1668e7d91339daba9c950d985b7556471d13cc609e59eec62fb1ce27f5c5a342", "encoded": "2a320a30f27036915a60d704b04d452ef0d55a5d1668e7d91339daba9c950d985b7556471d13cc609e59eec62fb1ce27f5c5a342"},
+    {"name": "restore", "pin": "ab7e8499d21f80a6600b3b9ee349ac6d72c07e3359fe885a934ba7aa844429f8", "encoded": "1a220a20ab7e8499d21f80a6600b3b9ee349ac6d72c07e3359fe885a934ba7aa844429f8"},
+    {"name": "delete", "encoded": "2200"}
+  ],
+  "responses": [
+    {"encoded": "0a020801", "decoded": {"backup": {"status": "OK"}}},
+    {"encoded": "0a00", "decoded": {"backup": {"status": "UNSET"}}, "signal_cli": "status UNSET: application error (unknown status)"},
+    {"encoded": "123608011230f27036915a60d704b04d452ef0d55a5d1668e7d91339daba9c950d985b7556471d13cc609e59eec62fb1ce27f5c5a342180a", "decoded": {"restore": {"status": "OK", "data": "f27036915a60d704b04d452ef0d55a5d1668e7d91339daba9c950d985b7556471d13cc609e59eec62fb1ce27f5c5a342", "tries": 10}}},
+    {"encoded": "12020802", "decoded": {"restore": {"status": "MISSING", "data": "", "tries": 0}}},
+    {"encoded": "120408031809", "decoded": {"restore": {"status": "PIN_MISMATCH", "data": "", "tries": 9}}},
+    {"encoded": "120408031805", "decoded": {"restore": {"status": "PIN_MISMATCH", "data": "", "tries": 5}}},
+    {"encoded": "12020804", "decoded": {"restore": {"status": 4}}, "signal_cli": "status 4 (server name ERROR, client name REQUEST_INVALID): application error"},
+    {"encoded": "22020801", "decoded": {"expose": {"status": "OK"}}},
+    {"encoded": "22020802", "decoded": {"expose": {"status": "ERROR"}}},
+    {"encoded": "1a00", "decoded": {"delete": {}}},
+    {"encoded": "2a00", "decoded": {}, "signal_cli": "field 5 (tries response) is unknown to signal-cli's schema and skipped; no inner message is set"},
+    {"encoded": "", "decoded": {}}
+  ],
+  "http": {
+    "auth_request": {"transport": "authenticated chat WebSocket", "verb": "GET", "path": "/v2/svr/auth"},
+    "auth_response_example": {"username": "0123456789abcdef0123456789abcdef", "password": "1700000000:00112233445566778899"},
+    "auth_response_example_note": "Illustrative values, not real credentials. username = 32 lowercase hex characters (16 bytes); password = <unix seconds>:<20 lowercase hex characters>.",
+    "basic_authorization_header_for_example": "Basic MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY6MTcwMDAwMDAwMDowMDExMjIzMzQ0NTU2Njc3ODg5OQ==",
+    "registration_lock_enable_body_example": "{\"registrationLock\":\"2bf7988224ba35d3554966c65e8dc8c54974b034bdd44cabfd3f15fdb185e3c6\"}",
+    "registration_lock_enable_body_example_note": "PUT /v1/accounts/registration_lock; token is the registration lock of master key 202122...3f (see pin.json master_key_derivations).",
+    "locked_423_body_examples": [
+      {"body": "{\"timeRemaining\":604799000,\"svr2Credentials\":{\"username\":\"0123456789abcdef0123456789abcdef\",\"password\":\"1700000000:00112233445566778899\"},\"extra\":1}", "parsed": {"timeRemaining": 604799000, "svr2_username": "0123456789abcdef0123456789abcdef", "svr2_password": "1700000000:00112233445566778899"}, "hours_shown": 167},
+      {"body": "{\"timeRemaining\":604799000,\"svr2Credentials\":null}", "parsed": {"timeRemaining": 604799000, "svr2Credentials": null}, "hours_shown": 167, "signal_cli": "with --pin: 'Account is pin locked, but pin data has been deleted on the server.'"}
+    ]
+  }
+}
