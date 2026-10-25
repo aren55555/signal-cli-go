@@ -1,0 +1,119 @@
+{
+  "description": "CDSI (contact discovery) vectors for spec/service/cdsi.md. All hex is lowercase. Numbers are 8-byte big-endian unsigned integers; ACI/PNI are 16 raw UUID bytes; ClientRequest/ClientResponse are protobuf (package org.signal.cdsi, field tables in cdsi.md section 4).",
+  "source": "libsignal v0.99.1 (97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8) rust/net/src/cdsi.rs unit tests (published vectors, marked 'published'); rust/attest/src/constants.rs and rust/net/src/enclave.rs (enclave id, path); ContactDiscoveryService-Icelake tag 1.25.2 (46540d24ca3437f0100fd53ba2024192d69115f5) for server behaviour; access keys computed offline with the signal-cli 0.14.7 bundled libsignal-client 0.99.1 jar (ProfileKey.deriveAccessKey); protobuf messages constructed by hand from the field layout (marked 'constructed') and cross-checked with protoc --decode_raw.",
+  "staging_endpoint": {
+    "provenance": "published (libsignal env.rs / constants.rs / enclave.rs)",
+    "host": "cdsi.staging.signal.org",
+    "port": 443,
+    "enclave_id_hex": "6d9b9649fa3a337754a98059c66d48ac77aaca5299d3b27d6ed1e646c7c81c0a",
+    "path": "/v1/6d9b9649fa3a337754a98059c66d48ac77aaca5299d3b27d6ed1e646c7c81c0a/discovery",
+    "auth_endpoint": "GET /v2/directory/auth (authenticated chat websocket), response {\"username\":string,\"password\":string}, used as HTTP Basic on the enclave websocket upgrade"
+  },
+  "e164_serialization": {
+    "provenance": "published (libsignal cdsi.rs test serialize_e164s)",
+    "numbers": ["+18005551001", "+18005551002", "+18005551003", "+18005551004", "+18005551005"],
+    "serialized_hex": "000000043136e799000000043136e79a000000043136e79b000000043136e79c000000043136e79d"
+  },
+  "aci_access_key_serialization": {
+    "provenance": "published (libsignal cdsi.rs test serialize_acis_and_access_keys): for i in 1..5, ACI = 16 bytes of (i|0x80), access key = 16 bytes of i",
+    "serialized_hex": "81818181818181818181818181818181010101010101010101010101010101018282828282828282828282828282828202020202020202020202020202020202838383838383838383838383838383830303030303030303030303030303030384848484848484848484848484848484040404040404040404040404040404048585858585858585858585858585858505050505050505050505050505050505"
+  },
+  "response_parse_published": {
+    "provenance": "published (libsignal cdsi.rs test parse_lookup_response_entries): the same 40-byte triple repeated 4 times, debug_permits_used 42, token empty",
+    "triple_hex": "000000043136e799b1b2b3b4b5b6b7b811121314151617180102030405060708a1a2a3a4a5a6a7a8",
+    "repeat": 4,
+    "debug_permits_used": 42,
+    "expected_records": [
+      {"e164": "+18005551001", "pni": "b1b2b3b4-b5b6-b7b8-1112-131415161718", "aci": "01020304-0506-0708-a1a2-a3a4a5a6a7a8"}
+    ],
+    "note": "libsignal yields 4 identical records; as a map keyed by number (what signal-cli uses) this is one entry."
+  },
+  "access_keys": {
+    "provenance": "derived offline with the reference jar (ProfileKey.deriveAccessKey); algorithm in spec/service/api.md section 5.1",
+    "cases": [
+      {"profile_key_hex": "0000000000000000000000000000000000000000000000000000000000000000", "access_key_hex": "cea7403d4d606b6e074ec5d3baf39d18"},
+      {"profile_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", "access_key_hex": "0ebcb5deb52c83bd08a8a935182c9199"}
+    ]
+  },
+  "fixed_width_service_ids": {
+    "provenance": "derived offline with the reference jar (toServiceIdFixedWidthBinary); the CDSI pair uses the UUID bytes only, without the type byte",
+    "cases": [
+      {"service_id": "01020304-0506-0708-a1a2-a3a4a5a6a7a8", "fixed_width_hex": "000102030405060708a1a2a3a4a5a6a7a8"},
+      {"service_id": "PNI:b1b2b3b4-b5b6-b7b8-1112-131415161718", "fixed_width_hex": "01b1b2b3b4b5b6b7b81112131415161718"}
+    ]
+  },
+  "client_request_full": {
+    "provenance": "constructed from the field layout (cdsi.md 4.1); access key derived with the jar; token bytes are arbitrary (version byte 1, then 0x20..0x5f) and not a server-valid token",
+    "inputs": {
+      "aci_uak_pairs": [{"aci": "01020304-0506-0708-a1a2-a3a4a5a6a7a8", "profile_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", "access_key_hex": "0ebcb5deb52c83bd08a8a935182c9199"}],
+      "prev_e164s": ["+18005550101"],
+      "new_e164s": ["+18005551001", "+18005551002"],
+      "token_hex": "01202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+      "token_ack": false
+    },
+    "encoded_hex": "0a200102030405060708a1a2a3a4a5a6a7a80ebcb5deb52c83bd08a8a935182c91991208000000043136e4151a10000000043136e799000000043136e79a324101202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+    "note": "Fields appear in number order 1,2,3,6; empty discard_e164s (4) and false token_ack (7) are omitted. Entry order inside the e164 and pair fields is not significant (signal-cli iterates hash sets)."
+  },
+  "client_request_partial": {
+    "provenance": "constructed from the field layout; a partial lookup as signal-cli sends it, but with no aci_uak_pairs (account with no known profile keys)",
+    "inputs": {"new_e164s": ["+18005551001", "+18005551002"]},
+    "encoded_hex": "1a10000000043136e799000000043136e79a"
+  },
+  "client_token_ack": {
+    "provenance": "constructed from the field layout (ClientRequest with only token_ack=true)",
+    "encoded_hex": "3801"
+  },
+  "server_token_response": {
+    "provenance": "constructed from the field layout (ClientResponse with only token)",
+    "encoded_hex": "1a4101202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+    "expected_token_hex": "01202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f"
+  },
+  "server_final_response": {
+    "provenance": "constructed from the field layout and the Icelake masking rule (not-found number => all-zero 40-byte record, ACI zero when no matching ACI/UAK pair)",
+    "encoded_hex": "0a78000000043136e415b1b2b3b4b5b6b7b811121314151617180102030405060708a1a2a3a4a5a6a7a8000000043136e799c1c2c3c4c5c6c7c8212223242526272800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002003",
+    "expected": {
+      "debug_permits_used": 3,
+      "results": {
+        "+18005550101": {"aci": "01020304-0506-0708-a1a2-a3a4a5a6a7a8", "pni": "b1b2b3b4-b5b6-b7b8-1112-131415161718"},
+        "+18005551001": {"aci": null, "pni": "c1c2c3c4-c5c6-c7c8-2122-232425262728"}
+      },
+      "absent": ["+18005551002"],
+      "signal_cli_service_id": {"+18005550101": "01020304-0506-0708-a1a2-a3a4a5a6a7a8", "+18005551001": "PNI:c1c2c3c4-c5c6-c7c8-2122-232425262728"}
+    },
+    "note": "The third record (all zeros) is the server's answer for +18005551002 and must be skipped; that number is then treated as not found."
+  },
+  "response_errors": [
+    {"provenance": "derived from libsignal cdsi.rs parsing rule", "triples_length": 41, "expected": "protocol error: could not parse response triples (41 bytes)"},
+    {"provenance": "derived from libsignal cdsi.rs", "case": "first server message has empty token", "expected": "protocol error: no token found in response"}
+  ],
+  "close_codes": {
+    "provenance": "published (libsignal cdsi.rs CdsiCloseCode and tests websocket_close_with_rate_limit_exceeded_*, websocket_invalid_token_close); server side: Icelake WebSocketHandler",
+    "cases": [
+      {"code": 1000, "reason": "", "phase": "after token ack", "expected": "success"},
+      {"code": 4008, "reason": "{\"retry_after\": 12345}", "phase": "after request", "expected": "rate limited, retry after 12345 s"},
+      {"code": 4008, "reason": "{\"retry_after\": 513}", "phase": "after token ack", "expected": "rate limited, retry after 513 s"},
+      {"code": 4008, "reason": "not json", "expected": "protocol error (unexpected close)"},
+      {"code": 4101, "reason": "invalid token", "phase": "after request", "expected": "invalid token (signal-cli clears cdsi-token and the cdsi table)"},
+      {"code": 4003, "reason": "any", "expected": "invalid argument (signal-cli clears cdsi-token and the cdsi table)"},
+      {"code": 4013, "reason": "any", "expected": "server error ServerInternalError"},
+      {"code": 4014, "reason": "any", "expected": "server error ServerUnavailable"},
+      {"code": 4999, "reason": "any", "expected": "protocol error (unexpected close)"}
+    ],
+    "http_upgrade": {"status": 429, "retry_after_header": "100", "expected": "rate limited, retry after 100 s", "provenance": "published (libsignal test websocket_rejected_with_http_429_too_many_requests)"}
+  },
+  "e164_string_parsing": {
+    "provenance": "derived from libsignal rust/core/src/e164.rs (strip one leading '+', then Rust NonZeroU64 decimal parse, which itself accepts one leading '+')",
+    "cases": [
+      {"input": "+18005551001", "value": 18005551001, "hex": "000000043136e799"},
+      {"input": "18005551001", "value": 18005551001, "hex": "000000043136e799"},
+      {"input": "+0049123", "value": 49123, "hex": "000000000000bfe3"},
+      {"input": "++1", "value": 1, "hex": "0000000000000001"},
+      {"input": "+0", "error": true},
+      {"input": "", "error": true},
+      {"input": "+1 555", "error": true},
+      {"input": "+abc", "error": true},
+      {"input": "+18446744073709551616", "error": true}
+    ],
+    "note": "Any rejected string fails the whole lookup before connecting (IllegalArgumentException -> treated as CDSI invalid argument by signal-cli)."
+  }
+}
