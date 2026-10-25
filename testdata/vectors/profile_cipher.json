@@ -1,0 +1,510 @@
+{
+  "source" : {
+    "description" : "Profile field encryption (name, about, about emoji, phone-number-sharing boolean, payment address), profile avatar stream encryption, the unidentified-access verifier, and end-to-end decoding of profile responses, as done by signal-cli v0.14.7. See spec/crypto/profile-cipher.md. All hex is lowercase. 'k1'/'k2' name the 32-byte profile keys in 'keys'. Nonces are fixed by the vector author (a real client draws them at random); ciphertext = nonce(12) || AES-256-GCM ciphertext || tag(16), key = the 32-byte profile key, no associated data.",
+    "signal_cli" : "https://github.com/AsamK/signal-cli @ v0.14.7 (b01b6b370dc063599a1a2b9fde0f5ff4e2d78fe8)",
+    "signal_service_java" : "https://github.com/Turasa/libsignal-service-java @ v2.15.3_unofficial_151 (66956cb4a0394d50cee3590209baf58312084a44), the version bundled with signal-cli 0.14.7",
+    "libsignal" : "https://github.com/signalapp/libsignal @ v0.99.1 (97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8)",
+    "provenance" : "Derived offline by the spec agent on 2026-10-25 with jshell (Temurin 25.0.5) over the reference distribution class path /work/third_party/signal-cli-0.14.7/lib/*. Fixed-nonce ciphertexts were produced with the JDK's own AES/GCM/NoPadding and then checked against the reference decoders (signal-service-java ProfileCipher.decryptString/decryptBoolean/decryptWithLength, ProfileCipherInputStream, and signal-cli ProfileUtils.decryptProfile); 'reference_encrypt_string' entries were produced by the reference ProfileCipher.encryptString (random nonce) and re-derived with the JDK cipher. 'padding_targets' come from ProfileCipher.getTargetNameLength/getTargetAboutLength. 'decode_profile' results are the field values of the Profile object returned by ProfileUtils.decryptProfile for the given response JSON (null result = the reference decoder returned null). The PUT body string is the reference JsonUtil serialization of a SignalServiceProfileWrite. No network access. None of this is an upstream test vector; upstream publishes none for these primitives."
+  },
+  "keys" : {
+    "k1" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "k2" : "a5f00ddeadbeef0123456789abcdef00112233445566778899aabbccddeeff42"
+  },
+  "padding_targets" : [ {
+    "field" : "name",
+    "utf8_length" : 0,
+    "target" : 53
+  }, {
+    "field" : "name",
+    "utf8_length" : 1,
+    "target" : 53
+  }, {
+    "field" : "name",
+    "utf8_length" : 52,
+    "target" : 53
+  }, {
+    "field" : "name",
+    "utf8_length" : 53,
+    "target" : 53
+  }, {
+    "field" : "name",
+    "utf8_length" : 54,
+    "target" : 257
+  }, {
+    "field" : "name",
+    "utf8_length" : 200,
+    "target" : 257
+  }, {
+    "field" : "name",
+    "utf8_length" : 257,
+    "target" : 257
+  }, {
+    "field" : "about",
+    "utf8_length" : 0,
+    "target" : 128
+  }, {
+    "field" : "about",
+    "utf8_length" : 1,
+    "target" : 128
+  }, {
+    "field" : "about",
+    "utf8_length" : 127,
+    "target" : 128
+  }, {
+    "field" : "about",
+    "utf8_length" : 128,
+    "target" : 128
+  }, {
+    "field" : "about",
+    "utf8_length" : 129,
+    "target" : 254
+  }, {
+    "field" : "about",
+    "utf8_length" : 253,
+    "target" : 254
+  }, {
+    "field" : "about",
+    "utf8_length" : 254,
+    "target" : 512
+  }, {
+    "field" : "about",
+    "utf8_length" : 255,
+    "target" : 512
+  }, {
+    "field" : "about",
+    "utf8_length" : 512,
+    "target" : 512
+  } ],
+  "string_fields" : [ {
+    "field" : "name",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "",
+    "target_length" : 53,
+    "nonce" : "010101010101010101010101",
+    "ciphertext" : "01010101010101010101010177c3e53568856866d4546718186752d8cb6e8fdb918316dcf3db07ec9d09fe31acd6624fe6965a335822f7df32a58e708be5480d4e58a54b088f7dfa58067c33d0b83eeb96",
+    "ciphertext_base64" : "AQEBAQEBAQEBAQEBd8PlNWiFaGbUVGcYGGdS2Mtuj9uRgxbc89sH7J0J/jGs1mJP5pZaM1gi998ypY5wi+VIDU5YpUsIj336WAZ8M9C4PuuW",
+    "ciphertext_length" : 81
+  }, {
+    "field" : "name",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "416c696365",
+    "target_length" : 53,
+    "nonce" : "020202020202020202020202",
+    "ciphertext" : "020202020202020202020202da4470d8dcd9315bcb85a2f83379da131ce9af6c945478f1425ed103776b49c2d0f8d8621f36f3d8d96a82b1eaf84e9872d90c9d4641fc0806646a5df3f117a9cb8c66d60c",
+    "ciphertext_base64" : "AgICAgICAgICAgIC2kRw2NzZMVvLhaL4M3naExzpr2yUVHjxQl7RA3drScLQ+NhiHzbz2NlqgrHq+E6YctkMnUZB/AgGZGpd8/EXqcuMZtYM",
+    "ciphertext_length" : 81
+  }, {
+    "field" : "name",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "416c69636500536d697468",
+    "target_length" : 53,
+    "nonce" : "030303030303030303030303",
+    "ciphertext" : "030303030303030303030303af2755b56e92017bb7296e7ecdaa54071a56f6f0daf83cb182bd461d0422a9529b033cdea58777e548ab440e6b4b3d1af3d677acab69777a172272c155692b32ea6f29355d",
+    "ciphertext_base64" : "AwMDAwMDAwMDAwMDrydVtW6SAXu3KW5+zapUBxpW9vDa+Dyxgr1GHQQiqVKbAzzepYd35UirRA5rSz0a89Z3rKtpd3oXInLBVWkrMupvKTVd",
+    "ciphertext_length" : 81
+  }, {
+    "field" : "name",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "00536d697468",
+    "target_length" : 53,
+    "nonce" : "040404040404040404040404",
+    "ciphertext" : "04040404040404040404040464d4a3e15d3d919dca055b6b25fda10094590d64728967ed172f3ca00d146b8bbd7526615332792ba3e12b1c7dde5de13ee6d59e9d3bae0f2f98a12737e28607b07e4fa773",
+    "ciphertext_base64" : "BAQEBAQEBAQEBAQEZNSj4V09kZ3KBVtrJf2hAJRZDWRyiWftFy88oA0Ua4u9dSZhUzJ5K6PhKxx93l3hPubVnp07rg8vmKEnN+KGB7B+T6dz",
+    "ciphertext_length" : 81
+  }, {
+    "field" : "name",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "5a6fc3ab20f09f9982004dc3bc6c6c6572",
+    "target_length" : 53,
+    "nonce" : "050505050505050505050505",
+    "ciphertext" : "05050505050505050505050516591bda80cd0573bd8e4623b57f6ab0277794dfe4da958b3221d223de3f105d2f4355014ad6200c7c4830324ccc8e28bcfeb864672119d0623d21ce54476cb398928e19cd",
+    "ciphertext_base64" : "BQUFBQUFBQUFBQUFFlkb2oDNBXO9jkYjtX9qsCd3lN/k2pWLMiHSI94/EF0vQ1UBStYgDHxIMDJMzI4ovP64ZGchGdBiPSHOVEdss5iSjhnN",
+    "ciphertext_length" : 81
+  }, {
+    "field" : "name",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "7878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878",
+    "target_length" : 53,
+    "nonce" : "060606060606060606060606",
+    "ciphertext" : "060606060606060606060606442095f101cdd5e9a31cfdc63f1ba14573fc10293d11fcb9ce87ee827bd21b3edc8cdcd13ed2f75e69d549011186c93cf66b998a3cd6238bdde0039b1d459e5682c763862e",
+    "ciphertext_base64" : "BgYGBgYGBgYGBgYGRCCV8QHN1emjHP3GPxuhRXP8ECk9Efy5zofugnvSGz7cjNzRPtL3XmnVSQERhsk89muZijzWI4vd4AObHUWeVoLHY4Yu",
+    "ciphertext_length" : 81
+  }, {
+    "field" : "name",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878",
+    "target_length" : 257,
+    "nonce" : "070707070707070707070707",
+    "ciphertext" : "0707070707070707070707077712de241777af8cbee56bf8f8298ce3d924f50bf08ff96186c326827ca64a635f3c8906f9388cea7a86d985ba6fa15ec330cb31add9010b9de8e1e26db883f045a5f03289c82ac14cdb3740e78310dac4385220b6ae4b34ef3a675e6827078bce8f8fadde4b148f4f7cc82690c0f651ab318e362d43026fe7b8acc28e32887f5781c40ff0a08caf27363d1dd8d79792344837d889298359ee5affcd2616c0ab823496f718c0797a5d80706e4792a577b56bb1a9824c75be2df35e90cf5af8b77b3411f82126b5eca326cf0a4722db308500d887d716b5c47f69dbf81cb11bb700419c9165c82c3e4943f599dbe0a4c0c7f24d9426fa9939e9d646e8141d9f41258d62ea9e076ecf0d6b1cbcabd4db4d46",
+    "ciphertext_base64" : "BwcHBwcHBwcHBwcHdxLeJBd3r4y+5Wv4+CmM49kk9Qvwj/lhhsMmgnymSmNfPIkG+TiM6nqG2YW6b6FewzDLMa3ZAQud6OHibbiD8EWl8DKJyCrBTNs3QOeDENrEOFIgtq5LNO86Z15oJweLzo+Prd5LFI9PfMgmkMD2UasxjjYtQwJv57iswo4yiH9XgcQP8KCMryc2PR3Y15eSNEg32Ikpg1nuWv/NJhbAq4I0lvcYwHl6XYBwbkeSpXe1a7Gpgkx1vi3zXpDPWvi3ezQR+CEmteyjJs8KRyLbMIUA2IfXFrXEf2nb+ByxG7cAQZyRZcgsPklD9Znb4KTAx/JNlCb6mTnp1kboFB2fQSWNYuqeB27PDWscvKvU201G",
+    "ciphertext_length" : 285
+  }, {
+    "field" : "about",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "",
+    "target_length" : 128,
+    "nonce" : "080808080808080808080808",
+    "ciphertext" : "0808080808080808080808082a43d8d6ed8436f6d0575b98809d7038e31503af95c2796f45160921fdaa4bff44853df76ed12e3797dcecddff05b72df13ea5c2b6b03f0c1a4569a004fd2e1cc10ab7047fe9218bff98551b379d1b77e30fc278d449f3a0ec6c65fa38467764d0b89e8cebc60010a1641dd069fdf35c295ebbfcdc6973b0300bccfe91b1d2db2f8a681715d62c6b31c9cb4beb16e59d",
+    "ciphertext_base64" : "CAgICAgICAgICAgIKkPY1u2ENvbQV1uYgJ1wOOMVA6+VwnlvRRYJIf2qS/9EhT33btEuN5fc7N3/Bbct8T6lwrawPwwaRWmgBP0uHMEKtwR/6SGL/5hVGzedG3fjD8J41EnzoOxsZfo4Rndk0LiejOvGABChZB3Qaf3zXCleu/zcaXOwMAvM/pGx0tsvimgXFdYsazHJy0vrFuWd",
+    "ciphertext_length" : 156
+  }, {
+    "field" : "about",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "48656c6c6f2066726f6d207369676e616c2d636c692d676f",
+    "target_length" : 128,
+    "nonce" : "090909090909090909090909",
+    "ciphertext" : "090909090909090909090909fb7d6457e8bf25d6be64108ac2f1d5ae553fbc42332b27da13f7626b93378b4788756eb6d3fcfceeb3b48bfd6002fcf3a5751f77e66eb64e27c2b727c6604f56cb23e4c278c716411a5dabad49c4266391befc3beb6dd7ea10f9e85a5c09e9ef6a8152d1a3726517774ae7aa5fe1a63d6b3d6fd883d135b31c8850f878983b69b8a19d478484204f117c068954611508",
+    "ciphertext_base64" : "CQkJCQkJCQkJCQkJ+31kV+i/Jda+ZBCKwvHVrlU/vEIzKyfaE/dia5M3i0eIdW620/z87rO0i/1gAvzzpXUfd+Zutk4nwrcnxmBPVssj5MJ4xxZBGl2rrUnEJmORvvw7623X6hD56FpcCenvaoFS0aNyZRd3SueqX+GmPWs9b9iD0TWzHIhQ+HiYO2m4oZ1HhIQgTxF8BolUYRUI",
+    "ciphertext_length" : 156
+  }, {
+    "field" : "about",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262",
+    "target_length" : 254,
+    "nonce" : "0a0a0a0a0a0a0a0a0a0a0a0a",
+    "ciphertext" : "0a0a0a0a0a0a0a0a0a0a0a0acb403df2a84c159052e4bac70fd9db43f270c66bca58211cb1026d65cf5ea3d80d164d52231047baf64ff2a3058da393064547d3bf9094df4b283e0009d1696838f8d44bdfde4f35f0f1cacceffc9674a1f1d583ae43cb4fc5c8ebb3f8dafb4332effbec043a5d7047063b65b57bee1494f80e2ec38df3743f9ba1d6b714c6dd373964ba1c247310aeae70a9fcb07ebed3f03b86b502cb673271cc54e8be2bc07e576b0497e9acbf53e82fd27ed8af2401865150bf1ca50abd67fef2f230b7a6c952705fa8bbcf23d43560c545c5db7e10a8315fc80c052d57fc280762bfd950a92d4d2db4815c34f1bcbc3fc305a5f5ed9b1362210b2254eff75830f9c716f461f0c4bd6a4f56d463e80830d9cc",
+    "ciphertext_base64" : "CgoKCgoKCgoKCgoKy0A98qhMFZBS5LrHD9nbQ/JwxmvKWCEcsQJtZc9eo9gNFk1SIxBHuvZP8qMFjaOTBkVH07+QlN9LKD4ACdFpaDj41Evf3k818PHKzO/8lnSh8dWDrkPLT8XI67P42vtDMu/77AQ6XXBHBjtltXvuFJT4Di7DjfN0P5uh1rcUxt03OWS6HCRzEK6ucKn8sH6+0/A7hrUCy2cyccxU6L4rwH5XawSX6ay/U+gv0n7YryQBhlFQvxylCr1n/vLyMLemyVJwX6i7zyPUNWDFRcXbfhCoMV/IDAUtV/woB2K/2VCpLU0ttIFcNPG8vD/DBaX17ZsTYiELIlTv91gw+ccW9GHwxL1qT1bUY+gIMNnM",
+    "ciphertext_length" : 282
+  }, {
+    "field" : "about",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "6363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363",
+    "target_length" : 512,
+    "nonce" : "0b0b0b0b0b0b0b0b0b0b0b0b",
+    "ciphertext" : "0b0b0b0b0b0b0b0b0b0b0b0bcbed71c2ec0feecab8aa78dcc62bb6fbcc926b712d209b76d97d830cebc8b584ab17210b2fa120b82b34101909a22e6b44f8a60818ec1a49e108e06ac847d31e26c81314fad6e80f4d78e76af0c812b28f377e7d48fc054c70cb3a680cac72d65c0f52b32b02b8c737e60a00412d4c1914b58cc4b87baaf1ed430d19db81088ffc8a09fdaf4e81bfe61103f816e4eca16216aab2ed9a44b695a5362b10c2ed9f5dfad339a042aae5297828445f6e0ba51fdb7acaeaa96654a5e0785ae3d7d9e91e51aaacd7fdcea6cf854bd60f34d10f6c13bbc36a3e6e113089f3c0016b43f96da2bde17c2e8c18b6a147c93ee096ac6796813a836c8953f45b0a138aa46263cfb2fccc9e35fc636c2b4c8f44c3789b39e035a03becb058a6f609c14e3225f9949ba6306dcbd88f0c0ec7b002c8d7f80c1411a931618a6afeac05f06bd6bf918132437d204f4b419c6d70034effac95c12d1c40fd546585c75fa4526f60059dedef23e4d339db90f5c10f17f5700c505a74f370a2c445c43c621121605d91eace2848666578b989c717e7f97b7c57eb020951dd9a83dc88118498e9bd8c9640293ccf58e51a283b44153701974f9782b2ba53b84f84149536bdf240cd22b48553fb0cf9448adb67d3ae5ec52be5c39d6b75bdcf2abba0bb75f3086bfebd2c2b8bdf5fec85801f7729ce690c1dff6f97af219794c9eff63b1a1715e2377c012be5056aa34ff39fd577ced5b580428283",
+    "ciphertext_base64" : "CwsLCwsLCwsLCwsLy+1xwuwP7sq4qnjcxiu2+8ySa3EtIJt22X2DDOvItYSrFyELL6EguCs0EBkJoi5rRPimCBjsGknhCOBqyEfTHibIExT61ugPTXjnavDIErKPN359SPwFTHDLOmgMrHLWXA9SsysCuMc35goAQS1MGRS1jMS4e6rx7UMNGduBCI/8ign9r06Bv+YRA/gW5OyhYhaqsu2aRLaVpTYrEMLtn1360zmgQqrlKXgoRF9uC6Uf23rK6qlmVKXgeFrj19npHlGqrNf9zqbPhUvWDzTRD2wTu8NqPm4RMInzwAFrQ/ltor3hfC6MGLahR8k+4JasZ5aBOoNsiVP0WwoTiqRiY8+y/MyeNfxjbCtMj0TDeJs54DWgO+ywWKb2CcFOMiX5lJumMG3L2I8MDsewAsjX+AwUEakxYYpq/qwF8GvWv5GBMkN9IE9LQZxtcANO/6yVwS0cQP1UZYXHX6RSb2AFne3vI+TTOduQ9cEPF/VwDFBadPNwosRFxDxiESFgXZHqzihIZmV4uYnHF+f5e3xX6wIJUd2ag9yIEYSY6b2MlkApPM9Y5RooO0QVNwGXT5eCsrpTuE+EFJU2vfJAzSK0hVP7DPlEittn065exSvlw51rdb3PKrugu3XzCGv+vSwri99f7IWAH3cpzmkMHf9vl68hl5TJ7/Y7GhcV4jd8ASvlBWqjT/Of1XfO1bWAQoKD",
+    "ciphertext_length" : 540
+  }, {
+    "field" : "aboutEmoji",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "",
+    "target_length" : 32,
+    "nonce" : "0c0c0c0c0c0c0c0c0c0c0c0c",
+    "ciphertext" : "0c0c0c0c0c0c0c0c0c0c0c0cf4b31bf95e196a6fc3f7304bd682843eaea783efa065013933ef000203c73eef28ff620f581f6d3b3b057253cebf288d",
+    "ciphertext_base64" : "DAwMDAwMDAwMDAwM9LMb+V4Zam/D9zBL1oKEPq6ng++gZQE5M+8AAgPHPu8o/2IPWB9tOzsFclPOvyiN",
+    "ciphertext_length" : 60
+  }, {
+    "field" : "aboutEmoji",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "f09f9982",
+    "target_length" : 32,
+    "nonce" : "0d0d0d0d0d0d0d0d0d0d0d0d",
+    "ciphertext" : "0d0d0d0d0d0d0d0d0d0d0d0d5238e78a8ee50ef2d31366790987adc3db9e4afe96a4776a924f9eec5aa56a32968949d5aeba2d0e523e2713563439f5",
+    "ciphertext_base64" : "DQ0NDQ0NDQ0NDQ0NUjjnio7lDvLTE2Z5CYetw9ueSv6WpHdqkk+e7FqlajKWiUnVrrotDlI+JxNWNDn1",
+    "ciphertext_length" : 60
+  } ],
+  "reference_encrypt_string" : [ {
+    "field" : "name",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "426f62",
+    "target_length" : 53,
+    "nonce" : "674829c02764368b2f7e5219",
+    "ciphertext" : "674829c02764368b2f7e52192ceb8b42792afb6e56cae58296158e2e56c98b60c4192a69943d8d6b8cba5f4064cc169ca86baaabbee1fae07a4baa4b39ae08694229ebaabdeaadf786aa6427337052cdf3"
+  }, {
+    "field" : "name",
+    "key" : "k1",
+    "plaintext_utf8_hex" : "4361726f6c004a6f6e6573",
+    "target_length" : 53,
+    "nonce" : "bde37ab356214b4b4202aa3a",
+    "ciphertext" : "bde37ab356214b4b4202aa3aea3b5def9ed7a89d59fa3205bff031ea2916e4887e618fd2cf18b62f9a9f0b3ea473c42ad446d01397edae90fc2a7f8b40ddbf10accc7e802f0d71bdecf093476bec63e2cf"
+  } ],
+  "decrypt_string_quirks" : [ {
+    "case" : "trailing NUL stripped (given Bob, family empty)",
+    "key" : "k1",
+    "ciphertext" : "212121212121212121212121ff95ed90040abae168d86836d089e58e2dffe68d31449ab14c8e847934a9dd260844ebe8d45c0e0e74020330862494e1fe3bae795226abcd2d27b475b88bffc468119794b6",
+    "decrypted_utf8_hex" : "426f62"
+  }, {
+    "case" : "invalid UTF-8 replaced by U+FFFD",
+    "key" : "k1",
+    "ciphertext" : "2222222222222222222222223ceb7cc66ef09a1a879d8faa8ff9e27dc666670d1b84d5b7a6f224aa88a9b16bcddc18261c7ba251bd3296812ec8a24b3f64d714a865262d180740d3e096b7d5bb79eeed20",
+    "decrypted_utf8_hex" : "41efbfbd42"
+  }, {
+    "case" : "inner NULs kept",
+    "key" : "k1",
+    "ciphertext" : "232323232323232323232323fe0d60b3be0d9e9725cba1fe12d14eb3011409f3ba234c7e66d2734ec1bdbf72066b39f70e3aa102a29fbc93e0154096e44e7a70e8e2f4c5a0d1936fd5ed0fba4f08d5e442",
+    "decrypted_utf8_hex" : "41000042"
+  }, {
+    "case" : "28-byte input rejected",
+    "input_length" : 28,
+    "error" : "InvalidCiphertextException: Too short: 28"
+  }, {
+    "case" : "wrong key (k2) on the first quirk ciphertext",
+    "error" : "InvalidCiphertextException"
+  } ],
+  "boolean_fields" : [ {
+    "value" : false,
+    "key" : "k1",
+    "nonce" : "303030303030303030303030",
+    "ciphertext" : "303030303030303030303030e90e802f817ba76d252637e8c6ea37f80f",
+    "ciphertext_base64" : "MDAwMDAwMDAwMDAw6Q6AL4F7p20lJjfoxuo3+A8="
+  }, {
+    "value" : true,
+    "key" : "k1",
+    "nonce" : "313131313131313131313131",
+    "ciphertext" : "313131313131313131313131261406731f62871a5fde2409452bcf451f",
+    "ciphertext_base64" : "MTExMTExMTExMTExJhQGcx9ihxpf3iQJRSvPRR8="
+  }, {
+    "value" : true,
+    "note" : "plaintext byte 0x02 decodes as true (any non-zero first byte)",
+    "key" : "k1",
+    "nonce" : "323232323232323232323232",
+    "ciphertext" : "323232323232323232323232658a0a06915cb3597f9d341230f2098d5a"
+  } ],
+  "payment_address" : {
+    "identity_private_key" : "c806439dc9d2c476ffed8f2580c0888d58ab406bf7ae3698879021b96bb4bf59",
+    "identity_key_33" : "051bb75966f2e93a3691dfff942bb2a466a1c08b8d78ca3f4d6df8b8bfa2e4ee28",
+    "mobilecoin_public_address" : "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+    "payment_address_proto" : "0a84010a40404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f1240963fab546382d924ca80cbd8e8897d9cf7e96485c944014e99439e45a26dbbf630e98651888e1c38dde67cac13a559419af91e7524a88f6d88a487db987ab082",
+    "signature_note" : "the 64-byte signature inside the proto is an XEdDSA signature (random nonce) by the identity private key over the raw public-address bytes; any valid signature is acceptable, so this exact value is reproducible only by verification",
+    "content_size" : 554,
+    "length_prefixed_plaintext_unpadded" : "870000000a84010a40404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f1240963fab546382d924ca80cbd8e8897d9cf7e96485c944014e99439e45a26dbbf630e98651888e1c38dde67cac13a559419af91e7524a88f6d88a487db987ab082",
+    "key" : "k1",
+    "nonce" : "505050505050505050505050",
+    "ciphertext" : "505050505050505050505050f8c8493a7f04cc8c116a217d645fbbdac14461fb21af0d43cdc3af4328081835c72736f55375f4ae69b07c8d18a5491d818a2a8b40040fb0ea5946a6fa3ca84cac847ed489040cbe783486e13b6b3935396b58cdd0e987a567317400bf5db89e77062ba46307c82e2a949c8f896acc79e4446b1d31d28c85fc2fb0270ff5b85b76f891dfe733fbb5dcec0cf72e3755bfbd8d7de0296c84e4a3e4e3e7ee4e208af6cbfa0e2dc9924a37fbd5eaaa69fe43fb5307c43e41d07df085b95b3842bc34eda8478e8c63a264353b8e10784f6325208fb9938a45e926298f0c3c1773a82001614b9f0f0c074fc733d66b9ca662d2e656635c8fa6269eb6dd5056e70500b3f3e56e6e0f3fa52df88f81def1956140d60264cf4c5544d4241aa70945da274a363372e8cba33e89e089a245f0d998ed580ab080c4624c006c24b9b86aeaddb3e64b52510160ed65474415672d10ee6034a1cf8d5f4d7b51a9b2bc11452e37bf8137f8385688ead9c49f4f569bf17ce5420b97ab50b99430811c6c933f170f54538d42852ffb6004b4bd95e538a585f7256a93affacb052082547adc0dbbfe94c0c228e1449d29f9da3b46aa26148a9d8f6fe3bd12c906c6dbca1f6a216ab7776dd6d2108c4fb222202ce0af489acc08e047c2981fd81e40e0a6bbccf1006ea4feb7085b9d0fa7a131bcc34e2ea7924866d713b57e42dde5a1264170c45235e3c7bcb0e52af1acdfc57560e9f1d3319b91625675500787c8f3f6f07f910928e11d2e37391407e5f47f4309386f7ee8ca16447832a08cdfd42ac8",
+    "ciphertext_length" : 582
+  },
+  "unidentified_access" : {
+    "key" : "k1",
+    "access_key_16" : "0ebcb5deb52c83bd08a8a935182c9199",
+    "verifier_32" : "99b8d2ad421524db61a7fbaaf530414d36cb36e70c61b707e2771bd850da773a",
+    "verifier_base64" : "mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo="
+  },
+  "avatar" : [ {
+    "key" : "k1",
+    "plaintext" : "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f60616263",
+    "nonce" : "606060606060606060606060",
+    "ciphertext" : "6060606060606060606060604a569687e9449b39964c30904cc9100a314f456ab01b77e8705236b5ea1dfbf6b50f184bfa2e21723e3ad4ce302e310d6a34fe135c1cacfbc6370fc381dd072e6d1bec55dbfe1f357c20e1ce1c0f4b5188149582ad121e9a78e388afa3fe99361c64b8c5774a1c26dcd0611c22da3ad9c8c8e34d",
+    "ciphertext_length" : 128
+  }, {
+    "key" : "k1",
+    "plaintext" : "89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d4944415478da63f8ffff3f0005fe02fea7d6a4ba0000000049454e44ae426082",
+    "nonce" : "616161616161616161616161",
+    "ciphertext" : "61616161616161616161616152176f5eca8dab8f3fffbdd77297a0ba2dd97f8abb2ff68bbf5b4345cc73b7052bb26b573df44e17cf8f9f29eb96af15096d46b4d60da3fa2c7a741f0d5e70f13740e9211994547db768b42edf6f1f9a66dad34499",
+    "ciphertext_length" : 97
+  }, {
+    "key" : "k1",
+    "plaintext" : "",
+    "nonce" : "626262626262626262626262",
+    "ciphertext" : "626262626262626262626262647f28da221fa47664a4aff398aafef9",
+    "ciphertext_length" : 28
+  }, {
+    "case" : "tag tampered (last byte xor 1) on avatar case 0",
+    "plaintext_bytes_emitted_before_error" : 100,
+    "error" : "authentication of decrypted data failed"
+  } ],
+  "decode_profile" : [ {
+    "case" : "complete profile",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"cXFxcXFxcXFxcXFxHmv2nBz8p2TkLC0UZoNLjNPYaLAIljzBY5nUSTEOPQg8iLGugBx6dLpjpX0zZ4ppGp3PkRLwFkjd8YMvo8xoRBx7dv3O\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : {
+      "givenName" : "Alice",
+      "familyName" : "Smith",
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "unidentifiedAccessMode" : "ENABLED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : "EVERYBODY"
+    }
+  }, {
+    "case" : "given name only",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"dXV1dXV1dXV1dXV1Ki6+Difhuop2xrPABf0Rtr9lHZOJawt9EhSTBuEDFKMW8sKnsdmIZG+CnnIWxiib+glCoVtDWn9sSFveoExhyBFN9JVj\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : {
+      "givenName" : "Alice",
+      "familyName" : null,
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "unidentifiedAccessMode" : "ENABLED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : "EVERYBODY"
+    }
+  }, {
+    "case" : "family name only",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"dnZ2dnZ2dnZ2dnZ2C7BBrUSyts/V93TNZie6eeC5fBJTHLYC0vSN/zERAKGjpdgATdxooAVpAlMpMAjjlzMn1RsJZOHEgu5/84GH6JRg9FPd\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : {
+      "givenName" : "",
+      "familyName" : "Smith",
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "unidentifiedAccessMode" : "ENABLED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : "EVERYBODY"
+    }
+  }, {
+    "case" : "empty name",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"d3d3d3d3d3d3d3d3hc05iGlMrwYgCpgO9/9EPQce7GSarP3wAPG81z1nZiJ8f4XAQl2gzponzZfEpdUDjxXa4piy1Z3fI/NNlHDCHOXfKclw\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : {
+      "givenName" : "",
+      "familyName" : null,
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "unidentifiedAccessMode" : "ENABLED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : "EVERYBODY"
+    }
+  }, {
+    "case" : "three NUL-separated parts",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"eHh4eHh4eHh4eHh49WWBdUn1bjETRHwNb9D/th+LsN3LMkKbuDzfZEtycxT/82gQy/AA33l5bNn7QbfAjM440hXgOd7w1pBU5d8i9A1BKWtT\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : {
+      "givenName" : "a",
+      "familyName" : "b",
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "unidentifiedAccessMode" : "ENABLED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : "EVERYBODY"
+    }
+  }, {
+    "case" : "given Bob with empty family (trailing NUL)",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"eXl5eXl5eXl5eXl5ljy2yVveyU8iO/DLndMpF57Bk/GmLw5Dmy+NpujbyNVH6cbb6ppMn50/nR6hQHDUhDEtVtvy0RgoSoGXVoHnLL2KhY/G\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : {
+      "givenName" : "Bob",
+      "familyName" : null,
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "unidentifiedAccessMode" : "ENABLED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : "EVERYBODY"
+    }
+  }, {
+    "case" : "name ciphertext tampered: whole decode fails",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"cXFxcXFxcXFxcXFxHmv2nBz8p2TlLC0UZoNLjNPYaLAIljzBY5nUSTEOPQg8iLGugBx6dLpjpX0zZ4ppGp3PkRLwFkjd8YMvo8xoRBx7dv3O\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : null
+  }, {
+    "case" : "name not base64: only that field is null",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"not*base64\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : {
+      "givenName" : null,
+      "familyName" : null,
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "unidentifiedAccessMode" : "ENABLED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : "EVERYBODY"
+    }
+  }, {
+    "case" : "name shorter than 29 bytes: whole decode fails",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : null
+  }, {
+    "case" : "version not found on server (encrypted fields absent)",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\"}",
+    "result" : {
+      "givenName" : null,
+      "familyName" : null,
+      "about" : null,
+      "aboutEmoji" : null,
+      "avatarUrlPath" : null,
+      "mobileCoinAddress" : null,
+      "unidentifiedAccessMode" : "ENABLED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : null
+    }
+  }, {
+    "case" : "verifier mismatch",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"cXFxcXFxcXFxcXFxHmv2nBz8p2TkLC0UZoNLjNPYaLAIljzBY5nUSTEOPQg8iLGugBx6dLpjpX0zZ4ppGp3PkRLwFkjd8YMvo8xoRBx7dv3O\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : {
+      "givenName" : "Alice",
+      "familyName" : "Smith",
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "unidentifiedAccessMode" : "DISABLED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : "EVERYBODY"
+    }
+  }, {
+    "case" : "unrestricted",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":null,\"unrestrictedUnidentifiedAccess\":true,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"cXFxcXFxcXFxcXFxHmv2nBz8p2TkLC0UZoNLjNPYaLAIljzBY5nUSTEOPQg8iLGugBx6dLpjpX0zZ4ppGp3PkRLwFkjd8YMvo8xoRBx7dv3O\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : {
+      "givenName" : "Alice",
+      "familyName" : "Smith",
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "unidentifiedAccessMode" : "UNRESTRICTED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : "EVERYBODY"
+    }
+  }, {
+    "case" : "capabilities mapping",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":false,\"ssre2\":true,\"deleteSync\":true},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"cXFxcXFxcXFxcXFxHmv2nBz8p2TkLC0UZoNLjNPYaLAIljzBY5nUSTEOPQg8iLGugBx6dLpjpX0zZ4ppGp3PkRLwFkjd8YMvo8xoRBx7dv3O\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : {
+      "givenName" : "Alice",
+      "familyName" : "Smith",
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "unidentifiedAccessMode" : "ENABLED",
+      "capabilities" : [ "storageServiceEncryptionV2Capability" ],
+      "phoneNumberSharingMode" : "EVERYBODY"
+    }
+  }, {
+    "case" : "phone number sharing false",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"cXFxcXFxcXFxcXFxHmv2nBz8p2TkLC0UZoNLjNPYaLAIljzBY5nUSTEOPQg8iLGugBx6dLpjpX0zZ4ppGp3PkRLwFkjd8YMvo8xoRBx7dv3O\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"enp6enp6enp6enp6RcKhS6jv/nl/6MKHjkfS4QA=\"}",
+    "result" : {
+      "givenName" : "Alice",
+      "familyName" : "Smith",
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "unidentifiedAccessMode" : "ENABLED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : "NOBODY"
+    }
+  }, {
+    "case" : "payment address signed by a different key: dropped",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"cXFxcXFxcXFxcXFxHmv2nBz8p2TkLC0UZoNLjNPYaLAIljzBY5nUSTEOPQg8iLGugBx6dLpjpX0zZ4ppGp3PkRLwFkjd8YMvo8xoRBx7dv3O\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"e3t7e3t7e3t7e3t7G7ZJG00007sI8aylEY4+ve7l8ZJH/BV60h3JBhIv8jtzpuvUauhSsNHbJfAMOC2qD2zJ2Fzn715yki82wZHzc4YYipD0A/N5cWzgS80nyuTyhwoaOr7I0gEhCC++XcyAStv6/3lXNGoqdalfldlj+eYQC0usjP3KO+anbhDqlYXxiZnNRXFSg/S2G6PxMgusMaJyLKWgICTpHqlJqq8uE2q9cOvm+X6h2aFTVDZCggNeKcaNnjC8NumM8oAAlJZb24GYa38NgshVAVcJK+XI+2buFmXY3mid5ewi+HOw57UofttB2/k4yyxnVowB3bnvsMtwQskQqTu/LgEQVKML1EGf3LV4CFlErmj+5vgGTnApNZA81SD6in7eMiV8qD7pzbKyZ9PV0QVlOEW7iXZCzLcxYuTqbhTPUfzG/MFtRfobo4Iv6RTwZ2Km9osEDnYGn/Fzzp+108B14IwEKwqtRUHNCoQy+tiwftaqVifshEAILwTjxMJhTR8s4tz21q+Ek9QK05NoUwr0L2fRucI4dBcVWAg+hHqqGGKjrMCAXCmAMZnkjpHqyNLd6qtXLB9z4C68tgMqzPDFHJvG4D3+bzJgs1zuAoR8quj2qRjgjy+4s8ZO2thWlUICOhQmkGeZdkFjItPku+rNLOAStSk2KZ9x873LuXmsG+STyJHgyg95NqJfPoarzSbfMq8SUnhY58wgWgYxn9oQCQTPACwOauw9N1PJ8AFYlc0rHE15ja8P8I67c1kt8WiY\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : {
+      "givenName" : "Alice",
+      "familyName" : "Smith",
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : null,
+      "unidentifiedAccessMode" : "ENABLED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : "EVERYBODY"
+    }
+  }, {
+    "case" : "payment address length prefix too large: dropped",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"cXFxcXFxcXFxcXFxHmv2nBz8p2TkLC0UZoNLjNPYaLAIljzBY5nUSTEOPQg8iLGugBx6dLpjpX0zZ4ppGp3PkRLwFkjd8YMvo8xoRBx7dv3O\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"fHx8fHx8fHx8fHx8Euzp9OJRpf1NdiQfHzyNTj1fooju67dQEsoStvG6pppbz/RMgQkkhN9IKtSFpXkycFroAuqc7WYWagjLnXrIY1GL8b5KS2S5DGIq+g7YjHV7BLQazfBDwxPeout/X7WKMvbNWXFmWhuRXhdOITskdV+pdITbHt1j1IeoemsoD9D1eQAKlBfBjWUjINBJXGzY8Gak+15ugoRdK+CeBA8HEsA1Qm+lX1IVelDFZ+xegyJFmk0KB3MJ9qWqulBKgO0OYSerfoSppHU0csmP3QmcT6eqfK4FcYlrh/NUHKVxO5MfPfaMhURFzd+B5KbW9cPGna/bZmIUdW++JBsaE5XPOJ2YFK5JkaUwDrguASMlj2xSwW5do+F0i2aCCgnUXMgOKKxEqBwT7culMEZO+TxbKig7hj3W/po/9dMlT+X/BKWYwVT8qXEQtopROt7a4Bc9vfnM/eyNafPsHlU0+dh6JXgzql6eL7IMasm/jX9nm5dYtyKiULyWDtLKEUAFC9sIhWr8VuLOziu8+Jcq2jrMEa/XUHJ4fCR/4K9DNPrqfshOhwBbWUqFDBMuabdtbh8DgZbwDo29GjKmTfXVboOxP55+9aT1saHMEEyi4TV5ZlFGzQRt4Hq1qqA9gdVFHnvnVi1kY95HC68pGCn9z32cfVsJMKm8VRfIAdX64HfL36rgqYfWQGTHJ5rAsQ/HaKRj7wzvsKLYntMQDwrNK+la047Td5krC7vrWtF5fmZOpD6/KgAUD4aPHyJ/\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : {
+      "givenName" : "Alice",
+      "familyName" : "Smith",
+      "about" : "Hello",
+      "aboutEmoji" : "🙂",
+      "avatarUrlPath" : "profiles/AAECAwQFBgcICQoLDA0ODw==",
+      "mobileCoinAddress" : null,
+      "unidentifiedAccessMode" : "ENABLED",
+      "capabilities" : [ "storage" ],
+      "phoneNumberSharingMode" : "EVERYBODY"
+    }
+  }, {
+    "case" : "payment address shorter than 29 bytes: whole decode fails",
+    "response_json" : "{\"identityKey\":\"BRu3WWby6To2kd//lCuypGahwIuNeMo/TW34uL+i5O4o\",\"unidentifiedAccess\":\"mbjSrUIVJNthp/uq9TBBTTbLNucMYbcH4ncb2FDadzo=\",\"unrestrictedUnidentifiedAccess\":false,\"capabilities\":{\"storage\":true,\"ssre2\":false},\"badges\":[],\"uuid\":\"00000000-0000-4000-8000-000000000002\",\"name\":\"cXFxcXFxcXFxcXFxHmv2nBz8p2TkLC0UZoNLjNPYaLAIljzBY5nUSTEOPQg8iLGugBx6dLpjpX0zZ4ppGp3PkRLwFkjd8YMvo8xoRBx7dv3O\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"avatar\":\"profiles/AAECAwQFBgcICQoLDA0ODw==\",\"paymentAddress\":\"AAAAAAAAAAAAAA==\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\"}",
+    "result" : null
+  } ],
+  "put_profile_body" : {
+    "aci" : "00000000-0000-4000-8000-000000000001",
+    "key" : "k1",
+    "note" : "Field ciphertexts are the fixed-nonce values from decode_profile 'complete profile'; avatar=true,sameAvatar=false means a new avatar follows. A real client uses fresh random nonces. version/commitment are deterministic for (key, ACI).",
+    "body" : "{\"version\":\"18c1bddb3a795bececcc0e462e99b77144b22f0151147777231f2fb44944a173\",\"name\":\"cXFxcXFxcXFxcXFxHmv2nBz8p2TkLC0UZoNLjNPYaLAIljzBY5nUSTEOPQg8iLGugBx6dLpjpX0zZ4ppGp3PkRLwFkjd8YMvo8xoRBx7dv3O\",\"about\":\"cnJycnJycnJycnJyZoE/14luem2RSS3mpnQup/GY75D+h2YL660Ce1fp/hu6miVZtzlMLEKwIV1hnHMPAARRqg+Fqwpwa7IQ9Yei52iqBSrAqIAuqymE/ldBbGdoyYUnpzFGjX+HfuzNEnTQ192Bvh3mTfWnrf+fNIQKok9ozztNEm7a1D6cT/Cym2XpFownFBtjBj7UWWlzzbHm\",\"aboutEmoji\":\"c3Nzc3Nzc3Nzc3Nz4qFv0c9NlOeHnlHoaVLFGD2nsrJTOXA4P3vSwgZ6ANZlFLVNMI4DKhrgYECboRZe\",\"paymentAddress\":\"UFBQUFBQUFBQUFBQ+MhJOn8EzIwRaiF9ZF+72sFEYfshrw1DzcOvQygIGDXHJzb1U3X0rmmwfI0YpUkdgYoqi0AED7DqWUam+jyoTKyEftSJBAy+eDSG4TtrOTU5a1jN0OmHpWcxdAC/XbiedwYrpGMHyC4qlJyPiWrMeeREax0x0oyF/C+wJw/1uFt2+JHf5zP7tdzsDPcuN1W/vY194ClshOSj5OPn7k4givbL+g4tyZJKN/vV6qpp/kP7UwfEPkHQffCFuVs4Qrw07ahHjoxjomQ1O44QeE9jJSCPuZOKRekmKY8MPBdzqCABYUufDwwHT8cz1mucpmLS5lZjXI+mJp623VBW5wUAs/Plbm4PP6Ut+I+B3vGVYUDWAmTPTFVE1CQapwlF2idKNjNy6MujPongiaJF8NmY7VgKsIDEYkwAbCS5uGrq3bPmS1JRAWDtZUdEFWctEO5gNKHPjV9Ne1GpsrwRRS43v4E3+DhWiOrZxJ9PVpvxfOVCC5erULmUMIEcbJM/Fw9UU41ChS/7YAS0vZXlOKWF9yVqk6/6ywUgglR63A27/pTAwijhRJ0p+do7RqomFIqdj2/jvRLJBsbbyh9qIWq3d23W0hCMT7IiICzgr0iazAjgR8KYH9geQOCmu8zxAG6k/rcIW50Pp6ExvMNOLqeSSGbXE7V+Qt3loSZBcMRSNePHvLDlKvGs38V1YOnx0zGbkWJWdVAHh8jz9vB/kQko4R0uNzkUB+X0f0MJOG9+6MoWRHgyoIzf1CrI\",\"phoneNumberSharing\":\"dHR0dHR0dHR0dHR0ERMnsA4DxOtQXeHFGJ4nw8E=\",\"avatar\":true,\"sameAvatar\":false,\"commitment\":\"AKhP3M4o+eBSkpFJdA1P9lRLgKaSu0YSh5eQTfY7WdsYHmMMqWCnoGta0SCydyoaFqYjex85g3cmyfJOcQKH/U763WtgvApgT4NE89q1g98EuhkV5cekrlvmP1r1T1+fGw==\",\"badgeIds\":[]}"
+  }
+}

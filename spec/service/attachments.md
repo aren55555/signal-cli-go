@@ -738,7 +738,7 @@ falls back to `application/octet-stream`.
 
 | Kind | Source | Stored as | Format on CDN |
 |------|--------|-----------|---------------|
-| Profile | the profile's `avatar` path (e.g. `profiles/…`), fetched every time a profile is retrieved **with a known profile key**, unless `--ignore-avatars`; if the profile has no avatar the local file is deleted | `avatars/profile-<id>` | `GET https://cdn-staging.signal.org/<path>` (CDN 0, no auth, 10 MiB cap); body = 12-byte nonce ‖ AES-256-GCM ciphertext ‖ 16-byte tag, key = the 32-byte profile key, no associated data (S2 `ProfileCipherInputStream`) |
+| Profile | the profile's `avatar` path (e.g. `profiles/…`), downloaded when a profile is retrieved **with a known profile key** and its `avatar` path differs from the stored one (or no profile was stored); `--ignore-avatars` has no effect on it; if the profile has no avatar the local file is deleted (details: `spec/service/profiles.md` §6) | `avatars/profile-<id>` | `GET https://cdn-staging.signal.org/<path>` (CDN 0, no auth, 10 MiB cap); body = 12-byte nonce ‖ AES-256-GCM ciphertext ‖ 16-byte tag, key = the 32-byte profile key, no associated data (S2 `ProfileCipherInputStream`) |
 | Group v2 | `DecryptedGroup.avatar` (a CDN 0 key, e.g. `groups/…`) when group state is updated, unless `--ignore-avatars` | `avatars/group-<base64 group id with / → _>` | `GET https://cdn-staging.signal.org/<key>`, 10 MiB cap, decrypted with the group's secret params (groups spec, not covered here) |
 | Group v1 / contact sync | embedded in sync blobs, not fetched by URL | `avatars/group-…`, `avatars/contact-<id>` | see the sync spec |
 

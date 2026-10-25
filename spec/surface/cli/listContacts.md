@@ -66,7 +66,7 @@ With `--internal`, another line follows, also indented by 2 spaces:
 - The capabilities list uses Java list rendering, for example `[storage, storageServiceEncryptionV2Capability]` or `[]`.
 - An unknown unidentified-access mode prints as empty.
 
-Edge case found in the source: if `--detailed` or `--internal` is used for a recipient that has no contact or profile record, which is possible with `-a`, the command fails with an internal error (stack trace, exit 2).
+Correction (see `spec/service/contacts.md` §6.3): the listing always builds a contact and a profile record for every row, so `--detailed` and `--internal` do not fail for recipients without contact or profile data. Also, the PNI value prints in its `PNI:<uuid>` form, so the detailed line starts `PNI: PNI:`.
 
 ## JSON output
 A JSON array with one object per recipient. The keys appear in this order and are all always present unless noted:
@@ -90,7 +90,7 @@ A JSON array with one object per recipient. The keys appear in this order and ar
 | messageExpirationTime | integer |
 | profileSharing | boolean |
 | unregistered | boolean |
-| profile | `{lastUpdateTimestamp: integer, givenName: string or null, familyName: string or null, about: string or null, aboutEmoji: string or null, hasAvatar: boolean, mobileCoinAddress: base64 string or null}`, or null when no profile is known |
+| profile | `{lastUpdateTimestamp: integer, givenName: string or null, familyName: string or null, about: string or null, aboutEmoji: string or null, hasAvatar: boolean, mobileCoinAddress: base64 string or null}`. Never null: a never-fetched profile shows `lastUpdateTimestamp` 0 and nulls (`spec/service/contacts.md` §6.3). |
 | internal | `{capabilities: string[], unidentifiedAccessMode: string or null, sharesPhoneNumber: boolean or null, discoverableByPhonenumber: boolean or null}`. Present **only** with `--internal`; otherwise the key is omitted. |
 
 With no recipients, the output is `[]`.

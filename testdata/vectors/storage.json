@@ -1,0 +1,154 @@
+{
+  "source": "Generated offline with jshell against /work/third_party/signal-cli-0.14.7/lib/*.jar (signal-service-java 2.15.3_unofficial_151 = Turasa/libsignal-service-java @ 66956cb4a0394d50cee3590209baf58312084a44; libsignal-client 0.99.1) for signal-cli v0.14.7 (b01b6b370dc063599a1a2b9fde0f5ff4e2d78fe8). Keys via the jar classes AccountEntropyPool/MasterKey/StorageKey/RecordIkm; protobufs encoded with the jar Wire classes; AES-256-GCM with a fixed IV via javax.crypto and verified by decrypting with the jar class SignalStorageCipher. Key derivations cross-checked with an independent HMAC/HKDF computation.",
+  "spec": "spec/service/storage.md",
+  "notes": [
+    "All byte strings are lowercase hex unless noted.",
+    "Protobuf encodings are Wire output: known fields in upstream declaration order (e.g. ManifestRecord emits field 1, 3, 2, 4; ContactRecord emits field 15 after field 2), proto3 defaults omitted. A different encoder may order fields differently; compare decoded messages, and use the given plaintext bytes when checking encryption vectors.",
+    "Encrypted values are IV(12) || AES-256-GCM ciphertext || tag(16), no AAD. Real clients use a random IV; these vectors fix iv."
+  ],
+  "keys": {
+    "kat_svrkey_2a": {
+      "source": "libsignal v0.99.1 (97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8) rust/account-keys/src/lib.rs test derive_storage_service_key_known_answer (published; reproduced with the reference jar)",
+      "master_key": "2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a",
+      "storage_key": "3f31b618172a9f8ad45e290788e6176736e6161d4ea0e8050f8553521f59c200"
+    },
+    "aep_chain": {
+      "account_entropy_pool_ascii": "0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqr",
+      "master_key": "d46c78e8d890a23f853807b2a46e9d0178ea9096e162b29528ff3d30c107023e",
+      "storage_key": "c0c65789fffbf0ea61ef4e275a9a2f94f69398859cc8a9e4bedd5dedcbab618e",
+      "derivation": "master_key = HKDF-SHA256(salt=none, ikm=ASCII(aep), info='20240801_SIGNAL_SVR_MASTER_KEY', L=32); storage_key = HMAC-SHA256(master_key, 'Storage Service Encryption')"
+    },
+    "manifest_keys": {
+      "storage_key": "c0c65789fffbf0ea61ef4e275a9a2f94f69398859cc8a9e4bedd5dedcbab618e",
+      "derivation": "HMAC-SHA256(storage_key, 'Manifest_' + decimal(version))",
+      "v0": "c4e2a77bf72475dd3384a2ccb64e04b266882601cbddaa714fe43a1bed59c3f2",
+      "v1": "57abeafc21b6ab548f80776006b337d6afa3f69df6e99d218ceb8fd7c2940cee",
+      "v2": "567781bf238af02d3d87625e4a90661fb39321340a5233d5e0d6d960e46d685c",
+      "v12345": "ea59b36974d0ae4466a4b1eb7b3cdfe7afc5fae2b963f4681a5b352ce094872e"
+    },
+    "item_keys_legacy": {
+      "storage_key": "c0c65789fffbf0ea61ef4e275a9a2f94f69398859cc8a9e4bedd5dedcbab618e",
+      "derivation": "HMAC-SHA256(storage_key, 'Item_' + base64_std_padded(raw_id))",
+      "cases": [
+        {
+          "raw_id": "101112131415161718191a1b1c1d1e1f",
+          "base64": "EBESExQVFhcYGRobHB0eHw==",
+          "item_key": "b32d8d7e16005844adf7012956e928f75faca766791aa9c3f82b17011dcf34cc"
+        },
+        {
+          "raw_id": "000102030405060708090a0b0c0d0e0f",
+          "base64": "AAECAwQFBgcICQoLDA0ODw==",
+          "item_key": "ffcc071073a7f52f382776d5de38c7d6493fd80f073d4d69f873745d0070af2d"
+        }
+      ]
+    },
+    "item_keys_record_ikm": {
+      "record_ikm": "606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "derivation": "HKDF-SHA256(salt=none, ikm=record_ikm, info='20240801_SIGNAL_STORAGE_SERVICE_ITEM_' || raw_id_bytes, L=32)",
+      "cases": [
+        {
+          "raw_id": "101112131415161718191a1b1c1d1e1f",
+          "item_key": "620ec541ac6c31c979239f3f9c41195a7883d2d6b27af86ed1a5a0b14583bd53"
+        },
+        {
+          "raw_id": "000102030405060708090a0b0c0d0e0f",
+          "item_key": "8113205b1df291135e9cd624a2be408470e28dd5fa6dfc3ceee4f9d07daf3666"
+        }
+      ]
+    }
+  },
+  "records": {
+    "contact": {
+      "description": "ContactRecord{aci='11111111-2222-4333-8444-555555555555', e164='+12025550123', pni='66666666-7777-4888-9999-aaaaaaaaaaaa', profileKey=80..9f, identityKey=05||c0..df, identityState=VERIFIED(1), givenName='Alice', familyName='Doe', whitelisted=true, systemGivenName='Ali', nickname={given:'Al', family:'D'}, note='n', aciBinary=16 bytes of aci, pniBinary=16 bytes of pni}",
+      "ContactRecord": "0a2431313131313131312d323232322d343333332d383434342d353535353535353535353535120c2b31323032353535303132337a2436363636363636362d373737372d343838382d393939392d6161616161616161616161611a20808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f222105c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf28013205416c6963653a03446f6550018a0103416c69b201070a02416c120144ba01016eca011011111111222243338444555555555555d2011066666666777748889999aaaaaaaaaaaa",
+      "StorageRecord": "0ae9010a2431313131313131312d323232322d343333332d383434342d353535353535353535353535120c2b31323032353535303132337a2436363636363636362d373737372d343838382d393939392d6161616161616161616161611a20808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f222105c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf28013205416c6963653a03446f6550018a0103416c69b201070a02416c120144ba01016eca011011111111222243338444555555555555d2011066666666777748889999aaaaaaaaaaaa"
+    },
+    "account": {
+      "description": "AccountRecord{profileKey=a0..bf, givenName='Me', readReceipts=true, sealedSenderIndicators=true, typingIndicators=true, linkPreviews=true, phoneNumberSharingMode=NOBODY(2), username='me.42', usernameLink={entropy=90..af, serverId=UUID abcdefab-cdef-4abc-8def-abcdefabcdef, color=BLUE(1)}}",
+      "AccountRecord": "0a20a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf12024d65300138014001580160028a02056d652e34329a02360a20909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeaf1210abcdefabcdef4abc8defabcdefabcdef1801",
+      "StorageRecord": "22710a20a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf12024d65300138014001580160028a02056d652e34329a02360a20909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeaf1210abcdefabcdef4abc8defabcdefabcdef1801"
+    },
+    "groupv2": {
+      "description": "StorageRecord{groupV2: GroupV2Record{masterKey=d0..ef, whitelisted=true}}",
+      "StorageRecord": "1a240a20d0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeef1801"
+    },
+    "groupv1": {
+      "description": "StorageRecord{groupV1: GroupV1Record{id=e0..ef, blocked=true, whitelisted=true}}",
+      "StorageRecord": "12160a10e0e1e2e3e4e5e6e7e8e9eaebecedeeef10011801"
+    },
+    "sticker_installed": {
+      "description": "StorageRecord{stickerPack: StickerPackRecord{packId=f0..ff, packKey=01..20, position=3}}",
+      "StorageRecord": "32360a10f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff12200102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f201803"
+    },
+    "sticker_deleted": {
+      "description": "StorageRecord{stickerPack: StickerPackRecord{packId=f0..ff, deletedAtTimestamp=1700000000000}}",
+      "StorageRecord": "32190a10f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff2080d095ffbc31"
+    }
+  },
+  "encryption": {
+    "iv": "b0b1b2b3b4b5b6b7b8b9babb",
+    "item_contact_legacy": {
+      "key": "b32d8d7e16005844adf7012956e928f75faca766791aa9c3f82b17011dcf34cc",
+      "plaintext": "0ae9010a2431313131313131312d323232322d343333332d383434342d353535353535353535353535120c2b31323032353535303132337a2436363636363636362d373737372d343838382d393939392d6161616161616161616161611a20808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f222105c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf28013205416c6963653a03446f6550018a0103416c69b201070a02416c120144ba01016eca011011111111222243338444555555555555d2011066666666777748889999aaaaaaaaaaaa",
+      "ciphertext": "b0b1b2b3b4b5b6b7b8b9babb0fa76f8c69d4a661ee773c2d61402c667fe2637ecbd0fda6026ca2f408928a09c4d25e438fc43aaeb1f7a5d19e3c5e1e5dcfd858fe72fa7943e9517cb008be2475f7ede8f968c8d94c03c4f0204b29094f90ed16a6035cb432c889c378baa1d891e388bc73abffc7a916ff6ae2ef3afd368a6520dee15d0f0147cd57a0578020bbc9bcf88782b76964e8042bc59dd2dcfaeaef782c103ec65d03329335a4addfe92b3985ec7eccda2e35326d32ee4767ab392ce4ba61a43fb9d17ef78e5c0e4a0926cc19e542029d1d62f0a83555f3df61154c6dfd263b781c94e4aa3373053fa3fde724b5d31887f7f9e9e921546a692a0f173e735c0c71f4588636"
+    },
+    "item_contact_record_ikm": {
+      "key": "620ec541ac6c31c979239f3f9c41195a7883d2d6b27af86ed1a5a0b14583bd53",
+      "plaintext": "0ae9010a2431313131313131312d323232322d343333332d383434342d353535353535353535353535120c2b31323032353535303132337a2436363636363636362d373737372d343838382d393939392d6161616161616161616161611a20808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f222105c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf28013205416c6963653a03446f6550018a0103416c69b201070a02416c120144ba01016eca011011111111222243338444555555555555d2011066666666777748889999aaaaaaaaaaaa",
+      "ciphertext": "b0b1b2b3b4b5b6b7b8b9babb31b38bbc074fa1cea4806f817d04352ac56c1b17ec6aa21dbbb36af47f375a410244b0bf39fe03760b73b6f0caa63bf4d6cd2c3dbc9a3ed9b8bdbcd6f3ec4efda11044d7a77d106d1fb05a91b26548560527b6d1413270da2e9ee3b6ec816ecfb65c0a29f21f55d566e4c43b29873ad1436448ee5bed741cc7cb15cf4ff1a268eadef73475a8bc464e5386aaa5af7fe876a51f4d01a9d9630735218a1c566059229bd3f3812e2cfe363d1140d3a87be6a5f8d477cc5ba7fe0404eb3c5451ecfcf6195f95dedffb2d4e7502f85c34faf7418c33a3140f2ebc06de8237c907b6e2dc3b7c1edc6fe5da89649fd9072e0932382388a3a5ba82209580f372"
+    },
+    "item_account_record_ikm": {
+      "key": "8113205b1df291135e9cd624a2be408470e28dd5fa6dfc3ceee4f9d07daf3666",
+      "plaintext": "22710a20a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf12024d65300138014001580160028a02056d652e34329a02360a20909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeaf1210abcdefabcdef4abc8defabcdefabcdef1801",
+      "ciphertext": "b0b1b2b3b4b5b6b7b8b9babb1527d2afda324199adb04dd44baa8f89ab07454a55288d6eadcbfa71f68f09c70a78ef9ca065a8d6d47c14dfaa9f4c9b8b0ad880e3053cfdc3471285abd06b0101fef061a357cb2f745f09c7a659242452b77d87d85dc6db4e5816410157ee8d2ed535fbc045adf3f9ea092589b24b91fdb8b2a0bd63939a9a95acf2996064b491ad68"
+    },
+    "manifest_v2": {
+      "description": "ManifestRecord{version=2, sourceDevice=1, identifiers=[(raw.account,ACCOUNT=4),(raw.contact,CONTACT=1),(raw.groupv2,GROUPV2=3),(raw.sticker,STICKER_PACK=6),(raw.unknown42,type 42 not in the enum: carried as varint 42 in field 2)], recordIkm=record_ikm}; encrypted with manifest_keys.v2",
+      "raw_ids": {
+        "account": "000102030405060708090a0b0c0d0e0f",
+        "contact": "101112131415161718191a1b1c1d1e1f",
+        "groupv2": "202122232425262728292a2b2c2d2e2f",
+        "sticker": "303132333435363738393a3b3c3d3e3f",
+        "unknown42": "404142434445464748494a4b4c4d4e4f"
+      },
+      "decoded_type_values": [
+        4,
+        1,
+        3,
+        6,
+        42
+      ],
+      "ManifestRecord": "0802180112140a10000102030405060708090a0b0c0d0e0f100412140a10101112131415161718191a1b1c1d1e1f100112140a10202122232425262728292a2b2c2d2e2f100312140a10303132333435363738393a3b3c3d3e3f100612140a10404142434445464748494a4b4c4d4e4f102a2220606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "ManifestRecord_without_record_ikm": "0802180112140a10000102030405060708090a0b0c0d0e0f100412140a10101112131415161718191a1b1c1d1e1f100112140a10202122232425262728292a2b2c2d2e2f100312140a10303132333435363738393a3b3c3d3e3f100612140a10404142434445464748494a4b4c4d4e4f102a",
+      "key": "567781bf238af02d3d87625e4a90661fb39321340a5233d5e0d6d960e46d685c",
+      "encrypted_value": "b0b1b2b3b4b5b6b7b8b9babb3621b021b892dedb44ad5fc2fa6ca8ccabb78d306d42a2e983e8ff783fddb8e4877c09529fb411b5d5ee7e3db391f8476428f444b433617f414fa8936dc1486f2e3eef8f6ede58462b3751cd0dc5b277518334b5666cd49bbbf961abf4eac776034d7e4bd7231bb614f21c0c65cb7678e32a5b65c15bd6d7ef610c41db4df62e18b528b6d1932c70dde15e419f810011b086bafd377e015d7e46a4cce3faaddd8df0db2a",
+      "StorageManifest": "080212b001b0b1b2b3b4b5b6b7b8b9babb3621b021b892dedb44ad5fc2fa6ca8ccabb78d306d42a2e983e8ff783fddb8e4877c09529fb411b5d5ee7e3db391f8476428f444b433617f414fa8936dc1486f2e3eef8f6ede58462b3751cd0dc5b277518334b5666cd49bbbf961abf4eac776034d7e4bd7231bb614f21c0c65cb7678e32a5b65c15bd6d7ef610c41db4df62e18b528b6d1932c70dde15e419f810011b086bafd377e015d7e46a4cce3faaddd8df0db2a"
+    }
+  },
+  "operations": {
+    "ReadOperation": {
+      "description": "ReadOperation{readKey=[raw.contact, raw.account]}",
+      "bytes": "0a10101112131415161718191a1b1c1d1e1f0a10000102030405060708090a0b0c0d0e0f"
+    },
+    "StorageItem": {
+      "description": "StorageItem{key=raw.contact, value=encryption.item_contact_record_ikm.ciphertext}",
+      "bytes": "0a10101112131415161718191a1b1c1d1e1f128802b0b1b2b3b4b5b6b7b8b9babb31b38bbc074fa1cea4806f817d04352ac56c1b17ec6aa21dbbb36af47f375a410244b0bf39fe03760b73b6f0caa63bf4d6cd2c3dbc9a3ed9b8bdbcd6f3ec4efda11044d7a77d106d1fb05a91b26548560527b6d1413270da2e9ee3b6ec816ecfb65c0a29f21f55d566e4c43b29873ad1436448ee5bed741cc7cb15cf4ff1a268eadef73475a8bc464e5386aaa5af7fe876a51f4d01a9d9630735218a1c566059229bd3f3812e2cfe363d1140d3a87be6a5f8d477cc5ba7fe0404eb3c5451ecfcf6195f95dedffb2d4e7502f85c34faf7418c33a3140f2ebc06de8237c907b6e2dc3b7c1edc6fe5da89649fd9072e0932382388a3a5ba82209580f372"
+    },
+    "WriteOperation": {
+      "description": "WriteOperation{manifest=encryption.manifest_v2.StorageManifest, insertItem=[operations.StorageItem], deleteKey=[raw groupv1 id 505152535455565758595a5b5c5d5e5f]}",
+      "bytes": "0ab501080212b001b0b1b2b3b4b5b6b7b8b9babb3621b021b892dedb44ad5fc2fa6ca8ccabb78d306d42a2e983e8ff783fddb8e4877c09529fb411b5d5ee7e3db391f8476428f444b433617f414fa8936dc1486f2e3eef8f6ede58462b3751cd0dc5b277518334b5666cd49bbbf961abf4eac776034d7e4bd7231bb614f21c0c65cb7678e32a5b65c15bd6d7ef610c41db4df62e18b528b6d1932c70dde15e419f810011b086bafd377e015d7e46a4cce3faaddd8df0db2a129d020a10101112131415161718191a1b1c1d1e1f128802b0b1b2b3b4b5b6b7b8b9babb31b38bbc074fa1cea4806f817d04352ac56c1b17ec6aa21dbbb36af47f375a410244b0bf39fe03760b73b6f0caa63bf4d6cd2c3dbc9a3ed9b8bdbcd6f3ec4efda11044d7a77d106d1fb05a91b26548560527b6d1413270da2e9ee3b6ec816ecfb65c0a29f21f55d566e4c43b29873ad1436448ee5bed741cc7cb15cf4ff1a268eadef73475a8bc464e5386aaa5af7fe876a51f4d01a9d9630735218a1c566059229bd3f3812e2cfe363d1140d3a87be6a5f8d477cc5ba7fe0404eb3c5451ecfcf6195f95dedffb2d4e7502f85c34faf7418c33a3140f2ebc06de8237c907b6e2dc3b7c1edc6fe5da89649fd9072e0932382388a3a5ba82209580f3721a10505152535455565758595a5b5c5d5e5f"
+    },
+    "WriteOperation_clearAll": {
+      "description": "WriteOperation{manifest=encryption.manifest_v2.StorageManifest, insertItem=[operations.StorageItem], clearAll=true}",
+      "bytes": "0ab501080212b001b0b1b2b3b4b5b6b7b8b9babb3621b021b892dedb44ad5fc2fa6ca8ccabb78d306d42a2e983e8ff783fddb8e4877c09529fb411b5d5ee7e3db391f8476428f444b433617f414fa8936dc1486f2e3eef8f6ede58462b3751cd0dc5b277518334b5666cd49bbbf961abf4eac776034d7e4bd7231bb614f21c0c65cb7678e32a5b65c15bd6d7ef610c41db4df62e18b528b6d1932c70dde15e419f810011b086bafd377e015d7e46a4cce3faaddd8df0db2a129d020a10101112131415161718191a1b1c1d1e1f128802b0b1b2b3b4b5b6b7b8b9babb31b38bbc074fa1cea4806f817d04352ac56c1b17ec6aa21dbbb36af47f375a410244b0bf39fe03760b73b6f0caa63bf4d6cd2c3dbc9a3ed9b8bdbcd6f3ec4efda11044d7a77d106d1fb05a91b26548560527b6d1413270da2e9ee3b6ec816ecfb65c0a29f21f55d566e4c43b29873ad1436448ee5bed741cc7cb15cf4ff1a268eadef73475a8bc464e5386aaa5af7fe876a51f4d01a9d9630735218a1c566059229bd3f3812e2cfe363d1140d3a87be6a5f8d477cc5ba7fe0404eb3c5451ecfcf6195f95dedffb2d4e7502f85c34faf7418c33a3140f2ebc06de8237c907b6e2dc3b7c1edc6fe5da89649fd9072e0932382388a3a5ba82209580f3722001"
+    }
+  },
+  "http": {
+    "authorization_header": {
+      "description": "Basic auth from GET /v1/storage/auth response {username, password}; base64 standard with padding of 'username:password'",
+      "username": "11111111-2222-4333-8444-555555555555",
+      "password": "11111111-2222-4333-8444-555555555555:1700000000:0123456789abcdef0123",
+      "header": "Basic MTExMTExMTEtMjIyMi00MzMzLTg0NDQtNTU1NTU1NTU1NTU1OjExMTExMTExLTIyMjItNDMzMy04NDQ0LTU1NTU1NTU1NTU1NToxNzAwMDAwMDAwOjAxMjM0NTY3ODlhYmNkZWYwMTIz"
+    }
+  }
+}
