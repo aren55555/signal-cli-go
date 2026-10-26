@@ -81,13 +81,17 @@ type AccountData struct {
 	UnrestrictedUnidentifiedAccess bool    `json:"unrestrictedUnidentifiedAccess,omitempty"`
 	// PhoneNumberSharingMode: EVERYBODY, CONTACTS or NOBODY; "" is the
 	// default and publishes false (profiles.md §1.2).
-	PhoneNumberSharingMode string        `json:"phoneNumberSharingMode,omitempty"`
-	Unlisted               bool          `json:"unlisted,omitempty"`
-	SessionID              string        `json:"sessionId,omitempty"`   // verification session (registration.md §2.5)
-	MultiDevice            bool          `json:"multiDevice,omitempty"` // sync messages are sent (sync.md §1)
-	Configuration          Configuration `json:"configuration"`
-	ACIKeys                PreKeyState   `json:"aciKeys"`
-	PNIKeys                PreKeyState   `json:"pniKeys"`
+	PhoneNumberSharingMode string `json:"phoneNumberSharingMode,omitempty"`
+	// Username and its link (spec/service/usernames.md §6.1).
+	Username             string        `json:"username,omitempty"`
+	UsernameLinkEntropy  []byte        `json:"usernameLinkEntropy,omitempty"`
+	UsernameLinkServerID string        `json:"usernameLinkServerId,omitempty"`
+	Unlisted             bool          `json:"unlisted,omitempty"`
+	SessionID            string        `json:"sessionId,omitempty"`   // verification session (registration.md §2.5)
+	MultiDevice          bool          `json:"multiDevice,omitempty"` // sync messages are sent (sync.md §1)
+	Configuration        Configuration `json:"configuration"`
+	ACIKeys              PreKeyState   `json:"aciKeys"`
+	PNIKeys              PreKeyState   `json:"pniKeys"`
 }
 
 // Configuration is the account settings synced between devices (sync.md

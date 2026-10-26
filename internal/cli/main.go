@@ -296,6 +296,27 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		runErr = runGetAvatar(ctx, e, g, s.String("contact"), s.String("profile"), s.String("group-id"))
 	case "listIdentities":
 		runErr = runListIdentities(e, g, s.String("number"), s.Has("number"))
+	case "updateAccount":
+		o := updateAccountOpts{deleteUsername: s.Bool("delete_username")}
+		boolp := func(k string) *bool {
+			if !s.Has(k) {
+				return nil
+			}
+			v := s.Bool(k)
+			return &v
+		}
+		o.unrestricted, o.discoverable, o.numShare = boolp("unrestricted-unidentified-sender"), boolp("discoverable-by-number"), boolp("number-sharing")
+		if s.Has("device-name") {
+			v := s.String("device-name")
+			o.deviceName = &v
+		}
+		if s.Has("username") {
+			v := s.String("username")
+			o.username = &v
+		}
+		runErr = runUpdateAccount(ctx, e, g, o)
+	case "getUserStatus":
+		runErr = runGetUserStatus(ctx, e, g, s.Strings("recipient"), s.Strings("username"))
 	case "trust":
 		sn := s.String("verified_safety_number")
 		runErr = runTrust(ctx, e, g, s.String("recipient"), s.Bool("trust_all_known_keys"), sn, s.Has("verified_safety_number"))
