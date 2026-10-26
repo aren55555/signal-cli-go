@@ -251,6 +251,16 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		runErr = runQuitGroup(ctx, e, g, s.String("group-id"), s.Bool("delete"), s.Strings("admin"))
 	case "listGroups":
 		runErr = runListGroups(ctx, e, g, s.Bool("detailed"), s.Strings("group-id"))
+	case "updateProfile":
+		strp := func(k string) *string {
+			if !s.Has(k) {
+				return nil
+			}
+			v := s.String(k)
+			return &v
+		}
+		runErr = runUpdateProfile(ctx, e, g, updateProfileOpts{given: strp("given-name"), family: strp("family-name"), about: strp("about"),
+			emoji: strp("about-emoji"), mobileCoin: strp("mobile-coin-address"), avatar: strp("avatar"), removeAvatar: s.Bool("remove_avatar")})
 	case "trust":
 		sn := s.String("verified_safety_number")
 		runErr = runTrust(ctx, e, g, s.String("recipient"), s.Bool("trust_all_known_keys"), sn, s.Has("verified_safety_number"))

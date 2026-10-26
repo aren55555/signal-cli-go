@@ -342,6 +342,12 @@ type FormField struct{ Name, Value string }
 // PostCDN0 uploads a blob to CDN 0 as multipart/form-data: the fields in
 // order, then the file part named "file" (attachments.md §4.9).
 func (c *Client) PostCDN0(ctx context.Context, fields []FormField, blob []byte) error {
+	return c.PostCDN0File(ctx, fields, "application/octet-stream", blob)
+}
+
+// PostCDN0File is PostCDN0 with the file part's content type (profile
+// avatars, profiles.md §3.5).
+func (c *Client) PostCDN0File(ctx context.Context, fields []FormField, fileType string, blob []byte) error {
 	var body bytes.Buffer
 	mw := multipart.NewWriter(&body)
 	for _, f := range fields {
@@ -351,7 +357,7 @@ func (c *Client) PostCDN0(ctx context.Context, fields []FormField, blob []byte) 
 	}
 	h := textproto.MIMEHeader{}
 	h.Set("Content-Disposition", `form-data; name="file"; filename="file"`)
-	h.Set("Content-Type", "application/octet-stream")
+	h.Set("Content-Type", fileType)
 	w, err := mw.CreatePart(h)
 	if err != nil {
 		return err

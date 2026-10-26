@@ -23,6 +23,9 @@ type fakeCDN struct {
 	log    []string
 	blobs  map[string][]byte // cdn key -> blob
 	failUp bool
+	// lastFields and lastType: the latest PostCDN0File call.
+	lastFields []cdn.FormField
+	lastType   string
 }
 
 func (f *fakeCDN) Create(ctx context.Context, form cdn.Form) (string, error) {
@@ -209,4 +212,9 @@ func (f *fakeCDN) PostCDN0(ctx context.Context, fields []cdn.FormField, blob []b
 	}
 	f.blobs[key] = blob
 	return nil
+}
+
+func (f *fakeCDN) PostCDN0File(ctx context.Context, fields []cdn.FormField, fileType string, blob []byte) error {
+	f.lastFields, f.lastType = fields, fileType
+	return f.PostCDN0(ctx, fields, blob)
 }

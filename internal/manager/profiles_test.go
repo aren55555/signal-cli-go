@@ -3,12 +3,15 @@ package manager
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/attachment"
 	"github.com/aren55555/signal-cli-go/internal/profile"
 	"github.com/aren55555/signal-cli-go/internal/store"
 	"github.com/aren55555/signal-cli-go/internal/testvec"
@@ -140,5 +143,114 @@ func TestProfileDecodeFailureKeepsOldRecord(t *testing.T) {
 	// Without a usable decode: old names stay, mode without a key.
 	if p.AccessMode != store.AccessDisabled || *p.GivenName != "Alice" || p.PhoneNumberSharing != nil {
 		t.Errorf("profile %+v", p)
+	}
+}
+
+// selfWorld: the account's own profile is the decode vectors' complete
+// profile (key k1), so writes start from stored values.
+func selfWorld(t *testing.T) *profileWorld {
+	w := newProfileWorld(t)
+	w.s.Acct.Data.ProfileKey = w.k1[:]
+	w.fc.profiles[testACI] = w.resp["complete profile"]
+	return w
+}
+
+func lastBody(t *testing.T, w *profileWorld) map[string]json.RawMessage {
+	t.Helper()
+	if len(w.fc.profilePuts) == 0 {
+		t.Fatal("no profile PUT")
+	}
+	raw := w.fc.profilePuts[len(w.fc.profilePuts)-1]
+	var m map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(raw), &m); err != nil {
+		t.Fatal(err)
+	}
+	order := []string{"version", "name", "about", "aboutEmoji", "paymentAddress", "phoneNumberSharing", "avatar", "sameAvatar", "commitment", "badgeIds"}
+	last := -1
+	for _, k := range order {
+		i := strings.Index(raw, `"`+k+`":`)
+		if i <= last {
+			t.Errorf("member %s out of order in %s", k, raw)
+		}
+		last = i
+	}
+	return m
+}
+
+func decField(t *testing.T, w *profileWorld, m map[string]json.RawMessage, k string) string {
+	var b []byte
+	json.Unmarshal(m[k], &b)
+	s, err := profile.DecryptString(w.k1, b)
+	if err != nil {
+		t.Fatalf("%s: %v", k, err)
+	}
+	return s
+}
+
+func TestWriteProfileKeepsStoredFields(t *testing.T) {
+	w := selfWorld(t)
+	about := "New about"
+	if err := w.s.WriteProfile(context.Background(), ProfileUpdate{About: &about}); err != nil {
+		t.Fatal(err)
+	}
+	m := lastBody(t, w)
+	if decField(t, w, m, "name") != "Alice\x00Smith" || decField(t, w, m, "about") != about || decField(t, w, m, "aboutEmoji") != "🙂" {
+		t.Errorf("body %v", m)
+	}
+	if string(m["avatar"]) != "true" || string(m["sameAvatar"]) != "true" || string(m["badgeIds"]) != "[]" || string(m["paymentAddress"]) == "null" {
+		t.Errorf("flags %s %s %s %s", m["avatar"], m["sameAvatar"], m["badgeIds"], m["paymentAddress"])
+	}
+	p := w.s.Acct.Recipients[testACI].Profile
+	if *p.About != about || p.PhoneNumberSharing != nil {
+		t.Errorf("stored %+v", p)
+	}
+}
+
+func TestWriteProfileAvatar(t *testing.T) {
+	w := selfWorld(t)
+	img := []byte("\x89PNG\r\n\x1a\nnew avatar")
+	before := w.s.Profile(context.Background(), testACI).LastUpdate
+	err := w.s.WriteProfile(context.Background(), ProfileUpdate{Avatar: AvatarNew, AvatarSource: &attachment.Source{Data: img, ContentType: "image/png"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := lastBody(t, w)
+	if string(m["avatar"]) != "true" || string(m["sameAvatar"]) != "false" {
+		t.Errorf("flags %s %s", m["avatar"], m["sameAvatar"])
+	}
+	var names []string
+	for _, f := range w.cdn.lastFields {
+		names = append(names, f.Name)
+	}
+	if strings.Join(names, ",") != "acl,key,policy,Content-Type,x-amz-algorithm,x-amz-credential,x-amz-date,x-amz-signature" || w.cdn.lastType != "image/png" {
+		t.Errorf("form %v %s", names, w.cdn.lastType)
+	}
+	if got, err := profile.DecryptAvatar(w.k1, w.cdn.blobs["profiles/NEW"]); err != nil || !bytes.Equal(got, img) {
+		t.Errorf("uploaded avatar %v", err)
+	}
+	p := w.s.Acct.Recipients[testACI].Profile
+	if *p.AvatarURLPath != "profiles/NEW" || p.LastUpdate != before {
+		t.Errorf("stored %+v", p)
+	}
+	if got, _ := os.ReadFile(filepath.Join(w.dir, "profile-"+testNumber)); !bytes.Equal(got, img) {
+		t.Error("local avatar not written")
+	}
+	if err := w.s.WriteProfile(context.Background(), ProfileUpdate{Avatar: AvatarRemove}); err != nil {
+		t.Fatal(err)
+	}
+	m = lastBody(t, w)
+	if string(m["avatar"]) != "false" || string(m["sameAvatar"]) != "true" {
+		t.Errorf("remove flags %s %s", m["avatar"], m["sameAvatar"])
+	}
+	if _, err := os.Stat(filepath.Join(w.dir, "profile-"+testNumber)); !os.IsNotExist(err) {
+		t.Error("local avatar not removed")
+	}
+}
+
+func TestWriteProfileTooLong(t *testing.T) {
+	w := selfWorld(t)
+	long := strings.Repeat("x", 258)
+	if err := w.s.WriteProfile(context.Background(), ProfileUpdate{GivenName: &long}); !errors.Is(err, ErrProfileInputTooLong) {
+		t.Errorf("err %v", err)
 	}
 }

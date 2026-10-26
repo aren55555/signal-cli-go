@@ -44,14 +44,15 @@ type fakeChat struct {
 	puts      []string
 	putVia    []string
 	// sealed sender
-	profiles   map[string]string // aci -> unversioned profile JSON
-	cert       []byte
-	accessKeys map[string][]byte // dest -> the access key the server accepts
-	sealed401  bool              // answer sealed PUTs with 401
-	mrPaths    []string          // multi_recipient request paths
-	mrTokens   []string          // their group-send-token headers
-	forms      int               // upload forms handed out
-	root       *curve25519.PrivateKey
+	profiles    map[string]string // aci -> unversioned profile JSON
+	cert        []byte
+	accessKeys  map[string][]byte // dest -> the access key the server accepts
+	sealed401   bool              // answer sealed PUTs with 401
+	mrPaths     []string          // multi_recipient request paths
+	mrTokens    []string          // their group-send-token headers
+	profilePuts []string          // PUT /v1/profile bodies
+	forms       int               // upload forms handed out
+	root        *curve25519.PrivateKey
 }
 
 func (f *fakeChat) Request(ctx context.Context, verb, path string, headers []chat.Header, body []byte) (*chat.Response, error) {
@@ -74,6 +75,13 @@ func (f *fakeChat) handle(unauth bool, verb, path string, headers []chat.Header,
 	if verb == "PUT" && strings.HasPrefix(path, "/v1/messages/") {
 		f.puts = append(f.puts, string(body))
 		f.putVia = append(f.putVia, via)
+	}
+	if !unauth && verb == "PUT" && path == "/v1/profile" {
+		f.profilePuts = append(f.profilePuts, string(body))
+		if strings.Contains(string(body), `"sameAvatar":false`) {
+			return &chat.Response{Status: 200, Body: []byte(`{"key":"profiles/NEW","credential":"c","acl":"private","algorithm":"AWS4-HMAC-SHA256","date":"d","policy":"p","signature":"s"}`)}, nil
+		}
+		return &chat.Response{Status: 200}, nil
 	}
 	if r := f.special(unauth, verb, path, headers); r != nil {
 		return r, nil
