@@ -393,3 +393,17 @@ func (a *Account) DeleteSenderKeys(serviceID string) {
 	}
 	a.SaveSenderKeys()
 }
+
+// EnsureSelf links the account's own ACI, PNI and number on one row (the
+// self merge of contacts.md §4.3 always runs); it reports a change.
+func (a *Account) EnsureSelf() bool {
+	if a.Data.ACI == "" {
+		return false
+	}
+	ad := Address{ACI: a.Data.ACI, PNI: a.Data.PNI, Number: a.Data.Number}
+	if k, ok := a.FindByACI(a.Data.ACI); ok && a.AddressOf(k) == ad {
+		return false
+	}
+	a.ResolveHighTrust(ad)
+	return true
+}

@@ -294,6 +294,8 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		runErr = runBlock(ctx, e, g, s.Strings("recipient"), s.Strings("group-id"), cmd == "block")
 	case "getAvatar":
 		runErr = runGetAvatar(ctx, e, g, s.String("contact"), s.String("profile"), s.String("group-id"))
+	case "listIdentities":
+		runErr = runListIdentities(e, g, s.String("number"), s.Has("number"))
 	case "trust":
 		sn := s.String("verified_safety_number")
 		runErr = runTrust(ctx, e, g, s.String("recipient"), s.Bool("trust_all_known_keys"), sn, s.Has("verified_safety_number"))

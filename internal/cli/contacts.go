@@ -5,12 +5,14 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/fingerprint"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/profile"
 	"github.com/aren55555/signal-cli-go/internal/store"
@@ -87,6 +89,9 @@ func selectContacts(a *store.Account, o listContactsOpts, only map[string]bool) 
 // runListContacts is `listContacts` (contacts.md §6).
 func runListContacts(ctx context.Context, e *env, g *globals, o listContactsOpts) error {
 	return withAccount(g, func(a *store.Account) error {
+		if a.EnsureSelf() {
+			a.SaveRecipients()
+		}
 		var only map[string]bool
 		if len(o.recipients) > 0 {
 			only = map[string]bool{}
@@ -429,4 +434,94 @@ func runGetAvatar(ctx context.Context, e *env, g *globals, contact, prof, group 
 		}
 		return nil
 	})
+}
+
+// runListIdentities is `listIdentities` (contacts.md §11, fingerprint.md
+// §5). Identities print in service-ID order.
+func runListIdentities(e *env, g *globals, number string, hasNumber bool) error {
+	return withAccount(g, func(a *store.Account) error {
+		a.EnsureSelf()
+		var ids []string
+		if hasNumber {
+			k, ok, err := recipientKey(a, number)
+			if err != nil {
+				if strings.HasPrefix(err.Error(), "Invalid phone number") {
+					return err
+				}
+				ok = false
+			}
+			if ok {
+				if id := primaryServiceID(a, k); id != "" {
+					if _, stored := a.Identities[id]; stored {
+						ids = append(ids, id)
+					}
+				}
+			}
+		} else {
+			for _, id := range slices.Sorted(maps.Keys(a.Identities)) {
+				ad := store.Address{ACI: id}
+				if strings.HasPrefix(id, "PNI:") {
+					ad = store.Address{PNI: strings.TrimPrefix(id, "PNI:")}
+				}
+				k := a.ResolveLowTrust(ad)
+				if p := primaryServiceID(a, k); p != "" && p != id {
+					continue
+				}
+				ids = append(ids, id)
+			}
+		}
+		var items []string
+		for _, id := range ids {
+			ident := a.Identities[id]
+			k := a.ResolveLowTrust(store.Address{ACI: id})
+			if strings.HasPrefix(id, "PNI:") {
+				k = a.ResolveLowTrust(store.Address{PNI: strings.TrimPrefix(id, "PNI:")})
+			}
+			ad := rowAddress(a, k)
+			fp, ok := manager.SafetyNumber(a, id)
+			sn := "null"
+			if ok {
+				sn = fingerprint.FormatSafetyNumber(fp.Display)
+			}
+			if g.json() {
+				o := &jsonObject{}
+				o.add("number", strOrNull(ad.Number))
+				o.add("uuid", strOrNull(strings.TrimPrefix(id, "PNI:")))
+				o.add("fingerprint", fingerprint.FormatKey(ident.Key))
+				if ok {
+					o.add("safetyNumber", sn)
+					o.add("scannableSafetyNumber", base64.StdEncoding.EncodeToString(fp.Scannable))
+				} else {
+					o.add("safetyNumber", nil)
+					o.add("scannableSafetyNumber", nil)
+				}
+				o.add("trustLevel", ident.Trust)
+				o.add("addedTimestamp", ident.Added)
+				items = append(items, o.String())
+				continue
+			}
+			who := ad.Number
+			if who == "" {
+				who = strings.TrimPrefix(id, "PNI:")
+			}
+			fmt.Fprintf(e.stdout, "%s: %s Added: %s Fingerprint: %s Safety Number: %s\n", who, ident.Trust, ts(uint64(ident.Added)), fingerprint.FormatKey(ident.Key), sn)
+		}
+		if g.json() {
+			fmt.Fprintln(e.stdout, "["+strings.Join(items, ",")+"]")
+		}
+		a.SaveRecipients()
+		return nil
+	})
+}
+
+// primaryServiceID is a row's ACI, else its PNI form, else "".
+func primaryServiceID(a *store.Account, key string) string {
+	ad := a.AddressOf(key)
+	switch {
+	case ad.ACI != "":
+		return ad.ACI
+	case ad.PNI != "":
+		return "PNI:" + ad.PNI
+	}
+	return ""
 }

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 
+	"github.com/aren55555/signal-cli-go/internal/fingerprint"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 	"github.com/aren55555/signal-cli-go/internal/protocol"
 	"github.com/aren55555/signal-cli-go/internal/store"
@@ -124,4 +125,46 @@ func (s *Sender) nullMessage() (*signalpb.AppNullMessage, error) {
 		return nil, err
 	}
 	return &signalpb.AppNullMessage{Padding: padding}, nil
+}
+
+// SafetyNumber is the fingerprint of the identity stored under serviceID
+// (an ACI or "PNI:<uuid>"), from the account's view: version 2 with the
+// own ACI and ACI identity key against the service-ID binary
+// (spec/crypto/fingerprint.md §3.1). ok is false without a stored
+// identity. The all-zero-UUID fallback of §3.2 is unreachable here.
+func SafetyNumber(a *store.Account, serviceID string) (fingerprint.Fingerprint, bool) {
+	ident, ok := a.Identities[serviceID]
+	if !ok {
+		return fingerprint.Fingerprint{}, false
+	}
+	local, ok1 := uuidRaw(a.Data.ACI)
+	remote, ok2 := protocol.ServiceIDToBinary(serviceID)
+	if !ok1 || !ok2 {
+		return fingerprint.Fingerprint{}, false
+	}
+	return fingerprint.New(2, local[:], a.Data.ACIIdentity.Public, remote, ident.Key), true
+}
+
+// VerifyCode reports whether a parsed `trust -v` code matches the
+// identity under serviceID (fingerprint.md §6.2); on a match it returns
+// the stored key.
+func VerifyCode(a *store.Account, serviceID string, code fingerprint.Code) ([]byte, bool) {
+	ident, ok := a.Identities[serviceID]
+	if !ok {
+		return nil, false
+	}
+	switch code.Kind {
+	case fingerprint.KindHex:
+		return code.Bytes, bytes.Equal(code.Bytes, ident.Key)
+	case fingerprint.KindNumeric:
+		f, ok := SafetyNumber(a, serviceID)
+		return ident.Key, ok && f.Display == code.Numeric
+	default:
+		f, ok := SafetyNumber(a, serviceID)
+		if !ok {
+			return nil, false
+		}
+		match, err := fingerprint.Compare(f.Scannable, code.Bytes)
+		return ident.Key, err == nil && match
+	}
 }

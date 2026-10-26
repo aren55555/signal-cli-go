@@ -2,8 +2,6 @@ package cli
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -13,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/fingerprint"
 	"github.com/aren55555/signal-cli-go/internal/groups"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/protocol"
@@ -540,20 +539,14 @@ func runTrust(ctx context.Context, e *env, g *globals, recipient string, all boo
 			if !hasSafetyNumber {
 				return userError("You need to specify the fingerprint/safety number you have verified with -v SAFETY_NUMBER")
 			}
-			code := strings.ReplaceAll(safetyNumber, " ", "")
-			switch len(code) {
-			case 66:
-				key, err = hex.DecodeString(code)
-			case 60:
-				return userError("Numeric safety numbers are not supported by signal-cli-go yet; use the hex fingerprint")
-			default:
-				_, err = base64.StdEncoding.DecodeString(code)
-				if err == nil {
-					return userError("Scannable safety numbers are not supported by signal-cli-go yet; use the hex fingerprint")
-				}
-			}
+			code, err := fingerprint.ParseVerificationCode(safetyNumber)
 			if err != nil {
-				return userError("Safety number has invalid format, either specify the old hex fingerprint or the new safety number")
+				return userError(err.Error())
+			}
+			// A numeric or scannable code that does not match leaves key
+			// nil, which TrustVerifiedKey reports as "not changed".
+			if k, ok := manager.VerifyCode(a, t.aci, code); ok || code.Kind == fingerprint.KindHex {
+				key = k
 			}
 		}
 		ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
