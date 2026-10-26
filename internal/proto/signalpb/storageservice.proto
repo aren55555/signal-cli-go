@@ -1,0 +1,223 @@
+// Storage service messages (manifest, items, records), written from the
+// field tables of spec/service/storage.md §4 and spec/service/usernames.md
+// §6.3; never copied from upstream. Names are our own; numbers and types
+// are the wire facts.
+syntax = "proto3";
+
+package signalcligo;
+
+option go_package = "github.com/aren55555/signal-cli-go/internal/proto/signalpb";
+
+// §4.1 transport messages.
+message StorageManifest {
+  uint64 version = 1;
+  bytes value = 2;
+}
+
+message StorageItem {
+  bytes key = 1;
+  bytes value = 2;
+}
+
+message StorageItems {
+  repeated StorageItem items = 1;
+}
+
+message StorageReadOperation {
+  repeated bytes read_key = 1;
+}
+
+message StorageWriteOperation {
+  StorageManifest manifest = 1;
+  repeated StorageItem insert_item = 2;
+  repeated bytes delete_key = 3;
+  bool clear_all = 4;
+}
+
+// §4.2.
+message ManifestRecord {
+  message Identifier {
+    bytes raw = 1;
+    int32 type = 2; // kept as a plain integer: unknown types round-trip
+  }
+  uint64 version = 1;
+  repeated Identifier identifiers = 2;
+  uint32 source_device = 3;
+  bytes record_ikm = 4;
+}
+
+// §4.3. Types signal-cli does not process stay opaque bytes.
+message StorageRecord {
+  oneof record {
+    ContactRecord contact = 1;
+    GroupV1Record group_v1 = 2;
+    GroupV2Record group_v2 = 3;
+    AccountRecord account = 4;
+    bytes story_distribution_list = 5;
+    StickerPackRecord sticker_pack = 6;
+    bytes call_link = 7;
+    bytes chat_folder = 8;
+    bytes notification_profile = 9;
+  }
+}
+
+enum StorageOptionalBool {
+  OPTIONAL_BOOL_UNSET = 0;
+  OPTIONAL_BOOL_ENABLED = 1;
+  OPTIONAL_BOOL_DISABLED = 2;
+}
+
+// §4.4.
+message ContactRecord {
+  enum IdentityState {
+    DEFAULT = 0;
+    VERIFIED = 1;
+    UNVERIFIED = 2;
+  }
+  message Name {
+    string given = 1;
+    string family = 2;
+  }
+  string aci = 1;
+  string e164 = 2;
+  bytes profile_key = 3;
+  bytes identity_key = 4;
+  IdentityState identity_state = 5;
+  string given_name = 6;
+  string family_name = 7;
+  string username = 8;
+  bool blocked = 9;
+  bool whitelisted = 10;
+  bool archived = 11;
+  bool marked_unread = 12;
+  uint64 muted_until_timestamp = 13;
+  bool hide_story = 14;
+  string pni = 15;
+  uint64 unregistered_at_timestamp = 16;
+  string system_given_name = 17;
+  string system_family_name = 18;
+  string system_nickname = 19;
+  bool hidden = 20;
+  bool pni_signature_verified = 21;
+  Name nickname = 22;
+  string note = 23;
+  optional int32 avatar_color = 24;
+  bytes aci_binary = 25;
+  bytes pni_binary = 26;
+}
+
+// §4.5.
+message GroupV1Record {
+  bytes id = 1;
+  bool blocked = 2;
+  bool whitelisted = 3;
+  bool archived = 4;
+  bool marked_unread = 5;
+  uint64 muted_until_timestamp = 6;
+}
+
+// §4.6.
+message GroupV2Record {
+  bytes master_key = 1;
+  bool blocked = 2;
+  bool whitelisted = 3;
+  bool archived = 4;
+  bool marked_unread = 5;
+  uint64 muted_until_timestamp = 6;
+  bool dont_notify_for_mentions_if_muted = 7;
+  bool hide_story = 8;
+  reserved 9;
+  int32 story_send_mode = 10;
+  optional int32 avatar_color = 11;
+  bytes verified_name_hash = 12;
+}
+
+// §4.7.
+message AccountRecord {
+  message PinnedConversation {
+    message Contact {
+      string service_id = 1;
+      string e164 = 2;
+      bytes service_id_binary = 3;
+    }
+    message ReleaseNotes {}
+    oneof identifier {
+      Contact contact = 1;
+      bytes legacy_group_id = 3;
+      bytes group_master_key = 4;
+      ReleaseNotes release_notes = 5;
+    }
+  }
+  message Payments {
+    bool enabled = 1;
+    bytes entropy = 2;
+  }
+  message UsernameLink {
+    bytes entropy = 1;
+    bytes server_id = 2;
+    int32 color = 3;
+  }
+  message IAPSubscriberData {
+    bytes subscriber_id = 1;
+    oneof iap_subscription_id {
+      string purchase_token = 2;
+      uint64 original_transaction_id = 3;
+    }
+  }
+  message BackupTierHistory {
+    optional uint64 backup_tier = 1;
+    optional uint64 ended_at_timestamp = 2;
+  }
+  reserved 9, 19, 28, 31, 36, 37, 38, 39;
+  bytes profile_key = 1;
+  string given_name = 2;
+  string family_name = 3;
+  string avatar_url_path = 4;
+  bool note_to_self_archived = 5;
+  bool read_receipts = 6;
+  bool sealed_sender_indicators = 7;
+  bool typing_indicators = 8;
+  bool note_to_self_marked_unread = 10;
+  bool link_previews = 11;
+  int32 phone_number_sharing_mode = 12; // UNKNOWN 0, EVERYBODY 1, NOBODY 2
+  bool unlisted_phone_number = 13;
+  repeated PinnedConversation pinned_conversations = 14;
+  bool prefer_contact_avatars = 15;
+  Payments payments = 16;
+  uint32 universal_expire_timer = 17;
+  bool primary_sends_sms = 18;
+  repeated string preferred_reaction_emoji = 20;
+  bytes subscriber_id = 21;
+  string subscriber_currency_code = 22;
+  bool display_badges_on_profile = 23;
+  bool subscription_manually_cancelled = 24;
+  bool keep_muted_chats_archived = 25;
+  bool has_set_my_stories_privacy = 26;
+  bool has_viewed_onboarding_story = 27;
+  bool stories_disabled = 29;
+  StorageOptionalBool story_view_receipts_enabled = 30;
+  bool has_seen_group_story_education_sheet = 32;
+  string username = 33;
+  bool has_completed_username_onboarding = 34;
+  UsernameLink username_link = 35;
+  optional uint64 backup_tier = 40;
+  IAPSubscriberData backup_subscriber_data = 41;
+  optional int32 avatar_color = 42;
+  BackupTierHistory backup_tier_history = 43;
+  bytes notification_profile_manual_override = 44; // carried through
+  bool notification_profile_sync_disabled = 45;
+  bool automatic_key_verification_disabled = 46;
+  bool has_seen_admin_delete_education_dialog = 47;
+  optional bool release_notes_chat_archived = 48;
+  optional uint64 release_notes_chat_muted_until_timestamp = 49;
+  optional bool release_notes_chat_blocked = 50;
+  optional bool release_notes_chat_marked_unread = 51;
+}
+
+// §4.8.
+message StickerPackRecord {
+  bytes pack_id = 1;
+  bytes pack_key = 2;
+  uint32 position = 3;
+  uint64 deleted_at_timestamp = 4;
+}
