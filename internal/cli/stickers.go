@@ -227,6 +227,7 @@ func runUpdateConfiguration(ctx context.Context, e *env, g *globals, set map[str
 			return err
 		}
 		defer s.close()
+		defer s.syncStorage(ctx, e)
 		if err := s.sender.SendConfiguration(ctx); err != nil {
 			fmt.Fprintf(e.stderr, "WARN  SyncHelper - %v\n", err)
 		}

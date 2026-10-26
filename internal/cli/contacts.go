@@ -284,8 +284,11 @@ func runUpdateContact(ctx context.Context, e *env, g *globals, recipient string,
 			}
 		}
 		if u.Expiration == nil {
-			s := &manager.Sender{Acct: a}
-			return s.UpdateContact(ctx, k, u)
+			if err := (&manager.Sender{Acct: a}).UpdateContact(ctx, k, u); err != nil {
+				return err
+			}
+			bestEffortSync(ctx, e, g, a)
+			return nil
 		}
 		ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 		defer cancel()
@@ -294,6 +297,7 @@ func runUpdateContact(ctx context.Context, e *env, g *globals, recipient string,
 			return err
 		}
 		defer s.close()
+		defer s.syncStorage(ctx, e)
 		return s.sender.UpdateContact(ctx, k, u)
 	})
 }
@@ -323,7 +327,11 @@ func runRemoveContact(e *env, g *globals, recipient string, hide, forget bool) e
 		if errors.Is(err, manager.ErrDeleteSelf) {
 			return &cliError{msg: "Exception in thread \"main\" java.lang.RuntimeException: Can't delete self recipient", code: 2}
 		}
-		return err
+		if err != nil {
+			return err
+		}
+		bestEffortSync(context.Background(), e, g, a)
+		return nil
 	})
 }
 
@@ -353,6 +361,7 @@ func runBlock(ctx context.Context, e *env, g *globals, recipients, groupArgs []s
 			return err
 		}
 		defer s.close()
+		defer s.syncStorage(ctx, e)
 		if len(recipients) > 0 {
 			if err := s.sender.SetBlocked(ctx, keys, blocked, s.groups); err != nil {
 				return &cliError{msg: fmt.Sprintf("Failed to sync block to linked devices: %v", err), code: 2}
@@ -524,4 +533,19 @@ func primaryServiceID(a *store.Account, key string) string {
 		return "PNI:" + ad.PNI
 	}
 	return ""
+}
+
+// bestEffortSync opens a session just to run a storage sync after a
+// local-only change; any failure is logged (the job never fails a
+// command, storage.md §7).
+func bestEffortSync(ctx context.Context, e *env, g *globals, a *store.Account) {
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+	defer cancel()
+	s, err := openSession(ctx, e, g, a)
+	if err != nil {
+		fmt.Fprintf(e.stderr, "WARN  SyncStorageJob - Failed to sync storage data: %v\n", err)
+		return
+	}
+	defer s.close()
+	s.syncStorage(ctx, e)
 }

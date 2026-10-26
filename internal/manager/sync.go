@@ -219,6 +219,7 @@ func (r *Receiver) applySync(ctx context.Context, sm *signalpb.AppSyncMessage) {
 				r.pending.syncAnswers = map[signalpb.AppSyncMessage_Request_Type]bool{}
 			}
 			r.pending.syncAnswers[sm.Request.GetType()] = true
+			r.pending.storage = true
 		}
 	case SyncBlocked:
 		// Only numbers and string ACIs count; blocks are only ever added.
@@ -284,10 +285,14 @@ func (r *Receiver) applySync(ctx context.Context, sm *signalpb.AppSyncMessage) {
 				a.Data.MediaRootBackupKey = k.GetMediaRootBackupKey()
 			}
 			a.Save()
+			r.pending.storage = true
 		}
 	case SyncFetchLatest:
 		if sm.FetchLatest.GetType() == signalpb.AppSyncMessage_FetchLatest_LOCAL_PROFILE {
 			r.pending.ownProfile = true
+		}
+		if sm.FetchLatest.GetType() == signalpb.AppSyncMessage_FetchLatest_STORAGE_MANIFEST {
+			r.pending.storage = true
 		}
 	case SyncContacts:
 		r.importContacts(ctx, sm.Contacts)

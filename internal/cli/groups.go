@@ -149,6 +149,7 @@ func runUpdateGroup(ctx context.Context, e *env, g *globals, o updateGroupOpts) 
 			return err
 		}
 		defer s.close()
+		defer s.syncStorage(ctx, e)
 		uo := manager.UpdateOptions{Description: o.description, Remove: resolvedLists[1], Admins: resolvedLists[2],
 			NoAdmins: resolvedLists[3], Ban: resolvedLists[4], Unban: resolvedLists[5], ResetLink: o.resetLink, Link: o.link,
 			AddMemberPerm: o.permAdd, EditDetailsPerm: o.permEdit, SendMessagesPerm: o.permSend, Expiration: o.expiration,
@@ -234,6 +235,7 @@ func runJoinGroup(ctx context.Context, e *env, g *globals, uri string) error {
 			return err
 		}
 		defer s.close()
+		defer s.syncStorage(ctx, e)
 		res, requested, err := s.groups.Join(ctx, uri)
 		var inactive *manager.GroupLinkInactiveError
 		var ge *manager.GroupError
@@ -299,6 +301,7 @@ func runQuitGroup(ctx context.Context, e *env, g *globals, groupID string, del b
 			return err
 		}
 		defer s.close()
+		defer s.syncStorage(ctx, e)
 		rec := s.groups.Group(ctx, id, true)
 		gid := groups.FormatGroupID(id)
 		if rec == nil {

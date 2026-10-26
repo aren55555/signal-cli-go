@@ -492,6 +492,11 @@ type Recipient struct {
 	Hidden         bool    `json:"hidden,omitempty"`
 	HideStory      bool    `json:"hideStory,omitempty"`
 	MuteUntil      int64   `json:"muteUntil,omitempty"`
+
+	// Storage-service ID and last remote record (ContactRecord, or
+	// AccountRecord on the own row; storage.md §6.2).
+	StorageID     []byte `json:"storageId,omitempty"`
+	StorageRecord []byte `json:"storageRecord,omitempty"`
 }
 
 type recipientsDoc struct {
@@ -572,6 +577,11 @@ type StickerPack struct {
 	ID        string `json:"id"` // lowercase hex
 	Key       []byte `json:"key"`
 	Installed bool   `json:"installed"`
+	// Storage-service state (storage.md §6.2, §6.4.3).
+	Position      uint32 `json:"position,omitempty"`
+	DeletedAt     int64  `json:"deletedAt,omitempty"` // ms; non-zero = uninstalled tombstone
+	StorageID     []byte `json:"storageId,omitempty"`
+	StorageRecord []byte `json:"storageRecord,omitempty"`
 }
 
 type stickersDoc struct {
@@ -616,6 +626,8 @@ type GroupRecord struct {
 	PermissionDenied      bool              `json:"permissionDenied,omitempty"`
 	EndorsementExpiration int64             `json:"endorsementExpiration,omitempty"` // ms
 	Endorsements          map[string][]byte `json:"endorsements,omitempty"`          // ACI -> 33-byte endorsement
+	StorageID             []byte            `json:"storageId,omitempty"`
+	StorageRecord         []byte            `json:"storageRecord,omitempty"` // last GroupV2Record
 }
 
 type groupsDoc struct {

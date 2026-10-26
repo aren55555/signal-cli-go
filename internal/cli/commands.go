@@ -481,6 +481,8 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 		Decryptor: &manager.Decryptor{Acct: a},
 		Sender:    sender,
 		Groups:    gm,
+		Storage: &manager.Storage{Sender: sender, Groups: gm, REST: gm.Svc.REST,
+			Log: func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  StorageHelper - "+f+"\n", args...) }},
 		Stickers: &manager.StickerStore{Dir: filepath.Join(g.dataDir, "stickers"), CDN: cd, Ignore: o.ignoreStickers,
 			Log: func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  StickerHelper - "+f+"\n", args...) }},
 		Attachments: &manager.AttachmentStore{Dir: filepath.Join(g.dataDir, "attachments"), CDN: cd, Ignore: o.ignoreAttachments, AvatarsDir: filepath.Join(g.dataDir, "avatars"), IgnoreAvatars: o.ignoreAvatars,
@@ -519,6 +521,7 @@ func runSyncCommand(ctx context.Context, e *env, g *globals, contacts bool) erro
 			err = s.sender.SendContacts(ctx)
 		} else {
 			err = s.sender.SendSyncRequests(ctx)
+			defer s.syncStorage(ctx, e)
 		}
 		if err != nil {
 			fmt.Fprintf(e.stderr, "WARN  SyncHelper - %v\n", err)
@@ -597,4 +600,14 @@ func canonicalNumber(a *store.Account, s string) (string, error) {
 		digits = "+" + digits
 	}
 	return digits, nil
+}
+
+// syncStorage runs one storage-service sync (storage.md §6.1); failures
+// are logged, never fatal.
+func (s *session) syncStorage(ctx context.Context, e *env) {
+	st := &manager.Storage{Sender: s.sender, Groups: s.groups, REST: s.groups.Svc.REST,
+		Log: func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  StorageHelper - "+f+"\n", args...) }}
+	if err := st.Sync(ctx); err != nil {
+		fmt.Fprintf(e.stderr, "WARN  SyncStorageJob - Failed to sync storage data: %v\n", err)
+	}
 }

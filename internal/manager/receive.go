@@ -51,6 +51,7 @@ type Receiver struct {
 	Attachments      *AttachmentStore // nil: nothing is downloaded
 	Stickers         *StickerStore    // nil: no sticker packs are fetched
 	Groups           *Groups          // nil: group contexts are not processed
+	Storage          *Storage         // nil: sync messages do not trigger storage syncs
 	OnEvent          func(Event)
 	Log              func(string)
 	Now              func() time.Time
@@ -68,6 +69,7 @@ type actions struct {
 	// syncAnswers are the sync requests to answer (primary only).
 	syncAnswers map[signalpb.AppSyncMessage_Request_Type]bool
 	ownProfile  bool        // a FetchLatest LOCAL_PROFILE arrived
+	storage     bool        // a sync message queued a storage sync (storage.md §6.1)
 	stickers    [][2][]byte // sticker packs to download (id, key)
 }
 
@@ -399,6 +401,11 @@ func (r *Receiver) flush(ctx context.Context) {
 	}
 	if p.ownProfile {
 		r.Sender.RefreshProfile(ctx, r.Acct.Data.ACI)
+	}
+	if p.storage && r.Storage != nil {
+		if err := r.Storage.Sync(ctx); err != nil {
+			r.logf("Failed to sync storage data: %v", err)
+		}
 	}
 	if len(p.stickers) > 0 {
 		r.downloadStickers(ctx, p.stickers)
