@@ -7,6 +7,8 @@ import (
 	"math/rand/v2"
 	"strings"
 	"testing"
+
+	"github.com/aren55555/signal-cli-go/internal/testvec"
 )
 
 func unhex(t *testing.T, s string) []byte {
@@ -137,4 +139,76 @@ func TestPoly1305AgainstBig(t *testing.T) {
 			t.Fatalf("case %d: %x != %x", i, got, want)
 		}
 	}
+}
+
+// TestRFC8439Vectors runs every block, cipher, Poly1305, key-generation
+// and AEAD vector of RFC 8439 §2 and Appendix A
+// (testdata/vectors/rfc8439_chacha20poly1305.json).
+func TestRFC8439Vectors(t *testing.T) {
+	var f struct {
+		Vectors []struct {
+			Kind, Section, Key, Nonce, IV, Constant, AAD, Plaintext, Ciphertext, Keystream, Message, Tag, OTK string
+			Counter                                                                                           uint32
+		}
+	}
+	testvec.Load(t, "rfc8439_chacha20poly1305.json", &f)
+	n := 0
+	for _, v := range f.Vectors {
+		key := [32]byte(unhexOpt(t, v.Key, 32))
+		switch v.Kind {
+		case "chacha20_block":
+			var b [64]byte
+			Block(&b, &key, v.Counter, (*[12]byte)(unhex(t, v.Nonce)))
+			if hex.EncodeToString(b[:]) != v.Keystream {
+				t.Errorf("%s: %x", v.Section, b)
+			}
+		case "chacha20_encrypt":
+			p := unhex(t, v.Plaintext)
+			out := make([]byte, len(p))
+			XORKeyStream(out, p, &key, v.Counter, (*[12]byte)(unhex(t, v.Nonce)))
+			if hex.EncodeToString(out) != v.Ciphertext {
+				t.Errorf("%s: %x", v.Section, out)
+			}
+		case "poly1305":
+			var tag [16]byte
+			Poly1305(&tag, unhex(t, v.Message), &key)
+			if hex.EncodeToString(tag[:]) != v.Tag {
+				t.Errorf("%s: %x", v.Section, tag)
+			}
+		case "poly1305_key_gen":
+			if k := PolyKey(&key, (*[12]byte)(unhex(t, v.Nonce))); hex.EncodeToString(k[:]) != v.OTK {
+				t.Errorf("%s: %x", v.Section, k)
+			}
+		case "aead_encrypt", "aead_decrypt":
+			nonce := v.Nonce
+			if nonce == "" {
+				nonce = v.Constant + v.IV
+			}
+			a, _ := New(key[:])
+			sealed := a.Seal(nil, unhex(t, nonce), unhex(t, v.Plaintext), unhex(t, v.AAD))
+			want := v.Ciphertext + v.Tag
+			if v.Tag == "" {
+				want = v.Ciphertext
+			}
+			if hex.EncodeToString(sealed)[:len(v.Ciphertext)] != v.Ciphertext {
+				t.Errorf("%s: %x", v.Section, sealed)
+			}
+			if v.Tag != "" && hex.EncodeToString(sealed) != want {
+				t.Errorf("%s: tag %x", v.Section, sealed[len(sealed)-16:])
+			}
+		default:
+			continue
+		}
+		n++
+	}
+	if n < 25 {
+		t.Errorf("only %d vectors ran", n)
+	}
+}
+
+func unhexOpt(t *testing.T, s string, n int) []byte {
+	if s == "" {
+		return make([]byte, n)
+	}
+	return unhex(t, s)
 }
