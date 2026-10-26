@@ -187,6 +187,69 @@ func commandParser(name string) *argparse.Parser {
 			&argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Metavars: []string{"recipient"}, Help: "Specify the phone number, for which to set the trust."},
 			all, verified)
 		p.Groups = []*argparse.Group{{Args: []*argparse.Arg{all, verified}}}
+	case "updateProfile":
+		avatar := &argparse.Arg{Names: []string{"--avatar"}, Dest: "avatar", Metavars: []string{"AVATAR"}, Help: "Path to new profile avatar"}
+		remove := &argparse.Arg{Names: []string{"--remove-avatar"}, Action: argparse.StoreTrue}
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"--given-name", "--name"}, Dest: "given-name", Metavars: []string{"GIVEN_NAME"}, Help: "New profile (given) name"},
+			&argparse.Arg{Names: []string{"--family-name"}, Dest: "family-name", Metavars: []string{"FAMILY_NAME"}, Help: "New profile family name (optional)"},
+			&argparse.Arg{Names: []string{"--about"}, Dest: "about", Metavars: []string{"ABOUT"}, Help: "New profile about text"},
+			&argparse.Arg{Names: []string{"--about-emoji"}, Dest: "about-emoji", Metavars: []string{"ABOUT_EMOJI"}, Help: "New profile about emoji"},
+			&argparse.Arg{Names: []string{"--mobile-coin-address", "--mobilecoin-address"}, Dest: "mobile-coin-address", Metavars: []string{"MOBILE_COIN_ADDRESS"}, Help: "New MobileCoin address (Base64 encoded public address)"},
+			avatar, remove)
+		p.Groups = []*argparse.Group{{Args: []*argparse.Arg{avatar, remove}}}
+	case "getAvatar":
+		c := &argparse.Arg{Names: []string{"-c", "--contact"}, Dest: "contact", Metavars: []string{"CONTACT"}, Help: "Get a contact avatar"}
+		pr := &argparse.Arg{Names: []string{"-p", "--profile"}, Dest: "profile", Metavars: []string{"PROFILE"}, Help: "Get a profile avatar"}
+		g := &argparse.Arg{Names: []string{"-g", "--group-id"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Help: "Get a group avatar"}
+		p.Args = append(p.Args, c, pr, g)
+		p.Groups = []*argparse.Group{{Args: []*argparse.Arg{c, pr, g}, Required: true}}
+	case "listContacts":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Nargs: argparse.ZeroOrMore, Help: "Specify one ore more phone numbers to show."},
+			&argparse.Arg{Names: []string{"-a", "--all-recipients"}, Action: argparse.StoreTrue, Help: "Include all known recipients, not only contacts."},
+			&argparse.Arg{Names: []string{"--blocked"}, Dest: "blocked", Kind: argparse.Boolean, Help: "Specify if only blocked or unblocked contacts should be shown (default: all contacts)"},
+			&argparse.Arg{Names: []string{"--name"}, Dest: "name", Metavars: []string{"NAME"}, Help: "Find contacts with the given contact or profile name."},
+			&argparse.Arg{Names: []string{"--detailed"}, Action: argparse.StoreTrue, Help: "List the contacts with more details. If output=json, then this is always set"},
+			&argparse.Arg{Names: []string{"--internal"}, Action: argparse.StoreTrue, Help: "Include internal information that's normally not user visible"})
+	case "updateContact":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Help: "Contact number"},
+			&argparse.Arg{Names: []string{"-n", "--name"}, Dest: "name", Metavars: []string{"NAME"}, Help: "New contact name"},
+			&argparse.Arg{Names: []string{"--given-name"}, Dest: "given-name", Metavars: []string{"GIVEN_NAME"}, Help: "New system given name"},
+			&argparse.Arg{Names: []string{"--family-name"}, Dest: "family-name", Metavars: []string{"FAMILY_NAME"}, Help: "New system family name"},
+			&argparse.Arg{Names: []string{"--nick-given-name"}, Dest: "nick-given-name", Metavars: []string{"NICK_GIVEN_NAME"}, Help: "New nick given name"},
+			&argparse.Arg{Names: []string{"--nick-family-name"}, Dest: "nick-family-name", Metavars: []string{"NICK_FAMILY_NAME"}, Help: "New nick family name"},
+			&argparse.Arg{Names: []string{"--note"}, Dest: "note", Metavars: []string{"NOTE"}, Help: "New note"},
+			&argparse.Arg{Names: []string{"-e", "--expiration"}, Dest: "expiration", Metavars: []string{"EXPIRATION"}, Kind: argparse.Int32, Help: "Set expiration time of messages (seconds)"})
+	case "removeContact":
+		hide := &argparse.Arg{Names: []string{"--hide"}, Action: argparse.StoreTrue, Help: "Hide the contact in the contact list, but keep the data."}
+		forget := &argparse.Arg{Names: []string{"--forget"}, Action: argparse.StoreTrue, Help: "Delete all data associated with this contact, including identity keys and sessions."}
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Help: "Contact number"}, hide, forget)
+		p.Groups = []*argparse.Group{{Args: []*argparse.Arg{hide, forget}}}
+	case "block", "unblock":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Nargs: argparse.ZeroOrMore, Help: "Contact number"},
+			&argparse.Arg{Names: []string{"-g", "--group-id", "--group"}, Dest: "group-id", Metavars: []string{"GROUP_ID"}, Nargs: argparse.ZeroOrMore, Help: "Group ID"})
+	case "getUserStatus":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Nargs: argparse.ZeroOrMore, Help: "Phone number"},
+			&argparse.Arg{Names: []string{"--username"}, Dest: "username", Metavars: []string{"USERNAME"}, Nargs: argparse.ZeroOrMore, Help: "Specify the recipient username or username link."})
+	case "listIdentities":
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"-n", "--number"}, Dest: "number", Metavars: []string{"NUMBER"}, Help: "Only show identity keys for the given phone number."})
+	case "updateAccount":
+		user := &argparse.Arg{Names: []string{"-u", "--username"}, Dest: "username", Metavars: []string{"USERNAME"}, Help: "Specify a username that can then be used to contact this account."}
+		del := &argparse.Arg{Names: []string{"--delete-username"}, Action: argparse.StoreTrue, Help: "Delete the username associated with this account."}
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"-n", "--device-name"}, Dest: "device-name", Metavars: []string{"DEVICE_NAME"}, Help: "Specify a name to describe this device."},
+			&argparse.Arg{Names: []string{"--unrestricted-unidentified-sender"}, Dest: "unrestricted-unidentified-sender", Kind: argparse.Boolean, Help: "Enable if anyone should be able to send you unidentified sender messages."},
+			&argparse.Arg{Names: []string{"--discoverable-by-number"}, Dest: "discoverable-by-number", Kind: argparse.Boolean, Help: "Enable/disable if the account should be discoverable by phone number"},
+			&argparse.Arg{Names: []string{"--number-sharing"}, Dest: "number-sharing", Kind: argparse.Boolean, Help: "Indicates if Signal should share its phone number when sending a message."},
+			user, del)
+		p.Groups = []*argparse.Group{{Args: []*argparse.Arg{user, del}}}
+	case "setPin":
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"pin"}, Dest: "pin", Help: "The registration lock PIN, that will be required for new registrations (resets after 7 days of inactivity)"})
+	case "removePin":
 	case "listDevices":
 	case "addDevice":
 		p.Args = append(p.Args, &argparse.Arg{Names: []string{"--uri"}, Dest: "uri", Metavars: []string{"URI"}, Required: true, Help: "Specify the uri contained in the QR code shown by the new device."})
