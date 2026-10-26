@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/manager"
 	"io"
 	"os"
 	"path/filepath"
@@ -272,6 +273,27 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 			o.name = &v
 		}
 		runErr = runListContacts(ctx, e, g, o)
+	case "updateContact":
+		strp := func(k string) *string {
+			if !s.Has(k) {
+				return nil
+			}
+			v := s.String(k)
+			return &v
+		}
+		u := manager.ContactUpdate{GivenName: strp("given-name"), FamilyName: strp("family-name"), NickGivenName: strp("nick-given-name"),
+			NickFamilyName: strp("nick-family-name"), Note: strp("note")}
+		if s.Has("expiration") {
+			v := uint32(s.Int("expiration"))
+			u.Expiration = &v
+		}
+		runErr = runUpdateContact(ctx, e, g, s.String("recipient"), strp("name"), u)
+	case "removeContact":
+		runErr = runRemoveContact(e, g, s.String("recipient"), s.Bool("hide"), s.Bool("forget"))
+	case "block", "unblock":
+		runErr = runBlock(ctx, e, g, s.Strings("recipient"), s.Strings("group-id"), cmd == "block")
+	case "getAvatar":
+		runErr = runGetAvatar(ctx, e, g, s.String("contact"), s.String("profile"), s.String("group-id"))
 	case "trust":
 		sn := s.String("verified_safety_number")
 		runErr = runTrust(ctx, e, g, s.String("recipient"), s.Bool("trust_all_known_keys"), sn, s.Has("verified_safety_number"))

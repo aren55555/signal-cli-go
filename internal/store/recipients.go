@@ -370,3 +370,26 @@ func (a *Account) SortedRecipientKeys() []string {
 	})
 	return keys
 }
+
+// DeleteSessions removes every session with serviceID, in both the ACI
+// and PNI stores ("<store>:<service ID>.<device>").
+func (a *Account) DeleteSessions(serviceID string) {
+	for k := range a.Sessions {
+		_, rest, _ := strings.Cut(k, ":")
+		if i := strings.LastIndexByte(rest, '.'); i >= 0 && rest[:i] == serviceID {
+			delete(a.Sessions, k)
+		}
+	}
+}
+
+// DeleteSenderKeys removes the sender keys received from serviceID
+// ("<service ID>.<device>.<distribution ID>").
+func (a *Account) DeleteSenderKeys(serviceID string) {
+	for k := range a.SenderKeys.Records {
+		if strings.HasPrefix(k, serviceID+".") {
+			delete(a.SenderKeys.Records, k)
+			delete(a.SenderKeys.Created, k)
+		}
+	}
+	a.SaveSenderKeys()
+}

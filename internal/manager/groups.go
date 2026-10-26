@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/json"
@@ -947,4 +948,57 @@ func InviteLink(rec *store.GroupRecord) string {
 		return ""
 	}
 	return groups.InviteLinkURL(rec.MasterKey, st.InvitePassword)
+}
+
+// UpdateOwnProfileKey publishes a rotated own profile key to every v2
+// group where the account is a full member with profile sharing on
+// (groups.md §11). Per-group failures are logged and ignored.
+func (m *Groups) UpdateOwnProfileKey(ctx context.Context) {
+	self := m.Acct.Data.ACI
+	for _, id := range m.groupIDs() {
+		rec := m.Acct.Group(id)
+		if rec == nil || !rec.ProfileSharing {
+			continue
+		}
+		if st := StateOf(rec); st == nil || st.Member(self) == nil {
+			continue
+		}
+		err := m.updateOwnKey(ctx, id)
+		if IsConflict(err) {
+			err = m.updateOwnKey(ctx, id)
+		}
+		if err != nil {
+			m.logf("Failed to update group profile key: %v", err)
+		}
+	}
+}
+
+func (m *Groups) groupIDs() [][]byte {
+	var ids [][]byte
+	for _, rec := range m.Acct.Groups {
+		ids = append(ids, rec.GroupID)
+	}
+	return ids
+}
+
+func (m *Groups) updateOwnKey(ctx context.Context, id []byte) error {
+	rec := m.Acct.Group(id)
+	m.Refresh(ctx, rec, true)
+	rec = m.Acct.Group(id)
+	st := StateOf(rec)
+	if st == nil {
+		return errors.New("no group state")
+	}
+	me := st.Member(m.Acct.Data.ACI)
+	if me == nil || bytes.Equal(me.ProfileKey, m.Acct.Data.ProfileKey) {
+		return nil
+	}
+	own, err := m.Sender.ProfileKeyCredential(ctx, m.Acct.Data.ACI)
+	if err != nil {
+		return err
+	}
+	pres := own.Present(ServerParams(), Secret(rec), m.random32())
+	_, err = m.commit(ctx, rec, &signalpb.GroupChange_Actions{
+		ModifyMemberProfileKeys: []*signalpb.GroupChange_Actions_ModifyMemberProfileKey{{Presentation: pres}}})
+	return err
 }

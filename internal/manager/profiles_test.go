@@ -48,8 +48,9 @@ func newProfileWorld(t *testing.T) *profileWorld {
 	w.fc = &fakeChat{t: t, sender: testACI, senderDev: 2, profiles: map[string]string{vecPeer: w.resp["complete profile"]}}
 	w.cdn = &fakeCDN{blobs: map[string][]byte{"profiles/AAECAwQFBgcICQoLDA0ODw==": profile.EncryptAvatar(w.k1, [12]byte{7}, w.img)}}
 	w.dir = filepath.Join(t.TempDir(), "avatars")
+	// The clock advances 1 ms per read: timestamps must strictly increase.
 	now := time.UnixMilli(1_800_000_000_000)
-	w.s = &Sender{Acct: a, Chat: w.fc, CDN: w.cdn, AvatarsDir: w.dir, Now: func() time.Time { return now }}
+	w.s = &Sender{Acct: a, Chat: w.fc, CDN: w.cdn, AvatarsDir: w.dir, Now: func() time.Time { now = now.Add(time.Millisecond); return now }}
 	return w
 }
 
@@ -67,7 +68,7 @@ func TestProfileFetchStoresRecord(t *testing.T) {
 	w := newProfileWorld(t)
 	p := w.s.RefreshProfile(context.Background(), vecPeer)
 	if p == nil || *p.GivenName != "Alice" || *p.FamilyName != "Smith" || *p.About != "Hello" || p.AccessMode != store.AccessEnabled ||
-		p.LastUpdate != 1_800_000_000_000 || *p.PhoneNumberSharing != "EVERYBODY" || len(p.MobileCoinAddress) == 0 || *p.AvatarURLPath != "profiles/AAECAwQFBgcICQoLDA0ODw==" {
+		p.LastUpdate <= 1_800_000_000_000 || *p.PhoneNumberSharing != "EVERYBODY" || len(p.MobileCoinAddress) == 0 || *p.AvatarURLPath != "profiles/AAECAwQFBgcICQoLDA0ODw==" {
 		t.Fatalf("profile %+v", p)
 	}
 	// Versioned path: the key is known.
@@ -151,6 +152,7 @@ func TestProfileDecodeFailureKeepsOldRecord(t *testing.T) {
 func selfWorld(t *testing.T) *profileWorld {
 	w := newProfileWorld(t)
 	w.s.Acct.Data.ProfileKey = w.k1[:]
+	w.s.Acct.Data.DeviceID = 1 // single-device primary: no syncs to own devices
 	w.fc.profiles[testACI] = w.resp["complete profile"]
 	return w
 }

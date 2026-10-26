@@ -137,8 +137,11 @@ var allowedPhone = regexp.MustCompile(`^\+1[2-9][0-9]{2}55501[0-9]{2}$`)
 // vectors and are kept verbatim so the vectors stay faithful to their
 // source: libsignal v0.99.1 rust/net/src/cdsi.rs (serialize_e164s and the
 // response-parsing test), copied into testdata/vectors/cdsi.json.
+// Also libsignal v0.99.1 rust/protocol/src/fingerprint.rs tests, copied into
+// testdata/vectors/fingerprint.json.
 var publishedTestPhones = map[string]bool{
 	"+18005551001": true, "+18005551002": true, "+18005551003": true, "+18005551004": true, "+18005551005": true,
+	"+14152222222": true, "+14153333333": true, "+141512222222": true,
 }
 
 // TestTestdataHasNoSecrets scans testdata/ for phone numbers and keys.

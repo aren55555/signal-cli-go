@@ -100,11 +100,11 @@ func (s *Sender) identifier(key string) string {
 
 // AvatarID is the file-name id of a recipient's avatars (§1.3): number,
 // else ACI, else PNI:<uuid>.
-func (s *Sender) AvatarID(key string) string {
-	ad := s.Acct.AddressOf(key)
+func AvatarID(a *store.Account, key string) string {
+	ad := a.AddressOf(key)
 	switch {
-	case key == s.Acct.Data.ACI && s.Acct.Data.Number != "":
-		return s.Acct.Data.Number
+	case key == a.Data.ACI && a.Data.Number != "":
+		return a.Data.Number
 	case ad.Number != "":
 		return ad.Number
 	case ad.ACI != "":
@@ -279,7 +279,7 @@ func (s *Sender) avatarStep(ctx context.Context, key string, rc *store.Recipient
 	if rc.Profile != nil && strEq(rc.Profile.AvatarURLPath, avatar) {
 		return
 	}
-	file := filepath.Join(s.AvatarsDir, "profile-"+s.AvatarID(key))
+	file := filepath.Join(s.AvatarsDir, "profile-"+AvatarID(s.Acct, key))
 	switch {
 	case s.AvatarsDir == "":
 	case avatar == nil || *avatar == "":

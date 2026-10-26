@@ -3,10 +3,15 @@ package cli
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/profile"
 	"github.com/aren55555/signal-cli-go/internal/store"
 )
@@ -251,4 +256,177 @@ func ptrOrNull(p *string) any {
 		return nil
 	}
 	return *p
+}
+
+// notRegistered is contacts.md §4.1's error.
+func notRegistered(arg string) error { return userError("The user " + arg + " is not registered.") }
+
+// runUpdateContact is `updateContact` (contacts.md §9).
+func runUpdateContact(ctx context.Context, e *env, g *globals, recipient string, name *string, u manager.ContactUpdate) error {
+	return withAccount(g, func(a *store.Account) error {
+		k, ok, err := recipientKey(a, recipient)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return notRegistered(recipient)
+		}
+		if u.GivenName == nil && name != nil {
+			u.GivenName = name
+			if u.FamilyName == nil {
+				empty := ""
+				u.FamilyName = &empty
+			}
+		}
+		if u.Expiration == nil {
+			s := &manager.Sender{Acct: a}
+			return s.UpdateContact(ctx, k, u)
+		}
+		ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+		defer cancel()
+		s, err := openSession(ctx, e, g, a)
+		if err != nil {
+			return err
+		}
+		defer s.close()
+		return s.sender.UpdateContact(ctx, k, u)
+	})
+}
+
+// runRemoveContact is `removeContact` (contacts.md §10); an unresolvable
+// recipient is a silent no-op.
+func runRemoveContact(e *env, g *globals, recipient string, hide, forget bool) error {
+	return withAccount(g, func(a *store.Account) error {
+		t, err := resolveRecipient(a, recipient)
+		var k string
+		switch {
+		case err == nil && t.aci != "":
+			var ok bool
+			if k, ok = a.FindByACI(t.aci); !ok {
+				k = a.ResolveLowTrust(store.Address{ACI: t.aci})
+			}
+		case err != nil && strings.HasPrefix(err.Error(), "Invalid phone number"):
+			return err
+		default:
+			n, _ := canonicalNumber(a, recipient)
+			var ok bool
+			if k, ok = a.FindByNumber(n); !ok {
+				return nil
+			}
+		}
+		err = (&manager.Sender{Acct: a}).RemoveContact(k, hide, forget)
+		if errors.Is(err, manager.ErrDeleteSelf) {
+			return &cliError{msg: "Exception in thread \"main\" java.lang.RuntimeException: Can't delete self recipient", code: 2}
+		}
+		return err
+	})
+}
+
+// runBlock is `block` / `unblock` (contacts.md §7).
+func runBlock(ctx context.Context, e *env, g *globals, recipients, groupArgs []string, blocked bool) error {
+	return withAccount(g, func(a *store.Account) error {
+		var keys []string
+		for _, r := range recipients {
+			k, ok, err := recipientKey(a, r)
+			if err != nil {
+				return err
+			}
+			if !ok {
+				return notRegistered(r)
+			}
+			if !slices.Contains(keys, k) {
+				keys = append(keys, k)
+			}
+		}
+		if len(recipients) == 0 && len(groupArgs) == 0 {
+			return nil
+		}
+		ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+		defer cancel()
+		s, err := openSession(ctx, e, g, a)
+		if err != nil {
+			return err
+		}
+		defer s.close()
+		if len(recipients) > 0 {
+			if err := s.sender.SetBlocked(ctx, keys, blocked, s.groups); err != nil {
+				return &cliError{msg: fmt.Sprintf("Failed to sync block to linked devices: %v", err), code: 2}
+			}
+		}
+		if len(groupArgs) > 0 {
+			var ids [][]byte
+			for _, arg := range groupArgs {
+				id, err := parseGroupArg(arg)
+				if err != nil {
+					return err
+				}
+				if a.Group(id) == nil {
+					fmt.Fprintf(e.stderr, "WARN  BlockCommand - Unknown group id: %s\n", arg)
+					continue
+				}
+				ids = append(ids, id)
+			}
+			if err := s.sender.SetGroupsBlocked(ctx, ids, blocked, s.groups); err != nil {
+				return &cliError{msg: fmt.Sprintf("Failed to sync block to linked devices: %v", err), code: 2}
+			}
+		}
+		return nil
+	})
+}
+
+// runGetAvatar is `getAvatar` (contacts.md §12, getAvatar.md).
+func runGetAvatar(ctx context.Context, e *env, g *globals, contact, prof, group string) error {
+	return withAccount(g, func(a *store.Account) error {
+		dir := filepath.Join(g.dataDir, "avatars")
+		var file string
+		switch {
+		case group != "":
+			id, err := parseGroupArg(group)
+			if err != nil {
+				return err
+			}
+			file = filepath.Join(dir, "group-"+strings.ReplaceAll(base64.StdEncoding.EncodeToString(id), "/", "_"))
+		default:
+			arg := contact
+			if arg == "" {
+				arg = prof
+			}
+			k, ok, err := recipientKey(a, arg)
+			if err != nil {
+				return err
+			}
+			if !ok {
+				return notRegistered(arg)
+			}
+			if prof != "" {
+				ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+				defer cancel()
+				s, err := openSession(ctx, e, g, a)
+				if err != nil {
+					return err
+				}
+				defer s.close()
+				s.sender.Profile(ctx, k)
+				file = filepath.Join(dir, "profile-"+manager.AvatarID(a, k))
+			} else {
+				file = filepath.Join(dir, "contact-"+manager.AvatarID(a, k))
+			}
+		}
+		data, err := os.ReadFile(file)
+		switch {
+		case errors.Is(err, os.ErrNotExist):
+			return userError("Could not find avatar")
+		case err != nil:
+			return &cliError{msg: "An error occurred reading avatar", code: 2}
+		}
+		b64 := base64.StdEncoding.EncodeToString(data)
+		if g.json() {
+			o := &jsonObject{}
+			o.add("data", b64)
+			fmt.Fprintln(e.stdout, o.String())
+		} else {
+			fmt.Fprintln(e.stdout, b64)
+		}
+		return nil
+	})
 }

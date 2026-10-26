@@ -121,7 +121,7 @@ func (s *Sender) WriteProfile(ctx context.Context, u ProfileUpdate) error {
 	mode := u.Avatar
 	if mode == AvatarRotate {
 		mode = AvatarKeep
-		if src, err := attachment.FromArgument(filepath.Join(s.AvatarsDir, "profile-"+s.AvatarID(self)), ""); err == nil {
+		if src, err := attachment.FromArgument(filepath.Join(s.AvatarsDir, "profile-"+AvatarID(s.Acct, self)), ""); err == nil {
 			mode, image, contentType = AvatarNew, src.Data, src.ContentType
 		}
 	} else if mode == AvatarNew {
@@ -172,7 +172,7 @@ func (s *Sender) WriteProfile(ctx context.Context, u ProfileUpdate) error {
 		p.AvatarURLPath = &form.Key
 	}
 	// §3.6: local avatar file, then the stored record (timestamp kept).
-	file := filepath.Join(s.AvatarsDir, "profile-"+s.AvatarID(self))
+	file := filepath.Join(s.AvatarsDir, "profile-"+AvatarID(s.Acct, self))
 	switch {
 	case s.AvatarsDir == "":
 	case mode == AvatarNew:

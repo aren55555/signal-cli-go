@@ -11,7 +11,6 @@ obs050--a_15555550123_listAccounts
 obs051--a_15555550123_version
 obs052--a_15555550123_-o_json_version
 obs068-acceptCall
-obs071-block
 obs072-deleteLocalAccountData
 obs073-finishChangeNumber
 obs077-getUserStatus
@@ -23,7 +22,6 @@ obs093-removePin
 obs110-startCall
 obs111-startChangeNumber
 obs112-submitRateLimitChallenge
-obs114-unblock
 obs116-updateAccount
 obs124-acceptCall_--help
 obs128-daemon_--help
@@ -59,12 +57,7 @@ obs303-jsonRpc_--receive-mode_bogus
 obs304--a_15555550123_jsonRpc
 obs305-jsonRpc_--no-receive-stdout
 obs319--a_15555550123_listIdentities
-obs324--a_15555550123_updateContact_15555550124_-n_x
-obs327--a_15555550123_removeContact_15555550124
 obs330-trust_-a_-v_123_15555550199
-obs333--a_15555550123_block_15555550199
-obs334--a_15555550123_unblock_-g_abc
-obs352--a_15555550123_getAvatar_-g_abc
 obs356--a_15555550123_getUserStatus_15555550199
 obs357--a_15555550123_getUserStatus_--username_u.01
 obs359-startCall_15555550199_15555550198
@@ -80,4 +73,3 @@ obs369--a_15555550123_rejectCall_--call-id_1
 obs370--a_15555550123_listCalls
 obs373--a_15555550123_trust_-v_123_15555550199
 obs374-getUserStatus_--username
-obs375--a_15555550123_block

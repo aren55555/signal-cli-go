@@ -409,17 +409,9 @@ func resolveRecipient(a *store.Account, s string) (resolved, error) {
 	case strings.Contains(s, "@"):
 		return resolved{}, userError("Invalid phone number '" + s + "': Possible attempt to use email address.")
 	}
-	digits := strings.Map(func(r rune) rune {
-		if r == '+' || (r >= '0' && r <= '9') {
-			return r
-		}
-		return -1
-	}, s)
-	if digits == "" {
-		return resolved{}, userError("Invalid phone number '" + s + "': No valid characters found.")
-	}
-	if !strings.HasPrefix(digits, "+") {
-		digits = "+" + digits
+	digits, err := canonicalNumber(a, s)
+	if err != nil {
+		return resolved{}, err
 	}
 	if digits == a.Data.Number {
 		return resolved{key: digits, aci: a.Data.ACI}, nil
@@ -595,4 +587,21 @@ func (g *globals) withProfiles(e *env, s *manager.Sender) *manager.Sender {
 	s.TrustNew = g.trustNew
 	s.Log = func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  ProfileHelper - "+f+"\n", args...) }
 	return s
+}
+
+// canonicalNumber is a phone-number argument in E.164 form.
+func canonicalNumber(a *store.Account, s string) (string, error) {
+	digits := strings.Map(func(r rune) rune {
+		if r == '+' || (r >= '0' && r <= '9') {
+			return r
+		}
+		return -1
+	}, s)
+	if digits == "" {
+		return "", userError("Invalid phone number '" + s + "': No valid characters found.")
+	}
+	if !strings.HasPrefix(digits, "+") {
+		digits = "+" + digits
+	}
+	return digits, nil
 }

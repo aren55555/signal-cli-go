@@ -275,6 +275,8 @@ func TestSendText(t *testing.T) {
 // socket's access check; nil means "not special".
 func (f *fakeChat) special(unauth bool, verb, path string, headers []chat.Header) *chat.Response {
 	switch {
+	case !unauth && verb == "PUT" && path == "/v1/accounts/attributes":
+		return &chat.Response{Status: 204}
 	case !unauth && verb == "GET" && strings.HasPrefix(path, "/v4/attachments/form/upload"):
 		f.forms++
 		b, _ := json.Marshal(cdn.Form{CDN: 3, Key: fmt.Sprintf("form%d", f.forms), Headers: map[string]string{}, SignedUploadLocation: "https://x/attachments"})
