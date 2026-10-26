@@ -2,16 +2,11 @@
 # a match while listed here fails the test, so remove names as features land.
 listAccounts-empty
 listAccounts-empty-json
-two-accounts-listContacts
 two-accounts-listAccounts
 two-accounts-listAccounts-json
 obs005--v_--version
 obs038--d_nonexistent_x_version
 obs040--o_json_listAccounts
-obs043--a_15555550123_listContacts
-obs044--a_15555550123_--account_15555550124_listContacts
-obs045--a_3fa85f64-5717-4562-b3fc-2c963f66afa6_listContacts
-obs046--a_12345_listContacts
 obs050--a_15555550123_listAccounts
 obs051--a_15555550123_version
 obs052--a_15555550123_-o_json_version
@@ -22,7 +17,6 @@ obs073-finishChangeNumber
 obs077-getUserStatus
 obs078-hangupCall
 obs080-listCalls
-obs081-listContacts
 obs084-listIdentities
 obs089-rejectCall
 obs093-removePin
@@ -64,7 +58,6 @@ obs302--a_15555550123_daemon_--http
 obs303-jsonRpc_--receive-mode_bogus
 obs304--a_15555550123_jsonRpc
 obs305-jsonRpc_--no-receive-stdout
-obs317--a_15555550123_listContacts_--blocked_maybe
 obs319--a_15555550123_listIdentities
 obs324--a_15555550123_updateContact_15555550124_-n_x
 obs327--a_15555550123_removeContact_15555550124

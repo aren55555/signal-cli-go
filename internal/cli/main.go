@@ -261,6 +261,17 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		}
 		runErr = runUpdateProfile(ctx, e, g, updateProfileOpts{given: strp("given-name"), family: strp("family-name"), about: strp("about"),
 			emoji: strp("about-emoji"), mobileCoin: strp("mobile-coin-address"), avatar: strp("avatar"), removeAvatar: s.Bool("remove_avatar")})
+	case "listContacts":
+		o := listContactsOpts{recipients: s.Strings("recipient"), all: s.Bool("all_recipients"), detailed: s.Bool("detailed"), internal: s.Bool("internal")}
+		if s.Has("blocked") {
+			v := s.Bool("blocked")
+			o.blocked = &v
+		}
+		if s.Has("name") {
+			v := s.String("name")
+			o.name = &v
+		}
+		runErr = runListContacts(ctx, e, g, o)
 	case "trust":
 		sn := s.String("verified_safety_number")
 		runErr = runTrust(ctx, e, g, s.String("recipient"), s.Bool("trust_all_known_keys"), sn, s.Has("verified_safety_number"))
