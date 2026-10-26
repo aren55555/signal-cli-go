@@ -3,16 +3,12 @@ package manager
 import (
 	"bytes"
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"strings"
 	"time"
 
-	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
-	"github.com/aren55555/signal-cli-go/internal/crypto/zkgroup"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 	"github.com/aren55555/signal-cli-go/internal/protocol"
 	"github.com/aren55555/signal-cli-go/internal/service/api"
@@ -45,17 +41,14 @@ func (s *Sender) accessFor(ctx context.Context, dest string) *access {
 	if s.Unauth == nil || dest == s.Acct.Data.ACI {
 		return nil
 	}
+	s.Profile(ctx, dest)
 	rc := s.Acct.Recipients[dest]
-	if rc.Profile == nil || s.now().Sub(time.UnixMilli(rc.Profile.LastUpdate)) > profileMaxAge {
-		s.fetchProfile(ctx, dest)
-		rc = s.Acct.Recipients[dest]
-	}
 	var key []byte
 	switch {
 	case rc.Profile.AccessMode == store.AccessUnrestricted:
 		key = make([]byte, 16)
 	case rc.Profile.AccessMode == store.AccessEnabled && len(rc.ProfileKey) == 32:
-		key = api.UnidentifiedAccessKey(rc.ProfileKey)
+		key = accessKey(rc.ProfileKey)
 	default:
 		return nil
 	}
@@ -93,71 +86,6 @@ func (s *Sender) senderCertificate(ctx context.Context) []byte {
 	}
 	s.cert, s.certExpires = b, c.Expires
 	return b
-}
-
-// fetchProfile fetches dest's profile and stores the outcome; a failure
-// is stored too, with mode unknown (profile.md §3.3).
-// With a known profile key the versioned path is used (profile.md §3.2).
-func (s *Sender) fetchProfile(ctx context.Context, dest string) {
-	a := s.Acct
-	rc := a.Recipients[dest]
-	p := &store.Profile{LastUpdate: s.now().UnixMilli(), AccessMode: store.AccessUnknown}
-	defer func() {
-		rc.Profile = p
-		a.Recipients[dest] = rc
-		a.SaveRecipients()
-	}()
-	path := "/v1/profile/" + dest
-	if len(rc.ProfileKey) == 32 {
-		if aci, ok := uuidRaw(dest); ok {
-			var k [32]byte
-			copy(k[:], rc.ProfileKey)
-			path += "/" + zkgroup.ProfileKeyVersion(k, aci)
-		}
-	}
-	r, err := s.Chat.Request(ctx, "GET", path, []chat.Header{{Name: "accept-language", Value: "en;q=1"}}, nil)
-	if err != nil {
-		return
-	}
-	if r.Status == 404 {
-		rc.Unregistered = true
-		return
-	}
-	if r.Status != 200 {
-		return
-	}
-	var resp struct {
-		IdentityKey                    string          `json:"identityKey"`
-		UnidentifiedAccess             string          `json:"unidentifiedAccess"`
-		UnrestrictedUnidentifiedAccess bool            `json:"unrestrictedUnidentifiedAccess"`
-		Capabilities                   map[string]bool `json:"capabilities"`
-	}
-	if json.Unmarshal(r.Body, &resp) != nil {
-		return
-	}
-	rc.Unregistered = false
-	if ik, err := api.DecodeBase64(resp.IdentityKey); err == nil {
-		if _, err := curve25519.ParsePublicKey(ik); err == nil {
-			saveIdentity(a, dest, ik, s.now())
-		}
-	}
-	for name, on := range resp.Capabilities {
-		if on {
-			p.Capabilities = append(p.Capabilities, name)
-		}
-	}
-	p.AccessMode = store.AccessDisabled
-	switch {
-	case resp.UnrestrictedUnidentifiedAccess:
-		p.AccessMode = store.AccessUnrestricted
-	case len(rc.ProfileKey) == 32:
-		ver, err := api.DecodeBase64(resp.UnidentifiedAccess)
-		m := hmac.New(sha256.New, api.UnidentifiedAccessKey(rc.ProfileKey))
-		m.Write(make([]byte, 32))
-		if err == nil && hmac.Equal(ver, m.Sum(nil)) {
-			p.AccessMode = store.AccessEnabled
-		}
-	}
 }
 
 // saveIdentity records a peer identity key learned outside a message: a
@@ -213,16 +141,9 @@ func ApplyContent(a *store.Account, m *Message, now time.Time) error {
 		a.Data.ProfileKey = key
 		return a.Save()
 	}
-	rc := a.Recipients[m.Sender.ServiceID]
-	if bytes.Equal(rc.ProfileKey, key) {
+	if !StoreProfileKey(a, m.Sender.ServiceID, key) {
 		return nil
 	}
-	rc.ProfileKey = key
-	// The cached profile was judged with the old key (or none); fetch it
-	// again when next needed. The spec is silent here; without this a
-	// stale "disabled" access mode would last the full 6 hours.
-	rc.Profile = nil
-	a.Recipients[m.Sender.ServiceID] = rc
 	return a.SaveRecipients()
 }
 
@@ -240,8 +161,5 @@ func uuidRaw(s string) ([16]byte, bool) {
 	return u, true
 }
 
-// RefreshProfile fetches dest's profile now and returns what was stored.
-func (s *Sender) RefreshProfile(ctx context.Context, dest string) *store.Profile {
-	s.fetchProfile(ctx, dest)
-	return s.Acct.Recipients[dest].Profile
-}
+// accessKey is the unidentified-access key of a profile key.
+func accessKey(pk []byte) []byte { return api.UnidentifiedAccessKey(pk) }

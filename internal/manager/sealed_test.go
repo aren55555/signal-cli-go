@@ -186,18 +186,29 @@ func TestProfileKeyFromMessage(t *testing.T) {
 
 // TestNewProfileKeyDropsCachedProfile: a different profile key clears the
 // cached profile, so the access mode is judged again with it.
-func TestNewProfileKeyDropsCachedProfile(t *testing.T) {
+func TestNewProfileKeyInvalidatesProfile(t *testing.T) {
 	a, _ := testAccount(t)
-	a.Recipients[bobACI] = store.Recipient{ProfileKey: make([]byte, 32), Profile: &store.Profile{LastUpdate: time.Now().UnixMilli(), AccessMode: store.AccessDisabled}}
-	c, _ := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_DataMessage{DataMessage: &signalpb.AppDataMessage{ProfileKey: make([]byte, 32)}}})
-	ApplyContent(a, &Message{Sender: protocol.Address{ServiceID: bobACI, DeviceID: 1}, Content: c}, time.Now())
-	if a.Recipients[bobACI].Profile == nil {
-		t.Error("the same key dropped the profile")
+	set := func(mode string) {
+		a.Recipients[bobACI] = store.Recipient{ProfileKey: make([]byte, 32), ProfileKeyCredential: []byte{9},
+			Profile: &store.Profile{LastUpdate: time.Now().UnixMilli(), AccessMode: mode}}
 	}
-	newKey := bytes.Repeat([]byte{1}, 32)
-	c, _ = proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_DataMessage{DataMessage: &signalpb.AppDataMessage{ProfileKey: newKey}}})
-	ApplyContent(a, &Message{Sender: protocol.Address{ServiceID: bobACI, DeviceID: 1}, Content: c}, time.Now())
-	if rc := a.Recipients[bobACI]; rc.Profile != nil || !bytes.Equal(rc.ProfileKey, newKey) {
-		t.Errorf("recipient %+v", rc)
+	apply := func(key []byte) {
+		c, _ := proto.Marshal(&signalpb.AppContent{Body: &signalpb.AppContent_DataMessage{DataMessage: &signalpb.AppDataMessage{ProfileKey: key}}})
+		ApplyContent(a, &Message{Sender: protocol.Address{ServiceID: bobACI, DeviceID: 1}, Content: c}, time.Now())
+	}
+	// The same key with ENABLED access changes nothing (profiles.md §2.1).
+	set(store.AccessEnabled)
+	apply(make([]byte, 32))
+	if rc := a.Recipients[bobACI]; rc.Profile.LastUpdate == 0 || rc.ProfileKeyCredential == nil {
+		t.Errorf("same key, enabled: %+v", rc)
+	}
+	// The same key while DISABLED, or a new key: credential cleared,
+	// profile timestamp reset so the next read fetches.
+	for _, key := range [][]byte{make([]byte, 32), bytes.Repeat([]byte{1}, 32)} {
+		set(store.AccessDisabled)
+		apply(key)
+		if rc := a.Recipients[bobACI]; rc.Profile == nil || rc.Profile.LastUpdate != 0 || rc.ProfileKeyCredential != nil || !bytes.Equal(rc.ProfileKey, key) {
+			t.Errorf("key %x: %+v", key[:1], rc)
+		}
 	}
 }

@@ -61,7 +61,12 @@ type Sender struct {
 	Unauth Requester
 
 	// CDN uploads attachments; nil makes attachment sends fail.
-	CDN         CDN
+	CDN CDN
+	// AvatarsDir is <config>/avatars for profile avatars; TrustNew is the
+	// --trust-new-identities mode; Log receives warnings.
+	AvatarsDir  string
+	TrustNew    string
+	Log         func(format string, args ...any)
 	cert        []byte
 	certExpires uint64
 }

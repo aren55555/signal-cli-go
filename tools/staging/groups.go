@@ -32,7 +32,7 @@ func groupprobe(args []string) {
 	g := zkgroup.DeriveGroupSecretParams(mk)
 	_, err := gs.GetGroup(ctx, g)
 	fmt.Printf("auth credential + GET of a nonexistent group: %v\n", err)
-	cred, err := gs.ProfileKeyCredential(ctx, a.Data.ACI)
+	cred, err := (&manager.Sender{Acct: a, Chat: c}).ProfileKeyCredential(ctx, a.Data.ACI)
 	if err != nil {
 		log.Fatalf("own profile key credential: %v", err)
 	}

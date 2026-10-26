@@ -336,7 +336,7 @@ func (m *Groups) sid(g *zkgroup.GroupSecretParams, id string) []byte {
 func (m *Groups) fetchCredentials(ctx context.Context, acis []string) map[string]*zkgroup.ExpiringProfileKeyCredential {
 	out := map[string]*zkgroup.ExpiringProfileKeyCredential{}
 	for _, aci := range acis {
-		if c, err := m.Svc.ProfileKeyCredential(ctx, aci); err == nil {
+		if c, err := m.Sender.ProfileKeyCredential(ctx, aci); err == nil {
 			out[aci] = c
 		}
 	}
@@ -354,7 +354,7 @@ type GroupResult struct {
 // invitees for the rest.
 func (m *Groups) Create(ctx context.Context, name string, members []string, avatar []byte) (*GroupResult, error) {
 	self := m.Acct.Data.ACI
-	own, err := m.Svc.ProfileKeyCredential(ctx, self)
+	own, err := m.Sender.ProfileKeyCredential(ctx, self)
 	if err != nil {
 		m.logf("Cannot create a V2 group as self does not have a versioned profile")
 		return nil, ErrNoOwnCredential
@@ -557,7 +557,7 @@ func (m *Groups) updateSteps(ctx context.Context, rec *store.GroupRecord, o Upda
 		byACI := s.PendingIndex(self) >= 0
 		byPNI := s.PendingIndex("PNI:"+m.Acct.Data.PNI) >= 0
 		if byACI || byPNI {
-			own, err := m.Svc.ProfileKeyCredential(ctx, self)
+			own, err := m.Sender.ProfileKeyCredential(ctx, self)
 			if err != nil {
 				return nil, ErrNoOwnCredentialJn
 			}
@@ -824,7 +824,7 @@ func (m *Groups) Join(ctx context.Context, link string) (*GroupResult, bool, err
 	if info.GetPendingAdminApproval() {
 		return nil, false, ErrAlreadyRequested
 	}
-	own, err := m.Svc.ProfileKeyCredential(ctx, m.Acct.Data.ACI)
+	own, err := m.Sender.ProfileKeyCredential(ctx, m.Acct.Data.ACI)
 	if err != nil {
 		return nil, false, ErrNoOwnCredentialJn
 	}

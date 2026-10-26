@@ -199,7 +199,7 @@ func openSession(ctx context.Context, e *env, g *globals, a *store.Account) (*se
 		c.Close()
 		return nil, err
 	}
-	s := &session{acct: a, sender: &manager.Sender{Acct: a, Chat: c, CDN: n.cdn()}, chat: c}
+	s := &session{acct: a, sender: g.withProfiles(e, &manager.Sender{Acct: a, Chat: c, CDN: n.cdn()}), chat: c}
 	closers := []func() error{c.Close}
 	if u, err := n.dialChat(ctx, nil, false); err == nil {
 		s.sender.Unauth = u
@@ -481,7 +481,7 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 		}
 		return st.Title, false, true
 	}}
-	sender := &manager.Sender{Acct: a, Chat: c, Unauth: unauth, CDN: cd}
+	sender := g.withProfiles(e, &manager.Sender{Acct: a, Chat: c, Unauth: unauth, CDN: cd})
 	gm := n.groupsManager(g, a, c, sender)
 	gm.IgnoreAvatars = o.ignoreAvatars
 	gm.Log = func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  GroupHelper - "+f+"\n", args...) }
@@ -587,4 +587,12 @@ func runTrust(ctx context.Context, e *env, g *globals, recipient string, all boo
 		}
 		return err
 	})
+}
+
+// withProfiles sets what profile fetches need on s (profiles.md §5).
+func (g *globals) withProfiles(e *env, s *manager.Sender) *manager.Sender {
+	s.AvatarsDir = filepath.Join(g.dataDir, "avatars")
+	s.TrustNew = g.trustNew
+	s.Log = func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  ProfileHelper - "+f+"\n", args...) }
+	return s
 }
