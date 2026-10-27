@@ -204,8 +204,14 @@ func openSession(ctx context.Context, e *env, g *globals, a *store.Account) (*se
 		s.sender.Unauth = u
 		closers = append(closers, u.Close)
 	}
+	s.sender.DialCDSI = n.cdsiDialer()
 	s.groups = n.groupsManager(g, a, c, s.sender)
 	s.close = func() {
+		// The scheduled full CDSI refresh runs before the account closes
+		// (cdsi.md §6.1).
+		rctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		s.sender.RefreshRecipients(rctx)
+		cancel()
 		for _, f := range closers {
 			f()
 		}
@@ -415,12 +421,19 @@ func resolveRecipient(a *store.Account, s string) (resolved, error) {
 	if digits == a.Data.Number {
 		return resolved{key: digits, aci: a.Data.ACI}, nil
 	}
-	for aci, rc := range a.Recipients {
-		if rc.Number == digits {
-			return resolved{key: digits, aci: aci}, nil
+	if k, ok := a.FindByNumber(digits); ok {
+		if ad := a.AddressOf(k); ad.ACI != "" {
+			return resolved{key: digits, aci: ad.ACI}, nil
+		} else if ad.PNI != "" {
+			return resolved{key: digits, aci: "PNI:" + ad.PNI}, nil
 		}
 	}
-	return resolved{}, ioError("Failed to send message: Unable to resolve %s: phone number lookup (CDSI) is not implemented in signal-cli-go yet (UnsupportedOperationException)", digits)
+	if numberResolver != nil {
+		if k, ok := numberResolver(a, digits); ok {
+			return resolved{key: digits, aci: k}, nil
+		}
+	}
+	return resolved{}, userError("The user " + digits + " is not registered.")
 }
 
 // receiveOpts are receive's options.

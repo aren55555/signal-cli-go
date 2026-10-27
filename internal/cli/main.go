@@ -115,6 +115,8 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 	}
 	var runErr error
 	s := r.Sub
+	numberResolver = cdsiResolver(e, g)
+	defer func() { numberResolver = nil }()
 	switch cmd {
 	case "version":
 		if g.json() {

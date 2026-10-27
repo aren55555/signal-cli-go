@@ -64,9 +64,11 @@ type Sender struct {
 	CDN CDN
 	// AvatarsDir is <config>/avatars for profile avatars; TrustNew is the
 	// --trust-new-identities mode; Log receives warnings.
-	AvatarsDir  string
-	TrustNew    string
-	Log         func(format string, args ...any)
+	AvatarsDir string
+	TrustNew   string
+	Log        func(format string, args ...any)
+	// DialCDSI opens CDSI channels; nil disables number lookups.
+	DialCDSI    CDSIDialer
 	cert        []byte
 	certExpires uint64
 }

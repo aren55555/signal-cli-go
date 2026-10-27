@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/cdsi"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/store"
 	"github.com/aren55555/signal-cli-go/internal/username"
@@ -92,9 +94,6 @@ func runUpdateAccount(ctx context.Context, e *env, g *globals, o updateAccountOp
 // Phone numbers need CDSI, which comes later in milestone 7.
 func runGetUserStatus(ctx context.Context, e *env, g *globals, numbers, usernames []string) error {
 	return withAccount(g, func(a *store.Account) error {
-		if len(numbers) > 0 {
-			return ioError("Unable to check if users are registered: phone number lookup (CDSI) is not implemented in signal-cli-go yet (UnsupportedOperationException)")
-		}
 		ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 		defer cancel()
 		s, err := openSession(ctx, e, g, a)
@@ -103,6 +102,68 @@ func runGetUserStatus(ctx context.Context, e *env, g *globals, numbers, username
 		}
 		defer s.close()
 		var items []string
+		if len(numbers) > 0 {
+			canon := map[string]string{}
+			var valid []string
+			for _, in := range numbers {
+				if c, err := canonicalNumber(a, in); err == nil {
+					canon[in] = c
+					if !slices.Contains(valid, c) {
+						valid = append(valid, c)
+					}
+				}
+			}
+			full := len(valid) > manager.MaxOneOffLookup
+			req := valid
+			if full {
+				req = append(s.sender.StoredNumbers(), valid...)
+			}
+			res, err := s.sender.LookupNumbers(ctx, req, full)
+			var ce *cdsi.CloseError
+			switch {
+			case errors.As(err, &ce) && ce.IsRateLimit():
+				at := time.Now().Add(time.Duration(ce.RetryAfter) * time.Second).UnixMilli()
+				return &cliError{msg: "Rate limit reached\nNext attempt may be tried at " + ts(uint64(at)), code: 5}
+			case errors.As(err, &ce):
+				return ioError("Unable to check if users are registered: %v (%s)", err, cdsiExceptionName(ce))
+			case err != nil:
+				return ioError("Unable to check if users are registered: %v (IOException)", err)
+			}
+			for _, in := range numbers {
+				c, ok := canon[in]
+				entry, found := res[c]
+				uuid := entry.ACI
+				if uuid == "" {
+					uuid = entry.PNI
+				}
+				unrestricted := false
+				if found {
+					key := entry.ACI
+					if key == "" {
+						key = "PNI:" + entry.PNI
+					}
+					if p := s.sender.Profile(ctx, key); p != nil && p.AccessMode == store.AccessUnrestricted {
+						unrestricted = true
+					}
+				}
+				if g.json() {
+					o := &jsonObject{}
+					o.add("recipient", in)
+					if ok {
+						o.add("number", c)
+					}
+					o.add("uuid", strOrNull(uuid))
+					o.add("isRegistered", found)
+					items = append(items, o.String())
+					continue
+				}
+				suffix := ""
+				if unrestricted {
+					suffix = " (unrestricted sealed sender)"
+				}
+				fmt.Fprintf(e.stdout, "%s: %t%s\n", in, found, suffix)
+			}
+		}
 		for _, u := range usernames {
 			k, ok, err := s.sender.ResolveUsername(ctx, u, true)
 			var ue *username.Error
@@ -140,4 +201,15 @@ func runGetUserStatus(ctx context.Context, e *env, g *globals, numbers, username
 		}
 		return nil
 	})
+}
+
+// cdsiExceptionName is the Java class signal-cli reports (cdsi.md §4.5).
+func cdsiExceptionName(ce *cdsi.CloseError) string {
+	switch {
+	case ce.IsInvalidToken():
+		return "CdsiInvalidTokenException"
+	case ce.IsInvalidArgument():
+		return "CdsiInvalidArgumentException"
+	}
+	return "IOException"
 }

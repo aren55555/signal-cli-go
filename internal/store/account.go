@@ -83,15 +83,20 @@ type AccountData struct {
 	// default and publishes false (profiles.md §1.2).
 	PhoneNumberSharingMode string `json:"phoneNumberSharingMode,omitempty"`
 	// Username and its link (spec/service/usernames.md §6.1).
-	Username             string        `json:"username,omitempty"`
-	UsernameLinkEntropy  []byte        `json:"usernameLinkEntropy,omitempty"`
-	UsernameLinkServerID string        `json:"usernameLinkServerId,omitempty"`
-	Unlisted             bool          `json:"unlisted,omitempty"`
-	SessionID            string        `json:"sessionId,omitempty"`   // verification session (registration.md §2.5)
-	MultiDevice          bool          `json:"multiDevice,omitempty"` // sync messages are sent (sync.md §1)
-	Configuration        Configuration `json:"configuration"`
-	ACIKeys              PreKeyState   `json:"aciKeys"`
-	PNIKeys              PreKeyState   `json:"pniKeys"`
+	Username             string `json:"username,omitempty"`
+	UsernameLinkEntropy  []byte `json:"usernameLinkEntropy,omitempty"`
+	UsernameLinkServerID string `json:"usernameLinkServerId,omitempty"`
+	// CDSI state (spec/service/cdsi.md §6.3): the token, the numbers it
+	// covers (with last-seen ms) and the last full refresh (ms).
+	CDSIToken             []byte           `json:"cdsiToken,omitempty"`
+	CDSINumbers           map[string]int64 `json:"cdsiNumbers,omitempty"`
+	LastRecipientsRefresh int64            `json:"lastRecipientsRefresh,omitempty"`
+	Unlisted              bool             `json:"unlisted,omitempty"`
+	SessionID             string           `json:"sessionId,omitempty"`   // verification session (registration.md §2.5)
+	MultiDevice           bool             `json:"multiDevice,omitempty"` // sync messages are sent (sync.md §1)
+	Configuration         Configuration    `json:"configuration"`
+	ACIKeys               PreKeyState      `json:"aciKeys"`
+	PNIKeys               PreKeyState      `json:"pniKeys"`
 }
 
 // Configuration is the account settings synced between devices (sync.md
