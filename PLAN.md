@@ -25,7 +25,7 @@ every session, and update both before ending one.
 | 4  | Service layer, first Layer C 1:1 exchange on staging | done (2026-10-24); CDSI, registration lock and reactivation moved to milestone 7 |
 | 5  | All message types, attachments, receipts, sync, linked devices | done (2026-10-24); group stories wait for milestone 6, profile and contact avatars and pniChangeNumber for milestone 7, numeric safety numbers need a fingerprint spec |
 | 6  | Groups v2 and zkgroup                        | done (2026-10-24); sender-key group sends and group stories proven offline only (they need a third account); JSON-RPC group methods with milestone 8 |
-| 7  | Profiles, contacts, usernames, storage service, CDSI, SVR | not started |
+| 7  | Profiles, contacts, usernames, storage service, CDSI, SVR | done (2026-10-27); the registration-lock 423 restore and reactivation are offline-tested only; PINs needing NFKD are refused |
 | 8  | Daemon parity (HTTP/SSE, socket, TCP); Layer B fully green | not started |
 | 9  | CLI parity                                   | not started |
 | 9b | Revisit deferred items (voice calls, D-Bus client mode) | not started |
@@ -710,3 +710,37 @@ vectors.
   - Deviation (COMPAT): endorsements returned at creation are stored;
     signal-cli loses them (groups.md §5). The state-erasing quirk on a
     failed fetch (§6.2 step 5) is kept.
+- **Milestone 7: profiles, contacts, usernames, storage, CDSI, SVR2
+  (2026-10-25 … 10-27).**
+  - Seven spec subagents (profiles and contacts, usernames, storage,
+    enclave attestation and Noise, CDSI, SVR2/PIN, safety numbers),
+    all committed with CLEANROOM rows. Main-session corrections: the
+    SVR2 auth path in attestation.md; published test phone numbers
+    allowlisted explicitly in the repo check.
+  - New primitives from public standards: ChaCha20-Poly1305 (RFC 8439),
+    BLAKE2b (RFC 7693), Argon2 (RFC 9106).
+  - Recipient store reworked: rows keyed by ACI, PNI:<uuid>, number or
+    username, stable IDs, low/high-trust resolution with merge, strip
+    and split (contacts.md §4).
+  - Profiles: field cipher, full fetch (sealed first, 401 fallback,
+    credentials), avatars, own-profile writes, key rotation on block.
+    Live: profiles and avatars both ways; rotation reached the reference.
+  - Contacts: listContacts, updateContact, removeContact, block/unblock,
+    getAvatar, listIdentities with safety numbers (identical to the
+    reference), trust -v with numeric and scannable codes, sender names.
+  - Usernames: hash, proof, links, claim/refresh/delete, lookups,
+    updateAccount, getUserStatus --username. Staging accepted our proofs.
+  - Storage service: full sync; nickname changes crossed both ways
+    between our A.2 and the reference A.1 through storage alone.
+  - Enclaves: SGX DCAP attestation (acceptance windows match the jar to
+    the second) and Noise NKhfs; the first live CDSI handshake settled
+    the message-2 order (noise.md Gap G1).
+  - CDSI: lookups, token persistence, number resolution, 24 h refresh,
+    getUserStatus for numbers (identical to the reference).
+  - SVR2: setPin/removePin live against both staging enclaves (restore
+    returned our master key); verify's 423 path and reactivation tested
+    offline only, since re-registering B could lose the account.
+  - Deviations recorded in COMPAT: storage IDs rotate only on change;
+    an undecryptable storage item stops the sync; v1 group records are
+    unprocessed; avatars are verified before use; PINs that need NFKD
+    are refused; username-delete uses the REST endpoint.
