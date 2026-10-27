@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/cli/argparse"
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 )
 
 // Version is the signal-cli version being reproduced.
@@ -44,8 +45,7 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		d.busName = "org.asamk.SignalCli"
 	}
 	if err := applyConfig(&d, getenv); err != nil {
-		fmt.Fprintln(stderr, err)
-		return 1
+		return fail(stderr, err)
 	}
 	p := newParser(d)
 	p.Width = width
@@ -97,8 +97,7 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		}
 	}
 	if (plainOnly[cmd] && g.output != "plain-text") || (jsonOnly[cmd] && g.output != "json") {
-		fmt.Fprintf(stderr, "Command doesn't support output type %s\n", g.output)
-		return 1
+		return fail(stderr, errcode.OutputTypeUnsupported.New(g.output))
 	}
 	if r.Bool("dbus") || r.Bool("dbus_system") {
 		// D-Bus is out of scope; behave as the reference does without a bus.
@@ -106,18 +105,47 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		if r.Bool("dbus_system") {
 			detail = "MachineId file can not be found"
 		}
-		fmt.Fprintf(stderr, "Dbus client failed: Cannot Resolve Session Bus Address: %s\n", detail)
-		return 2
+		return fail(stderr, errcode.DBusUnavailable.New(detail))
 	}
 	if cmd == "link" && g.account != "" {
-		fmt.Fprintln(stderr, "You cannot specify a account (phone number) when linking")
-		return 1
+		return fail(stderr, errcode.LinkWithAccount)
 	}
-	var runErr error
-	s := r.Sub
 	numberResolver = cdsiResolver(e, g)
 	defer func() { numberResolver = nil }()
+	if err := runCommand(ctx, e, g, cmd, r.Sub); err != nil {
+		return fail(stderr, err)
+	}
+	return 0
+}
+
+// fail is the CLI's output edge for errors: the reference message on
+// stderr and the exit code.
+func fail(stderr io.Writer, err error) int {
+	fmt.Fprintln(stderr, errcode.Message(err))
+	return errcode.ExitCode(err)
+}
+
+// runCommand runs a parsed command; its output goes to e.stdout and its
+// diagnostics to e.stderr.
+func runCommand(ctx context.Context, e *env, g *globals, cmd string, s *argparse.Result) error {
+	stdout, stderr := e.stdout, e.stderr
+	var runErr error
 	switch cmd {
+	case "daemon":
+		runErr = runDaemon(ctx, e, g, s)
+	case "jsonRpc":
+		runErr = runJSONRPC(ctx, e, g, s)
+	case "listAccounts":
+		runErr = runListAccounts(e, g)
+	case "deleteLocalAccountData":
+		runErr = runDeleteLocalAccountData(e, g, s.Bool("ignore_registered"))
+	case "listCalls":
+		runErr = runListCalls(e, g)
+	case "acceptCall", "hangupCall", "rejectCall":
+		id, _ := s.Int64("call-id")
+		runErr = runCallAction(e, g, cmd, id, s.Has("call-id"))
+	case "startCall":
+		runErr = runStartCall(g)
 	case "version":
 		if g.json() {
 			fmt.Fprintf(stdout, "{\"version\":%q}\n", Version)
@@ -339,21 +367,10 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		runErr = runReceive(ctx, e, g, receiveOpts{timeout: timeout, maxMessages: s.Int("max-messages"),
 			sendReadReceipts: s.Bool("send_read_receipts"), ignoreStories: s.Bool("ignore_stories"), ignoreAttachments: s.Bool("ignore_attachments"), ignoreAvatars: s.Bool("ignore_avatars"), ignoreStickers: s.Bool("ignore_stickers")})
 	default:
-		// Not implemented yet: report like an unexpected error.
-		fmt.Fprintf(stderr, "Command %s is not implemented in signal-cli-go yet\n", cmd)
-		return 2
+		runErr = errcode.NotImplemented.New(cmd)
 	}
-	var ce *cliError
-	switch {
-	case runErr == nil:
-		return 0
-	case errors.As(runErr, &ce):
-		fmt.Fprintln(stderr, ce.msg)
-		return ce.code
-	default:
-		fmt.Fprintln(stderr, runErr)
-		return 2
-	}
+	_ = stderr
+	return runErr
 }
 
 // defaultDataDir is $XDG_DATA_HOME/signal-cli, else

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/attachment"
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 	"github.com/aren55555/signal-cli-go/internal/store"
@@ -28,7 +29,7 @@ func runUpdateProfile(ctx context.Context, e *env, g *globals, o updateProfileOp
 		if o.mobileCoin != nil {
 			b, err := base64.StdEncoding.DecodeString(*o.mobileCoin)
 			if err != nil {
-				return &cliError{msg: "Exception in thread \"main\" java.lang.IllegalArgumentException: " + err.Error(), code: 2}
+				return errcode.IllegalArgumentCrash.Wrap(err, err)
 			}
 			if b == nil {
 				b = []byte{}
@@ -39,7 +40,7 @@ func runUpdateProfile(ctx context.Context, e *env, g *globals, o updateProfileOp
 		case o.avatar != nil:
 			src, err := attachment.FromArgument(*o.avatar, "")
 			if err != nil {
-				return ioError("Update profile error: %s", javaFileError(*o.avatar, err))
+				return errcode.UpdateProfileFailed.Wrap(err, javaFileError(*o.avatar, err))
 			}
 			u.Avatar, u.AvatarSource = manager.AvatarNew, &src
 		case o.removeAvatar:
@@ -56,11 +57,11 @@ func runUpdateProfile(ctx context.Context, e *env, g *globals, o updateProfileOp
 		var pe *manager.ProfileError
 		switch {
 		case errors.Is(err, manager.ErrProfileInputTooLong):
-			return &cliError{msg: "Exception in thread \"main\" java.lang.AssertionError: org.signal.libsignal.zkgroup.InvalidInputException: Input is too long", code: 2}
+			return errcode.ProfileInputTooLong.Wrap(err)
 		case errors.As(err, &pe):
-			return ioError("Update profile error: %v", pe.Err)
+			return errcode.UpdateProfileFailed.Wrap(err, pe.Err)
 		case err != nil:
-			return ioError("Update profile error: %v", err)
+			return errcode.UpdateProfileFailed.WrapText(err)
 		}
 		s.sender.SendFetchLatest(ctx, signalpb.AppSyncMessage_FetchLatest_LOCAL_PROFILE)
 		return nil

@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 )
 
 // Result holds parsed values; Sub is the chosen subcommand's result.
@@ -74,6 +76,7 @@ const (
 // printed).
 type Error struct {
 	Parser  *Parser
+	Code    errcode.Code
 	Message string
 	Kind    ErrorKind
 	Token   string // the unknown option or command
@@ -172,12 +175,13 @@ func (p *Parser) defaults() map[string]any {
 	return v
 }
 
-func (p *Parser) errorf(format string, args ...any) *Error {
-	return &Error{Parser: p, Message: fmt.Sprintf(format, args...)}
+func (p *Parser) errorf(code errcode.Code, args ...any) *Error {
+	return &Error{Parser: p, Code: code, Message: errcode.Message(code.New(args...))}
 }
 
-func (p *Parser) argError(a *Arg, format string, args ...any) *Error {
-	return p.errorf("argument "+a.textualName()+": "+format, args...)
+// argError is an error whose template starts "argument %s: ".
+func (p *Parser) argError(a *Arg, code errcode.Code, args ...any) *Error {
+	return p.errorf(code, append([]any{a.textualName()}, args...)...)
 }
 
 // parseInteger is §10's integer syntax: optional sign, decimal digits
@@ -257,7 +261,7 @@ func (p *Parser) convert(a *Arg, s string) (any, error) {
 		}
 		n, ok := parseInteger(s, bits)
 		if !ok {
-			return nil, p.argError(a, "could not convert '%s' to integer (%d bits)", s, bits)
+			return nil, p.argError(a, errcode.ArgNotInteger, s, bits)
 		}
 		if a.Kind == Int32 {
 			v = int(n)
@@ -265,13 +269,13 @@ func (p *Parser) convert(a *Arg, s string) (any, error) {
 			v = n
 		}
 		if len(a.Choices) > 0 && !inChoices(a, strconv.FormatInt(n, 10)) {
-			return nil, p.argError(a, "invalid choice: '%s' (choose from %s)", s, choices)
+			return nil, p.argError(a, errcode.ArgInvalidChoice, s, choices)
 		}
 		return v, nil
 	case Double:
 		f, ok := parseDouble(s)
 		if !ok {
-			return nil, p.argError(a, "could not convert '%s' to number (double precision)", s)
+			return nil, p.argError(a, errcode.ArgNotDouble, s)
 		}
 		return f, nil
 	case Enum, EnumName:
@@ -283,12 +287,12 @@ func (p *Parser) convert(a *Arg, s string) (any, error) {
 				return s, nil
 			}
 		}
-		return nil, p.argError(a, "could not convert '%s' (choose from %s)", s, choices)
+		return nil, p.argError(a, errcode.ArgConvertChoice, s, choices)
 	case Boolean:
 		return strings.EqualFold(s, "true"), nil
 	}
 	if len(a.Choices) > 0 && !inChoices(a, s) {
-		return nil, p.argError(a, "invalid choice: '%s' (choose from %s)", s, choices)
+		return nil, p.argError(a, errcode.ArgInvalidChoice, s, choices)
 	}
 	return v, nil
 }
@@ -336,7 +340,7 @@ func (p *Parser) resolve(part string) (*Arg, error) {
 		return owner[cands[0]], nil
 	}
 	sort.Slice(cands, func(i, j int) bool { return lessUTF16(cands[i], cands[j]) })
-	return nil, p.errorf("ambiguous option: %s could match %s", part, strings.Join(cands, ", "))
+	return nil, p.errorf(errcode.ArgAmbiguousOption, part, strings.Join(cands, ", "))
 }
 
 func (p *Parser) groupOf(a *Arg) *Group {
@@ -439,10 +443,10 @@ func (p *Parser) parse(args []string) (*Result, *Error, error) {
 			}
 			return s.r, s.deferred, nil
 		}
-		return nil, nil, p.errorf("unrecognized arguments: '%s'", strings.Join(args[i:], " "))
+		return nil, nil, p.errorf(errcode.ArgUnrecognized, strings.Join(args[i:], " "))
 	}
 	if len(p.Commands) > 0 {
-		return nil, nil, p.errorf("too few arguments")
+		return nil, nil, p.errorf(errcode.ArgTooFew)
 	}
 	if err := s.finish(); err != nil {
 		return nil, nil, err
@@ -471,13 +475,13 @@ func (p *Parser) chooseCommand(tok string) (*Command, error) {
 		return found, nil
 	case len(matches) > 1:
 		sort.Slice(matches, func(i, j int) bool { return lessUTF16(matches[i], matches[j]) })
-		return nil, p.errorf("ambiguous command: %s could match %s", tok, strings.Join(matches, ", "))
+		return nil, p.errorf(errcode.ArgAmbiguousCommand, tok, strings.Join(matches, ", "))
 	}
 	names := make([]string, len(p.Commands))
 	for i, c := range p.Commands {
 		names[i] = "'" + c.Name + "'"
 	}
-	e := p.errorf("invalid choice: '%s' (choose from %s)", tok, strings.Join(names, ", "))
+	e := p.errorf(errcode.ArgInvalidCommand, tok, strings.Join(names, ", "))
 	e.Kind, e.Token = ErrUnknownCommand, tok
 	return nil, e
 }
@@ -486,7 +490,7 @@ func (p *Parser) chooseCommand(tok string) (*Command, error) {
 func (s *parseState) selectArg(a *Arg) error {
 	if g := s.p.groupOf(a); g != nil {
 		if prev := s.groupUser[g]; prev != nil && prev != a {
-			return s.p.argError(a, "not allowed with argument %s", prev.textualName())
+			return s.p.argError(a, errcode.ArgNotAllowedWith, prev.textualName())
 		}
 		s.groupUser[g] = a
 	}
@@ -548,7 +552,7 @@ func (s *parseState) flag(args []string, i int) (int, bool, error) {
 				return s.values(f, args, i, rest, rest != "")
 			}
 		}
-		e := p.errorf("unrecognized arguments: '%s'", tok)
+		e := p.errorf(errcode.ArgUnrecognized, tok)
 		e.Kind, e.Token = ErrUnknownOption, tok
 		return 0, false, e
 	}
@@ -557,7 +561,7 @@ func (s *parseState) flag(args []string, i int) (int, bool, error) {
 	}
 	if !a.takesValue() {
 		if hasAttached {
-			return 0, false, p.argError(a, "ignore implicit argument '%s'", attached)
+			return 0, false, p.argError(a, errcode.ArgIgnoredValue, attached)
 		}
 		return 0, s.runValueless(a), nil
 	}
@@ -578,10 +582,10 @@ func (s *parseState) values(a *Arg, args []string, i int, attached string, hasAt
 		case isValue(i + 1):
 			val, consumed = args[i+1], 1
 		case a.Nargs == Optional:
-			s.r.Values[dest] = nil
+			s.r.Values[dest] = a.Const
 			return 0, false, nil
 		default:
-			return 0, false, p.argError(a, "expected one argument")
+			return 0, false, p.argError(a, errcode.ArgExpectedOne)
 		}
 		v, err := p.convert(a, val)
 		if err != nil {
@@ -602,7 +606,7 @@ func (s *parseState) values(a *Arg, args []string, i int, attached string, hasAt
 		}
 	}
 	if len(raw) < mn {
-		return 0, false, p.argError(a, "expected %d argument(s)", mn)
+		return 0, false, p.argError(a, errcode.ArgExpectedN, mn)
 	}
 	out := []any{}
 	for _, x := range raw {
@@ -644,7 +648,7 @@ func (s *parseState) finish() error {
 		return n
 	}
 	if minRest(0) > len(toks) {
-		return p.errorf("too few arguments")
+		return p.errorf(errcode.ArgTooFew)
 	}
 	for k, a := range pos {
 		mn, mx := a.minMax()
@@ -692,7 +696,7 @@ func (s *parseState) finish() error {
 	}
 	for _, a := range p.Args {
 		if a.Required && !a.isPositional() && !s.used[a] && s.p.groupOf(a) == nil {
-			s.deferred = p.errorf("argument %s is required", a.textualName())
+			s.deferred = p.errorf(errcode.ArgRequired, a.textualName())
 		}
 	}
 	if s.deferred == nil {
@@ -702,9 +706,15 @@ func (s *parseState) finish() error {
 				for _, a := range g.Args {
 					b.WriteString(a.textualName() + " ")
 				}
-				s.deferred = p.errorf("one of the arguments %sis required", b.String())
+				s.deferred = p.errorf(errcode.ArgOneOfRequired, strings.TrimSuffix(b.String(), " "))
 			}
 		}
 	}
 	return nil
 }
+
+// Defaults are the parser's stored defaults (a fresh map).
+func (p *Parser) Defaults() map[string]any { return p.defaults() }
+
+// IsList reports whether the argument takes a list of values.
+func (a *Arg) IsList() bool { return a.isList() }

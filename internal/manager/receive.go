@@ -12,6 +12,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
@@ -55,6 +56,10 @@ type Receiver struct {
 	OnEvent          func(Event)
 	Log              func(string)
 	Now              func() time.Time
+	// Lock, if set, is held while an envelope is handled and while the
+	// follow-up actions run, never while waiting for the next delivery
+	// (the daemon shares the account with concurrent commands).
+	Lock sync.Locker
 
 	caughtUp bool
 	pending  actions
@@ -77,6 +82,18 @@ type retryReceipt struct {
 	dest   string
 	device uint32
 	dem    *signalpb.AppDecryptionErrorMessage
+}
+
+func (r *Receiver) lock() {
+	if r.Lock != nil {
+		r.Lock.Lock()
+	}
+}
+
+func (r *Receiver) unlock() {
+	if r.Lock != nil {
+		r.Lock.Unlock()
+	}
 }
 
 func (r *Receiver) now() time.Time {
@@ -110,6 +127,8 @@ func (r *Receiver) cache(body []byte, delivered uint64) (string, error) {
 // RetryCache re-processes every cached envelope from earlier runs (pipe.md
 // §7 step 1).
 func (r *Receiver) RetryCache(ctx context.Context) error {
+	r.lock()
+	defer r.unlock()
 	entries, err := os.ReadDir(r.cacheDir())
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
@@ -139,7 +158,11 @@ func (r *Receiver) RetryCache(ctx context.Context) error {
 // until a wait times out, ctx ends or maxMessages envelopes were handled
 // (unlimited if <= 0).
 func (r *Receiver) Run(ctx context.Context, in Incoming, timeout time.Duration, maxMessages int) error {
-	defer r.flush(context.WithoutCancel(ctx))
+	defer func() {
+		r.lock()
+		r.flush(context.WithoutCancel(ctx))
+		r.unlock()
+	}()
 	handled := 0
 	for {
 		wctx, cancel := ctx, context.CancelFunc(func() {})
@@ -156,13 +179,16 @@ func (r *Receiver) Run(ctx context.Context, in Incoming, timeout time.Duration, 
 		case err != nil:
 			return err
 		}
+		r.lock()
 		if req.Kind == chat.KindQueueEmpty {
 			r.flush(ctx)
 			r.caughtUp = true
+			r.unlock()
 			continue
 		}
 		path, err := r.cache(req.Body, req.ServerTimestamp)
 		if err != nil {
+			r.unlock()
 			return fmt.Errorf("caching an envelope: %w", err)
 		}
 		if err := req.Ack(); err != nil {
@@ -172,6 +198,7 @@ func (r *Receiver) Run(ctx context.Context, in Incoming, timeout time.Duration, 
 		if r.caughtUp {
 			r.flush(ctx)
 		}
+		r.unlock()
 		if handled++; maxMessages > 0 && handled >= maxMessages {
 			return nil
 		}

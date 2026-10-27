@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/store"
 )
 
@@ -45,8 +46,7 @@ func TestSelectAccount(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := selectAccount(store.Open(filepath.Join(tc.dir, "data")), tc.account)
-			ce, ok := err.(*cliError)
-			if !ok || ce.msg != tc.wantErr || ce.code != tc.wantCode {
+			if err == nil || errcode.Message(err) != tc.wantErr || errcode.ExitCode(err) != tc.wantCode {
 				t.Errorf("got %v, want %q (%d)", err, tc.wantErr, tc.wantCode)
 			}
 		})

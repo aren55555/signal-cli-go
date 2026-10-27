@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/service/provision"
 	"github.com/aren55555/signal-cli-go/internal/store"
@@ -32,7 +33,7 @@ func runListDevices(ctx context.Context, e *env, g *globals) error {
 	return withSession(ctx, e, g, func(s *session) error {
 		devs, err := manager.ListDevices(ctx, s.acct, s.chat, func(msg string) { fmt.Fprintln(e.stderr, "WARN  ManagerImpl - "+msg) })
 		if err != nil {
-			return ioError("Failed to get linked devices: %v", err)
+			return errcode.ListDevicesFailed.WrapText(err)
 		}
 		if g.json() {
 			items := make([]string, 0, len(devs))
@@ -69,10 +70,10 @@ func runListDevices(ctx context.Context, e *env, g *globals) error {
 func runAddDevice(ctx context.Context, e *env, g *globals, uri string) error {
 	return withAccount(g, func(a *store.Account) error {
 		if a.Data.DeviceID != 1 {
-			return userError(manager.ErrNotPrimary.Error())
+			return errcode.NotPrimaryDevice
 		}
 		if _, _, err := provision.ParseLinkURL(uri); err != nil {
-			return userError("Invalid device link")
+			return errcode.InvalidDeviceLink.Wrap(err)
 		}
 		ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 		defer cancel()
@@ -86,17 +87,17 @@ func runAddDevice(ctx context.Context, e *env, g *globals, uri string) error {
 		case err == nil:
 			return nil
 		case errors.Is(err, manager.ErrTooManyDevices):
-			return userError(err.Error())
+			return errcode.TooManyDevices.Wrap(err)
 		}
 		fmt.Fprintf(e.stderr, "ERROR AddDeviceCommand - Add device link failed: %v\n", err)
-		return ioError("Add device link failed")
+		return errcode.AddDeviceFailed.Wrap(err)
 	})
 }
 
 func runRemoveDevice(ctx context.Context, e *env, g *globals, id int) error {
 	return withAccount(g, func(a *store.Account) error {
 		if a.Data.DeviceID != 1 {
-			return userError(manager.ErrNotPrimary.Error())
+			return errcode.NotPrimaryDevice
 		}
 		ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 		defer cancel()
@@ -106,7 +107,7 @@ func runRemoveDevice(ctx context.Context, e *env, g *globals, id int) error {
 		}
 		defer s.close()
 		if err := manager.RemoveDevice(ctx, a, s.chat, uint32(id)); err != nil {
-			return ioError("Error while removing device: %v", err)
+			return errcode.RemoveDeviceFailed.WrapText(err)
 		}
 		return nil
 	})
@@ -115,13 +116,13 @@ func runRemoveDevice(ctx context.Context, e *env, g *globals, id int) error {
 func runUpdateDevice(ctx context.Context, e *env, g *globals, id int, name string) error {
 	return withAccount(g, func(a *store.Account) error {
 		if id != a.Data.DeviceID && a.Data.DeviceID != 1 {
-			return userError(manager.ErrNotPrimary.Error())
+			return errcode.NotPrimaryDevice
 		}
 		if id == a.Data.DeviceID {
 			// Stored only; no request (sync.md §8.4).
 			s := &manager.Sender{Acct: a}
 			if err := s.UpdateDeviceName(ctx, uint32(id), name); err != nil {
-				return ioError("Error while updating device: %v", err)
+				return errcode.UpdateDeviceFailed.WrapText(err)
 			}
 			return nil
 		}
@@ -133,7 +134,7 @@ func runUpdateDevice(ctx context.Context, e *env, g *globals, id int, name strin
 		}
 		defer s.close()
 		if err := s.sender.UpdateDeviceName(ctx, uint32(id), name); err != nil {
-			return ioError("Error while updating device: %v", err)
+			return errcode.UpdateDeviceFailed.WrapText(err)
 		}
 		return nil
 	})
@@ -141,15 +142,15 @@ func runUpdateDevice(ctx context.Context, e *env, g *globals, id int, name strin
 
 func runUnregister(ctx context.Context, e *env, g *globals, deleteAccount bool) error {
 	if deleteAccount {
-		return userError("Deleting the account is not supported by signal-cli-go yet")
+		return errcode.DeleteAccountUnsupported
 	}
 	return withSession(ctx, e, g, func(s *session) error {
 		if err := manager.ClearPushToken(ctx, s.chat); err != nil {
-			return ioError("Unregister error: %v", err)
+			return errcode.UnregisterFailed.WrapText(err)
 		}
 		s.acct.Data.Registered = false
 		if err := s.acct.Save(); err != nil {
-			return ioError("Unregister error: %v", err)
+			return errcode.UnregisterFailed.WrapText(err)
 		}
 		return nil
 	})

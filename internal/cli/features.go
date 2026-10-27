@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"io"
 	"io/fs"
 	"path/filepath"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/aren55555/signal-cli-go/internal/attachment"
 	"github.com/aren55555/signal-cli-go/internal/cli/argparse"
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/groups"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
@@ -43,7 +43,7 @@ func recipientsOf(s *argparse.Result) recipientSpec {
 // "Note-To-Self" (_send-results.md).
 func (rs recipientSpec) targets(a *store.Account) ([]resolved, error) {
 	if len(rs.recipients) == 0 && len(rs.groups) == 0 && len(rs.usernames) == 0 && !rs.noteToSelf {
-		return nil, userError("No recipients given")
+		return nil, errcode.NoRecipients
 	}
 	var groupTargets []resolved
 	for _, g := range rs.groups {
@@ -54,7 +54,7 @@ func (rs recipientSpec) targets(a *store.Account) ([]resolved, error) {
 		groupTargets = append(groupTargets, resolved{key: groups.FormatGroupID(id), group: id})
 	}
 	if len(rs.usernames) > 0 {
-		return nil, userError("Sending to a username is not supported by signal-cli-go yet")
+		return nil, errcode.UsernameSendUnsupported
 	}
 	out, err := resolveAll(a, rs.recipients)
 	if err != nil {
@@ -102,11 +102,11 @@ func sendDataCommand(ctx context.Context, e *env, g *globals, a *store.Account, 
 	defer s.close()
 	if d.Prepare != nil {
 		if err := d.Prepare(ctx, s.sender); err != nil {
-			var ce *cliError
+			var ce *errcode.Error
 			if errors.As(err, &ce) {
-				return ce
+				return err
 			}
-			return &cliError{msg: fmt.Sprintf("Failed to send message: %v (IOException)", err), code: 2}
+			return errcode.SendIOFailed.WrapText(err)
 		}
 	}
 	var people, groupTargets []resolved
@@ -151,12 +151,30 @@ func transcriptOK(err error) error {
 }
 
 func withAccount(g *globals, f func(*store.Account) error) error {
-	a, err := selectAccount(g.root(), g.account)
+	a, release, err := useAccount(g)
 	if err != nil {
 		return err
 	}
-	defer a.Close()
+	defer release()
 	return f(a)
+}
+
+// useAccount opens the command's account: inside the daemon the shared
+// open account, held for the command's run; else a fresh load.
+func useAccount(g *globals) (*store.Account, func(), error) {
+	if g.daemon != nil {
+		la := g.daemon.account(g.account)
+		if la == nil {
+			return nil, nil, errcode.UserNotRegistered.New(g.account)
+		}
+		la.mu.Lock()
+		return la.acct, la.mu.Unlock, nil
+	}
+	a, err := selectAccount(g.root(), g.account)
+	if err != nil {
+		return nil, nil, err
+	}
+	return a, func() { a.Close() }, nil
 }
 
 var (
@@ -168,7 +186,7 @@ var (
 func parseUint32(s string) (uint32, error) {
 	n, err := strconv.ParseUint(s, 10, 32)
 	if err != nil {
-		return 0, &cliError{msg: "Failed to parse number: " + s, code: 2}
+		return 0, errcode.NumberParseFailed.Wrap(err, s)
 	}
 	return uint32(n), nil
 }
@@ -178,7 +196,7 @@ func mentionRanges(a *store.Account, vals []string) ([]*signalpb.AppBodyRange, e
 	for _, v := range vals {
 		m := mentionRe.FindStringSubmatch(v)
 		if m == nil {
-			return nil, userError("Invalid mention syntax (" + v + ") expected 'start:length:recipientNumber'")
+			return nil, errcode.InvalidMention.New(v)
 		}
 		start, err := parseUint32(m[1])
 		if err != nil {
@@ -203,11 +221,11 @@ func styleRanges(vals []string) ([]*signalpb.AppBodyRange, error) {
 	for _, v := range vals {
 		m := styleRe.FindStringSubmatch(v)
 		if m == nil {
-			return nil, userError("Invalid textStyle syntax (" + v + ") expected 'start:length:STYLE'")
+			return nil, errcode.InvalidTextStyle.New(v)
 		}
 		st, ok := signalpb.AppBodyRange_Style_value[m[3]]
 		if !ok {
-			return nil, userError("Invalid style: " + m[3])
+			return nil, errcode.InvalidStyle.New(m[3])
 		}
 		start, err := parseUint32(m[1])
 		if err != nil {
@@ -263,13 +281,13 @@ func runSendFull(ctx context.Context, e *env, g *globals, o fullSendOpts) error 
 			return endSession(a, targets)
 		}
 		if o.sticker != "" && !stickerRe.MatchString(o.sticker) || (o.sticker != "" && len(strings.Split(o.sticker, ":")[0])%2 != 0) {
-			return userError("Invalid sticker syntax (" + o.sticker + ") expected 'stickerPackId:stickerId'")
+			return errcode.InvalidSticker.New(o.sticker)
 		}
 		text := o.message
 		if o.fromStdin {
 			b, err := readAll(e)
 			if err != nil {
-				return userError("Failed to read message from stdin: " + err.Error())
+				return errcode.StdinReadFailed.WrapText(err)
 			}
 			text = b
 		}
@@ -293,7 +311,7 @@ func runSendFull(ctx context.Context, e *env, g *globals, o fullSendOpts) error 
 		dm.BodyRanges = append(ms, ss...)
 		if o.hasQuote {
 			if o.quoteAuthor == "" {
-				return userError("Quote author parameter is missing")
+				return errcode.QuoteAuthorMissing
 			}
 			qm, err := mentionRanges(a, o.quoteMentions)
 			if err != nil {
@@ -307,7 +325,7 @@ func runSendFull(ctx context.Context, e *env, g *globals, o fullSendOpts) error 
 			for _, qa := range o.quoteAttachments {
 				m := quoteAttachmentRe.FindStringSubmatch(qa)
 				if m == nil {
-					return userError("Invalid attachment syntax (" + qa + ") expected 'contentType[:filename[:previewFile]]'")
+					return errcode.InvalidQuoteAttachment.New(qa)
 				}
 				att := &signalpb.AppQuotedAttachment{ContentType: proto.String(m[1])}
 				if m[2] != "" {
@@ -360,7 +378,7 @@ func runSendFull(ctx context.Context, e *env, g *globals, o fullSendOpts) error 
 			previewSrc = &src
 		}
 		if text == "" && len(srcs) == 0 && !o.hasQuote && o.sticker == "" {
-			return userError("Sending empty message is not allowed, either a message, attachment or sticker must be given.")
+			return errcode.EmptyMessage
 		}
 		d := manager.DataSend{Message: dm, NotifySelf: o.notifySelf, Urgent: !o.noUrgent}
 		d.Prepare = func(ctx context.Context, s *manager.Sender) error {
@@ -370,7 +388,7 @@ func runSendFull(ctx context.Context, e *env, g *globals, o fullSendOpts) error 
 				net, _ := e.network(g)
 				st, err := s.StickerMessage(ctx, net.stickerStore(g), strings.ToLower(pack), uint32(n))
 				if err != nil {
-					return userError("Failed to send sticker: " + err.Error())
+					return errcode.StickerSendFailed.WrapText(err)
 				}
 				dm.Sticker = st
 			}
@@ -463,16 +481,16 @@ func runPollCreate(ctx context.Context, e *env, g *globals, rs recipientSpec, no
 		}
 		switch {
 		case len(options) < 2:
-			return userError("Poll needs at least two options")
+			return errcode.PollTooFewOptions
 		case len(options) > 10:
-			return userError("Poll cannot have more than 10 options")
+			return errcode.PollTooManyOptions
 		}
 		for _, o := range options {
 			if o == "" {
-				return userError("Poll options must not be empty")
+				return errcode.PollEmptyOption
 			}
 			if len(utf16.Encode([]rune(o))) > 100 {
-				return userError(fmt.Sprintf("Poll option \"%s\" exceeds the maximum length of 100 characters", o))
+				return errcode.PollOptionTooLong.New(o)
 			}
 		}
 		dm := &signalpb.AppDataMessage{PollCreate: &signalpb.AppPollCreate{Question: proto.String(question), AllowMultiple: proto.Bool(!noMulti), Options: options}}
@@ -488,7 +506,7 @@ func runPollVote(ctx context.Context, e *env, g *globals, rs recipientSpec, noti
 			return err
 		}
 		if author == "" {
-			return &cliError{msg: "Poll author is required", code: 2}
+			return errcode.PollAuthorRequired
 		}
 		bin, err := authorBinary(a, author)
 		if err != nil {
@@ -559,7 +577,7 @@ func runAdminDelete(ctx context.Context, e *env, g *globals, groups []string, no
 			}
 		}
 		if len(groups) == 0 {
-			return userError("Admin delete requires group IDs")
+			return errcode.AdminDeleteNoGroups
 		}
 		targets, err := recipientSpec{groups: groups}.targets(a)
 		if err != nil {
@@ -586,10 +604,10 @@ func runPaymentNotification(ctx context.Context, e *env, g *globals, recipient, 
 		}
 		raw, err := base64.StdEncoding.DecodeString(receipt)
 		if err != nil {
-			return &cliError{msg: "Illegal base64 receipt: " + err.Error(), code: 2}
+			return errcode.ReceiptBase64.Wrap(err, err)
 		}
 		if !hasNote {
-			return &cliError{msg: "Payment note is required", code: 2}
+			return errcode.PaymentNoteRequired
 		}
 		dm := &signalpb.AppDataMessage{Payment: &signalpb.AppPayment{Item: &signalpb.AppPayment_Notification_{Notification: &signalpb.AppPayment_Notification{
 			Note: proto.String(note), Transaction: &signalpb.AppPayment_Notification_MobileCoin_{MobileCoin: &signalpb.AppPayment_Notification_MobileCoin{Receipt: raw}}}}}}
@@ -619,7 +637,7 @@ func runMessageRequestResponse(ctx context.Context, e *env, g *globals, rs recip
 		defer s.close()
 		for _, t := range targets {
 			if err := s.sender.SendMessageRequestResponse(ctx, t.aci, kind == "accept"); err != nil {
-				return ioError("Failed to send message request response: %v", err)
+				return errcode.MessageRequestFailed.WrapText(err)
 			}
 		}
 		return nil
@@ -631,7 +649,7 @@ func runMessageRequestResponse(ctx context.Context, e *env, g *globals, rs recip
 func attachmentSource(arg string, g *globals) (attachment.Source, error) {
 	src, err := attachment.FromArgument(arg, filepath.Join(g.dataDir, "data"))
 	if err != nil {
-		return src, &cliError{msg: fmt.Sprintf("Failed to send message: %s (AttachmentInvalidException)", attachmentErrorText(arg, err)), code: 2}
+		return src, errcode.SendAttachmentInvalid.Wrap(err, attachmentErrorText(arg, err))
 	}
 	return src, nil
 }
@@ -648,7 +666,7 @@ func attachmentErrorText(arg string, err error) string {
 func parseGroupArg(s string) ([]byte, error) {
 	id, err := groups.ParseGroupID(s)
 	if err != nil {
-		return nil, userError("Invalid group id: " + err.Error())
+		return nil, errcode.InvalidGroupID.WrapText(err)
 	}
 	return id, nil
 }

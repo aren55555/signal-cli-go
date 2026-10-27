@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/cdsi"
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/store"
 	"github.com/aren55555/signal-cli-go/internal/svr2"
@@ -34,7 +35,7 @@ func runUpdateAccount(ctx context.Context, e *env, g *globals, o updateAccountOp
 		defer s.close()
 		if o.deviceName != nil {
 			if err := s.sender.UpdateDeviceName(ctx, uint32(a.Data.DeviceID), *o.deviceName); err != nil {
-				return ioError("UpdateAccount error: %v", err)
+				return errcode.UpdateAccountFailed.WrapText(err)
 			}
 		}
 		if o.unrestricted != nil {
@@ -50,10 +51,10 @@ func runUpdateAccount(ctx context.Context, e *env, g *globals, o updateAccountOp
 			}
 		}
 		if err := a.Save(); err != nil {
-			return ioError("UpdateAccount error: %v", err)
+			return errcode.UpdateAccountFailed.WrapText(err)
 		}
 		if err := s.sender.UpdateAccountAttributes(ctx); err != nil {
-			return ioError("UpdateAccount error: %v", err)
+			return errcode.UpdateAccountFailed.WrapText(err)
 		}
 		switch {
 		case o.username != nil:
@@ -62,11 +63,11 @@ func runUpdateAccount(ctx context.Context, e *env, g *globals, o updateAccountOp
 			var se *manager.UsernameStatusError
 			switch {
 			case errors.As(err, &ue):
-				return userError(fmt.Sprintf("Invalid username: %s (%s)", ue.Message, ue.Class))
+				return errcode.UsernameInvalid.Wrap(err, ue.Message, ue.Class)
 			case errors.As(err, &se):
-				return userError("Invalid username: Username is malformed or already taken")
+				return errcode.UsernameTaken.Wrap(err)
 			case err != nil:
-				return ioError("Failed to set username: %v", err)
+				return errcode.UsernameSetFailed.WrapText(err)
 			}
 			link := manager.UsernameLinkURL(a)
 			if g.json() {
@@ -84,7 +85,7 @@ func runUpdateAccount(ctx context.Context, e *env, g *globals, o updateAccountOp
 			}
 		case o.deleteUsername:
 			if err := s.sender.DeleteUsername(ctx); err != nil {
-				return ioError("Failed to delete username: %v", err)
+				return errcode.UsernameDeleteFailed.WrapText(err)
 			}
 		}
 		return nil
@@ -124,11 +125,11 @@ func runGetUserStatus(ctx context.Context, e *env, g *globals, numbers, username
 			switch {
 			case errors.As(err, &ce) && ce.IsRateLimit():
 				at := time.Now().Add(time.Duration(ce.RetryAfter) * time.Second).UnixMilli()
-				return &cliError{msg: "Rate limit reached\nNext attempt may be tried at " + ts(uint64(at)), code: 5}
+				return errcode.UserStatusRateLimited.Wrap(err, ts(uint64(at)))
 			case errors.As(err, &ce):
-				return ioError("Unable to check if users are registered: %v (%s)", err, cdsiExceptionName(ce))
+				return errcode.UserStatusFailed.Wrap(err, err, cdsiExceptionName(ce))
 			case err != nil:
-				return ioError("Unable to check if users are registered: %v (IOException)", err)
+				return errcode.UserStatusFailed.Wrap(err, err, "IOException")
 			}
 			for _, in := range numbers {
 				c, ok := canon[in]
@@ -170,9 +171,9 @@ func runGetUserStatus(ctx context.Context, e *env, g *globals, numbers, username
 			var ue *username.Error
 			switch {
 			case errors.As(err, &ue):
-				return &cliError{msg: fmt.Sprintf("Exception in thread \"main\" java.lang.AssertionError: org.signal.libsignal.usernames.%s: %s", ue.Class, ue.Message), code: 2}
+				return errcode.UsernameLookupCrash.Wrap(err, ue.Class, ue.Message)
 			case err != nil:
-				return ioError("Unable to check if users are registered: %v (IOException)", err)
+				return errcode.UserStatusFailed.Wrap(err, err, "IOException")
 			}
 			aci := ""
 			unrestricted := false
@@ -219,7 +220,7 @@ func cdsiExceptionName(ce *cdsi.CloseError) string {
 func runSetPin(ctx context.Context, e *env, g *globals, pin string, remove bool) error {
 	return withAccount(g, func(a *store.Account) error {
 		if a.Data.DeviceID != 1 {
-			return userError("This command doesn't work on linked devices.")
+			return errcode.NotPrimaryDevice
 		}
 		ctx, cancel := context.WithTimeout(ctx, 5*time.Minute)
 		defer cancel()
@@ -231,16 +232,16 @@ func runSetPin(ctx context.Context, e *env, g *globals, pin string, remove bool)
 		s.sender.Log = func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  PinHelper - "+f+"\n", args...) }
 		if remove {
 			if err := s.sender.RemovePin(ctx); err != nil {
-				return ioError("Remove pin error: %v", err)
+				return errcode.RemovePinFailed.WrapText(err)
 			}
 			return nil
 		}
 		err = s.sender.SetPin(ctx, pin)
 		switch {
 		case errors.Is(err, svr2.ErrUnsupportedPIN):
-			return userError(err.Error())
+			return errcode.PinUnsupported.Wrap(err)
 		case err != nil:
-			return ioError("Set pin error: %v", err)
+			return errcode.SetPinFailed.WrapText(err)
 		}
 		return nil
 	})

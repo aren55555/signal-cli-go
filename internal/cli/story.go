@@ -3,9 +3,9 @@ package cli
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/store"
 )
@@ -15,7 +15,7 @@ import (
 func runSendStory(ctx context.Context, e *env, g *globals, path string, noReplies bool, group string) error {
 	return withAccount(g, func(a *store.Account) error {
 		if path == "" {
-			return userError("An attachment is required for sending a story.")
+			return errcode.StoryAttachmentRequired
 		}
 		var gid []byte
 		if group != "" {
@@ -47,9 +47,9 @@ func runSendStory(ctx context.Context, e *env, g *globals, path string, noReplie
 		}
 		switch {
 		case errors.Is(err, manager.ErrStoryMedia):
-			return &cliError{msg: fmt.Sprintf("Failed to send story: %s: %v (AttachmentInvalidException)", path, err), code: 2}
+			return errcode.StoryAttachmentInvalid.Wrap(err, path, err)
 		case err != nil:
-			return &cliError{msg: fmt.Sprintf("Failed to send story: %v (IOException)", err), code: 2}
+			return errcode.StorySendFailed.WrapText(err)
 		}
 		var out []sendResult
 		for _, r := range results {

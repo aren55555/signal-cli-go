@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/attachment"
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/groups"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/service/rest"
@@ -30,13 +31,13 @@ func groupSendError(s *session, id []byte, err error) error {
 	rec := s.acct.Group(id)
 	switch {
 	case errors.Is(err, manager.ErrGroupNotFound):
-		return userError("Group not found: " + gid)
+		return errcode.GroupNotFound.New(gid)
 	case errors.Is(err, manager.ErrNotAMember):
-		return userError(fmt.Sprintf("User is not a member in group: %s (%s)", groupTitle(rec), gid))
+		return errcode.GroupNotMember.New(groupTitle(rec), gid)
 	case errors.Is(err, manager.ErrNotAllowed):
-		return userError(fmt.Sprintf("User is not allowed to send message to group: %s (%s)", groupTitle(rec), gid))
+		return errcode.GroupSendNotAllowed.New(groupTitle(rec), gid)
 	}
-	return &cliError{msg: fmt.Sprintf("Failed to send message: %v (IOException)", err), code: 2}
+	return errcode.SendIOFailed.WrapText(err)
 }
 
 // groupResults turns a group send's per-member results into send
@@ -61,17 +62,17 @@ func (n *network) groupsManager(g *globals, a *store.Account, c manager.Requeste
 
 // groupCommandError maps errors of group commands (groups.md §14.3).
 func groupCommandError(err error) error {
-	var ce *cliError
+	var ce *errcode.Error
 	var ge *manager.GroupError
 	switch {
 	case errors.As(err, &ce):
-		return ce
+		return err
 	case errors.Is(err, manager.ErrCreateFailed):
-		return &cliError{msg: "Failed to send message: Failed to create group (IOException)", code: 2}
+		return errcode.SendGroupCreateFailed.Wrap(err)
 	case errors.As(err, &ge):
-		return &cliError{msg: fmt.Sprintf("Failed to send message: %s (%s)", ge.Msg, ge.Class), code: 2}
+		return errcode.SendGroupError.Wrap(err, ge.Msg, ge.Class)
 	}
-	return &cliError{msg: fmt.Sprintf("Failed to send message: %v (IOException)", err), code: 2}
+	return errcode.SendIOFailed.WrapText(err)
 }
 
 // memberResults turns the results of a group update message into send
@@ -138,7 +139,7 @@ func runUpdateGroup(ctx context.Context, e *env, g *globals, o updateGroupOpts) 
 		if o.avatar != "" {
 			src, err := attachment.FromArgument(o.avatar, filepath.Join(g.dataDir, "data"))
 			if err != nil {
-				return &cliError{msg: fmt.Sprintf("Failed to send message: %v (IOException)", err), code: 2}
+				return errcode.SendIOFailed.WrapText(err)
 			}
 			avatar = src.Data
 		}
@@ -175,11 +176,11 @@ func runUpdateGroup(ctx context.Context, e *env, g *globals, o updateGroupOpts) 
 		} else {
 			rec = s.groups.Group(ctx, id, false)
 			if rec == nil {
-				return userError("Group not found: " + groups.FormatGroupID(id))
+				return errcode.GroupNotFound.New(groups.FormatGroupID(id))
 			}
 			st := manager.StateOf(rec)
 			if st == nil || (st.Member(a.Data.ACI) == nil && st.PendingIndex(a.Data.ACI) < 0 && st.PendingIndex("PNI:"+a.Data.PNI) < 0) {
-				return userError(fmt.Sprintf("User is not a member in group: %s (%s)", groupTitle(rec), groups.FormatGroupID(id)))
+				return errcode.GroupNotMember.New(groupTitle(rec), groups.FormatGroupID(id))
 			}
 			uo.Name, uo.Avatar, uo.Add = o.name, avatar, resolvedLists[0]
 		}
@@ -217,7 +218,7 @@ func finishSendPlainOnly(e *env, ts uint64, results []sendResult) error {
 	out, code, msg := renderSendResults(false, ts, results)
 	io.WriteString(e.stdout, out)
 	if code != 0 {
-		return &cliError{msg: msg, code: code}
+		return sendFailure(code, msg)
 	}
 	return nil
 }
@@ -241,13 +242,13 @@ func runJoinGroup(ctx context.Context, e *env, g *globals, uri string) error {
 		var ge *manager.GroupError
 		switch {
 		case errors.As(err, &inactive):
-			return userError("Group link is not valid: " + inactive.Error())
+			return errcode.GroupLinkNotValid.WrapText(inactive)
 		case errors.Is(err, manager.ErrAlreadyRequested):
-			return userError("Pending admin approval: " + err.Error())
+			return errcode.GroupPendingApproval.WrapText(err)
 		case errors.As(err, &ge):
-			return &cliError{msg: fmt.Sprintf("Failed to send message: %s (%s)", ge.Msg, ge.Class), code: 3}
+			return errcode.SendIOFailedIO.Wrap(err, ge.Msg, ge.Class)
 		case err != nil:
-			return &cliError{msg: fmt.Sprintf("Failed to send message: %v (IOException)", err), code: 3}
+			return errcode.SendIOFailedIO.Wrap(err, err, "IOException")
 		}
 		gid := groups.FormatGroupID(res.Record.GroupID)
 		results := memberResults(a, res.Results)
@@ -276,13 +277,13 @@ func joinLinkError(err error) error {
 	var ue *groups.ErrUncaught
 	switch {
 	case errors.Is(err, groups.ErrNotALink):
-		return userError(err.Error())
+		return errcode.GroupLinkNotALink.Wrap(err)
 	case errors.As(err, &le) && le.UnknownVersion:
-		return userError("Group link was created with an incompatible version: " + le.Message)
+		return errcode.GroupLinkIncompatible.Wrap(err, le.Message)
 	case errors.As(err, &le):
-		return userError("Group link is invalid: " + le.Message)
+		return errcode.GroupLinkInvalid.Wrap(err, le.Message)
 	case errors.As(err, &ue):
-		return &cliError{msg: "Exception in thread \"main\" " + ue.Message, code: 2}
+		return errcode.IllegalArgumentCrash.Wrap(err, strings.TrimPrefix(ue.Message, "java.lang.IllegalArgumentException: "))
 	}
 	return err
 }
@@ -305,7 +306,7 @@ func runQuitGroup(ctx context.Context, e *env, g *globals, groupID string, del b
 		rec := s.groups.Group(ctx, id, true)
 		gid := groups.FormatGroupID(id)
 		if rec == nil {
-			return userError("Failed to send to group: Group not found: " + gid)
+			return errcode.GroupSendFailed.New(errcode.GroupNotFound.New(gid))
 		}
 		st := manager.StateOf(rec)
 		member := st != nil && (st.Member(a.Data.ACI) != nil || st.PendingIndex(a.Data.ACI) >= 0 || st.PendingIndex("PNI:"+a.Data.PNI) >= 0)
@@ -316,7 +317,7 @@ func runQuitGroup(ctx context.Context, e *env, g *globals, groupID string, del b
 			}
 			res, err := s.groups.Quit(ctx, rec, acis)
 			if errors.Is(err, manager.ErrLastAdmin) {
-				return userError(fmt.Sprintf("You need to specify a new admin with --admin: User is last admin in group: %s (%s)", groupTitle(rec), gid))
+				return errcode.GroupLastAdmin.New(groupTitle(rec), gid)
 			}
 			if err != nil {
 				return groupCommandError(err)
@@ -334,7 +335,7 @@ func runQuitGroup(ctx context.Context, e *env, g *globals, groupID string, del b
 		}
 		if del {
 			if err := s.groups.Delete(rec); err != nil {
-				return &cliError{msg: fmt.Sprintf("Failed to send message: %v (IOException)", err), code: 3}
+				return errcode.SendIOFailedIO.Wrap(err, err, "IOException")
 			}
 		}
 		return nil

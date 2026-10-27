@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"unicode"
+
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 )
 
 // Configuration files (spec/surface/cli/index.md §7). The error texts
@@ -48,7 +50,7 @@ func loadConfigFile(path string) (map[string]any, error) {
 		return nil, nil
 	}
 	if err != nil {
-		return nil, userError(fmt.Sprintf("Failed to load config from %s: %v", path, err))
+		return nil, errcode.ConfigLoad.Wrap(err, path, err)
 	}
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.UseNumber()
@@ -68,7 +70,7 @@ func loadConfigFile(path string) (map[string]any, error) {
 			}
 			detail = fmt.Sprintf("Unexpected character ('%c' (code %d)): %s\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: %d, column: %d]", ch, ch, expect, line, col)
 		}
-		return nil, userError(fmt.Sprintf("Failed to load config from %s: %s", path, detail))
+		return nil, errcode.ConfigLoad.Wrap(err, path, detail)
 	}
 	return m, nil
 }
@@ -84,10 +86,6 @@ func normalizeEnum(s string, stripNonAlnum bool) string {
 		}, s)
 	}
 	return s
-}
-
-func configParseError(detail, field string) error {
-	return userError("Failed to parse configuration file(s): " + detail + "\n at [Source: UNKNOWN; byte offset: #UNKNOWN] (through reference chain: org.asamk.signal.GlobalConfig[\"" + field + "\"])")
 }
 
 // applyConfig loads and merges the configuration files into d.
@@ -112,8 +110,7 @@ func applyConfig(d *globalDefaults, getenv func(string) string) error {
 			for i, c := range configKeys {
 				quoted[i] = `"` + c + `"`
 			}
-			return configParseError(fmt.Sprintf("Unrecognized field %q (class org.asamk.signal.GlobalConfig), not marked as ignorable (%d known properties: %s)",
-				k, len(configKeys), strings.Join(quoted, ", ")), k)
+			return errcode.ConfigUnknownField.New(k, len(configKeys), strings.Join(quoted, ", "), k)
 		}
 	}
 	str := func(k string) (string, bool) {
@@ -132,7 +129,7 @@ func applyConfig(d *globalDefaults, getenv func(string) string) error {
 		case "json":
 			d.output = "json"
 		default:
-			return configParseError("Cannot construct instance of `org.asamk.signal.OutputType`, problem: Invalid output type: "+s, "output")
+			return errcode.ConfigInvalidValue.New("org.asamk.signal.OutputType", "Invalid output type: "+s, "output")
 		}
 	}
 	if s, ok := str("serviceEnvironment"); ok {
@@ -140,7 +137,7 @@ func applyConfig(d *globalDefaults, getenv func(string) string) error {
 		case "live", "staging":
 			d.serviceEnv = v
 		default:
-			return configParseError("Cannot construct instance of `org.asamk.signal.ServiceEnvironmentCli`, problem: Invalid service environment: "+s, "serviceEnvironment")
+			return errcode.ConfigInvalidValue.New("org.asamk.signal.ServiceEnvironmentCli", "Invalid service environment: "+s, "serviceEnvironment")
 		}
 	}
 	if s, ok := str("trustNewIdentities"); ok {
@@ -152,7 +149,7 @@ func applyConfig(d *globalDefaults, getenv func(string) string) error {
 		case "never":
 			d.trustNew = "never"
 		default:
-			return configParseError("Cannot construct instance of `org.asamk.signal.TrustNewIdentityCli`, problem: Invalid trust new identities: "+s, "trustNewIdentities")
+			return errcode.ConfigInvalidValue.New("org.asamk.signal.TrustNewIdentityCli", "Invalid trust new identities: "+s, "trustNewIdentities")
 		}
 	}
 	if n, ok := merged["verbose"].(json.Number); ok {

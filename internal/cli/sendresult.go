@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 	"strings"
+
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 )
 
 // Result kinds (spec/surface/cli/_send-results.md).
@@ -121,4 +123,17 @@ func resultsJSON(results []sendResult) rawJSON {
 		items = append(items, o.String())
 	}
 	return rawJSON("[" + strings.Join(items, ",") + "]")
+}
+
+// sendFailure is the error for a send whose results all failed: exit
+// code 4 when every failure was an untrusted identity, 5 when every one
+// was a rate limit, else 1 (msg is the matching reference text).
+func sendFailure(code int, msg string) error {
+	switch code {
+	case 4:
+		return errcode.SendUntrusted
+	case 5:
+		return errcode.SendRateLimited
+	}
+	return errcode.SendFailed
 }

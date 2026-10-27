@@ -2,21 +2,13 @@ package cli
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
+	"strings"
 
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/store"
 )
-
-// cliError is a failure reported as one stderr message with an exit code
-// (spec/surface/cli/index.md §6).
-type cliError struct {
-	msg  string
-	code int
-}
-
-func (e *cliError) Error() string { return e.msg }
-
-func userError(msg string) error { return &cliError{msg: msg, code: 1} }
 
 var (
 	// E.164: '+', a non-zero digit, 7 to 15 digits in all. signal-cli asks
@@ -33,22 +25,22 @@ func validNumber(s string) bool { return e164Re.MatchString(s) }
 func selectAccount(r *store.Root, account string) (*store.Account, error) {
 	entries, err := r.Accounts()
 	if err != nil {
-		return nil, &cliError{msg: "Failed to load local accounts file", code: 3}
+		return nil, errcode.AccountsFileLoad.Wrap(err)
 	}
 	if account == "" {
 		switch len(entries) {
 		case 0:
-			return nil, userError("No local users found, you first need to register or link an account")
+			return nil, errcode.NoLocalUsers
 		case 1:
 			account = entries[0].Number
 		default:
-			return nil, userError("Multiple users found, you need to specify an account (phone number) with -a")
+			return nil, errcode.MultipleUsers
 		}
 	}
 	if !validNumber(account) && !uuidRe.MatchString(account) {
-		return nil, userError("Invalid account (phone number), make sure you include the country code.")
+		return nil, errcode.InvalidAccountNumber
 	}
-	notRegistered := userError("User " + account + " is not registered.")
+	notRegistered := errcode.UserNotRegistered.New(account)
 	for _, e := range entries {
 		if e.Number != account && e.UUID != account {
 			continue
@@ -58,9 +50,9 @@ func selectAccount(r *store.Root, account string) (*store.Account, error) {
 		case errors.Is(err, store.ErrNotOurs):
 			return nil, notRegistered
 		case errors.Is(err, store.ErrLocked):
-			return nil, &cliError{msg: "Error loading state file for user " + account + ": " + err.Error() + " (OverlappingFileLockException)", code: 2}
+			return nil, errcode.StateFileLocked.Wrap(err, account, err)
 		case err != nil:
-			return nil, &cliError{msg: "Error loading state file for user " + account + ": " + err.Error() + " (IOException)", code: 2}
+			return nil, errcode.StateFileIO.Wrap(err, account, err)
 		}
 		if !a.Data.Registered {
 			a.Close()
@@ -69,4 +61,70 @@ func selectAccount(r *store.Root, account string) (*store.Account, error) {
 		return a, nil
 	}
 	return nil, notRegistered
+}
+
+// runListAccounts is `listAccounts` (spec/surface/cli/listAccounts.md):
+// the registered local accounts; others are skipped with a warning.
+func runListAccounts(e *env, g *globals) error {
+	if g.account != "" {
+		return errcode.MultiAccountOnly
+	}
+	root := g.root()
+	entries, err := root.Accounts()
+	if err != nil {
+		return errcode.AccountsFileLoad.Wrap(err)
+	}
+	var numbers []string
+	for _, en := range entries {
+		a, err := root.Load(en.Path)
+		if err != nil || !a.Data.Registered {
+			if a != nil {
+				a.Close()
+			}
+			fmt.Fprintf(e.stderr, "WARN  MultiAccountManager - Ignoring %s: User is not registered. (NotRegisteredException)\n", en.Number)
+			continue
+		}
+		numbers = append(numbers, a.Data.Number)
+		a.Close()
+	}
+	if g.json() {
+		items := make([]string, len(numbers))
+		for i, n := range numbers {
+			o := &jsonObject{}
+			o.add("number", n)
+			items[i] = o.String()
+		}
+		fmt.Fprintln(e.stdout, "["+strings.Join(items, ",")+"]")
+		return nil
+	}
+	for _, n := range numbers {
+		fmt.Fprintf(e.stdout, "Number: %s\n", n)
+	}
+	return nil
+}
+
+// runDeleteLocalAccountData is `deleteLocalAccountData`
+// (deleteLocalAccountData.md): refused while the account is registered
+// unless ignoreRegistered.
+func runDeleteLocalAccountData(e *env, g *globals, ignoreRegistered bool) error {
+	account, err := registrationAccount(g)
+	if err != nil {
+		return err
+	}
+	root := g.root()
+	a, err := root.Find(account)
+	switch {
+	case errors.Is(err, store.ErrNoAccount), errors.Is(err, store.ErrNotOurs):
+		return nil
+	case err != nil:
+		return errcode.DeletionFailed.WrapText(err)
+	}
+	if a.Data.Registered && !ignoreRegistered {
+		a.Close()
+		return errcode.NotDeletingRegistered
+	}
+	if err := root.Delete(a); err != nil {
+		return errcode.DeletionFailed.WrapText(err)
+	}
+	return nil
 }

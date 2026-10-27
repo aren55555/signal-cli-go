@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/service/rest"
 	"github.com/aren55555/signal-cli-go/internal/store"
@@ -30,10 +31,10 @@ func runAddStickerPack(ctx context.Context, e *env, g *globals, uris []string) e
 			if _, _, err := manager.ParseStickerURL(uri); err != nil {
 				var ue *manager.StickerURLError
 				if errors.As(err, &ue) {
-					return userError(ue.Error())
+					return errcode.StickerURIInvalid.Wrap(err, ue.Detail)
 				}
 				fmt.Fprintln(e.stderr, "ERROR AddStickerPackCommand - Invalid sticker pack link")
-				return userError("Invalid sticker pack link")
+				return errcode.StickerPackLinkInvalid.Wrap(err)
 			}
 		}
 		ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
@@ -47,7 +48,7 @@ func runAddStickerPack(ctx context.Context, e *env, g *globals, uris []string) e
 		for _, uri := range uris {
 			if err := s.sender.AddStickerPack(ctx, n.stickerStore(g), uri); err != nil {
 				fmt.Fprintf(e.stderr, "ERROR AddStickerPackCommand - Install sticker pack failed: %v\n", err)
-				return ioError("Install sticker pack failed")
+				return errcode.StickerInstallFailed.Wrap(err)
 			}
 		}
 		return nil
@@ -57,12 +58,11 @@ func runAddStickerPack(ctx context.Context, e *env, g *globals, uris []string) e
 func runGetSticker(e *env, g *globals, packID string, stickerID int) error {
 	return withAccount(g, func(a *store.Account) error {
 		if len(packID)%2 != 0 {
-			return &cliError{msg: "Exception in thread \"main\" java.lang.IllegalArgumentException: odd-length pack id", code: 2}
+			return errcode.IllegalArgumentCrash.New("odd-length pack id")
 		}
 		id := strings.ToLower(packID)
 		st := &manager.StickerStore{Dir: filepath.Join(g.dataDir, "stickers")}
 		data, err := os.ReadFile(st.StickerFile(id, uint32(stickerID)))
-		notFound := fmt.Sprintf("Could not find sticker with ID: %d in pack StickerPackId{%s}", stickerID, id)
 		switch {
 		case errors.Is(err, os.ErrNotExist):
 			// A known pack is fetched, but this call still fails (§6.6).
@@ -74,9 +74,9 @@ func runGetSticker(e *env, g *globals, packID string, stickerID int) error {
 					n.stickerStore(g).Download(ctx, raw, a.Stickers[i].Key)
 				}
 			}
-			return userError(notFound)
+			return errcode.StickerNotFound.Wrap(err, stickerID, id)
 		case err != nil:
-			return &cliError{msg: fmt.Sprintf("An error occurred reading sticker with ID: %d in pack StickerPackId{%s}", stickerID, id), code: 2}
+			return errcode.StickerReadFailed.Wrap(err, stickerID, id)
 		}
 		b64 := base64.StdEncoding.EncodeToString(data)
 		if g.json() {
@@ -176,9 +176,9 @@ func runUploadStickerPack(ctx context.Context, e *env, g *globals, path string) 
 		var ie *manager.InvalidStickerPackError
 		switch {
 		case errors.As(err, &ie):
-			return userError(ie.Error())
+			return errcode.StickerPackInvalid.Wrap(err, ie.Reason)
 		case err != nil:
-			return ioError("Upload error (maybe image size too large):%v", err)
+			return errcode.StickerUploadFailed.WrapText(err)
 		}
 		if g.json() {
 			o := &jsonObject{}
@@ -196,7 +196,7 @@ func runUploadStickerPack(ctx context.Context, e *env, g *globals, path string) 
 func runUpdateConfiguration(ctx context.Context, e *env, g *globals, set map[string]*bool) error {
 	return withAccount(g, func(a *store.Account) error {
 		if a.Data.DeviceID != 1 {
-			return userError(manager.ErrNotPrimary.Error())
+			return errcode.NotPrimaryDevice
 		}
 		cfg := &a.Data.Configuration
 		for name, v := range set {
@@ -215,7 +215,7 @@ func runUpdateConfiguration(ctx context.Context, e *env, g *globals, set map[str
 			}
 		}
 		if err := a.Save(); err != nil {
-			return ioError("UpdateAccount error: %v", err)
+			return errcode.UpdateAccountFailed.WrapText(err)
 		}
 		if !a.IsMultiDevice() {
 			return nil

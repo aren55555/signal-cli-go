@@ -52,6 +52,7 @@ type Arg struct {
 	Required    bool
 	Help        string
 	Default     any      // stored default
+	Const       any      // stored when an Optional option is given without a value
 	DefaultText string   // help's "(default: X)"; derived from Default if empty
 	Display     []string // EnumName: display strings matching Choices, stored as the value
 	Hidden      bool

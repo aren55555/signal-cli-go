@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/service/rest"
 	"github.com/aren55555/signal-cli-go/internal/store"
@@ -21,19 +22,19 @@ func registrationAccount(g *globals) (string, error) {
 	if account == "" {
 		entries, err := g.root().Accounts()
 		if err != nil {
-			return "", &cliError{msg: "Failed to load local accounts file", code: 3}
+			return "", errcode.AccountsFileLoad.Wrap(err)
 		}
 		switch len(entries) {
 		case 0:
-			return "", userError("No local users found, you first need to register or link an account")
+			return "", errcode.NoLocalUsers
 		case 1:
 			account = entries[0].Number
 		default:
-			return "", userError("Multiple users found, you need to specify an account (phone number) with -a")
+			return "", errcode.MultipleUsers
 		}
 	}
 	if !validNumber(account) {
-		return "", userError("Invalid account (phone number), make sure you include the country code.")
+		return "", errcode.InvalidAccountNumber
 	}
 	return account, nil
 }
@@ -87,7 +88,7 @@ func runRegister(ctx context.Context, e *env, g *globals, voice bool, captcha st
 		return err
 	}
 	if err := os.MkdirAll(filepath.Join(g.dataDir, "data"), 0o700); err != nil {
-		return ioError("Failed to read local accounts list")
+		return errcode.AccountsListRead.Wrap(err)
 	}
 	err = e.registrar(g, n).Register(ctx, account, captcha, voice, reregister)
 	var ce *manager.CaptchaRequiredError
@@ -97,32 +98,30 @@ func runRegister(ctx context.Context, e *env, g *globals, voice bool, captcha st
 	case err == nil:
 		return nil
 	case errors.As(err, &ce):
-		msg := "Captcha required for verification, use --captcha CAPTCHA\n" +
-			"To get the token, go to https://signalcaptchas.org/registration/generate.html\n" +
-			"After solving the captcha, right-click on the \"Open Signal\" link and copy the link."
-		if ce.Given {
-			msg = "Invalid captcha given."
-		}
+		next := ""
 		if !ce.NextAt.IsZero() {
-			msg += "\n" + atLine("Next Captcha may be provided at", ce.NextAt)
+			next = "\n" + atLine("Next Captcha may be provided at", ce.NextAt)
 		}
-		return userError(msg)
+		if ce.Given {
+			return errcode.CaptchaInvalid.Wrap(err, next)
+		}
+		return errcode.CaptchaRequired.Wrap(err, next)
 	case errors.Is(err, manager.ErrCaptchaRejected), errors.Is(err, manager.ErrCaptchaInvalid):
-		return userError("Invalid captcha given.")
+		return errcode.CaptchaInvalid.Wrap(err, "")
 	case errors.As(err, &rl):
-		msg := "Rate limit reached"
+		next := ""
 		if rl.After > 0 {
-			msg += "\n" + atLine("Next attempt may be tried at", time.Now().Add(rl.After))
+			next = "\n" + atLine("Next attempt may be tried at", time.Now().Add(rl.After))
 		}
-		return &cliError{msg: msg, code: 5}
+		return errcode.RegisterRateLimited.Wrap(err, next)
 	case errors.As(err, &mu):
-		msg := "Failed to register: Verification method not available"
+		suffix := ""
 		if mu.Voice {
-			msg += ": Before requesting voice verification you need to request SMS verification and wait a minute."
+			suffix = ": Before requesting voice verification you need to request SMS verification and wait a minute."
 		}
-		return userError(msg)
+		return errcode.RegisterMethodUnavailable.Wrap(err, suffix)
 	}
-	return ioError("Failed to register: %v (%s)", err, javaKind(err))
+	return errcode.RegisterFailed.Wrap(err, err, javaKind(err))
 }
 
 // runVerify is `verify CODE` (spec/surface/cli/verify.md).
@@ -143,13 +142,19 @@ func runVerify(ctx context.Context, e *env, g *globals, code, pin string) error 
 	var mismatch *manager.PinMismatchError
 	switch {
 	case errors.Is(err, store.ErrNoAccount):
-		return &cliError{msg: "Verify error: " + manager.ErrNoSession.Error(), code: 3}
-	case errors.As(err, &locked), errors.As(err, &mismatch), errors.Is(err, manager.ErrPinDataDeleted), errors.Is(err, svr2.ErrUnsupportedPIN):
-		return userError(err.Error())
+		return errcode.VerifyNoSession.Wrap(err)
+	case errors.As(err, &locked):
+		return errcode.PinLocked.Wrap(err, locked.TimeRemaining/3600000)
+	case errors.As(err, &mismatch):
+		return errcode.PinMismatch.Wrap(err, mismatch.Tries)
+	case errors.Is(err, manager.ErrPinDataDeleted):
+		return errcode.PinDataDeleted.Wrap(err)
+	case errors.Is(err, svr2.ErrUnsupportedPIN):
+		return errcode.PinUnsupported.Wrap(err)
 	case errors.Is(err, manager.ErrRegLockStillFailed):
-		return &cliError{msg: "Exception in thread \"main\" java.lang.AssertionError: " + err.Error(), code: 2}
+		return errcode.VerifyRegLockFailed.Wrap(err)
 	case err != nil:
-		return &cliError{msg: "Verify error: " + err.Error(), code: 3}
+		return errcode.VerifyFailed.WrapText(err)
 	}
 	return nil
 }

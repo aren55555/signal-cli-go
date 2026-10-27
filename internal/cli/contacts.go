@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/fingerprint"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/profile"
@@ -264,7 +265,7 @@ func ptrOrNull(p *string) any {
 }
 
 // notRegistered is contacts.md §4.1's error.
-func notRegistered(arg string) error { return userError("The user " + arg + " is not registered.") }
+func notRegistered(arg string) error { return errcode.RecipientNotRegistered.New(arg) }
 
 // runUpdateContact is `updateContact` (contacts.md §9).
 func runUpdateContact(ctx context.Context, e *env, g *globals, recipient string, name *string, u manager.ContactUpdate) error {
@@ -325,7 +326,7 @@ func runRemoveContact(e *env, g *globals, recipient string, hide, forget bool) e
 		}
 		err = (&manager.Sender{Acct: a}).RemoveContact(k, hide, forget)
 		if errors.Is(err, manager.ErrDeleteSelf) {
-			return &cliError{msg: "Exception in thread \"main\" java.lang.RuntimeException: Can't delete self recipient", code: 2}
+			return errcode.DeleteSelfRecipient
 		}
 		if err != nil {
 			return err
@@ -364,7 +365,7 @@ func runBlock(ctx context.Context, e *env, g *globals, recipients, groupArgs []s
 		defer s.syncStorage(ctx, e)
 		if len(recipients) > 0 {
 			if err := s.sender.SetBlocked(ctx, keys, blocked, s.groups); err != nil {
-				return &cliError{msg: fmt.Sprintf("Failed to sync block to linked devices: %v", err), code: 2}
+				return errcode.BlockSyncFailed.WrapText(err)
 			}
 		}
 		if len(groupArgs) > 0 {
@@ -381,7 +382,7 @@ func runBlock(ctx context.Context, e *env, g *globals, recipients, groupArgs []s
 				ids = append(ids, id)
 			}
 			if err := s.sender.SetGroupsBlocked(ctx, ids, blocked, s.groups); err != nil {
-				return &cliError{msg: fmt.Sprintf("Failed to sync block to linked devices: %v", err), code: 2}
+				return errcode.BlockSyncFailed.WrapText(err)
 			}
 		}
 		return nil
@@ -429,9 +430,9 @@ func runGetAvatar(ctx context.Context, e *env, g *globals, contact, prof, group 
 		data, err := os.ReadFile(file)
 		switch {
 		case errors.Is(err, os.ErrNotExist):
-			return userError("Could not find avatar")
+			return errcode.AvatarNotFound.Wrap(err)
 		case err != nil:
-			return &cliError{msg: "An error occurred reading avatar", code: 2}
+			return errcode.AvatarReadFailed.Wrap(err)
 		}
 		b64 := base64.StdEncoding.EncodeToString(data)
 		if g.json() {

@@ -107,26 +107,58 @@ func keyPair(pub, priv []byte) (store.KeyPair, *curve25519.PrivateKey, error) {
 // Link runs a whole link: provisioning socket, URL, provisioning message,
 // device registration, local account.
 func (l *Linker) Link(ctx context.Context) (*store.Account, error) {
-	r := l.rand()
-	temp, err := curve25519.GeneratePrivateKey(r)
-	if err != nil {
-		return nil, err
-	}
-	password, err := newPassword(r)
-	if err != nil {
-		return nil, err
-	}
-	sess, err := l.OpenSocket(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("opening the provisioning socket: %w", err)
-	}
-	defer sess.Close()
-	addr, err := sess.Address(ctx)
+	p, url, err := l.Start(ctx)
 	if err != nil {
 		return nil, err
 	}
 	if l.OnURL != nil {
-		l.OnURL(provision.LinkURL(addr, temp.PublicKey()))
+		l.OnURL(url)
+	}
+	return p.Finish(ctx, l.DeviceName)
+}
+
+// PendingLink is a link whose URL was shown and whose provisioning
+// message has not arrived yet (JSON-RPC startLink, then finishLink).
+type PendingLink struct {
+	l        *Linker
+	sess     *provision.Session
+	temp     *curve25519.PrivateKey
+	password string
+}
+
+// Start opens the provisioning socket and returns the link URL.
+func (l *Linker) Start(ctx context.Context) (*PendingLink, string, error) {
+	r := l.rand()
+	temp, err := curve25519.GeneratePrivateKey(r)
+	if err != nil {
+		return nil, "", err
+	}
+	password, err := newPassword(r)
+	if err != nil {
+		return nil, "", err
+	}
+	sess, err := l.OpenSocket(ctx)
+	if err != nil {
+		return nil, "", fmt.Errorf("opening the provisioning socket: %w", err)
+	}
+	addr, err := sess.Address(ctx)
+	if err != nil {
+		sess.Close()
+		return nil, "", err
+	}
+	return &PendingLink{l: l, sess: sess, temp: temp, password: password}, provision.LinkURL(addr, temp.PublicKey()), nil
+}
+
+// Close abandons the link.
+func (p *PendingLink) Close() { p.sess.Close() }
+
+// Finish waits for the provisioning message and completes the link with
+// the device name name ("" means "cli").
+func (p *PendingLink) Finish(ctx context.Context, name string) (*store.Account, error) {
+	l, sess, temp, password := p.l, p.sess, p.temp, p.password
+	defer sess.Close()
+	if name != "" {
+		l.DeviceName = name
 	}
 	env, err := sess.Envelope(ctx)
 	if err != nil {

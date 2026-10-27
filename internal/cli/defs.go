@@ -333,6 +333,28 @@ func commandParser(name string) *argparse.Parser {
 			&argparse.Arg{Names: []string{"--id"}, Dest: "id", Metavars: []string{"ID"}, Required: true, Help: "The ID of the attachment file."},
 			recipient, group)
 		p.Groups = []*argparse.Group{{Args: []*argparse.Arg{recipient, group}, Required: true}}
+	case "deleteLocalAccountData":
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"--ignore-registered"}, Action: argparse.StoreTrue, Help: "Delete the account data even though the account is still registered on the Signal servers."})
+	case "acceptCall", "hangupCall", "rejectCall":
+		verb := map[string]string{"acceptCall": "accept", "hangupCall": "hang up", "rejectCall": "reject"}[name]
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"--call-id"}, Dest: "call-id", Metavars: []string{"CALL_ID"}, Kind: argparse.Int64, Required: true, Help: "The call ID to " + verb + "."})
+	case "startCall":
+		p.Args = append(p.Args, &argparse.Arg{Names: []string{"recipient"}, Dest: "recipient", Help: "Specify the recipient's phone number or UUID."})
+	case "daemon":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"--dbus"}, Action: argparse.StoreTrue, Help: "Expose a DBus interface on the user bus."},
+			&argparse.Arg{Names: []string{"--dbus-system", "--system"}, Action: argparse.StoreTrue, Help: "Expose a DBus interface on the system bus."},
+			&argparse.Arg{Names: []string{"--bus-name"}, Dest: "bus-name", Metavars: []string{"BUS_NAME"}, Help: "Specify the D-Bus bus name to connect to."},
+			&argparse.Arg{Names: []string{"--socket"}, Dest: "socket", Metavars: []string{"SOCKET"}, Nargs: argparse.Optional, Const: "", Help: "Expose a JSON-RPC interface on a UNIX socket (default $XDG_RUNTIME_DIR/signal-cli/socket)."},
+			&argparse.Arg{Names: []string{"--tcp"}, Dest: "tcp", Metavars: []string{"TCP"}, Nargs: argparse.Optional, Const: "localhost:7583", Help: "Expose a JSON-RPC interface on a TCP socket (default localhost:7583)."},
+			&argparse.Arg{Names: []string{"--http"}, Dest: "http", Metavars: []string{"HTTP"}, Nargs: argparse.Optional, Const: "localhost:8080", Help: "Expose a JSON-RPC interface as http endpoint (default localhost:8080)."},
+			&argparse.Arg{Names: []string{"--no-receive-stdout"}, Action: argparse.StoreTrue, Help: "Don’t print received messages to stdout."},
+			receiveModeArg(),
+		)
+		p.Args = append(p.Args, receiveFlags()...)
+	case "jsonRpc":
+		p.Args = append(p.Args, receiveFlags()...)
+		p.Args = append(p.Args, receiveModeArg())
 	case "receive":
 		p.Args = append(p.Args,
 			&argparse.Arg{Names: []string{"-t", "--timeout"}, Dest: "timeout", Metavars: []string{"TIMEOUT"}, Kind: argparse.Double, Help: "Number of seconds to wait for new messages (negative values disable timeout)", Default: 3.0},
@@ -466,4 +488,20 @@ func featureArgs(name string) []*argparse.Arg {
 			{Names: []string{"--type"}, Dest: "type", Kind: argparse.Enum, Choices: []string{"accept", "delete"}, Required: true, Help: "Type of message request response"}}
 	}
 	return nil
+}
+
+// receiveFlags are the receive options daemon and jsonRpc share with
+// receive.
+func receiveFlags() []*argparse.Arg {
+	return []*argparse.Arg{
+		{Names: []string{"--ignore-attachments"}, Action: argparse.StoreTrue, Help: "Don’t download attachments of received messages."},
+		{Names: []string{"--ignore-stories"}, Action: argparse.StoreTrue, Help: "Don’t receive story messages from the server."},
+		{Names: []string{"--ignore-avatars"}, Action: argparse.StoreTrue, Help: "Don't download avatars of received messages."},
+		{Names: []string{"--ignore-stickers"}, Action: argparse.StoreTrue, Help: "Don't download sticker packs of received messages."},
+		{Names: []string{"--send-read-receipts"}, Action: argparse.StoreTrue, Help: "Send read receipts for all incoming data messages (in addition to the default delivery receipts)"},
+	}
+}
+
+func receiveModeArg() *argparse.Arg {
+	return &argparse.Arg{Names: []string{"--receive-mode"}, Dest: "receive-mode", Kind: argparse.Enum, Choices: []string{"on-start", "on-connection", "manual"}, Default: "on-start", Help: "Specify when to start receiving messages."}
 }

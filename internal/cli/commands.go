@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/fingerprint"
 	"github.com/aren55555/signal-cli-go/internal/groups"
 	"github.com/aren55555/signal-cli-go/internal/manager"
@@ -39,6 +40,9 @@ type globals struct {
 	serviceEnv     string // "live" or "staging"
 	trustNew       string
 	disableSendLog bool
+	// daemon is set while a command runs inside daemon or jsonRpc: the
+	// account is then shared and already open.
+	daemon *daemonState
 }
 
 func (g *globals) json() bool { return g.output == "json" }
@@ -54,7 +58,7 @@ type network struct {
 func (e *env) network(g *globals) (*network, error) {
 	if g.serviceEnv != "staging" {
 		// The brief forbids production; only staging endpoints exist here.
-		return nil, &cliError{msg: "The live service environment is not supported by signal-cli-go yet; use --service-environment staging", code: 1}
+		return nil, errcode.LiveUnsupported
 	}
 	n := &network{userAgent: e.getenv(agent.EnvOverride)}
 	for _, k := range []string{"HTTPS_PROXY", "https_proxy", "ALL_PROXY", "all_proxy"} {
@@ -64,7 +68,7 @@ func (e *env) network(g *globals) (*network, error) {
 				u, err = url.Parse("http://" + v)
 			}
 			if err != nil {
-				return nil, &cliError{msg: "Invalid proxy setting: " + err.Error(), code: 1}
+				return nil, errcode.InvalidProxy.Wrap(err, err)
 			}
 			n.proxy = u
 			break
@@ -94,20 +98,15 @@ func (n *network) dialChatStories(ctx context.Context, a *store.Account, keepAli
 	return chat.Dial(ctx, ep)
 }
 
-// ioError is exit code 3 ("Server or IO error").
-func ioError(format string, args ...any) error {
-	return &cliError{msg: fmt.Sprintf(format, args...), code: 3}
-}
-
 // checkAccount runs the start-up account check on the authenticated
 // socket (api.md §4.3).
 func checkAccount(ctx context.Context, a *store.Account, c *chat.Conn, account string) error {
 	err := manager.CheckAccount(ctx, a, c, time.Now())
 	switch {
 	case errors.Is(err, manager.ErrNotRegistered):
-		return userError("User " + account + " is not registered.")
+		return errcode.UserNotRegistered.Wrap(err, account)
 	case err != nil:
-		return ioError("Error while checking account %s: %v", account, err)
+		return errcode.AccountCheckFailed.Wrap(err, account, err)
 	}
 	return nil
 }
@@ -119,7 +118,7 @@ func runLink(ctx context.Context, e *env, g *globals, name string) error {
 		return err
 	}
 	if err := os.MkdirAll(filepath.Join(g.dataDir, "data"), 0o700); err != nil {
-		return ioError("Failed to read local accounts list")
+		return errcode.AccountsListRead.Wrap(err)
 	}
 	l := &manager.Linker{
 		Root: g.root(),
@@ -151,9 +150,9 @@ func runLink(ctx context.Context, e *env, g *globals, name string) error {
 	a, err := l.Link(ctx)
 	switch {
 	case errors.Is(err, manager.ErrUserExists):
-		return userError("User " + "already exists")
+		return errcode.LinkUserExists.Wrap(err)
 	case a == nil && err != nil:
-		return ioError("Link request error: %v", err)
+		return errcode.LinkRequestFailed.WrapText(err)
 	}
 	defer a.Close()
 	if err != nil {
@@ -181,18 +180,41 @@ type session struct {
 	chat   *chat.Conn // the authenticated socket (gRPC calls)
 	groups *manager.Groups
 	close  func()
+	// closeConns closes the sockets only (a daemon session that died).
+	closeConns func()
 }
 
 // openSession runs the start-up account check and opens both sockets
-// (the unauthenticated one may fail: sends then go unsealed).
+// (the unauthenticated one may fail: sends then go unsealed). Inside the
+// daemon it returns the account's shared session, which the command
+// must not close.
 func openSession(ctx context.Context, e *env, g *globals, a *store.Account) (*session, error) {
+	if g.daemon != nil {
+		la := g.daemon.byAccount(a)
+		if la == nil {
+			return nil, errcode.UserNotRegistered.New(a.Data.Number)
+		}
+		s, err := g.daemon.sessionLocked(ctx, la)
+		if err != nil {
+			return nil, err
+		}
+		shared := *s
+		shared.close = func() {}
+		return &shared, nil
+	}
+	return openSessionWith(ctx, e, g, a, false, true)
+}
+
+// openSessionWith is openSession with the socket options: keep-alives
+// and whether stories are received.
+func openSessionWith(ctx context.Context, e *env, g *globals, a *store.Account, keepAlive, stories bool) (*session, error) {
 	n, err := e.network(g)
 	if err != nil {
 		return nil, err
 	}
-	c, err := n.dialChat(ctx, a, false)
+	c, err := n.dialChatStories(ctx, a, keepAlive, stories)
 	if err != nil {
-		return nil, ioError("Error while checking account %s: %v", a.Data.Number, err)
+		return nil, errcode.AccountCheckFailed.Wrap(err, a.Data.Number, err)
 	}
 	if err := checkAccount(ctx, a, c, a.Data.Number); err != nil {
 		c.Close()
@@ -207,6 +229,11 @@ func openSession(ctx context.Context, e *env, g *globals, a *store.Account) (*se
 	s.sender.DialCDSI = n.cdsiDialer()
 	s.sender.DialSVR2 = n.svr2Dialer()
 	s.groups = n.groupsManager(g, a, c, s.sender)
+	s.closeConns = func() {
+		for _, f := range closers {
+			f()
+		}
+	}
 	s.close = func() {
 		// The scheduled full CDSI refresh runs before the account closes
 		// (cdsi.md §6.1).
@@ -242,20 +269,20 @@ func finishSend(e *env, g *globals, ts uint64, results []sendResult) error {
 	out, code, msg := renderSendResults(g.json(), ts, results)
 	io.WriteString(e.stdout, out)
 	if code != 0 {
-		return &cliError{msg: msg, code: code}
+		return sendFailure(code, msg)
 	}
 	return nil
 }
 
 // runSend is `send` for text messages to individual recipients.
 func runSend(ctx context.Context, e *env, g *globals, o sendOpts) error {
-	a, err := selectAccount(g.root(), g.account)
+	a, release, err := useAccount(g)
 	if err != nil {
 		return err
 	}
-	defer a.Close()
+	defer release()
 	if len(o.recipients) == 0 && !o.noteToSelf {
-		return userError("No recipients given")
+		return errcode.NoRecipients
 	}
 	targets, err := resolveAll(a, o.recipients)
 	if err != nil {
@@ -265,12 +292,12 @@ func runSend(ctx context.Context, e *env, g *globals, o sendOpts) error {
 	if o.fromStdin {
 		b, err := io.ReadAll(e.stdin)
 		if err != nil {
-			return userError("Failed to read message from stdin: " + err.Error())
+			return errcode.StdinReadFailed.WrapText(err)
 		}
 		text = string(b)
 	}
 	if text == "" {
-		return userError("Sending empty message is not allowed, either a message, attachment or sticker must be given.")
+		return errcode.EmptyMessage
 	}
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 	defer cancel()
@@ -291,13 +318,13 @@ func runSend(ctx context.Context, e *env, g *globals, o sendOpts) error {
 
 // runSendTyping is `sendTyping [-s] RECIPIENT…`.
 func runSendTyping(ctx context.Context, e *env, g *globals, recipients, groupArgs []string, stop bool) error {
-	a, err := selectAccount(g.root(), g.account)
+	a, release, err := useAccount(g)
 	if err != nil {
 		return err
 	}
-	defer a.Close()
+	defer release()
 	if len(recipients) == 0 && len(groupArgs) == 0 {
-		return userError("No recipients given")
+		return errcode.NoRecipients
 	}
 	var groupIDs [][]byte
 	for _, id := range groupArgs {
@@ -328,10 +355,10 @@ func runSendTyping(ctx context.Context, e *env, g *globals, recipients, groupArg
 	for _, id := range groupIDs {
 		gts, res, err := s.groups.SendTyping(ctx, id, stop)
 		if err != nil {
-			if ce, ok := groupSendError(s, id, err).(*cliError); ok && ce.code == 1 {
-				return userError("Failed to send to group: " + ce.msg)
+			if ge := groupSendError(s, id, err); errcode.ExitCode(ge) == 1 {
+				return errcode.GroupSendFailed.Wrap(err, ge)
 			}
-			return &cliError{msg: fmt.Sprintf("Failed to send message: %v (IOException)", err), code: 1}
+			return errcode.SendIOFailedUser.WrapText(err)
 		}
 		ts = gts
 		results = append(results, groupResults(a, groups.FormatGroupID(id), res)...)
@@ -341,11 +368,11 @@ func runSendTyping(ctx context.Context, e *env, g *globals, recipients, groupArg
 
 // runSendReceipt is `sendReceipt RECIPIENT -t TS… [--type read|viewed]`.
 func runSendReceipt(ctx context.Context, e *env, g *globals, recipient string, timestamps []uint64, kind string) error {
-	a, err := selectAccount(g.root(), g.account)
+	a, release, err := useAccount(g)
 	if err != nil {
 		return err
 	}
-	defer a.Close()
+	defer release()
 	t, err := resolveRecipient(a, recipient)
 	if err != nil {
 		return err
@@ -407,13 +434,13 @@ func resolveRecipient(a *store.Account, s string) (resolved, error) {
 		return resolved{key: strings.ToLower(s), aci: strings.ToLower(s)}, nil
 	case strings.HasPrefix(s, "PNI:"):
 		if !uuidRe.MatchString(s[4:]) {
-			return resolved{}, userError("Invalid phone number '" + s + "': Invalid PNI")
+			return resolved{}, errcode.InvalidPhoneNumber.New(s, "Invalid PNI")
 		}
-		return resolved{}, userError("Sending to a PNI is not supported by signal-cli-go yet")
+		return resolved{}, errcode.PNIUnsupported
 	case strings.HasPrefix(s, "u:"):
-		return resolved{}, userError("Sending to a username is not supported by signal-cli-go yet")
+		return resolved{}, errcode.UsernameSendUnsupported
 	case strings.Contains(s, "@"):
-		return resolved{}, userError("Invalid phone number '" + s + "': Possible attempt to use email address.")
+		return resolved{}, errcode.InvalidPhoneNumber.New(s, "Possible attempt to use email address.")
 	}
 	digits, err := canonicalNumber(a, s)
 	if err != nil {
@@ -434,7 +461,7 @@ func resolveRecipient(a *store.Account, s string) (resolved, error) {
 			return resolved{key: digits, aci: k}, nil
 		}
 	}
-	return resolved{}, userError("The user " + digits + " is not registered.")
+	return resolved{}, errcode.RecipientNotRegistered.New(digits)
 }
 
 // receiveOpts are receive's options.
@@ -450,18 +477,18 @@ type receiveOpts struct {
 
 // runReceive is `receive` (spec/surface/cli/receive.md).
 func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
-	a, err := selectAccount(g.root(), g.account)
+	a, release, err := useAccount(g)
 	if err != nil {
 		return err
 	}
-	defer a.Close()
+	defer release()
 	n, err := e.network(g)
 	if err != nil {
 		return err
 	}
 	c, err := n.dialChatStories(ctx, a, true, !o.ignoreStories)
 	if err != nil {
-		return ioError("Error while checking account %s: %v", a.Data.Number, err)
+		return errcode.AccountCheckFailed.Wrap(err, a.Data.Number, err)
 	}
 	defer c.Close()
 	if err := checkAccount(ctx, a, c, a.Data.Number); err != nil {
@@ -472,6 +499,26 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 		defer u.Close()
 		unauth = u
 	}
+	r := newReceiver(e, g, n, a, c, unauth, o, func(rc *RenderContext, ev manager.Event) {
+		if g.json() {
+			fmt.Fprintln(e.stdout, RenderJSON(rc, ev))
+		} else {
+			io.WriteString(e.stdout, RenderPlain(rc, ev))
+		}
+	})
+	if err := r.RetryCache(ctx); err != nil {
+		return errcode.ReceiveFailed.WrapText(err)
+	}
+	if err := r.Run(ctx, c, o.timeout, o.maxMessages); err != nil {
+		return errcode.ReceiveFailed.WrapText(err)
+	}
+	return nil
+}
+
+// newReceiver builds the receive loop for account a on connection c
+// (pipe.md §7); onEvent gets each handled envelope and its render
+// context.
+func newReceiver(e *env, g *globals, n *network, a *store.Account, c *chat.Conn, unauth manager.Requester, o receiveOpts, onEvent func(*RenderContext, manager.Event)) *manager.Receiver {
 	cd := n.cdn()
 	var nameSender *manager.Sender // set below; names may need a lazy profile read
 	rc := &RenderContext{Self: a.Data.Number, SelfACI: a.Data.ACI, AttachmentsDir: strings.TrimRight(g.dataDir, "/") + "/attachments", Lookup: func(aci string) (string, string) {
@@ -505,21 +552,9 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 			Log: func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  AttachmentHelper - "+f+"\n", args...) }},
 		SendReadReceipts: o.sendReadReceipts,
 		Log:              func(s string) { fmt.Fprintln(e.stderr, "WARN  ReceiveHelper - "+s) },
-		OnEvent: func(ev manager.Event) {
-			if g.json() {
-				fmt.Fprintln(e.stdout, RenderJSON(rc, ev))
-			} else {
-				io.WriteString(e.stdout, RenderPlain(rc, ev))
-			}
-		},
+		OnEvent:          func(ev manager.Event) { onEvent(rc, ev) },
 	}
-	if err := r.RetryCache(ctx); err != nil {
-		return ioError("Error while receiving messages: %v", err)
-	}
-	if err := r.Run(ctx, c, o.timeout, o.maxMessages); err != nil {
-		return ioError("Error while receiving messages: %v", err)
-	}
-	return nil
+	return r
 }
 
 // runSyncCommand is sendSyncRequest and sendContacts (sync.md §8.5,
@@ -556,11 +591,11 @@ func runTrust(ctx context.Context, e *env, g *globals, recipient string, all boo
 		var key []byte
 		if !all {
 			if !hasSafetyNumber {
-				return userError("You need to specify the fingerprint/safety number you have verified with -v SAFETY_NUMBER")
+				return errcode.TrustNeedsSafetyNumber
 			}
 			code, err := fingerprint.ParseVerificationCode(safetyNumber)
 			if err != nil {
-				return userError(err.Error())
+				return errcode.SafetyNumberFormat.Wrap(err)
 			}
 			// A numeric or scannable code that does not match leaves key
 			// nil, which TrustVerifiedKey reports as "not changed".
@@ -581,12 +616,12 @@ func runTrust(ctx context.Context, e *env, g *globals, recipient string, all boo
 		if all {
 			err = sender.TrustAllKnownKeys(ctx, t.aci)
 			if errors.Is(err, manager.ErrTrustNotChanged) {
-				return userError("Failed to set the trust for this number, make sure the number is correct.")
+				return errcode.TrustAllFailed.Wrap(err)
 			}
 		} else {
 			err = sender.TrustVerifiedKey(ctx, t.aci, key)
 			if errors.Is(err, manager.ErrTrustNotChanged) {
-				return userError("Failed to set the trust for this number, make sure the number and the fingerprint/safety number are correct.")
+				return errcode.TrustVerifiedFailed.Wrap(err)
 			}
 		}
 		return err
@@ -610,7 +645,7 @@ func canonicalNumber(a *store.Account, s string) (string, error) {
 		return -1
 	}, s)
 	if digits == "" {
-		return "", userError("Invalid phone number '" + s + "': No valid characters found.")
+		return "", errcode.InvalidPhoneNumber.New(s, "No valid characters found.")
 	}
 	if !strings.HasPrefix(digits, "+") {
 		digits = "+" + digits
