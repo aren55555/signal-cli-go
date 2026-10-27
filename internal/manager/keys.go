@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/svr2"
 	"maps"
 	"time"
 
@@ -36,6 +37,10 @@ func accountAttributes(a *store.Account) api.AccountAttributes {
 		DiscoverableByPhoneNumber:      !a.Data.Unlisted,
 		Capabilities:                   api.PrimaryDeviceCapabilities,
 		PNIRegistrationID:              a.Data.PNIRegistrationID,
+	}
+	if m, ok := pinBackedMasterKey(a); ok {
+		lock, rec := svr2.RegistrationLock(m), svr2.RecoveryPassword(m)
+		attrs.RegistrationLock, attrs.RecoveryPassword = &lock, &rec
 	}
 	if a.Data.DeviceID != 1 {
 		attrs.Capabilities = api.LinkedDeviceCapabilities

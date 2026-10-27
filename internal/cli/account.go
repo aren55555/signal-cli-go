@@ -11,6 +11,7 @@ import (
 	"github.com/aren55555/signal-cli-go/internal/cdsi"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/store"
+	"github.com/aren55555/signal-cli-go/internal/svr2"
 	"github.com/aren55555/signal-cli-go/internal/username"
 )
 
@@ -212,4 +213,35 @@ func cdsiExceptionName(ce *cdsi.CloseError) string {
 		return "CdsiInvalidArgumentException"
 	}
 	return "IOException"
+}
+
+// runSetPin is `setPin PIN` / `removePin` (svr.md §4.1, §4.2, §5.2).
+func runSetPin(ctx context.Context, e *env, g *globals, pin string, remove bool) error {
+	return withAccount(g, func(a *store.Account) error {
+		if a.Data.DeviceID != 1 {
+			return userError("This command doesn't work on linked devices.")
+		}
+		ctx, cancel := context.WithTimeout(ctx, 5*time.Minute)
+		defer cancel()
+		s, err := openSession(ctx, e, g, a)
+		if err != nil {
+			return err
+		}
+		defer s.close()
+		s.sender.Log = func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  PinHelper - "+f+"\n", args...) }
+		if remove {
+			if err := s.sender.RemovePin(ctx); err != nil {
+				return ioError("Remove pin error: %v", err)
+			}
+			return nil
+		}
+		err = s.sender.SetPin(ctx, pin)
+		switch {
+		case errors.Is(err, svr2.ErrUnsupportedPIN):
+			return userError(err.Error())
+		case err != nil:
+			return ioError("Set pin error: %v", err)
+		}
+		return nil
+	})
 }

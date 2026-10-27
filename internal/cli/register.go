@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/svr2"
 	"os"
 	"path/filepath"
 	"time"
@@ -61,6 +62,16 @@ func (e *env) registrar(g *globals, n *network) *manager.Registrar {
 				return err
 			}
 			return manager.UploadInitialProfile(ctx, a, c)
+		},
+		DialSVR2: n.svr2Dialer(),
+		Info:     func(s string) { fmt.Fprintln(e.stderr, "INFO  RegistrationManagerImpl - "+s) },
+		Reactivate: func(ctx context.Context, a *store.Account) error {
+			c, err := n.dialChat(ctx, a, false)
+			if err != nil {
+				return err
+			}
+			defer c.Close()
+			return (&manager.Sender{Acct: a, Chat: c}).UpdateAccountAttributes(ctx)
 		},
 	}
 }
@@ -128,9 +139,15 @@ func runVerify(ctx context.Context, e *env, g *globals, code, pin string) error 
 	if a != nil {
 		defer a.Close()
 	}
+	var locked *manager.LockedError
+	var mismatch *manager.PinMismatchError
 	switch {
 	case errors.Is(err, store.ErrNoAccount):
 		return &cliError{msg: "Verify error: " + manager.ErrNoSession.Error(), code: 3}
+	case errors.As(err, &locked), errors.As(err, &mismatch), errors.Is(err, manager.ErrPinDataDeleted), errors.Is(err, svr2.ErrUnsupportedPIN):
+		return userError(err.Error())
+	case errors.Is(err, manager.ErrRegLockStillFailed):
+		return &cliError{msg: "Exception in thread \"main\" java.lang.AssertionError: " + err.Error(), code: 2}
 	case err != nil:
 		return &cliError{msg: "Verify error: " + err.Error(), code: 3}
 	}

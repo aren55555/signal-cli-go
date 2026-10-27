@@ -91,12 +91,16 @@ type AccountData struct {
 	CDSIToken             []byte           `json:"cdsiToken,omitempty"`
 	CDSINumbers           map[string]int64 `json:"cdsiNumbers,omitempty"`
 	LastRecipientsRefresh int64            `json:"lastRecipientsRefresh,omitempty"`
-	Unlisted              bool             `json:"unlisted,omitempty"`
-	SessionID             string           `json:"sessionId,omitempty"`   // verification session (registration.md §2.5)
-	MultiDevice           bool             `json:"multiDevice,omitempty"` // sync messages are sent (sync.md §1)
-	Configuration         Configuration    `json:"configuration"`
-	ACIKeys               PreKeyState      `json:"aciKeys"`
-	PNIKeys               PreKeyState      `json:"pniKeys"`
+	// Registration lock (spec/crypto/pin.md §4.1): the PIN as typed and a
+	// master key restored from SVR2.
+	RegistrationLockPin string        `json:"registrationLockPin,omitempty"`
+	PinMasterKey        []byte        `json:"pinMasterKey,omitempty"`
+	Unlisted            bool          `json:"unlisted,omitempty"`
+	SessionID           string        `json:"sessionId,omitempty"`   // verification session (registration.md §2.5)
+	MultiDevice         bool          `json:"multiDevice,omitempty"` // sync messages are sent (sync.md §1)
+	Configuration       Configuration `json:"configuration"`
+	ACIKeys             PreKeyState   `json:"aciKeys"`
+	PNIKeys             PreKeyState   `json:"pniKeys"`
 }
 
 // Configuration is the account settings synced between devices (sync.md

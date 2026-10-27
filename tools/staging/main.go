@@ -36,6 +36,8 @@ func main() {
 		send(args)
 	case "check":
 		check(args)
+	case "svrprobe":
+		svrprobe(args)
 	case "groupprobe":
 		groupprobe(args)
 	case "capture":

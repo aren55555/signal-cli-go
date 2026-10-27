@@ -16,7 +16,6 @@ obs073-finishChangeNumber
 obs078-hangupCall
 obs080-listCalls
 obs089-rejectCall
-obs093-removePin
 obs110-startCall
 obs111-startChangeNumber
 obs112-submitRateLimitChallenge
@@ -38,8 +37,6 @@ obs203-startChangeNumber_a_b
 obs204-finishChangeNumber_15555550124
 obs205-finishChangeNumber_-v_123
 obs206--a_15555550123_finishChangeNumber_-v_123_15555550124
-obs212--a_15555550123_setPin_1234
-obs214--a_15555550123_removePin
 obs235-submitRateLimitChallenge_--challenge_x
 obs236-submitRateLimitChallenge_--captcha_x
 obs237--a_15555550123_submitRateLimitChallenge_--challenge_x_--capt

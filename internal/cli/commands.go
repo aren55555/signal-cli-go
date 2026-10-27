@@ -205,6 +205,7 @@ func openSession(ctx context.Context, e *env, g *globals, a *store.Account) (*se
 		closers = append(closers, u.Close)
 	}
 	s.sender.DialCDSI = n.cdsiDialer()
+	s.sender.DialSVR2 = n.svr2Dialer()
 	s.groups = n.groupsManager(g, a, c, s.sender)
 	s.close = func() {
 		// The scheduled full CDSI refresh runs before the account closes

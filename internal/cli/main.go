@@ -319,6 +319,8 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		runErr = runUpdateAccount(ctx, e, g, o)
 	case "getUserStatus":
 		runErr = runGetUserStatus(ctx, e, g, s.Strings("recipient"), s.Strings("username"))
+	case "setPin", "removePin":
+		runErr = runSetPin(ctx, e, g, s.String("pin"), cmd == "removePin")
 	case "trust":
 		sn := s.String("verified_safety_number")
 		runErr = runTrust(ctx, e, g, s.String("recipient"), s.Bool("trust_all_known_keys"), sn, s.Has("verified_safety_number"))

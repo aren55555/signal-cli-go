@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"bytes"
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
@@ -8,6 +9,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"github.com/aren55555/signal-cli-go/internal/cdsi"
+	"github.com/aren55555/signal-cli-go/internal/svr2"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -35,6 +38,8 @@ type regServer struct {
 	log         []string
 	regBody     map[string]any
 	password    string
+	lockToken   string // non-empty: registration is locked to this token
+	posts       int
 }
 
 func (s *regServer) meta(w http.ResponseWriter, status int) {
@@ -95,6 +100,15 @@ func (s *regServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		json.Unmarshal(body, &s.regBody)
+		s.posts++
+		if s.lockToken != "" {
+			attrs, _ := s.regBody["accountAttributes"].(map[string]any)
+			if tok, _ := attrs["registrationLock"].(string); tok != s.lockToken {
+				w.WriteHeader(423)
+				w.Write([]byte(`{"timeRemaining":604799000,"svr2Credentials":{"username":"0123456789abcdef0123456789abcdef","password":"1:ab"}}`))
+				return
+			}
+		}
 		w.Write([]byte(`{"uuid":"` + testACI + `","pni":"` + testPNI + `","number":"` + regNumber + `","storageCapable":true}`))
 	default:
 		w.WriteHeader(404)
@@ -197,8 +211,8 @@ func TestRegisterAndVerify(t *testing.T) {
 	}
 }
 
-// TestRegisterAlreadyRegistered: a registered account is left alone
-// without --reregister.
+// TestRegisterAlreadyRegistered: a registered account is refused without
+// --reregister, before any request (svr.md §4.4 step 2.1, §5.3).
 func TestRegisterAlreadyRegistered(t *testing.T) {
 	s := &regServer{t: t}
 	r, root := newRegistrar(t, s)
@@ -206,7 +220,7 @@ func TestRegisterAlreadyRegistered(t *testing.T) {
 	a.Data.Registered, a.Data.Password = true, strings.Repeat("p", 24)
 	a.Save()
 	a.Close()
-	if err := r.Register(context.Background(), regNumber, "", false, false); err != nil || len(s.log) != 0 {
+	if err := r.Register(context.Background(), regNumber, "", false, false); !errors.Is(err, ErrAlreadyRegistered) || len(s.log) != 0 {
 		t.Errorf("register on a registered account: %v, requests %v", err, s.log)
 	}
 }
@@ -276,4 +290,92 @@ func TestInitialProfile(t *testing.T) {
 	if !body.Avatar || !body.SameAvatar || body.PaymentAddress != nil || body.BadgeIds == nil {
 		t.Errorf("profile %+v", body)
 	}
+}
+
+// fakeSVR2 answers restore requests from one stored backup.
+type fakeSVR2 struct {
+	user   string
+	access map[string][32]byte // mrenclave -> access key
+	blob   map[string][]byte
+	tries  uint32
+	cur    string
+	reply  []byte
+}
+
+func (f *fakeSVR2) Send(b []byte) error {
+	r := RestoreRequestPin(b)
+	acc := f.access[f.cur]
+	var out []byte
+	if bytes.Equal(r, acc[:]) {
+		out = restoreResponse(1, f.blob[f.cur], f.tries)
+	} else {
+		f.tries--
+		out = restoreResponse(3, nil, f.tries)
+	}
+	f.reply = out
+	return nil
+}
+
+func (f *fakeSVR2) Recv() ([]byte, error) { return f.reply, nil }
+
+func TestVerifyRegistrationLock(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Argon2id")
+	}
+	master := [32]byte{7, 7, 7}
+	s := &regServer{t: t, correctCode: "123456", lockToken: svr2.RegistrationLock(master)}
+	r, _ := newRegistrar(t, s)
+	ctx := context.Background()
+	if err := r.Register(ctx, regNumber, "", false, false); err != nil {
+		t.Fatal(err)
+	}
+	// No PIN: the locked message with hours remaining (604799000 ms → 167).
+	_, err := r.Verify(ctx, regNumber, "123456", "")
+	var le *LockedError
+	if !errors.As(err, &le) || !strings.Contains(le.Error(), "Hours remaining until reset: 167") {
+		t.Fatalf("no pin: %v", err)
+	}
+	user := "0123456789abcdef0123456789abcdef"
+	fs := &fakeSVR2{user: user, access: map[string][32]byte{}, blob: map[string][]byte{}, tries: 10}
+	norm, _ := svr2.NormalizePIN("1234")
+	for _, e := range svr2.StagingEnclaves {
+		enc, acc, _ := svr2.PINHash(norm, svr2.Salt(user, e.GroupID))
+		fs.access[e.MREnclave], fs.blob[e.MREnclave] = acc, svr2.EncryptMasterKey(enc, master)
+	}
+	r.DialSVR2 = func(ctx context.Context, e svr2.Enclave, u, p string) (cdsi.Channel, map[string][]byte, func(), error) {
+		fs.cur = e.MREnclave
+		return fs, map[string][]byte{"config": e.RaftConfig()}, func() {}, nil
+	}
+	// A wrong PIN stops at once with the tries left.
+	_, err = r.Verify(ctx, regNumber, "123456", "9999")
+	var pm *PinMismatchError
+	if !errors.As(err, &pm) || pm.Tries != 9 {
+		t.Fatalf("wrong pin: %v", err)
+	}
+	// The right PIN restores the key and the retry carries its token.
+	a, err := r.Verify(ctx, regNumber, "123456", "1234")
+	if err != nil {
+		t.Fatalf("right pin: %v", err)
+	}
+	defer a.Close()
+	if !bytes.Equal(a.Data.PinMasterKey, master[:]) || a.Data.RegistrationLockPin != "1234" || a.Data.AccountEntropyPool != "" {
+		t.Errorf("stored key %x pin %q aep %q", a.Data.PinMasterKey, a.Data.RegistrationLockPin, a.Data.AccountEntropyPool)
+	}
+}
+
+// RestoreRequestPin extracts the access key from a restore request.
+func RestoreRequestPin(b []byte) []byte {
+	if len(b) < 4+32 {
+		return nil
+	}
+	return b[4 : 4+32]
+}
+
+func restoreResponse(status int, data []byte, tries uint32) []byte {
+	inner := []byte{0x08, byte(status)}
+	if data != nil {
+		inner = append(append(inner, 0x12, byte(len(data))), data...)
+	}
+	inner = append(inner, 0x18, byte(tries))
+	return append([]byte{0x12, byte(len(inner))}, inner...)
 }

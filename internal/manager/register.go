@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/svr2"
 	"io"
 	"slices"
 	"strings"
@@ -68,6 +69,11 @@ type Registrar struct {
 	Now          func() time.Time
 	PostRegister func(context.Context, *store.Account) error // prekey refresh, profile
 	Log          func(string)                                // debug log of each call's outcome
+	DialSVR2     SVR2Dialer                                  // restore after a 423 (svr.md §4.3)
+	Info         func(string)                                // INFO lines (svr.md §5.2)
+	// Reactivate sends account attributes with the stored credentials
+	// (svr.md §4.4.1).
+	Reactivate func(context.Context, *store.Account) error
 }
 
 func (r *Registrar) rand() io.Reader {
@@ -172,7 +178,27 @@ func (r *Registrar) Register(ctx context.Context, number, captcha string, voice,
 		return err
 	}
 	defer a.Close()
-	if a.Data.Registered && !reregister {
+	// svr.md §4.4 steps 1-3.
+	if a.Data.Registered && a.Data.Environment != "" && a.Data.Environment != store.EnvStaging {
+		return fmt.Errorf("Account is registered in another environment: %s", a.Data.Environment)
+	}
+	if !reregister {
+		if a.Data.Registered {
+			return ErrAlreadyRegistered
+		}
+		if a.Data.ACI != "" && r.Reactivate != nil {
+			if err := r.Reactivate(ctx, a); err == nil {
+				a.Data.Registered = true
+				if err := a.Save(); err != nil {
+					return err
+				}
+				r.info("Reactivated existing account, verify is not necessary.")
+				return nil
+			}
+			r.logf("Failed to reactivate account")
+		}
+	}
+	if r.reregisterWithRecoveryPassword(ctx, a) {
 		return nil
 	}
 	captcha = strings.ReplaceAll(captcha, "signalcaptcha://", "")
@@ -271,6 +297,7 @@ func (r *Registrar) Register(ctx context.Context, number, captcha string, voice,
 // registrationRequest is POST /v1/registration's body (§4.2): envelope
 // nulls omitted, account-attribute nulls emitted.
 type registrationRequest struct {
+	RecoveryPassword      string                  `json:"recoveryPassword,omitempty"`
 	SessionID             string                  `json:"sessionId,omitempty"`
 	AccountAttributes     api.AccountAttributes   `json:"accountAttributes"`
 	ACIIdentityKey        string                  `json:"aciIdentityKey"`
@@ -283,25 +310,17 @@ type registrationRequest struct {
 	RequireAtomic         bool                    `json:"requireAtomic"`
 }
 
-// Verify runs `verify CODE` (§4, §7): submit the code, register, store.
-func (r *Registrar) Verify(ctx context.Context, number, code, pin string) (*store.Account, error) {
-	a, err := r.Root.Find(number)
-	if err != nil {
-		return nil, err
-	}
-	ok := false
-	defer func() {
-		if !ok {
-			a.Close()
-		}
-	}()
-	if a.Data.SessionID == "" {
-		return nil, ErrNoSession
-	}
-	code = strings.ReplaceAll(code, "-", "")
+// regKeys are the fresh signed and last-resort Kyber prekeys of one
+// registration attempt, ACI then PNI.
+type regKeys [2]struct {
+	signed *protocol.SignedPreKeyRecord
+	kyber  *protocol.KyberPreKeyRecord
+}
+
+// genRegKeys ensures a PNI identity and generates the prekeys (§4).
+func (r *Registrar) genRegKeys(a *store.Account) (*regKeys, error) {
 	d := &a.Data
-	rd := r.rand()
-	now := r.now()
+	rd, now := r.rand(), r.now()
 	if d.PNIIdentity.Private == nil {
 		k, err := curve25519.GeneratePrivateKey(rd)
 		if err != nil {
@@ -309,11 +328,7 @@ func (r *Registrar) Verify(ctx context.Context, number, code, pin string) (*stor
 		}
 		d.PNIIdentity = store.KeyPair{Public: k.PublicKey().Bytes(), Private: k.Bytes()}
 	}
-	type sideKeys struct {
-		signed *protocol.SignedPreKeyRecord
-		kyber  *protocol.KyberPreKeyRecord
-	}
-	var sides [2]sideKeys
+	var sides regKeys
 	for i, side := range []struct {
 		pair  store.KeyPair
 		state *store.PreKeyState
@@ -329,7 +344,52 @@ func (r *Registrar) Verify(ctx context.Context, number, code, pin string) (*stor
 			return nil, err
 		}
 	}
+	return &sides, nil
+}
 
+func (r *Registrar) regRequest(a *store.Account, sides *regKeys) registrationRequest {
+	d := &a.Data
+	attrs := accountAttributes(a)
+	attrs.Capabilities = api.PrimaryDeviceCapabilities
+	attrs.Name = nil
+	return registrationRequest{
+		AccountAttributes: attrs,
+		ACIIdentityKey:    api.KeyBase64(d.ACIIdentity.Public), PNIIdentityKey: api.KeyBase64(d.PNIIdentity.Public),
+		ACISignedPreKey: api.SignedPreKey(sides[0].signed), PNISignedPreKey: api.SignedPreKey(sides[1].signed),
+		ACIPqLastResortPreKey: api.KyberPreKey(sides[0].kyber), PNIPqLastResortPreKey: api.KyberPreKey(sides[1].kyber),
+		SkipDeviceTransfer: true, RequireAtomic: true,
+	}
+}
+
+type regResponse struct {
+	UUID           string `json:"uuid"`
+	PNI            string `json:"pni"`
+	Number         string `json:"number"`
+	StorageCapable bool   `json:"storageCapable"`
+}
+
+// Verify runs `verify CODE` (§4, §7): submit the code, register, store.
+// A 423 is handled per svr.md §4.3.
+func (r *Registrar) Verify(ctx context.Context, number, code, pin string) (*store.Account, error) {
+	a, err := r.Root.Find(number)
+	if err != nil {
+		return nil, err
+	}
+	ok := false
+	defer func() {
+		if !ok {
+			a.Close()
+		}
+	}()
+	d := &a.Data
+	if d.SessionID == "" {
+		return nil, ErrNoSession
+	}
+	code = strings.ReplaceAll(code, "-", "")
+	sides, err := r.genRegKeys(a)
+	if err != nil {
+		return nil, err
+	}
 	m, status, err := r.call(ctx, a, "PUT", "/v1/verification/session/"+d.SessionID+"/code", nil, map[string]string{"code": code})
 	switch {
 	case status == 409 && m != nil && m.Verified:
@@ -338,35 +398,60 @@ func (r *Registrar) Verify(ctx context.Context, number, code, pin string) (*stor
 	case err != nil:
 		return nil, err
 	}
-
-	attrs := accountAttributes(a)
-	attrs.Capabilities = api.PrimaryDeviceCapabilities
-	attrs.Name = nil
-	req := registrationRequest{
-		SessionID: d.SessionID, AccountAttributes: attrs,
-		ACIIdentityKey: api.KeyBase64(d.ACIIdentity.Public), PNIIdentityKey: api.KeyBase64(d.PNIIdentity.Public),
-		ACISignedPreKey: api.SignedPreKey(sides[0].signed), PNISignedPreKey: api.SignedPreKey(sides[1].signed),
-		ACIPqLastResortPreKey: api.KyberPreKey(sides[0].kyber), PNIPqLastResortPreKey: api.KyberPreKey(sides[1].kyber),
-		SkipDeviceTransfer: true, RequireAtomic: true,
-	}
-	var resp struct {
-		UUID           string `json:"uuid"`
-		PNI            string `json:"pni"`
-		Number         string `json:"number"`
-		StorageCapable bool   `json:"storageCapable"`
-	}
+	req := r.regRequest(a, sides)
+	req.SessionID = d.SessionID
+	var resp regResponse
+	var restored *[32]byte
 	if err := r.REST.Do(ctx, "POST", "/v1/registration", r.auth(a), req, &resp); err != nil {
-		return nil, err
+		var se *rest.StatusError
+		if !errors.As(err, &se) || se.Status != 423 {
+			return nil, err
+		}
+		mk, err := r.unlock(ctx, se.Body, pin)
+		if err != nil {
+			return nil, err
+		}
+		restored = &mk
+		if _, status, err := r.call(ctx, a, "PUT", "/v1/verification/session/"+d.SessionID+"/code", nil, map[string]string{"code": code}); err != nil && status != 409 {
+			return nil, err
+		}
+		lock := svr2.RegistrationLock(mk)
+		req.AccountAttributes.RegistrationLock = &lock
+		if err := r.REST.Do(ctx, "POST", "/v1/registration", r.auth(a), req, &resp); err != nil {
+			if errors.As(err, &se) && se.Status == 423 {
+				return nil, ErrRegLockStillFailed
+			}
+			return nil, err
+		}
 	}
+	keepPin := ""
+	if restored != nil {
+		keepPin = pin
+	}
+	if err := r.complete(ctx, a, sides, &resp, restored, keepPin); err != nil {
+		return a, err
+	}
+	ok = true
+	return a, nil
+}
+
+// complete is §7 after a successful POST /v1/registration: local state,
+// then the follow-up (prekeys, profile). master is the master key passed
+// in (pin.md §4.3), pin the PIN to keep.
+func (r *Registrar) complete(ctx context.Context, a *store.Account, sides *regKeys, resp *regResponse, master *[32]byte, pin string) error {
+	d := &a.Data
 	if _, ok := uuidRaw(resp.UUID); !ok {
-		return nil, fmt.Errorf("registration response without a valid uuid")
+		return fmt.Errorf("registration response without a valid uuid")
 	}
 	if _, ok := uuidRaw(resp.PNI); !ok {
-		return nil, fmt.Errorf("registration response without a valid pni")
+		return fmt.Errorf("registration response without a valid pni")
 	}
-
-	// §7 step 1: local state.
+	now := r.now()
 	d.ACI, d.PNI, d.Registered, d.DeviceID, d.DeviceName, d.SessionID = resp.UUID, resp.PNI, true, 1, "", ""
+	d.AccountEntropyPool, d.PinMasterKey, d.RegistrationLockPin = "", nil, ""
+	if master != nil {
+		d.PinMasterKey, d.RegistrationLockPin = append([]byte{}, master[:]...), pin
+	}
 	for i, side := range []struct {
 		state *store.PreKeyState
 		keys  *store.IdentityKeys
@@ -395,16 +480,69 @@ func (r *Registrar) Verify(ctx context.Context, number, code, pin string) (*stor
 	a.Identities["PNI:"+d.PNI] = store.Identity{Key: d.PNIIdentity.Public, Trust: store.TrustedVerified, Added: now.UnixMilli()}
 	for _, save := range []func() error{a.Save, a.SaveKeys, a.SaveSessions, a.SaveIdentities} {
 		if err := save(); err != nil {
-			return nil, err
+			return err
 		}
 	}
-	ok = true
 	if r.PostRegister != nil {
 		if err := r.PostRegister(ctx, a); err != nil {
-			return a, fmt.Errorf("registered, but the follow-up failed: %w", err)
+			return fmt.Errorf("registered, but the follow-up failed: %w", err)
 		}
 	}
-	return a, nil
+	return nil
+}
+
+// reregisterWithRecoveryPassword is svr.md §4.4.2; false on any failure.
+func (r *Registrar) reregisterWithRecoveryPassword(ctx context.Context, a *store.Account) bool {
+	m, ok := pinBackedMasterKey(a)
+	if !ok || a.Data.DeviceID != 1 {
+		return false
+	}
+	sides, err := r.genRegKeys(a)
+	if err != nil {
+		return false
+	}
+	req := r.regRequest(a, sides)
+	req.RecoveryPassword = svr2.RecoveryPassword(m)
+	var resp regResponse
+	if err := r.REST.Do(ctx, "POST", "/v1/registration", r.auth(a), req, &resp); err != nil {
+		r.logf("Failed to reregister with recovery password: %v", err)
+		return false
+	}
+	if err := r.complete(ctx, a, sides, &resp, &m, a.Data.RegistrationLockPin); err != nil {
+		r.logf("%v", err)
+	}
+	r.info("Reregistered existing account, verify is not necessary.")
+	return true
+}
+
+// LockedError is a 423 without a PIN (svr.md §5.2).
+type LockedError struct{ TimeRemaining int64 }
+
+func (e *LockedError) Error() string {
+	return fmt.Sprintf("Verification failed! This number is locked with a pin. Hours remaining until reset: %d\nUse '--pin PIN_CODE' to specify the registration lock PIN", e.TimeRemaining/3600000)
+}
+
+// ErrRegLockStillFailed is a second 423 after a successful restore.
+var ErrRegLockStillFailed = errors.New("KBS Pin appeared to matched but reg lock still failed!")
+
+// unlock handles a 423 body (svr.md §4.3 steps 3-4).
+func (r *Registrar) unlock(ctx context.Context, body []byte, pin string) ([32]byte, error) {
+	var b struct {
+		TimeRemaining   int64 `json:"timeRemaining"`
+		SVR2Credentials *struct {
+			Username string `json:"username"`
+			Password string `json:"password"`
+		} `json:"svr2Credentials"`
+	}
+	json.Unmarshal(body, &b)
+	if pin == "" {
+		return [32]byte{}, &LockedError{TimeRemaining: b.TimeRemaining}
+	}
+	if b.SVR2Credentials == nil {
+		return [32]byte{}, ErrPinDataDeleted
+	}
+	s := &Sender{DialSVR2: r.DialSVR2}
+	return s.RestoreMasterKey(ctx, b.SVR2Credentials.Username, b.SVR2Credentials.Password, pin)
 }
 
 // encryptProfileField pads plaintext with zeros to n bytes and encrypts
@@ -476,3 +614,20 @@ func UploadInitialProfile(ctx context.Context, a *store.Account, c Requester) er
 	}
 	return nil
 }
+
+func (r *Registrar) logf(f string, args ...any) {
+	if r.Log != nil {
+		r.Log(fmt.Sprintf(f, args...))
+	}
+}
+
+// info logs an INFO line from RegistrationManagerImpl (svr.md §5.2).
+func (r *Registrar) info(msg string) {
+	if r.Info != nil {
+		r.Info(msg)
+	}
+}
+
+// ErrAlreadyRegistered is register on a registered account without
+// --reregister (svr.md §5.3).
+var ErrAlreadyRegistered = errors.New("Account is already registered")

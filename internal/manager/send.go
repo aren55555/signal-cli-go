@@ -68,7 +68,9 @@ type Sender struct {
 	TrustNew   string
 	Log        func(format string, args ...any)
 	// DialCDSI opens CDSI channels; nil disables number lookups.
-	DialCDSI    CDSIDialer
+	DialCDSI CDSIDialer
+	// DialSVR2 opens SVR2 channels; nil disables PIN operations.
+	DialSVR2    SVR2Dialer
 	cert        []byte
 	certExpires uint64
 }
