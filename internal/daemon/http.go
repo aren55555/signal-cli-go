@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf16"
 
 	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/jackson"
@@ -251,7 +252,7 @@ func (h *HTTP) handle(ctx context.Context, c net.Conn, br *bufio.Reader, r *http
 		emptyFor(c, r, errcode.HTTPUnsupportedMediaType)
 		return true
 	}
-	resp := h.rpc(ctx, string(r.body))
+	resp := escapeSupplementary(h.rpc(ctx, string(r.body)))
 	if resp == "" {
 		empty(c, r, 201)
 		return true
@@ -390,4 +391,23 @@ func (h *HTTP) events(ctx context.Context, c net.Conn, br *bufio.Reader, r *http
 			return false
 		}
 	}
+}
+
+// escapeSupplementary writes characters outside the BMP as escaped
+// UTF-16 surrogate pairs (upper-case hex), as the reference's UTF-8
+// JSON generator does for HTTP responses.
+func escapeSupplementary(s string) string {
+	if !strings.ContainsFunc(s, func(r rune) bool { return r > 0xFFFF }) {
+		return s
+	}
+	var b strings.Builder
+	for _, r := range s {
+		if r > 0xFFFF {
+			hi, lo := utf16.EncodeRune(r)
+			fmt.Fprintf(&b, `\u%04X\u%04X`, hi, lo)
+			continue
+		}
+		b.WriteRune(r)
+	}
+	return b.String()
 }

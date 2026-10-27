@@ -17,6 +17,9 @@ import (
 // stored file, base64; recipient and group are not used.
 func runGetAttachment(e *env, g *globals, id string) error {
 	return withAccount(g, func(*store.Account) error {
+		if id == "" && g.daemon != nil {
+			return errcode.MissingAttachmentID
+		}
 		data, err := os.ReadFile(filepath.Join(g.dataDir, "attachments", attachment.Sanitize(id)))
 		switch {
 		case errors.Is(err, fs.ErrNotExist):

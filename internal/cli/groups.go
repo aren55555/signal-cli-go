@@ -12,6 +12,7 @@ import (
 	"github.com/aren55555/signal-cli-go/internal/attachment"
 	"github.com/aren55555/signal-cli-go/internal/errcode"
 	"github.com/aren55555/signal-cli-go/internal/groups"
+	"github.com/aren55555/signal-cli-go/internal/javahash"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/service/rest"
 	"github.com/aren55555/signal-cli-go/internal/store"
@@ -134,6 +135,23 @@ func runUpdateGroup(ctx context.Context, e *env, g *globals, o updateGroupOpts) 
 				return err
 			}
 			resolvedLists[i] = acis
+		}
+		if o.link != "" {
+			v, ok := map[string]string{"enabled": "enabled", "enabled-with-approval": "enabled-with-approval", "enabledWithApproval": "enabled-with-approval", "disabled": "disabled"}[o.link]
+			if !ok {
+				return errcode.InvalidGroupLinkState.New(o.link)
+			}
+			o.link = v
+		}
+		for _, perm := range []*string{&o.permAdd, &o.permEdit, &o.permSend} {
+			if *perm == "" {
+				continue
+			}
+			v, ok := map[string]string{"every-member": "every-member", "everyMember": "every-member", "only-admins": "only-admins", "onlyAdmins": "only-admins"}[*perm]
+			if !ok {
+				return errcode.InvalidGroupPermission.New(*perm)
+			}
+			*perm = v
 		}
 		var avatar []byte
 		if o.avatar != "" {
@@ -438,25 +456,25 @@ func groupLine(a *store.Account, rec *store.GroupRecord, detailed bool) string {
 	var members, pending, requesting, banned []string
 	exp := "disabled"
 	if st != nil {
-		for _, m := range st.Members {
-			s := ident(a, m.ACI)
-			if m.Role == groups.RoleAdmin {
+		for _, m := range orderedMembers(a, st) {
+			s := legacyIdent(m.addr)
+			if m.admin {
 				s += "{ADMIN}"
 			}
-			if m.LabelEmoji != "" || m.LabelString != "" {
-				s += "(" + m.LabelEmoji + m.LabelString + ")"
+			if m.emoji != "" || m.label != "" {
+				s += "(" + m.emoji + m.label + ")"
 			}
 			members = append(members, s)
 		}
-		for _, p := range st.Pending {
-			pending = append(pending, ident(a, p.ServiceID))
+		idents := func(as []groupAddr) []string {
+			var xs []string
+			for _, g := range as {
+				xs = append(xs, legacyIdent(g))
+			}
+			return orderedStrings(xs)
 		}
-		for _, r := range st.Requesting {
-			requesting = append(requesting, ident(a, r.ACI))
-		}
-		for _, b := range st.Banned {
-			banned = append(banned, ident(a, b.ServiceID))
-		}
+		members = orderedStrings(members)
+		pending, requesting, banned = idents(orderedAddrs(a, pendingIDs(st))), idents(orderedAddrs(a, requestingIDs(st))), idents(orderedAddrs(a, bannedIDs(st)))
 		if st.Timer > 0 {
 			exp = fmt.Sprintf("%ds", st.Timer)
 		}
@@ -502,29 +520,40 @@ func groupJSON(a *store.Account, rec *store.GroupRecord) *jsonObject {
 	var members, pending, requesting, admins, banned []string
 	if st != nil {
 		timer = st.Timer
-		for _, m := range st.Members {
-			mo := addrJSON(a, m.ACI)
-			mo.add("isAdmin", m.Role == groups.RoleAdmin)
-			if m.LabelEmoji != "" {
-				mo.add("labelEmoji", m.LabelEmoji)
+		// Every list is a hash set of output records (serialization.md §1.2).
+		ms := orderedMembers(a, st)
+		jm := javahash.Order(ms, func(m groupMember) int32 {
+			return javahash.Record(javahash.Nullable(m.addr.number), javahash.Nullable(m.addr.aci), javahash.Bool(m.admin), javahash.Nullable(m.emoji), javahash.Nullable(m.label))
+		}, func(m groupMember) string {
+			return fmt.Sprint(m.addr.number, "|", m.addr.aci, m.admin, "|", m.emoji, "|", m.label)
+		})
+		for _, m := range jm {
+			mo := addrOutJSON(m.addr)
+			mo.add("isAdmin", m.admin)
+			if m.emoji != "" {
+				mo.add("labelEmoji", m.emoji)
 			}
-			if m.LabelString != "" {
-				mo.add("label", m.LabelString)
+			if m.label != "" {
+				mo.add("label", m.label)
 			}
 			members = append(members, mo.String())
-			if m.Role == groups.RoleAdmin {
-				admins = append(admins, addrJSON(a, m.ACI).String())
+		}
+		var adm []groupAddr
+		for _, m := range ms {
+			if m.admin {
+				adm = append(adm, m.addr)
 			}
 		}
-		for _, p := range st.Pending {
-			pending = append(pending, addrJSON(a, p.ServiceID).String())
+		out := func(as []groupAddr) []string {
+			as = javahash.Order(as, groupAddr.jsonAddrHash, func(g groupAddr) string { return g.number + "|" + g.aci })
+			var xs []string
+			for _, g := range as {
+				xs = append(xs, addrOutJSON(g).String())
+			}
+			return xs
 		}
-		for _, r := range st.Requesting {
-			requesting = append(requesting, addrJSON(a, r.ACI).String())
-		}
-		for _, b := range st.Banned {
-			banned = append(banned, addrJSON(a, b.ServiceID).String())
-		}
+		admins = out(javahash.Order(adm, groupAddr.hash, groupAddr.key))
+		pending, requesting, banned = out(orderedAddrs(a, pendingIDs(st))), out(orderedAddrs(a, requestingIDs(st))), out(orderedAddrs(a, bannedIDs(st)))
 	}
 	arr := func(xs []string) rawJSON { return rawJSON("[" + strings.Join(xs, ",") + "]") }
 	o.add("messageExpirationTime", timer)
@@ -542,4 +571,127 @@ func groupJSON(a *store.Account, rec *store.GroupRecord) *jsonObject {
 	o.add("permissionSendMessage", send)
 	o.add("groupInviteLink", strOrNull(manager.InviteLink(rec)))
 	return o
+}
+
+// groupAddr is a group member's address as the reference's api
+// RecipientAddress record (serialization.md §1.2).
+type groupAddr struct {
+	id                         string // our recipient key
+	aci, pni, number, username string
+	rowID                      int64
+}
+
+func memberAddr(a *store.Account, id string) groupAddr {
+	g := groupAddr{id: id}
+	rc := a.Recipients[id]
+	g.rowID, g.number, g.username = rc.ID, rc.Number, rc.Username
+	switch {
+	case strings.HasPrefix(id, "PNI:"):
+		g.pni = id
+	default:
+		g.aci = id
+		if rc.PNI != "" {
+			g.pni = "PNI:" + rc.PNI
+		}
+	}
+	if id == a.Data.ACI {
+		g.number, g.username = a.Data.Number, a.Data.Username
+		if a.Data.PNI != "" {
+			g.pni = "PNI:" + a.Data.PNI
+		}
+	}
+	return g
+}
+
+func (g groupAddr) hash() int32 {
+	return javahash.Record(javahash.Optional(g.aci), javahash.Optional(g.pni), javahash.Optional(g.number), javahash.Optional(g.username))
+}
+
+func (g groupAddr) key() string { return g.aci + "|" + g.pni + "|" + g.number + "|" + g.username }
+
+// jsonAddrHash is the JsonGroupMemberAddress record (number, uuid).
+func (g groupAddr) jsonAddrHash() int32 {
+	return javahash.Record(javahash.Nullable(g.number), javahash.Nullable(g.aci))
+}
+
+// groupMember is a GroupMember record.
+type groupMember struct {
+	addr         groupAddr
+	admin        bool
+	emoji, label string
+}
+
+func (m groupMember) hash() int32 {
+	return javahash.Record(m.addr.hash(), javahash.Bool(m.admin), javahash.Nullable(m.emoji), javahash.Nullable(m.label))
+}
+
+func (m groupMember) key() string {
+	return fmt.Sprint(m.addr.key(), m.admin, "|", m.emoji, "|", m.label)
+}
+
+// orderedMembers is Group.members' iteration order.
+func orderedMembers(a *store.Account, st *groups.State) []groupMember {
+	var ms []groupMember
+	for _, m := range st.Members {
+		ms = append(ms, groupMember{addr: memberAddr(a, m.ACI), admin: m.Role == groups.RoleAdmin, emoji: m.LabelEmoji, label: m.LabelString})
+	}
+	return javahash.Order(ms, groupMember.hash, groupMember.key)
+}
+
+// orderedAddrs is the iteration order of a Group address set built from
+// recipient ids (pending, requesting, banned).
+func orderedAddrs(a *store.Account, ids []string) []groupAddr {
+	var as []groupAddr
+	for _, id := range ids {
+		as = append(as, memberAddr(a, id))
+	}
+	as = javahash.Order(as, func(g groupAddr) int32 { return 31 + javahash.Long(g.rowID) }, func(g groupAddr) string { return g.id })
+	return javahash.Order(as, groupAddr.hash, groupAddr.key)
+}
+
+// orderedStrings is a HashSet<String>'s order.
+func orderedStrings(xs []string) []string {
+	return javahash.Order(xs, javahash.String, func(s string) string { return s })
+}
+
+func addrOutJSON(g groupAddr) *jsonObject {
+	o := &jsonObject{}
+	o.add("number", strOrNull(g.number))
+	o.add("uuid", strOrNull(g.aci))
+	return o
+}
+
+func pendingIDs(st *groups.State) []string {
+	var ids []string
+	for _, p := range st.Pending {
+		ids = append(ids, p.ServiceID)
+	}
+	return ids
+}
+
+func requestingIDs(st *groups.State) []string {
+	var ids []string
+	for _, r := range st.Requesting {
+		ids = append(ids, r.ACI)
+	}
+	return ids
+}
+
+func bannedIDs(st *groups.State) []string {
+	var ids []string
+	for _, b := range st.Banned {
+		ids = append(ids, b.ServiceID)
+	}
+	return ids
+}
+
+// legacyIdent is the reference's legacy identifier: number, else ACI,
+// else PNI, else username.
+func legacyIdent(g groupAddr) string {
+	for _, s := range []string{g.number, g.aci, g.pni, g.username} {
+		if s != "" {
+			return s
+		}
+	}
+	return ""
 }

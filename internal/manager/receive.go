@@ -267,6 +267,9 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 		return // blocked group or not allowed (groups.md §6.4)
 	}
 	applyPNI(r.Acct, m, &c)
+	if p := c.GetSyncMessage().GetPniChangeNumber(); p != nil && r.applyPniChangeSync(&env, m.Sender.DeviceID, delivered, p) {
+		r.pending.refresh = true
+	}
 	if sm := c.GetSyncMessage(); sm != nil {
 		r.applySync(ctx, sm)
 	}

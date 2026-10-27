@@ -305,3 +305,6 @@ always sealing.
 - CDSI (number to ACI/PNI) is out of scope here. It runs over
   libsignal-net's enclave connection to `cdsi.staging.signal.org`, using
   credentials from the chat service.
+- (Added later.) The 428 body, how its `Retry-After` turns into the
+  reported seconds (−1 when absent), and `submitRateLimitChallenge` are
+  specified in `rate-limit-challenge.md`.

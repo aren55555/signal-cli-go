@@ -131,7 +131,7 @@ func runGetUserStatus(ctx context.Context, e *env, g *globals, numbers, username
 			case err != nil:
 				return errcode.UserStatusFailed.Wrap(err, err, "IOException")
 			}
-			for _, in := range numbers {
+			for _, in := range orderedStrings(numbers) {
 				c, ok := canon[in]
 				entry, found := res[c]
 				uuid := entry.ACI
@@ -166,7 +166,7 @@ func runGetUserStatus(ctx context.Context, e *env, g *globals, numbers, username
 				fmt.Fprintf(e.stdout, "%s: %t%s\n", in, found, suffix)
 			}
 		}
-		for _, u := range usernames {
+		for _, u := range orderedStrings(usernames) {
 			k, ok, err := s.sender.ResolveUsername(ctx, u, true)
 			var ue *username.Error
 			switch {

@@ -377,6 +377,9 @@ func runSendReceipt(ctx context.Context, e *env, g *globals, recipient string, t
 	if err != nil {
 		return err
 	}
+	if kind != "" && kind != "read" && kind != "viewed" {
+		return errcode.ReceiptTypeUnknown.New(kind)
+	}
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 	defer cancel()
 	s, err := openSession(ctx, e, g, a)

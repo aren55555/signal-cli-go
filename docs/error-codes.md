@@ -59,6 +59,8 @@ Every error the CLI or the JSON-RPC daemon reports is one of these codes. `exit`
 | RPCSubscriptionMissing | protocol |  | -1 |  | `` Missing subscription parameter with subscription id `` | unsubscribe without params in multi-account mode | golden |
 | RPCNullPointer | protocol |  | -32603 |  | `` Cannot invoke "%s" because %s is null (NullPointerException) `` | a required parameter was missing (a Java NullPointerException in the reference) | golden |
 | RPCIllegalArgument | protocol |  | -32603 |  | `` %s (IllegalArgumentException) `` | a parameter value was outside its allowed set | spec |
+| RPCNullPointerPlain | protocol |  | -32603 |  | `` null (NullPointerException) `` | a required parameter was missing (a NullPointerException without a message) | spec |
+| RPCIndexOutOfBounds | protocol |  | -32603 |  | `` Index %d out of bounds for length %d (StringIndexOutOfBoundsException) `` | an odd-length hex value was decoded | spec |
 | HTTPMissingHost | http |  |  | 400 | `` <h1>400 Bad Request</h1>Missing Host header `` | an HTTP/1.1 request without a Host header | golden |
 | HTTPNoContext | http |  |  | 404 | `` <h1>404 Not Found</h1>No context found for request `` | the path is outside /api/v1/rpc, /api/v1/events and /api/v1/check | golden |
 | HTTPNotFound | http |  |  | 404 | ``  `` | the path extends one of the endpoint paths | golden |
@@ -91,7 +93,7 @@ Every error the CLI or the JSON-RPC daemon reports is one of these codes. `exit`
 | LinkWithAccount | startup | 1 |  |  | `` You cannot specify a account (phone number) when linking `` | link was given -a | golden |
 | LiveUnsupported | startup | 1 |  |  | `` The live service environment is not supported by signal-cli-go yet; use --service-environment staging `` | only the staging environment is configured | deviation |
 | InvalidProxy | startup | 1 |  |  | `` Invalid proxy setting: %s `` | the proxy environment variable could not be parsed | deviation |
-| NotImplemented | startup | 2 |  |  | `` Command %s is not implemented in signal-cli-go yet `` | the command has no implementation | deviation |
+| NotImplemented | unexpected | 2 | -32603 |  | `` Command %s is not implemented in signal-cli-go yet `` | the command has no implementation | deviation |
 | DaemonNoChannel | startup | 1 |  |  | `` At least one channel parameter is required, e.g. --socket or --dbus. `` | daemon was started without a transport | spec |
 | DaemonBadAddress | startup | 1 |  |  | `` Invalid tcp bind address (expected host:port): %s `` | a bind address without a colon | spec |
 | DaemonBadPort | startup | 1 |  |  | `` Invalid tcp port: %s `` | a bind address whose port is not an integer | spec |
@@ -162,7 +164,7 @@ Every error the CLI or the JSON-RPC daemon reports is one of these codes. `exit`
 | CaptchaRequired | user | 1 | -1 |  | `` Captcha required for verification, use --captcha CAPTCHA\nTo get the token, go to https://signalcaptchas.org/registration/generate.html\nAfter solving the captcha, right-click on the "Open Signal" link and copy the link.%s `` | the server requires a captcha before sending a code | spec |
 | CaptchaInvalid | user | 1 | -1 |  | `` Invalid captcha given.%s `` | the server rejected the captcha | spec |
 | RegisterRateLimited | rate-limit | 5 | -5 |  | `` Rate limit reached%s `` | the server rate-limited the request | spec |
-| RegisterMethodUnavailable | user | 1 | -1 |  | `` Failed to register: Verification method not available%s `` | the server cannot send a code by the chosen method | spec |
+| RegisterMethodUnavailable | user | 1 | -1 |  | `` Failed to register: Invalid verification method%s `` | the server cannot send a code by the chosen method | spec |
 | RegisterFailed | io | 3 | -3 |  | `` Failed to register: %s (%s) `` | the registration request failed | spec |
 | RegisterAlreadyRegistered | io | 3 | -3 |  | `` Failed to register: Account is already registered (IOException) `` | register without --reregister on a registered account | spec |
 | VerifyNoSession | io | 3 | -3 |  | `` Verify error: No registration verification session active `` | verify without a prior register | spec |

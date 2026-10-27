@@ -139,6 +139,12 @@ func runCommand(ctx context.Context, e *env, g *globals, cmd string, s *argparse
 		runErr = runListAccounts(e, g)
 	case "deleteLocalAccountData":
 		runErr = runDeleteLocalAccountData(e, g, s.Bool("ignore_registered"))
+	case "startChangeNumber":
+		runErr = runStartChangeNumber(ctx, e, g, s.String("number"), s.Bool("voice"), s.String("captcha"))
+	case "finishChangeNumber":
+		runErr = runFinishChangeNumber(ctx, e, g, s.String("number"), s.String("verification-code"))
+	case "submitRateLimitChallenge":
+		runErr = runSubmitChallenge(ctx, e, g, s.String("challenge"), s.String("captcha"))
 	case "listCalls":
 		runErr = runListCalls(e, g)
 	case "acceptCall", "hangupCall", "rejectCall":

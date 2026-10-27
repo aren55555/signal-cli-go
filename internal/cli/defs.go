@@ -333,6 +333,23 @@ func commandParser(name string) *argparse.Parser {
 			&argparse.Arg{Names: []string{"--id"}, Dest: "id", Metavars: []string{"ID"}, Required: true, Help: "The ID of the attachment file."},
 			recipient, group)
 		p.Groups = []*argparse.Group{{Args: []*argparse.Arg{recipient, group}, Required: true}}
+	case "startChangeNumber":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"number"}, Dest: "number", Help: "The new phone number in E164 format."},
+			&argparse.Arg{Names: []string{"-v", "--voice"}, Action: argparse.StoreTrue, Help: "The verification should be done over voice, not SMS."},
+			&argparse.Arg{Names: []string{"--captcha"}, Dest: "captcha", Metavars: []string{"CAPTCHA"}, Help: "The captcha token, required if change number failed with a captcha required error."},
+		)
+	case "finishChangeNumber":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"number"}, Dest: "number", Help: "The new phone number in E164 format."},
+			&argparse.Arg{Names: []string{"-v", "--verification-code"}, Dest: "verification-code", Metavars: []string{"VERIFICATION_CODE"}, Required: true, Help: "The verification code you received via sms or voice call."},
+			&argparse.Arg{Names: []string{"-p", "--pin"}, Dest: "pin", Metavars: []string{"PIN"}, Help: "The registration lock PIN, that was set by the user (Optional)"},
+		)
+	case "submitRateLimitChallenge":
+		p.Args = append(p.Args,
+			&argparse.Arg{Names: []string{"--challenge"}, Dest: "challenge", Metavars: []string{"CHALLENGE"}, Required: true, Help: "The challenge token taken from the proof required error."},
+			&argparse.Arg{Names: []string{"--captcha"}, Dest: "captcha", Metavars: []string{"CAPTCHA"}, Required: true, Help: "The captcha token from the solved captcha on the signal website."},
+		)
 	case "deleteLocalAccountData":
 		p.Args = append(p.Args, &argparse.Arg{Names: []string{"--ignore-registered"}, Action: argparse.StoreTrue, Help: "Delete the account data even though the account is still registered on the Signal servers."})
 	case "acceptCall", "hangupCall", "rejectCall":

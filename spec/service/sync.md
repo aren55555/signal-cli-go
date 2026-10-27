@@ -1024,3 +1024,6 @@ transcript send to the own account (success, or e.g. a network failure).
 - No upstream fixed vectors for the contact/group streams; none invented.
   Field order in this file was checked by encoding values with the
   reference jar (Y3), not taken from vectors.
+- (Added later.) The change-number request body and the delivery of the
+  `pniChangeNumber` ciphertexts are now specified in `change-number.md`
+  §3.3–§3.5 and §5.

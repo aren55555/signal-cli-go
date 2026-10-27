@@ -71,6 +71,8 @@ const (
 	RPCSubscriptionMissing
 	RPCNullPointer
 	RPCIllegalArgument
+	RPCNullPointerPlain
+	RPCIndexOutOfBounds
 
 	// HTTP server responses.
 	HTTPMissingHost
@@ -385,6 +387,8 @@ var table = [numCodes]info{
 	RPCSubscriptionMissing:  protocol("RPCSubscriptionMissing", -1, "Missing subscription parameter with subscription id", "unsubscribe without params in multi-account mode", Observed),
 	RPCNullPointer:          protocol("RPCNullPointer", -32603, "Cannot invoke \"%s\" because %s is null (NullPointerException)", "a required parameter was missing (a Java NullPointerException in the reference)", Observed),
 	RPCIllegalArgument:      protocol("RPCIllegalArgument", -32603, "%s (IllegalArgumentException)", "a parameter value was outside its allowed set", Spec),
+	RPCNullPointerPlain:     protocol("RPCNullPointerPlain", -32603, "null (NullPointerException)", "a required parameter was missing (a NullPointerException without a message)", Spec),
+	RPCIndexOutOfBounds:     protocol("RPCIndexOutOfBounds", -32603, "Index %d out of bounds for length %d (StringIndexOutOfBoundsException)", "an odd-length hex value was decoded", Spec),
 
 	HTTPMissingHost:          httpErr("HTTPMissingHost", 400, "<h1>400 Bad Request</h1>Missing Host header", "an HTTP/1.1 request without a Host header", Observed),
 	HTTPNoContext:            httpErr("HTTPNoContext", 404, "<h1>404 Not Found</h1>No context found for request", "the path is outside /api/v1/rpc, /api/v1/events and /api/v1/check", Observed),
@@ -420,7 +424,7 @@ var table = [numCodes]info{
 	LinkWithAccount:       startup("LinkWithAccount", 1, "You cannot specify a account (phone number) when linking", "link was given -a", Observed),
 	LiveUnsupported:       startup("LiveUnsupported", 1, "The live service environment is not supported by signal-cli-go yet; use --service-environment staging", "only the staging environment is configured", Deviation),
 	InvalidProxy:          startup("InvalidProxy", 1, "Invalid proxy setting: %s", "the proxy environment variable could not be parsed", Deviation),
-	NotImplemented:        startup("NotImplemented", 2, "Command %s is not implemented in signal-cli-go yet", "the command has no implementation", Deviation),
+	NotImplemented:        info{name: "NotImplemented", kind: KindUnexpected, exit: 2, rpc: -32603, msg: "Command %s is not implemented in signal-cli-go yet", rpcMsg: "Command %s is not implemented in signal-cli-go yet", cause: "the command has no implementation", source: Deviation},
 	DaemonNoChannel:       startup("DaemonNoChannel", 1, "At least one channel parameter is required, e.g. --socket or --dbus.", "daemon was started without a transport", Spec),
 	DaemonBadAddress:      startup("DaemonBadAddress", 1, "Invalid tcp bind address (expected host:port): %s", "a bind address without a colon", Spec),
 	DaemonBadPort:         startup("DaemonBadPort", 1, "Invalid tcp port: %s", "a bind address whose port is not an integer", Spec),
@@ -497,7 +501,7 @@ var table = [numCodes]info{
 	CaptchaRequired:           user("CaptchaRequired", "Captcha required for verification, use --captcha CAPTCHA\nTo get the token, go to https://signalcaptchas.org/registration/generate.html\nAfter solving the captcha, right-click on the \"Open Signal\" link and copy the link.%s", "the server requires a captcha before sending a code", Spec),
 	CaptchaInvalid:            user("CaptchaInvalid", "Invalid captcha given.%s", "the server rejected the captcha", Spec),
 	RegisterRateLimited:       info{name: "RegisterRateLimited", kind: KindRateLimit, exit: 5, rpc: -5, msg: "Rate limit reached%s", cause: "the server rate-limited the request", source: Spec},
-	RegisterMethodUnavailable: user("RegisterMethodUnavailable", "Failed to register: Verification method not available%s", "the server cannot send a code by the chosen method", Spec),
+	RegisterMethodUnavailable: user("RegisterMethodUnavailable", "Failed to register: Invalid verification method%s", "the server cannot send a code by the chosen method", Spec),
 	RegisterFailed:            ioErr("RegisterFailed", "Failed to register: %s (%s)", "the registration request failed", Spec),
 	RegisterAlreadyRegistered: ioErr("RegisterAlreadyRegistered", "Failed to register: Account is already registered (IOException)", "register without --reregister on a registered account", Spec),
 	VerifyNoSession:           ioErr("VerifyNoSession", "Verify error: No registration verification session active", "verify without a prior register", Spec),

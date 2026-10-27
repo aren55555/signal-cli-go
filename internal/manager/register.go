@@ -74,6 +74,10 @@ type Registrar struct {
 	// Reactivate sends account attributes with the stored credentials
 	// (svr.md §4.4.1).
 	Reactivate func(context.Context, *store.Account) error
+
+	// authNumber replaces the account number in session calls
+	// (startChangeNumber authenticates as the new number).
+	authNumber string
 }
 
 func (r *Registrar) rand() io.Reader {
@@ -132,6 +136,9 @@ func (r *Registrar) newAccount(number string) (*store.Account, error) {
 }
 
 func (r *Registrar) auth(a *store.Account) *rest.Basic {
+	if r.authNumber != "" {
+		return &rest.Basic{User: r.authNumber, Password: a.Data.Password}
+	}
 	return &rest.Basic{User: a.Data.Number, Password: a.Data.Password}
 }
 
@@ -201,6 +208,21 @@ func (r *Registrar) Register(ctx context.Context, number, captcha string, voice,
 	if r.reregisterWithRecoveryPassword(ctx, a) {
 		return nil
 	}
+	if err := r.requestCode(ctx, a, number, captcha, voice); err != nil {
+		return err
+	}
+	a.Data.Registered = false
+	return a.Save()
+}
+
+// requestCode runs the verification-session algorithm for number (§2.5
+// steps 1-7) and requests the code (§3). The session is stored in the
+// account, tagged with number.
+func (r *Registrar) requestCode(ctx context.Context, a *store.Account, number, captcha string, voice bool) error {
+	var err error
+	if a.Data.SessionNumber != number && !(a.Data.SessionNumber == "" && number == a.Data.Number) {
+		a.Data.SessionID = ""
+	}
 	captcha = strings.ReplaceAll(captcha, "signalcaptcha://", "")
 
 	submitCaptcha := func(m *sessionMeta) (*sessionMeta, error) {
@@ -241,7 +263,7 @@ func (r *Registrar) Register(ctx context.Context, number, captcha string, voice,
 		return err
 	}
 	// 2. Store it.
-	a.Data.SessionID = m.ID
+	a.Data.SessionID, a.Data.SessionNumber = m.ID, number
 	if err := a.Save(); err != nil {
 		return err
 	}
@@ -290,8 +312,7 @@ func (r *Registrar) Register(ctx context.Context, number, captcha string, voice,
 	case err != nil:
 		return err
 	}
-	a.Data.Registered = false
-	return a.Save()
+	return nil
 }
 
 // registrationRequest is POST /v1/registration's body (§4.2): envelope

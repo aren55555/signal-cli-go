@@ -93,14 +93,20 @@ type AccountData struct {
 	LastRecipientsRefresh int64            `json:"lastRecipientsRefresh,omitempty"`
 	// Registration lock (spec/crypto/pin.md §4.1): the PIN as typed and a
 	// master key restored from SVR2.
-	RegistrationLockPin string        `json:"registrationLockPin,omitempty"`
-	PinMasterKey        []byte        `json:"pinMasterKey,omitempty"`
-	Unlisted            bool          `json:"unlisted,omitempty"`
-	SessionID           string        `json:"sessionId,omitempty"`   // verification session (registration.md §2.5)
-	MultiDevice         bool          `json:"multiDevice,omitempty"` // sync messages are sent (sync.md §1)
-	Configuration       Configuration `json:"configuration"`
-	ACIKeys             PreKeyState   `json:"aciKeys"`
-	PNIKeys             PreKeyState   `json:"pniKeys"`
+	RegistrationLockPin string `json:"registrationLockPin,omitempty"`
+	PinMasterKey        []byte `json:"pinMasterKey,omitempty"`
+	Unlisted            bool   `json:"unlisted,omitempty"`
+	SessionID           string `json:"sessionId,omitempty"` // verification session (registration.md §2.5)
+	// SessionNumber is the number SessionID was created for: the account's
+	// own (registration) or a new one (change-number.md §2.2).
+	SessionNumber string `json:"sessionNumber,omitempty"`
+	// LastPniChange is the server-delivered time of the last applied
+	// pniChangeNumber sync message (sync.md §6.13).
+	LastPniChange int64         `json:"lastPniChange,omitempty"`
+	MultiDevice   bool          `json:"multiDevice,omitempty"` // sync messages are sent (sync.md §1)
+	Configuration Configuration `json:"configuration"`
+	ACIKeys       PreKeyState   `json:"aciKeys"`
+	PNIKeys       PreKeyState   `json:"pniKeys"`
 }
 
 // Configuration is the account settings synced between devices (sync.md
@@ -678,3 +684,26 @@ func (a *Account) RemoveGroup(id []byte) {
 		}
 	}
 }
+
+// SetNumber changes the account's number, in account.json and in the
+// accounts index (change-number.md §4).
+func (a *Account) SetNumber(number string) error {
+	a.Data.Number = number
+	if err := a.Save(); err != nil {
+		return err
+	}
+	idx, err := a.root.index()
+	if err != nil {
+		return err
+	}
+	for i := range idx.Accounts {
+		if idx.Accounts[i].Path == a.path {
+			idx.Accounts[i].Number = number
+			return a.root.saveIndex(idx)
+		}
+	}
+	return nil
+}
+
+// Root is the account's directory root.
+func (a *Account) Root() *Root { return a.root }

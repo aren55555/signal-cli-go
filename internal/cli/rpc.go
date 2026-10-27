@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -81,8 +82,15 @@ func (d *daemonState) namespaceMethod(name string) func(context.Context, *daemon
 		if err != nil {
 			return "", err
 		}
-		res, err := rpcNamespace(commandParser(name), params)
+		res, err := rpcNamespace(commandParser(name), params, rpcIgnored[name]...)
 		if err != nil {
+			return "", err
+		}
+		var acct *store.Account
+		if la := d.account(c.Account); la != nil {
+			acct = la.acct
+		}
+		if err := rpcPrepare(name, acct, params, res); err != nil {
 			return "", err
 		}
 		return d.runCommandRPC(ctx, c.Account, name, res)
@@ -153,10 +161,13 @@ func classCast(from, to string) error { return errcode.RPCClassCast.New(from, to
 // rpcNamespace reads a command's options from params the way signal-cli's
 // JSON-RPC namespace does: values keep their JSON types, and a value of
 // the wrong type fails as Java's casts do.
-func rpcNamespace(p *argparse.Parser, params *jackson.Node) (*argparse.Result, error) {
-	r := &argparse.Result{Values: p.Defaults()}
+// rpcIgnored are options a method never reads over JSON-RPC.
+var rpcIgnored = map[string][]string{"listGroups": {"detailed"}}
+
+func rpcNamespace(p *argparse.Parser, params *jackson.Node, ignored ...string) (*argparse.Result, error) {
+	r := &argparse.Result{Values: map[string]any{}} // no CLI defaults over JSON-RPC
 	for _, a := range p.Args {
-		if a.Action == argparse.Help {
+		if a.Action == argparse.Help || slices.Contains(ignored, rpcKey(a)) {
 			continue
 		}
 		key, dest := rpcKey(a), argparse.DestOf(a)
@@ -182,6 +193,9 @@ func rpcNamespace(p *argparse.Parser, params *jackson.Node) (*argparse.Result, e
 			strs := make([]string, len(elems))
 			allStrings := true
 			for i, el := range elems {
+				if a.Kind == argparse.String && el.Kind != jackson.String {
+					return nil, classCast(el.JavaClass(), "java.lang.String")
+				}
 				x, err := rpcValue(a, el)
 				if err != nil {
 					return nil, err
@@ -325,7 +339,7 @@ func coerce(kind string, v *jackson.Node, class, member string) (any, error) {
 			if n, err := strconv.ParseInt(s, 10, 32); err == nil {
 				return int(n), nil
 			}
-			return nil, badString("not a valid `java.lang.Integer` value")
+			return nil, badString("not a valid `Integer` value")
 		}
 	case "Double":
 		switch v.Kind {
@@ -343,7 +357,7 @@ func coerce(kind string, v *jackson.Node, class, member string) (any, error) {
 			if f, err := strconv.ParseFloat(s, 64); err == nil {
 				return f, nil
 			}
-			return nil, badString("not a valid `java.lang.Double` value")
+			return nil, badString("not a valid `Double` value")
 		}
 	}
 	return nil, daemon.MemberTypeError(target, v, class, member)
@@ -355,7 +369,7 @@ const commandsPkg = "org.asamk.signal.commands."
 // polled for the account, as an array; refused while the daemon is
 // already receiving for it.
 func (d *daemonState) rpcReceive(ctx context.Context, c *daemon.Call) (string, error) {
-	p, err := bindTyped(commandsPkg+"ReceiveCommand$ReceiveParams", []typedField{{"timeout", "Double"}, {"maxMessages", "Integer"}}, c.Params)
+	p, err := bindTyped(commandsPkg+"ReceiveCommand$ReceiveParams", []typedField{{"maxMessages", "Integer"}, {"timeout", "Double"}}, c.Params)
 	if err != nil {
 		return "", err
 	}
