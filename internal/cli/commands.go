@@ -473,8 +473,9 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 		unauth = u
 	}
 	cd := n.cdn()
+	var nameSender *manager.Sender // set below; names may need a lazy profile read
 	rc := &RenderContext{Self: a.Data.Number, SelfACI: a.Data.ACI, AttachmentsDir: strings.TrimRight(g.dataDir, "/") + "/attachments", Lookup: func(aci string) (string, string) {
-		return a.Recipients[aci].Number, ""
+		return a.Recipients[aci].Number, senderName(a, nameSender, aci)
 	}, Group: func(id []byte) (string, bool, bool) {
 		rec := a.Group(id)
 		if rec == nil {
@@ -487,6 +488,7 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 		return st.Title, false, true
 	}}
 	sender := g.withProfiles(e, &manager.Sender{Acct: a, Chat: c, Unauth: unauth, CDN: cd})
+	nameSender = sender
 	gm := n.groupsManager(g, a, c, sender)
 	gm.IgnoreAvatars = o.ignoreAvatars
 	gm.Log = func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  GroupHelper - "+f+"\n", args...) }

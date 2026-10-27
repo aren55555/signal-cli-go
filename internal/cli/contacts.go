@@ -549,3 +549,25 @@ func bestEffortSync(ctx context.Context, e *env, g *globals, a *store.Account) {
 	defer s.close()
 	s.syncStorage(ctx, e)
 }
+
+// senderName is the name received-message output shows (contacts.md
+// §3.3): nickname, else contact name, else the lazily read profile's
+// display name.
+func senderName(a *store.Account, s *manager.Sender, aci string) string {
+	rc, ok := a.Recipients[aci]
+	if !ok {
+		return ""
+	}
+	if n := rc.Nickname(); n != "" {
+		return n
+	}
+	if n := rc.ContactName(); n != "" {
+		return n
+	}
+	if s != nil {
+		if p := s.Profile(context.Background(), aci); p != nil {
+			return profile.DisplayName(p.GivenName, p.FamilyName)
+		}
+	}
+	return profileName(rc)
+}
