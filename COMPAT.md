@@ -18,14 +18,15 @@ Spec: [`transports.md`](spec/surface/jsonrpc/transports.md), [`errors.md`](spec/
 
 | Feature | Spec'd | Impl | Layer A | Layer B | Layer C | Notes |
 |---------|--------|------|---------|---------|---------|-------|
-| `daemon --http`: `POST /api/v1/rpc` | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| `daemon --http`: SSE `GET /api/v1/events` | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| `daemon --http`: `GET /api/v1/check` | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| `daemon --socket` | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| `daemon --tcp` | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | |
+| `daemon --http`: `POST /api/v1/rpc` | ✅ | ✅ | ✅ | ✅ | ✅ | raw HTTP/1.1 server (JDK bytes, Host pinning, 404/405/415/421/201); non-BMP characters escaped as surrogate pairs (serialization.md) |
+| `daemon --http`: SSE `GET /api/v1/events` | ✅ | ✅ | ✅ | ✅ | ✅ | live: byte-identical event stream and keep-alive vs the reference |
+| `daemon --http`: `GET /api/v1/check` | ✅ | ✅ | ✅ | ✅ | n/a | |
+| `daemon --socket` | ✅ | ✅ | ✅ | ✅ | ✅ | subscription ids from the process-wide counter; live notifications |
+| `daemon --tcp` | ✅ | ✅ | ✅ | ✅ | ✅ | LF/CR/CRLF framing; live implicit and explicit receive notifications; `jsonRpc` (stdio) identical to the reference on the probe transcript |
 | `daemon --dbus` | n/a | n/a | n/a | n/a | n/a | excluded by PROMPT.md |
-| Malformed JSON / invalid request errors | ✅ | ⬜ | ⬜ | ⬜ | n/a | |
-| Unknown method error | ✅ | ⬜ | ⬜ | ⬜ | n/a | |
+| Malformed JSON / invalid request errors | ✅ | ✅ | ✅ | ✅ | n/a | `internal/jackson`: Jackson messages and locations, 102 reference vectors; request binding order observed black-box |
+| Unknown method error | ✅ | ✅ | ✅ | ✅ | n/a | |
+| Typed error codes | ✅ | ✅ | ✅ | ✅ | n/a | `internal/errcode`, table in [`docs/error-codes.md`](docs/error-codes.md); every golden error string maps to exactly one code |
 
 ### Methods
 
@@ -33,70 +34,70 @@ Spec: [`transports.md`](spec/surface/jsonrpc/transports.md), [`errors.md`](spec/
 
 | Method | Spec'd | Impl | Layer A | Layer B | Layer C | Notes |
 |--------|--------|------|---------|---------|---------|-------|
-| [`acceptCall`](spec/surface/jsonrpc/methods/acceptCall.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
-| [`addDevice`](spec/surface/jsonrpc/methods/addDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`addStickerPack`](spec/surface/jsonrpc/methods/addStickerPack.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`block`](spec/surface/jsonrpc/methods/block.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`deleteLocalAccountData`](spec/surface/jsonrpc/methods/deleteLocalAccountData.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`finishChangeNumber`](spec/surface/jsonrpc/methods/finishChangeNumber.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`finishLink`](spec/surface/jsonrpc/methods/finishLink.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`getAttachment`](spec/surface/jsonrpc/methods/getAttachment.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`getAvatar`](spec/surface/jsonrpc/methods/getAvatar.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`getSticker`](spec/surface/jsonrpc/methods/getSticker.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`getUserStatus`](spec/surface/jsonrpc/methods/getUserStatus.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`hangupCall`](spec/surface/jsonrpc/methods/hangupCall.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
-| [`joinGroup`](spec/surface/jsonrpc/methods/joinGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`listAccounts`](spec/surface/jsonrpc/methods/listAccounts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`listCalls`](spec/surface/jsonrpc/methods/listCalls.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
-| [`listContacts`](spec/surface/jsonrpc/methods/listContacts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`listDevices`](spec/surface/jsonrpc/methods/listDevices.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`listGroups`](spec/surface/jsonrpc/methods/listGroups.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`listIdentities`](spec/surface/jsonrpc/methods/listIdentities.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`listStickerPacks`](spec/surface/jsonrpc/methods/listStickerPacks.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`quitGroup`](spec/surface/jsonrpc/methods/quitGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`receive`](spec/surface/jsonrpc/methods/receive.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`register`](spec/surface/jsonrpc/methods/register.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`rejectCall`](spec/surface/jsonrpc/methods/rejectCall.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
-| [`remoteDelete`](spec/surface/jsonrpc/methods/remoteDelete.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`removeContact`](spec/surface/jsonrpc/methods/removeContact.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`removeDevice`](spec/surface/jsonrpc/methods/removeDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`removePin`](spec/surface/jsonrpc/methods/removePin.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`send`](spec/surface/jsonrpc/methods/send.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendAdminDelete`](spec/surface/jsonrpc/methods/sendAdminDelete.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendContacts`](spec/surface/jsonrpc/methods/sendContacts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendMessageRequestResponse`](spec/surface/jsonrpc/methods/sendMessageRequestResponse.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendPaymentNotification`](spec/surface/jsonrpc/methods/sendPaymentNotification.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendPinMessage`](spec/surface/jsonrpc/methods/sendPinMessage.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendPollCreate`](spec/surface/jsonrpc/methods/sendPollCreate.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendPollTerminate`](spec/surface/jsonrpc/methods/sendPollTerminate.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendPollVote`](spec/surface/jsonrpc/methods/sendPollVote.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendReaction`](spec/surface/jsonrpc/methods/sendReaction.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendReceipt`](spec/surface/jsonrpc/methods/sendReceipt.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendStory`](spec/surface/jsonrpc/methods/sendStory.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendSyncRequest`](spec/surface/jsonrpc/methods/sendSyncRequest.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendTyping`](spec/surface/jsonrpc/methods/sendTyping.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`sendUnpinMessage`](spec/surface/jsonrpc/methods/sendUnpinMessage.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`setPin`](spec/surface/jsonrpc/methods/setPin.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`startCall`](spec/surface/jsonrpc/methods/startCall.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
-| [`startChangeNumber`](spec/surface/jsonrpc/methods/startChangeNumber.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`startLink`](spec/surface/jsonrpc/methods/startLink.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`submitRateLimitChallenge`](spec/surface/jsonrpc/methods/submitRateLimitChallenge.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`subscribeCallEvents`](spec/surface/jsonrpc/methods/subscribeCallEvents.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; not available over HTTP (-32601); **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
-| [`subscribeReceive`](spec/surface/jsonrpc/methods/subscribeReceive.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account; not available over HTTP (-32601) |
-| [`trust`](spec/surface/jsonrpc/methods/trust.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`unblock`](spec/surface/jsonrpc/methods/unblock.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`unregister`](spec/surface/jsonrpc/methods/unregister.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`unsubscribeCallEvents`](spec/surface/jsonrpc/methods/unsubscribeCallEvents.md) | 🟡 | deferred | n/a | deferred | deferred | spec from source + zero-account daemon; not yet checked with a live account; not available over HTTP (-32601); **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
-| [`unsubscribeReceive`](spec/surface/jsonrpc/methods/unsubscribeReceive.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account; not available over HTTP (-32601) |
-| [`updateAccount`](spec/surface/jsonrpc/methods/updateAccount.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`updateConfiguration`](spec/surface/jsonrpc/methods/updateConfiguration.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`updateContact`](spec/surface/jsonrpc/methods/updateContact.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`updateDevice`](spec/surface/jsonrpc/methods/updateDevice.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`updateGroup`](spec/surface/jsonrpc/methods/updateGroup.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`updateProfile`](spec/surface/jsonrpc/methods/updateProfile.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`uploadStickerPack`](spec/surface/jsonrpc/methods/uploadStickerPack.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`verify`](spec/surface/jsonrpc/methods/verify.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
-| [`version`](spec/surface/jsonrpc/methods/version.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | spec from source + zero-account daemon; not yet checked with a live account |
+| [`acceptCall`](spec/surface/jsonrpc/methods/acceptCall.md) | ✅ | 🟡 | n/a | ✅ | deferred | **deferred**: voice calls (PLAN.md 9b); behaves as the reference with no active call (checked live) |
+| [`addDevice`](spec/surface/jsonrpc/methods/addDevice.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; success path proven through the CLI live tests (same command code) |
+| [`addStickerPack`](spec/surface/jsonrpc/methods/addStickerPack.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`block`](spec/surface/jsonrpc/methods/block.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`deleteLocalAccountData`](spec/surface/jsonrpc/methods/deleteLocalAccountData.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; the success path is offline-tested only (needs a fresh number or would unregister a test account) |
+| [`finishChangeNumber`](spec/surface/jsonrpc/methods/finishChangeNumber.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; the success path is offline-tested only (needs a fresh number or would unregister a test account) |
+| [`finishLink`](spec/surface/jsonrpc/methods/finishLink.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`getAttachment`](spec/surface/jsonrpc/methods/getAttachment.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`getAvatar`](spec/surface/jsonrpc/methods/getAvatar.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`getSticker`](spec/surface/jsonrpc/methods/getSticker.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`getUserStatus`](spec/surface/jsonrpc/methods/getUserStatus.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`hangupCall`](spec/surface/jsonrpc/methods/hangupCall.md) | ✅ | 🟡 | n/a | ✅ | deferred | **deferred**: voice calls (PLAN.md 9b); behaves as the reference with no active call (checked live) |
+| [`joinGroup`](spec/surface/jsonrpc/methods/joinGroup.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`listAccounts`](spec/surface/jsonrpc/methods/listAccounts.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`listCalls`](spec/surface/jsonrpc/methods/listCalls.md) | ✅ | 🟡 | n/a | ✅ | deferred | **deferred**: voice calls (PLAN.md 9b); behaves as the reference with no active call (checked live) |
+| [`listContacts`](spec/surface/jsonrpc/methods/listContacts.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; success path proven through the CLI live tests (same command code) |
+| [`listDevices`](spec/surface/jsonrpc/methods/listDevices.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`listGroups`](spec/surface/jsonrpc/methods/listGroups.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`listIdentities`](spec/surface/jsonrpc/methods/listIdentities.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`listStickerPacks`](spec/surface/jsonrpc/methods/listStickerPacks.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`quitGroup`](spec/surface/jsonrpc/methods/quitGroup.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`receive`](spec/surface/jsonrpc/methods/receive.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`register`](spec/surface/jsonrpc/methods/register.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; the success path is offline-tested only (needs a fresh number or would unregister a test account) |
+| [`rejectCall`](spec/surface/jsonrpc/methods/rejectCall.md) | ✅ | 🟡 | n/a | ✅ | deferred | **deferred**: voice calls (PLAN.md 9b); behaves as the reference with no active call (checked live) |
+| [`remoteDelete`](spec/surface/jsonrpc/methods/remoteDelete.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`removeContact`](spec/surface/jsonrpc/methods/removeContact.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`removeDevice`](spec/surface/jsonrpc/methods/removeDevice.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; success path proven through the CLI live tests (same command code) |
+| [`removePin`](spec/surface/jsonrpc/methods/removePin.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; success path proven through the CLI live tests (same command code) |
+| [`send`](spec/surface/jsonrpc/methods/send.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`sendAdminDelete`](spec/surface/jsonrpc/methods/sendAdminDelete.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`sendContacts`](spec/surface/jsonrpc/methods/sendContacts.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; success path proven through the CLI live tests (same command code) |
+| [`sendMessageRequestResponse`](spec/surface/jsonrpc/methods/sendMessageRequestResponse.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`sendPaymentNotification`](spec/surface/jsonrpc/methods/sendPaymentNotification.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`sendPinMessage`](spec/surface/jsonrpc/methods/sendPinMessage.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`sendPollCreate`](spec/surface/jsonrpc/methods/sendPollCreate.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`sendPollTerminate`](spec/surface/jsonrpc/methods/sendPollTerminate.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`sendPollVote`](spec/surface/jsonrpc/methods/sendPollVote.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`sendReaction`](spec/surface/jsonrpc/methods/sendReaction.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`sendReceipt`](spec/surface/jsonrpc/methods/sendReceipt.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`sendStory`](spec/surface/jsonrpc/methods/sendStory.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`sendSyncRequest`](spec/surface/jsonrpc/methods/sendSyncRequest.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; success path proven through the CLI live tests (same command code) |
+| [`sendTyping`](spec/surface/jsonrpc/methods/sendTyping.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`sendUnpinMessage`](spec/surface/jsonrpc/methods/sendUnpinMessage.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`setPin`](spec/surface/jsonrpc/methods/setPin.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`startCall`](spec/surface/jsonrpc/methods/startCall.md) | ✅ | 🟡 | n/a | ✅ | deferred | **deferred**: voice calls (PLAN.md 9b); subscriptions work but never deliver call events, startCall is refused |
+| [`startChangeNumber`](spec/surface/jsonrpc/methods/startChangeNumber.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; the success path is offline-tested only (needs a fresh number or would unregister a test account) |
+| [`startLink`](spec/surface/jsonrpc/methods/startLink.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`submitRateLimitChallenge`](spec/surface/jsonrpc/methods/submitRateLimitChallenge.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; the success path is offline-tested only (needs a fresh number or would unregister a test account) |
+| [`subscribeCallEvents`](spec/surface/jsonrpc/methods/subscribeCallEvents.md) | ✅ | 🟡 | n/a | ✅ | deferred | **deferred**: voice calls (PLAN.md 9b); subscriptions work but never deliver call events, startCall is refused; not available over HTTP (-32601) |
+| [`subscribeReceive`](spec/surface/jsonrpc/methods/subscribeReceive.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests; not available over HTTP (-32601) |
+| [`trust`](spec/surface/jsonrpc/methods/trust.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`unblock`](spec/surface/jsonrpc/methods/unblock.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; success path proven through the CLI live tests (same command code) |
+| [`unregister`](spec/surface/jsonrpc/methods/unregister.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; the success path is offline-tested only (needs a fresh number or would unregister a test account) |
+| [`unsubscribeCallEvents`](spec/surface/jsonrpc/methods/unsubscribeCallEvents.md) | ✅ | 🟡 | n/a | ✅ | deferred | **deferred**: voice calls (PLAN.md 9b); subscriptions work but never deliver call events, startCall is refused; not available over HTTP (-32601) |
+| [`unsubscribeReceive`](spec/surface/jsonrpc/methods/unsubscribeReceive.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests; not available over HTTP (-32601) |
+| [`updateAccount`](spec/surface/jsonrpc/methods/updateAccount.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; success path proven through the CLI live tests (same command code) |
+| [`updateConfiguration`](spec/surface/jsonrpc/methods/updateConfiguration.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`updateContact`](spec/surface/jsonrpc/methods/updateContact.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`updateDevice`](spec/surface/jsonrpc/methods/updateDevice.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; success path proven through the CLI live tests (same command code) |
+| [`updateGroup`](spec/surface/jsonrpc/methods/updateGroup.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`updateProfile`](spec/surface/jsonrpc/methods/updateProfile.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; success path proven through the CLI live tests (same command code) |
+| [`uploadStickerPack`](spec/surface/jsonrpc/methods/uploadStickerPack.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
+| [`verify`](spec/surface/jsonrpc/methods/verify.md) | ✅ | ✅ | n/a | ✅ | 🟡 | error paths match the reference live; the success path is offline-tested only (needs a fresh number or would unregister a test account) |
+| [`version`](spec/surface/jsonrpc/methods/version.md) | ✅ | ✅ | n/a | ✅ | ✅ | live differential vs the reference daemon on the same account (2026-10-27): identical results and errors for the probed requests |
 
 ## CLI (priority 2)
 
@@ -132,23 +133,23 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 
 | Command | Spec'd | Impl | Layer A | Layer B | Layer C | Notes |
 |---------|--------|------|---------|---------|---------|-------|
-| [`acceptCall`](spec/surface/cli/acceptCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
+| [`acceptCall`](spec/surface/cli/acceptCall.md) | 🟡 | 🟡 | n/a | ✅ | deferred | **deferred**: voice calls (PLAN.md 9b); the no-active-call behaviour and argument errors match the goldens; startCall is refused |
 | [`addDevice`](spec/surface/cli/addDevice.md) | 🟡 | ✅ | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: the reference linked as B.2 of our B |
 | [`addStickerPack`](spec/surface/cli/addStickerPack.md) | 🟡 | ✅ | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: our A.2 installed our uploaded pack; the reference A.1 applied the install sync |
 | [`block`](spec/surface/cli/block.md) | 🟡 | ✅ contacts and groups, message-request-response syncs, profile-key rotation (profiles.md §7), blocked-list sync, storage sync | n/a | ✅ goldens replay | ✅ | Live 2026-10-26: blocking a group rotated our B's profile key; the reference A received the profile-key update and decrypted the new profile |
-| [`daemon`](spec/surface/cli/daemon.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`deleteLocalAccountData`](spec/surface/cli/deleteLocalAccountData.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; registration command |
-| [`finishChangeNumber`](spec/surface/cli/finishChangeNumber.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`daemon`](spec/surface/cli/daemon.md) | 🟡 | ✅ | n/a | ✅ | ✅ | flags, address parsing, bind errors, start-up log lines; live in multi- and single-account mode, all receive modes |
+| [`deleteLocalAccountData`](spec/surface/cli/deleteLocalAccountData.md) | 🟡 | ✅ | n/a | ✅ | ⬜ | registration command; not run against a live account |
+| [`finishChangeNumber`](spec/surface/cli/finishChangeNumber.md) | 🟡 | ✅ | n/a | ✅ | ⬜ | [`change-number.md`](spec/service/change-number.md); offline end-to-end test incl. the linked device applying `pniChangeNumber`; no spare number for a live run (the dead-code 409 retry / PIN paths are not reproduced, as in 0.14.7) |
 | [`getAttachment`](spec/surface/cli/getAttachment.md) | 🟡 | ✅ | n/a | ✅ all getAttachment goldens replay | ✅ | Live 2026-10-24: returns a file received from the reference |
 | [`getAvatar`](spec/surface/cli/getAvatar.md) | 🟡 | ✅ `-c`, `-p` (lazy profile read), `-g` | n/a | ✅ goldens replay | 🟡 | profile avatars live via listContacts; getAvatar itself offline only |
 | [`getSticker`](spec/surface/cli/getSticker.md) | 🟡 | ✅ | n/a | ✅ goldens replay | 🟡 | |
 | [`getUserStatus`](spec/surface/cli/getUserStatus.md) | 🟡 | ✅ numbers via CDSI (partial ≤ 3, full above), usernames and links | n/a | ✅ goldens replay | ✅ | Live 2026-10-27: our A.2 and the reference A.1 give identical output for numbers; usernames resolve both ways |
-| [`hangupCall`](spec/surface/cli/hangupCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
+| [`hangupCall`](spec/surface/cli/hangupCall.md) | 🟡 | 🟡 | n/a | ✅ | deferred | **deferred**: voice calls (PLAN.md 9b); the no-active-call behaviour and argument errors match the goldens; startCall is refused |
 | [`joinGroup`](spec/surface/cli/joinGroup.md) | 🟡 | ✅ join info, direct join and join request (§9) | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: our B joined the reference A's group by link, and asked to join once approval was required (timestamp 0, "already requested" on retry); A approved |
-| [`jsonRpc`](spec/surface/cli/jsonRpc.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs; json only |
+| [`jsonRpc`](spec/surface/cli/jsonRpc.md) | 🟡 | ✅ | n/a | ✅ | 🟡 | stdio session identical to the reference on the probe transcript; nesting > 1000 exits 2 like the reference |
 | [`link`](spec/surface/cli/link.md) | 🟡 | 🟡 no QR code yet | n/a | ✅ all link goldens replay | 🟡 | Live: linked device 3 of A with `-n cli-test` (staging); sends the post-link sync requests (sync.md §7) |
-| [`listAccounts`](spec/surface/cli/listAccounts.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`listCalls`](spec/surface/cli/listCalls.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
+| [`listAccounts`](spec/surface/cli/listAccounts.md) | 🟡 | ✅ | n/a | ✅ | 🟡 | goldens green; ordering of several accounts not observed |
+| [`listCalls`](spec/surface/cli/listCalls.md) | 🟡 | 🟡 | n/a | ✅ | deferred | **deferred**: voice calls (PLAN.md 9b); the no-active-call behaviour and argument errors match the goldens; startCall is refused |
 | [`listContacts`](spec/surface/cli/listContacts.md) | 🟡 | ✅ selection, profile refresh, plain/JSON, `--detailed`, `--internal` | n/a | ✅ goldens replay | ✅ | Live 2026-10-26: profile fields identical between the reference A.1 and our A.2 for the same contact |
 | [`listDevices`](spec/surface/cli/listDevices.md) | 🟡 | ✅ gRPC GetDevices, name and HPKE created-at decryption | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: identical to the reference apart from "(this device)" |
 | [`listGroups`](spec/surface/cli/listGroups.md) | 🟡 | ✅ plain, `-d`, JSON; lazy fetch, forced refresh with `-g` | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: `-d` identical to the reference for the same group; JSON identical apart from a member number our B has not learned (CDSI is milestone 7) |
@@ -157,7 +158,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`quitGroup`](spec/surface/cli/quitGroup.md) | 🟡 | ✅ leave, `--admin`, last-admin refusal, `--delete` | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: our B left with `--admin` (A promoted), the reference applied it |
 | [`receive`](spec/surface/cli/receive.md) | 🟡 | 🟡 all data-message features, attachments (download, `--ignore-attachments`, long text), sync messages, receipts, typing, stories, group contexts (state update, GROUPINFO, `groupInfo`, avatars) | n/a | ✅ all receive goldens replay | 🟡 | Live: renders the reference's messages byte-identically apart from per-device delivery times; group updates, messages and avatars identical between the reference A.1 and our A.2 for the same envelopes (plain and JSON) |
 | [`register`](spec/surface/cli/register.md) | 🟡 | ✅ session flow, captcha, code request (milestone 4); reactivation and recovery-password re-registration (svr.md §4.4) | n/a | ✅ register goldens replay | 🟡 | Live 2026-10-24: B registered. Reactivation and recovery-password paths not run live |
-| [`rejectCall`](spec/surface/cli/rejectCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
+| [`rejectCall`](spec/surface/cli/rejectCall.md) | 🟡 | 🟡 | n/a | ✅ | deferred | **deferred**: voice calls (PLAN.md 9b); the no-active-call behaviour and argument errors match the goldens; startCall is refused |
 | [`remoteDelete`](spec/surface/cli/remoteDelete.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`removeContact`](spec/surface/cli/removeContact.md) | 🟡 | ✅ delete, `--hide`, `--forget` | n/a | ✅ goldens replay | ⬜ | offline tests |
 | [`removeDevice`](spec/surface/cli/removeDevice.md) | 🟡 | ✅ gRPC RemoveDevice, multi-device flag refreshed | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: removed B.2 (the reference then got 403) |
@@ -178,9 +179,9 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`sendTyping`](spec/surface/cli/sendTyping.md) | 🟡 | ✅ 1:1 and `-g` | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: group typing both ways (online messages: the receiver must be connected) |
 | [`sendUnpinMessage`](spec/surface/cli/sendUnpinMessage.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
 | [`setPin`](spec/surface/cli/setPin.md) | 🟡 | ✅ SVR2 backup + expose on both staging enclaves, lock PUT, attributes | n/a | ✅ goldens replay | ✅ | Live 2026-10-27: a restore through both real enclaves returned our master key. PINs still non-ASCII after digit mapping are refused (no NFKD tables in Go) |
-| [`startCall`](spec/surface/cli/startCall.md) | 🟡 | deferred | n/a | deferred | deferred | from source + account-free runs; **deferred**: voice calls, revisit after milestone 9 (PLAN.md) |
-| [`startChangeNumber`](spec/surface/cli/startChangeNumber.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
-| [`submitRateLimitChallenge`](spec/surface/cli/submitRateLimitChallenge.md) | 🟡 | ⬜ | n/a | ⬜ | ⬜ | from source + account-free runs |
+| [`startCall`](spec/surface/cli/startCall.md) | 🟡 | 🟡 | n/a | ✅ | deferred | **deferred**: voice calls (PLAN.md 9b); the no-active-call behaviour and argument errors match the goldens; startCall is refused |
+| [`startChangeNumber`](spec/surface/cli/startChangeNumber.md) | 🟡 | ✅ | n/a | ✅ | ⬜ | [`change-number.md`](spec/service/change-number.md); offline end-to-end test incl. the linked device applying `pniChangeNumber`; no spare number for a live run (the dead-code 409 retry / PIN paths are not reproduced, as in 0.14.7) |
+| [`submitRateLimitChallenge`](spec/surface/cli/submitRateLimitChallenge.md) | 🟡 | ✅ | n/a | ✅ | ⬜ | [`rate-limit-challenge.md`](spec/service/rate-limit-challenge.md); staging never issued a challenge, so not run live |
 | [`trust`](spec/surface/cli/trust.md) | 🟡 | ✅ `-a`, `-v` with hex fingerprint, numeric safety number or scannable code (fingerprint.md §6), verified sync | n/a | 🟡 4 of 6 goldens (the other two need verbose-log emulation) | ✅ | Live 2026-10-24: our A.2 verified B's key; the reference A applied our verified sync |
 | [`unblock`](spec/surface/cli/unblock.md) | 🟡 | ✅ (UNBLOCK_AND_ACCEPT on the wire as 0, profile sharing on) | n/a | ✅ goldens replay | ✅ | Live 2026-10-26: group unblocked, messages flow again |
 | [`unregister`](spec/surface/cli/unregister.md) | 🟡 | 🟡 gRPC ClearPushToken; `--delete-account` not yet | n/a | ✅ goldens replay | ⬜ | not run live (it would only mark our test account unregistered) |
@@ -217,7 +218,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | Stories | ✅ [`stories.md`](spec/service/stories.md) | ✅ My Story and group stories, send and receive, sender keys, sealed v2 multi-recipient, transcripts | 🟡 multi_recipient vectors; offline send/receive through a fake server | n/a | 🟡 | Live 2026-10-24 both directions for My Story, byte-identical rendering; capture replay. Group stories offline only (they need a third account; operator decision 2026-10-25: none for now) |
 | Groups v2: create, update, join, leave | ✅ [`groups.md`](spec/service/groups.md) | ✅ groups service (auth credentials, `/v2/groups` GET/PUT/PATCH, logs, join info, avatars), decrypted state and changes, apply, P2P and fetch paths for incoming contexts, create/update/join/quit, group sends with endorsements and tokens, group stories ([`internal/groups`](internal/groups), [`internal/manager`](internal/manager)) | ✅ `groups.json` (IDs, invite links, Content-Range), state/change decryption and apply tests, sender-key and fan-out group sends against a fake server with real endorsements (gse1) | ✅ group command goldens replay | 🟡 | Live 2026-10-24 between our B, our A.2 and the reference A: create, update, join (direct and by request), leave, messages, typing, avatars. Two deviations: endorsements from creation are stored (signal-cli loses them, §5); sender-key group sends and group stories need a third account, so they are covered offline only (operator decision 2026-10-25: no third account for now) |
 | zkgroup credentials and proofs | ✅ [`zkgroup-profile.md`](spec/crypto/zkgroup-profile.md), [`zkgroup-credentials.md`](spec/crypto/zkgroup-credentials.md) | ✅ poksho, Sho/ShoSHA256, zkcredential, AuthCredentialWithPni, expiring profile-key credentials, group send endorsements ([`internal/crypto/zkgroup`](internal/crypto/zkgroup)) | ✅ `zkgroup_credentials.json`: statement encodings, poksho proofs, every credential and presentation byte-exact, endorsement tokens; mutation-checked | n/a | ✅ | Live: staging issues auth credentials and our expiring profile-key credential, both verified; the groups service accepts our presentations |
-| Sync messages to linked devices | ✅ [`sync.md`](spec/service/sync.md) | 🟡 transcripts per §4.1, every member on receipt (validation, priority, effects), primary answers to requests, contact stream, verified, read/viewed; story transcripts, group transcripts (live: our A.2 → the reference A.1), sticker operations; pniChangeNumber and storage sync not yet | 🟡 offline tests | n/a | ✅ | Live 2026-10-24: our A.2 ↔ reference A: sync requests answered, transcripts with destination, verified sync applied |
+| Sync messages to linked devices | ✅ [`sync.md`](spec/service/sync.md) | 🟡 transcripts per §4.1, every member on receipt (validation, priority, effects), primary answers to requests, contact stream, verified, read/viewed; story transcripts, group transcripts (live: our A.2 → the reference A.1), sticker operations; pniChangeNumber applied on linked devices (offline-tested, milestone 8); storage sync not yet | 🟡 offline tests | n/a | ✅ | Live 2026-10-24: our A.2 ↔ reference A: sync requests answered, transcripts with destination, verified sync applied |
 | Safety number change and trust | 🟡 [`trust.md`](spec/surface/cli/trust.md) | 🟡 changed keys stored untrusted on receive, `trust -a`, hex fingerprints; numeric safety numbers need a fingerprint spec | 🟡 | 🟡 | ✅ | Live 2026-10-24 |
 | Session recovery after reinstall | ⬜ | ⬜ | n/a | n/a | ⬜ | |
 | Profiles (encryption, fetch, set) | ✅ [`profiles.md`](spec/service/profiles.md), [`contacts.md`](spec/service/contacts.md) | ✅ lazy/forced fetch with the sealed-first socket and 401 fallback, credential fetches, avatars, identity saving by trust mode, failure records, own-profile writes, key rotation; recipient store with ACI/PNI/number rows, low/high-trust resolution, merge/strip/split | ✅ vector-driven fetch tests, rotation and contact tests, recipient merge tests | n/a | ✅ | Live 2026-10-26: profiles and avatars both directions; rotation reached the reference |

@@ -26,7 +26,7 @@ every session, and update both before ending one.
 | 5  | All message types, attachments, receipts, sync, linked devices | done (2026-10-24); group stories wait for milestone 6, profile and contact avatars and pniChangeNumber for milestone 7, numeric safety numbers need a fingerprint spec |
 | 6  | Groups v2 and zkgroup                        | done (2026-10-24); sender-key group sends and group stories proven offline only (they need a third account); JSON-RPC group methods with milestone 8 |
 | 7  | Profiles, contacts, usernames, storage service, CDSI, SVR | done (2026-10-27); the registration-lock 423 restore and reactivation are offline-tested only; PINs needing NFKD are refused |
-| 8  | Daemon parity (HTTP/SSE, socket, TCP); Layer B fully green | not started |
+| 8  | Daemon parity (HTTP/SSE, socket, TCP); Layer B fully green | done (2026-10-27); all 162 JSON-RPC goldens green (8 CLI goldens left for milestone 9: verbose logging, -d checks, delete-account); change number and the rate-limit challenge offline-tested only; voice calls still deferred |
 | 9  | CLI parity                                   | not started |
 | 9b | Revisit deferred items (voice calls, D-Bus client mode) | not started |
 | 10 | Stretch goal: import an existing signal-cli data dir | not started |
@@ -55,6 +55,13 @@ starts. Existing pieces:
   `_test.go` files as a differential oracle.
 - `vendor/`: google.golang.org/protobuf v1.36.12, the one permitted module
 - `internal/testvec`: loads `testdata/vectors/*.json` in tests
+- `internal/errcode`: the typed catalogue of every CLI/daemon error
+  (`docs/error-codes.md` is generated from it)
+- `internal/jackson`: Jackson-compatible JSON tree, parser errors and
+  encoding
+- `internal/daemon`: JSON-RPC validation, dispatch, subscriptions,
+  stream transports and the raw HTTP/SSE server
+- `internal/javahash`: Java HashSet/HashMap iteration order
 - `tools/rfcvectors`: extracts RFC 8032, 7748 and 9496 vectors from the
   RFC texts
 - `spec/`: clean-room specs (spec role only, see `CLEANROOM.md`)
@@ -744,3 +751,34 @@ vectors.
     an undecryptable storage item stops the sync; v1 group records are
     unprocessed; avatars are verified before use; PINs that need NFKD
     are refused; username-delete uses the REST endpoint.
+
+### 2026-10-27, milestone 8: daemon parity
+- Errors are typed: `internal/errcode` has one code per distinct error
+  with its JSON-RPC code, exit code, reference template and cause; the
+  CLI's ad-hoc error values and argparse errors moved onto it. A test
+  maps every error string in the CLI and JSON-RPC goldens to exactly one
+  code and checks each code is golden-observed, spec-only or a
+  deviation.
+- `internal/jackson` reproduces Jackson's parser messages and column
+  rules (102 malformed inputs recorded black-box from the reference as
+  vectors), node types and encoding (Java `Double.toString`, escaping).
+- `internal/daemon`: request binding in member order, batches (a null
+  element drops the batch), account classes, the process-wide
+  subscription counter (subscription methods run in input order),
+  LF/CR/CRLF framing, and a raw HTTP/1.1 server with the JDK's exact
+  bytes. All 162 JSON-RPC goldens replay green.
+- Every CLI command is a JSON-RPC method through the params namespace
+  (no parser defaults or required checks; Java cast semantics); typed
+  receive/register/verify/finishLink; startLink/finishLink; per-method
+  JSON-RPC behaviour for absent values recorded live from the
+  reference daemon. Daemon commands share each account's open store and
+  authenticated connection with its receive loop.
+- New commands: listAccounts, deleteLocalAccountData, the call commands
+  (no active calls; startCall refused), start/finishChangeNumber and
+  submitRateLimitChallenge from new specs.
+- Java hash-set order for group member lists and getUserStatus
+  (serialization.md); HTTP responses escape non-BMP characters.
+- Live (staging): 84/86 differential requests identical to the
+  reference daemon on the same account; SSE stream, TCP notifications,
+  stdio session byte-identical; startLink/finishLink linked a device to
+  our B (removed afterwards); single-account manual mode checked.

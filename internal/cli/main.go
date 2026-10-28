@@ -153,6 +153,13 @@ func runCommand(ctx context.Context, e *env, g *globals, cmd string, s *argparse
 	case "startCall":
 		runErr = runStartCall(g)
 	case "version":
+		if g.account != "" {
+			a, err := selectAccount(g.root(), g.account)
+			if err != nil {
+				return err
+			}
+			a.Close()
+		}
 		if g.json() {
 			fmt.Fprintf(stdout, "{\"version\":%q}\n", Version)
 		} else {
