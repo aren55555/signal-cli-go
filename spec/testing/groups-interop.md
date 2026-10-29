@@ -324,8 +324,10 @@ when the accounts are retired.
 
 ## 9. Needs from the operator
 
-- A third staging phone number for C (passed as
-  `SIGNAL_STAGING_NUMBER_C`, masked like A and B).
+- A third staging phone number for C: provided 2026-10-29 in
+  `/tmp/staging-number-c` (memory-only, read at runtime, never written to
+  the repo); later launches also get `SIGNAL_STAGING_NUMBER_C`. Masked as
+  `<C>` like A and B.
 - A fresh staging captcha token, sent when phase 0 starts (tokens
   expire within minutes).
 - The SMS verification code for C during `verify`.
