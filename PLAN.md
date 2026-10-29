@@ -880,3 +880,26 @@ vectors.
   (capture-a) uses that device's credentials. It changed nothing this
   time (prekey state checked before and after), but don't repeat it;
   compare such copies offline.
+
+### 2026-10-29, groups interop with a third account (spec/testing/groups-interop.md)
+
+- Third staging account C registered with the reference (operator
+  captcha and SMS code; number read at runtime from a memory-only file).
+  Devices: A.1 ref, A.2 ours; B.1 ours, B.2 ref (new link); C.1 ref,
+  C.2 ours (new link).
+- Harness: `tools/interop` (driver `run.sh`: pacing, 413/429 backoff,
+  captcha stop, masking, per-step snapshots and captures; Go helpers for
+  store edits and block comparison), `SIGNAL_CLI_GO_CAPTURE_DIR` envelope
+  capture, `internal/interop` (block extraction and normalization),
+  opt-in `TestInteropReplay` in `internal/cli`.
+- Debug lines `Group send path:` and `Envelope path:` (with `-v`) assert
+  the send path on both sides.
+- Results: the sender-key path proved in both directions for group
+  messages, group stories, sealed sender v2 with tokens, redistribution
+  on join/leave/removal/device add; retry receipts complete ours → ref.
+  Six signal-cli-go bugs fixed (PNI invitees, PNI invite acceptance,
+  sender-key retry receipts, multi-device retry receipts, retry-receipt
+  group ID, sender-key failure rendering). Reference findings: no PNI
+  invite acceptance, stale endorsements after message-learned membership
+  changes, and no group resends at all in 0.14.7 (open decision whether
+  to match).

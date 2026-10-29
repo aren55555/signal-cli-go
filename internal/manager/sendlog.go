@@ -190,6 +190,7 @@ func (s *Sender) resend(ctx context.Context, gm *Groups, a resendAction) error {
 		if content, err = proto.Marshal(&c); err != nil {
 			return err
 		}
+		s.debugf("Group send path: resend after a retry receipt to %s, 1:1 with a fresh sender key distribution, timestamp %d", a.peer, e.Timestamp)
 		opts.groupID = rec.GroupID
 		var devices []uint32
 		opts.devices = &devices
@@ -206,6 +207,7 @@ func (s *Sender) resend(ctx context.Context, gm *Groups, a resendAction) error {
 		}
 		return s.Acct.SaveSenderKeys()
 	}
+	s.debugf("Group send path: resend after a retry receipt to %s, 1:1, timestamp %d", a.peer, e.Timestamp)
 	_, _, err := s.deliver(ctx, a.peer, content, e.Timestamp, opts)
 	return err
 }

@@ -331,3 +331,74 @@ when the accounts are retired.
 - A fresh staging captcha token, sent when phase 0 starts (tokens
   expire within minutes).
 - The SMS verification code for C during `verify`.
+
+## 10. Results of the first run (2026-10-29)
+
+Run directory `.data/interop/run-20261029` (gitignored); `results.txt`
+there lists every assertion. Offline replay of the captures
+(`TestInteropReplay`): 97 device captures reproduce the reference
+device's rendering (or our live one where no reference device rendered the
+message); skips state their reason (a group fetch the replay cannot do, a
+deliberately injected fault, a known state difference).
+
+| Scenario | ours → ref | ref → ours |
+|----------|------------|------------|
+| S1 group message (plain, JSON; plus linked sender A.2) | sender-key path, identical rendering | sender-key path, identical rendering |
+| S2 group story (plain, JSON) | story path, identical rendering | story path, identical rendering |
+| S3 endorsements (refresh, token coverage, control) | pass (control falls back as designed) | covered by S1: the reference's endorsement handling (see findings) |
+| S4 join / leave / removal | pass; no SKDM after rejoin or re-add | pass; same behaviour |
+| S4 device add | pass: 409, SKDM to the new device, attempt 2 accepted | pass: the new device gets the SKDM and the message |
+| S5 retry receipts | pass: receipts from both of C's devices, one 1:1 resend with a fresh SKDM, identical rendering | receipt delivered; the reference never resends (finding 5) |
+| S6 typing | not run (optional, and `sendTyping` prints no timestamp to match) | not run |
+
+Procedure changes made during the run:
+
+- Phase 0: both clients invited members by PNI (they lacked profile-key
+  credentials), and the reference cannot accept such an invitation; C was
+  re-added by ACI.
+- A sender refreshes its endorsements before the redistribution sends by
+  committing a change (description), since both implementations keep
+  endorsements from the last fetch or commit (finding 2).
+- S5 ref → ours sends a priming message first: an earlier session renewal
+  makes the reference hand out its key again, which would hide the fault.
+- The SKDM count on the receiving account's other device is 1, not 0: an
+  SKDM is a 1:1 message to the account, so all its devices get it (both
+  implementations).
+
+Bugs found in signal-cli-go and fixed (each with a unit test):
+
+1. Group-update messages skipped invitees known only by their PNI; now
+   sent to them (excluding our own PNI).
+2. Accepting an invitation sent to our PNI failed locally ("invalid group
+   content"); the change is now applied from the server's signed copy.
+3. No retry receipt was sent for a sender-key decryption failure (it has
+   no ratchet key by design).
+4. Retry receipts went to the failing device only and failed with 409 on
+   multi-device senders; they are now a normal 1:1 send to all devices.
+5. Retry receipts lacked the sealed-sender group ID that the reference
+   includes.
+6. A sealed sender-key failure was rendered without the sealed-sender line
+   and with the wrong exception; it now matches the reference
+   (`NoSessionException: missing sender key state for distribution ID …`,
+   `ProtocolNoSessionException`).
+
+Findings about the reference (signal-cli 0.14.7):
+
+1. It cannot accept a group invitation sent to its PNI (`Cannot find
+   service ID for self to accept invite`), from a primary device.
+2. Endorsements: after a membership change it learns from a message (an
+   accepted invitation, a join), the sender keeps its old endorsements
+   until they are within 2 hours of expiry, so new members do not qualify
+   and sends fall back to 1:1 (groups.md §12.2 step 3). signal-cli-go does
+   the same.
+3. No sender-key rotation or sharing reset on leave or removal: a
+   rejoining member decrypts with the key it kept. signal-cli-go does the
+   same.
+4. A missing number-to-ACI link on one device shows the ACI instead of the
+   number in `Envelope from:`; seen on both implementations, a matter of
+   when each device learned the link (CDSI), not of rendering.
+5. It never resends a logged group message in answer to a retry receipt:
+   the membership check always fails (send-log.md §4.2.1). It still resets
+   its sharing state, so its next send hands out the key again.
+   signal-cli-go resends as intended; whether to match 0.14.7 is an open
+   operator decision.

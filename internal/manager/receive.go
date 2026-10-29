@@ -57,7 +57,12 @@ type Receiver struct {
 	Storage          *Storage         // nil: sync messages do not trigger storage syncs
 	OnEvent          func(Event)
 	Log              func(string)
-	Now              func() time.Time
+	// CaptureDir, when set, gets a copy of every envelope as it is cached
+	// (same format as the cache), for the interop replay captures
+	// (spec/testing/groups-interop.md §6). A debugging aid; empty normally.
+	CaptureDir string
+	captured   int
+	Now        func() time.Time
 	// Lock, if set, is held while an envelope is handled and while the
 	// follow-up actions run, never while waiting for the next delivery
 	// (the daemon shares the account with concurrent commands).
@@ -85,6 +90,7 @@ type retryReceipt struct {
 	dest   string
 	device uint32
 	dem    *signalpb.AppDecryptionErrorMessage
+	group  []byte // sealed-sender group ID of the failed message
 }
 
 func (r *Receiver) lock() {
@@ -124,6 +130,13 @@ func (r *Receiver) cache(body []byte, delivered uint64) (string, error) {
 	rand.Read(id[:])
 	path := filepath.Join(r.cacheDir(), fmt.Sprintf("%020d-%s.env", delivered, hex.EncodeToString(id[:])))
 	data := binary.BigEndian.AppendUint64(nil, delivered)
+	if r.CaptureDir != "" {
+		if err := os.MkdirAll(r.CaptureDir, 0o700); err == nil {
+			r.captured++
+			name := fmt.Sprintf("%06d-%s", r.captured, filepath.Base(path)) // arrival order
+			store.WriteFileAtomic(filepath.Join(r.CaptureDir, name), append(append([]byte(nil), data...), body...), 0o600)
+		}
+	}
 	return path, store.WriteFileAtomic(path, append(data, body...), 0o600)
 }
 
@@ -361,10 +374,12 @@ func (r *Receiver) failed(env *signalpb.ServiceEnvelope, err error) {
 	if de.Sender.ServiceID == r.Acct.Data.ACI && de.Sender.DeviceID == uint32(r.Acct.Data.DeviceID) {
 		return
 	}
-	if de.RatchetKey == nil {
+	// Sender-key messages have no ratchet key; their retry receipt goes
+	// without one. Otherwise a missing key means the message did not parse.
+	if de.RatchetKey == nil && de.InnerType != envSenderKey {
 		return // no DecryptionErrorMessage can be built
 	}
-	r.pending.retry = append(r.pending.retry, retryReceipt{dest: de.Sender.ServiceID, device: de.Sender.DeviceID,
+	r.pending.retry = append(r.pending.retry, retryReceipt{dest: de.Sender.ServiceID, device: de.Sender.DeviceID, group: de.GroupID,
 		dem: &signalpb.AppDecryptionErrorMessage{RatchetKey: de.RatchetKey, Timestamp: proto.Uint64(de.Timestamp), DeviceId: proto.Uint32(de.Sender.DeviceID)}})
 }
 
@@ -439,7 +454,7 @@ func (r *Receiver) flush(ctx context.Context) {
 		}
 	}
 	for _, rr := range p.retry {
-		if err := r.Sender.SendRetryReceipt(ctx, rr.dest, rr.device, rr.dem); err != nil {
+		if err := r.Sender.SendRetryReceipt(ctx, rr.dest, rr.dem, rr.group); err != nil {
 			r.logf("Failed to send a retry receipt to %s: %v", rr.dest, err)
 		}
 	}

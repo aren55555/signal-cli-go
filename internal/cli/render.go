@@ -129,7 +129,10 @@ func eventReceipt(e manager.Event, c *signalpb.AppContent) *receipt {
 // javaException names an error the way signal-cli reports it.
 func javaException(err error) (msg, typ string) {
 	var de *manager.DecryptError
+	var nsk *manager.NoSenderKeyError
 	switch {
+	case errors.As(err, &nsk):
+		return "org.signal.libsignal.protocol.NoSessionException: " + nsk.Error(), "ProtocolNoSessionException"
 	case errors.Is(err, protocol.ErrUntrustedIdentity):
 		return "Untrusted identity key!", "UntrustedIdentityException"
 	case errors.Is(err, protocol.ErrDuplicateMessage):
@@ -161,7 +164,8 @@ func RenderPlain(c *RenderContext, e manager.Event) string {
 	p.line(0, "Envelope from: %s (device: %d) to %s", from, src.device, c.Self)
 	p.line(0, "Timestamp: %s", ts(e.Envelope.GetClientTimestamp()))
 	p.line(0, "Server timestamps: received: %s delivered: %s", ts(e.Envelope.GetServerTimestamp()), ts(e.ServerDelivered))
-	if e.Message != nil && e.Message.Sealed {
+	var de *manager.DecryptError
+	if (e.Message != nil && e.Message.Sealed) || (errors.As(e.Err, &de) && de.Sealed) {
 		p.line(0, "Sent by unidentified/sealed sender")
 	}
 	if e.Err != nil {

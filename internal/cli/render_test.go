@@ -154,3 +154,21 @@ func TestUntrusted(t *testing.T) {
 		t.Errorf("other error:\n%s", p)
 	}
 }
+
+// TestPlainNoSenderKey is the reference's rendering of a sealed
+// sender-key message it holds no key for (live, 2026-10-29): sealed-sender
+// line, then libsignal's NoSessionException.
+func TestPlainNoSenderKey(t *testing.T) {
+	ev := manager.Event{
+		Envelope:        &signalpb.ServiceEnvelope{ClientTimestamp: proto.Uint64(1793317314301), ServerTimestamp: proto.Uint64(1793317314572), SourceDeviceId: proto.Uint32(1)},
+		ServerDelivered: 1793317314600,
+		Err: &manager.DecryptError{Sender: protocol.Address{ServiceID: peerACI, DeviceID: 1}, Sealed: true,
+			Err: &manager.NoSenderKeyError{Distribution: "244db90c-c537-4b7d-8024-76fd4ca4e3d9"}},
+	}
+	got := RenderPlain(ctx, ev)
+	want := "Sent by unidentified/sealed sender\n" +
+		"Exception: org.signal.libsignal.protocol.NoSessionException: missing sender key state for distribution ID 244db90c-c537-4b7d-8024-76fd4ca4e3d9 (ProtocolNoSessionException)\n"
+	if !strings.Contains(got, want) {
+		t.Errorf("got\n%s", got)
+	}
+}

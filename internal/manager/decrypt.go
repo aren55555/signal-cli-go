@@ -36,11 +36,13 @@ var ErrUnsupportedEnvelope = errors.New("unsupported envelope type")
 
 // Message is a decrypted envelope.
 type Message struct {
-	Sender          protocol.Address
-	ToPNI           bool // addressed to our PNI
-	Sealed          bool
-	ServerReceipt   bool   // a server delivery receipt: no content
-	InnerType       int    // 3 PreKey or 1 Whisper, after unsealing
+	Sender        protocol.Address
+	ToPNI         bool // addressed to our PNI
+	Sealed        bool
+	ServerReceipt bool // a server delivery receipt: no content
+	InnerType     int  // 3 PreKey or 1 Whisper, after unsealing
+	// SealedGroupID is the group ID in the sealed-sender envelope, if any.
+	SealedGroupID   []byte
 	Content         []byte // the unpadded Content protobuf
 	ClientTimestamp uint64
 	ServerTimestamp uint64
@@ -167,6 +169,7 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 			return nil, err
 		}
 		m.Sealed = true
+		m.SealedGroupID = sc.GroupID
 		m.Sender = protocol.Address{ServiceID: sc.Sender.SenderUUID, DeviceID: sc.Sender.DeviceID}
 		wire = sc.Content
 		if m.Sender.ServiceID == a.Data.ACI && m.Sender.DeviceID == uint32(a.Data.DeviceID) {
@@ -242,7 +245,7 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 		if kind == envPreKeyBundle {
 			msgType = protocol.MessageTypePreKey
 		}
-		return nil, &DecryptError{Sender: m.Sender, ToPNI: m.ToPNI, Sealed: m.Sealed, InnerType: kind, Timestamp: m.ClientTimestamp,
+		return nil, &DecryptError{Sender: m.Sender, ToPNI: m.ToPNI, Sealed: m.Sealed, GroupID: m.SealedGroupID, InnerType: kind, Timestamp: m.ClientTimestamp,
 			RatchetKey: protocol.SenderRatchetKey(wire, msgType), Err: err}
 	}
 	if c, ok := content.Unpad(pt); ok {
@@ -305,6 +308,7 @@ type DecryptError struct {
 	ToPNI      bool
 	Sealed     bool
 	InnerType  int    // envelope type of the failing message, after unsealing
+	GroupID    []byte // the sealed envelope's group ID; retry receipts carry it
 	Timestamp  uint64 // the envelope's client timestamp
 	RatchetKey []byte // nil if the message did not parse
 	Err        error
@@ -350,7 +354,7 @@ func (d *Decryptor) decryptSenderKey(m *Message, wire []byte) (*Message, error) 
 		if errors.Is(err, protocol.ErrDuplicateMessage) {
 			return nil, err
 		}
-		return nil, &DecryptError{Sender: m.Sender, ToPNI: m.ToPNI, Sealed: m.Sealed, InnerType: envSenderKey, Timestamp: m.ClientTimestamp, Err: err}
+		return nil, &DecryptError{Sender: m.Sender, ToPNI: m.ToPNI, Sealed: m.Sealed, GroupID: m.SealedGroupID, InnerType: envSenderKey, Timestamp: m.ClientTimestamp, Err: err}
 	}
 	id, err := protocol.MessageDistributionID(wire)
 	if err != nil {
@@ -364,6 +368,9 @@ func (d *Decryptor) decryptSenderKey(m *Message, wire []byte) (*Message, error) 
 		}
 	}
 	next, pt, err := rec.Decrypt(wire)
+	if errors.Is(err, protocol.ErrNoSenderKeyState) {
+		err = &NoSenderKeyError{Distribution: id.String()}
+	}
 	if err != nil {
 		return fail(err)
 	}
@@ -433,3 +440,14 @@ func (d *Decryptor) logPath(sealed, kind int, from protocol.Address, group bool,
 	}
 	d.Debug("Envelope path: %s (%s, %s message, group id %t) from %s.%d, timestamp %d", path, how, inner, group, from.ServiceID, from.DeviceID, ts)
 }
+
+// NoSenderKeyError is a sender-key message for a distribution we hold no
+// key for; libsignal reports it as a missing session (sender-keys.md §5),
+// and signal-cli shows it as such.
+type NoSenderKeyError struct{ Distribution string }
+
+func (e *NoSenderKeyError) Error() string {
+	return "missing sender key state for distribution ID " + e.Distribution
+}
+
+func (e *NoSenderKeyError) Unwrap() error { return protocol.ErrNoSenderKeyState }

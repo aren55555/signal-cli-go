@@ -374,6 +374,11 @@ type deliverOpts struct {
 	// noDowngrade skips the sticky sealed-sender downgrade (resends,
 	// send-log.md §4.2).
 	noDowngrade bool
+	// plaintextContent sends plaintext as is to every device, unencrypted
+	// (PlaintextContent, retry receipts: pipe.md §7.2): sealed with the
+	// plaintext content type, else envelope type 8. Sessions only supply
+	// registration IDs and are not advanced.
+	plaintextContent bool
 }
 
 // deliver encrypts for dest's devices and puts the message, sealed when
@@ -381,7 +386,10 @@ type deliverOpts struct {
 func (s *Sender) deliver(ctx context.Context, dest string, plaintext []byte, ts uint64, o deliverOpts) (needsSync, unidentified bool, err error) {
 	urgent, online, unsealed, hint := o.urgent, o.online, o.unsealed, o.hint
 	self := dest == s.Acct.Data.ACI
-	padded := content.Pad(plaintext)
+	padded := plaintext
+	if !o.plaintextContent {
+		padded = content.Pad(plaintext)
+	}
 	var acc *access
 	if !unsealed {
 		acc = s.accessFor(ctx, dest)
@@ -441,6 +449,19 @@ func (s *Sender) deliver(ctx context.Context, dest string, plaintext []byte, ts 
 			rec := recs[id]
 			if rec == nil {
 				continue // fetched just now; joins on the next attempt
+			}
+			if o.plaintextContent {
+				wire, envType := padded, envPlaintext
+				if acc != nil {
+					usmc := protocol.EncodeSealedContent(protocol.SealedContentPlaintext, acc.cert, wire, hint, o.groupID)
+					if wire, err = protocol.SealV1(s.rand(), identity, rec.RemoteIdentity(), usmc); err != nil {
+						return false, false, err
+					}
+					envType = envUnidentified
+				}
+				body.Messages = append(body.Messages, outgoingMessage{Type: envType, DestinationDeviceID: id,
+					DestinationRegistrationID: rec.RemoteRegistrationID(), Content: base64.StdEncoding.EncodeToString(wire)})
+				continue
 			}
 			remote := protocol.Address{ServiceID: dest, DeviceID: id}
 			next, typ, wire, err := rec.Encrypt(s.rand(), padded, s.now(), s.local(), remote)

@@ -20,6 +20,8 @@ Other specs mention the log but leave out its details:
 | M1 | signal-cli | https://github.com/AsamK/signal-cli @ tag `v0.14.7` = commit `b01b6b370dc063599a1a2b9fde0f5ff4e2d78fe8`: `lib/src/main/java/org/asamk/signal/manager/storage/sendLog/{MessageSendLogStore,MessageSendLogEntry}.java`, `.../manager/storage/{SignalAccount,AccountDatabase,Database}.java`, `.../manager/storage/sessions/SessionStore.java`, `.../manager/helper/{SendHelper,IncomingMessageHandler,ReceiveHelper,CallManager}.java`, `.../manager/actions/{ResendMessageAction,RenewSessionAction}.java`, `.../manager/internal/ManagerImpl.java` (`sendRemoteDeleteMessage`), `.../manager/Settings.java`, `src/main/java/org/asamk/signal/{App,GlobalConfig,ConfigLoader}.java` |
 | M2 | signal-service-java (Turasa fork) | https://github.com/Turasa/libsignal-service-java @ tag `v2.15.3_unofficial_151` = commit `66956cb4a0394d50cee3590209baf58312084a44`: `lib/libsignal-service/src/main/java/org/whispersystems/signalservice/api/SignalServiceMessageSender.java` (`resendContent`, `sendContent`, the single- and multi-recipient `sendMessage`, `sendGroupMessage`, `transformGroupResponseToMessageResults`, `getEncryptedMessages`, `sendCallMessage`, `sendReceipt`, `sendRetryReceipt`), `.../api/messages/{SendMessageResult.java,SignalServiceEnvelope.kt,SignalServiceCallMessage.java}`, `.../api/crypto/ContentHint.java`, `core/models-jvm/src/main/java/org/signal/core/models/ServiceId.kt` |
 | M3 | libsignal | https://github.com/signalapp/libsignal @ tag `v0.99.1` = commit `97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8`: `rust/protocol/src/state/session.rs` (`current_ratchet_key_matches`) |
+| M4 | signal-cli, for §4.2.1 | https://github.com/AsamK/signal-cli @ tag `v0.14.7` = commit `b01b6b370dc063599a1a2b9fde0f5ff4e2d78fe8`: `lib/src/main/java/org/asamk/signal/manager/helper/SendHelper.java` (`resendMessage`), `.../manager/actions/ResendMessageAction.java`, `.../manager/helper/IncomingMessageHandler.java` (`handleMessage`, `handleDecryptionErrorMessage`, `getSender`, `getGroupContext`, `isMessageBlocked`, `isNotAllowedToSendToGroup`), `.../manager/helper/GroupHelper.java` (`getGroup`), `.../manager/storage/groups/{GroupInfo,GroupInfoV1,GroupInfoV2,GroupMemberInfo,GroupMemberInfoV1,GroupMemberInfoV2}.java`, `.../manager/storage/recipients/{RecipientId,RecipientResolver,RecipientStore}.java` |
+| M5 | signal-service-java (Turasa fork), for §4.2.1 | https://github.com/Turasa/libsignal-service-java @ tag `v2.15.3_unofficial_151` = commit `66956cb4a0394d50cee3590209baf58312084a44`: `lib/libsignal-service/src/main/java/org/whispersystems/signalservice/api/crypto/SignalServiceCipher.java` (plaintext-content envelopes, metadata group id) |
 
 Everything below was read from these sources. Nothing was observed on the
 network.
@@ -330,6 +332,111 @@ Because the bytes are re-encoded, the peer sees the same plaintext Content
 (plus field 7 for group entries) at the same timestamp. Encryption, padding,
 envelope type, sealed-sender wrapping, and the PreKey-or-Whisper choice
 come from the new send.
+
+### 4.2.1 The membership check, precisely
+
+Sources: M4, M5. This subsection refines step 2 of §4.2. The short
+version: **in 0.14.7 the check fails for every group entry, members
+included.** The WARN line is printed for any requester, member or not, so
+signal-cli 0.14.7 never resends a logged group message.
+
+**Who the "requesting recipient" is.** It is a local **RecipientId** (a row
+in the account's recipient table). It is taken from the sender of the
+envelope that carried the DecryptionErrorMessage, not from the send-log
+row. For an unsealed envelope with a source service ID, signal-cli resolves
+the envelope's source service ID to a RecipientId. For a sealed-sender
+envelope it resolves the sender address from the sealed-sender certificate
+(the sender's ACI, plus the certificate's E.164 if present) to a
+RecipientId. That resolution can create or merge recipient rows, as any
+recipient resolution can. The same RecipientId goes into the resend action
+(§4.4) and is what the check later tests. The send-log lookup itself
+(§4.1) uses the sender's service-ID string and device, not the
+RecipientId. The send-log row contributes only the group id and the
+Content. Its `address` column is not consulted again.
+
+**How "current member" is meant to be evaluated.** The group is the local
+group record for the entry's stored group id (§1.1), loaded through the
+normal group lookup. For a v2 group whose decrypted state is not cached,
+that lookup can fetch it from the group server first. The intended member
+list is the group's **full members** only. Pending (invited) members,
+requesting members and banned members are not part of it. For a v2 group,
+each full member's ACI from the decrypted group state is resolved to a
+RecipientId. A v2 group with no decrypted state, for example because
+permission was denied, has an empty member list. For a v1 group it is the
+stored member list. PNIs play no part: v2 full members are listed by ACI
+only.
+
+**Why it always fails.** The member collection holds **member-info
+objects** (one per full member, wrapping the member and able to report the
+member's RecipientId and role). It does not hold RecipientIds. The check
+asks whether that collection contains the requester's RecipientId object
+itself, not whether any member's RecipientId equals it. A RecipientId
+counts as equal only to another RecipientId. The member-info classes (v1
+and v2) do not define their own equality, so they are equal only to
+themselves. So the containment test is false for every requester and every
+group, and execution always takes the "no longer in the group" branch.
+Other membership questions in the same codebase (the incoming
+group-permission check, the admin check) compare RecipientIds correctly
+through each member's RecipientId. Only this resend path has the type
+mismatch.
+
+So none of the following is the cause: the retry receipt's envelope type or
+source, a send-log entry stored under another address, a wrong group id,
+ACI versus PNI, an E.164 on the recipient row, split or merged recipient
+rows, or the pending-member list. If one of those were wrong, the visible
+result would differ:
+
+- a blocked sender means no handling
+  at all (§4.1);
+- a different service ID or device in the lookup means no entry found, so
+  no resend action and no WARN (only the §4.3 renewal or reset);
+- a group id with no local group gives the DEBUG "Could not find a matching
+  group" line, not the WARN.
+
+The WARN shows that the entry was found, the group exists locally, and the
+check ran. It says nothing about whether the requester is a member.
+
+**Side effects that still happen.** These are unchanged by the skipped
+resend (§4.3). With a `ratchet_key` that matches our current session and
+at least one entry found, the sessions with the sender are still archived.
+No NullMessage is queued in that case, because entries were found. So the
+peer receives nothing at all until our next message to it, which then goes
+out as a PreKey message. Without a `ratchet_key`, the sender's "shared
+with" rows for that group's distribution ID are still deleted. The next
+ordinary group send redistributes the SKDM to that device, but the missed
+message itself is never delivered again. Entries without a group id (1:1
+messages, receipts, group edits) do not go through this check, and their
+resend works as §4.2 describes.
+
+**What the retry receipt must contain for handling to reach this point.**
+
+- Any envelope form that decrypts to a `Content` with field 8
+  (`decryptionErrorMessage`) works. In practice that is a PLAINTEXT_CONTENT
+  envelope (type 8), or a sealed-sender envelope whose inner message type
+  is plaintext. signal-cli does not check the envelope type, the
+  sealed-sender version or the content hint.
+- The envelope must pass the destination check (destination is our ACI or
+  PNI), and the sender must not be blocked.
+- The **USMC group id is ignored** by signal-cli on receipt. The group
+  checks on incoming messages (group blocked, sender not allowed to send to
+  the group) look only at a group context inside a DataMessage or
+  StoryMessage. A Content that carries only a DecryptionErrorMessage has
+  neither, so those checks never apply, whatever group id the USMC
+  carries. The group used for the resend comes only from the send-log
+  entry.
+- The DecryptionErrorMessage's `device_id` must equal our device ID. Its
+  `timestamp` must equal the entry's `timestamp`. The sender's (service ID,
+  device) taken from the envelope or certificate must match a recipient row
+  of the entry exactly (§4.1). For a sender-key failure, the message must
+  have **no** `ratchet_key`, which limits matches to group entries.
+
+**For a compatible implementation:** reproducing 0.14.7 exactly means
+skipping every group-entry resend with that WARN, keeping the §4.3 side
+effects. The evident intent is different: resend when the requester's
+recipient is among the group's full members, resolved by ACI. An
+implementation that follows the intent sends resends that 0.14.7 does not.
+Which of the two to follow is a project decision. This spec records the
+0.14.7 behaviour above. Note that §4.2 step 2 and §5 describe the intent.
 
 ### 4.3 Session handling: archive vs renewal
 

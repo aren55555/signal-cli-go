@@ -329,3 +329,23 @@ func TestNullMessageSilent(t *testing.T) {
 		t.Fatalf("%d events, %d acked", len(w.events), len(w.acked))
 	}
 }
+
+// TestRetryReceiptForSenderKey: a sender-key failure gets a retry receipt
+// without a ratchet key and with the sealed envelope's group ID (pipe.md
+// §7.2); other failures without a parsed ratchet key get none.
+func TestRetryReceiptForSenderKey(t *testing.T) {
+	r := &Receiver{Acct: &store.Account{Data: store.AccountData{ACI: "self", DeviceID: 2}}}
+	from := protocol.Address{ServiceID: "peer", DeviceID: 1}
+	r.failed(nil, &DecryptError{Sender: from, Sealed: true, InnerType: envSenderKey, Timestamp: 7, GroupID: []byte{9}, Err: errors.New("no sender key state")})
+	if len(r.pending.retry) != 1 {
+		t.Fatalf("retry receipts %+v", r.pending.retry)
+	}
+	rr := r.pending.retry[0]
+	if rr.dem.RatchetKey != nil || rr.dem.GetTimestamp() != 7 || rr.dem.GetDeviceId() != 1 || rr.dest != "peer" || string(rr.group) != "\x09" {
+		t.Errorf("receipt %+v", rr)
+	}
+	r.failed(nil, &DecryptError{Sender: from, InnerType: envCiphertext, Timestamp: 8, Err: errors.New("bad")})
+	if len(r.pending.retry) != 1 {
+		t.Errorf("a whisper failure without a ratchet key queued a receipt")
+	}
+}

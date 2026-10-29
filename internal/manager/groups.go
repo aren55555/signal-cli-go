@@ -431,17 +431,32 @@ func (m *Groups) commit(ctx context.Context, rec *store.GroupRecord, a *signalpb
 	}
 	g := Secret(rec)
 	a.Version = st.Revision + 1
-	c, err := groups.DecryptActions(g, a, m.Acct.Data.ACI)
-	if err != nil {
-		return nil, err
-	}
-	next, err := groups.Apply(st, c)
-	if err != nil {
-		return nil, err
+	// Accepting an invitation sent to our PNI carries only a presentation;
+	// the server adds the PNI and the ciphertexts, so that change is
+	// applied from the server's signed copy instead (groups.md §8.2 row 1).
+	fromServer := len(a.GetPromoteMembersPendingPniAciProfileKey()) > 0
+	var next *groups.State
+	if !fromServer {
+		c, err := groups.DecryptActions(g, a, m.Acct.Data.ACI)
+		if err != nil {
+			return nil, err
+		}
+		if next, err = groups.Apply(st, c); err != nil {
+			return nil, err
+		}
 	}
 	resp, err := m.Svc.Patch(ctx, g, a, nil)
 	if err != nil {
 		return nil, err
+	}
+	if fromServer {
+		c, err := groups.DecryptTrustedChange(g, resp.GetGroupChange())
+		if err != nil {
+			return nil, err
+		}
+		if next, err = groups.Apply(st, c); err != nil {
+			return nil, err
+		}
 	}
 	setState(rec, next)
 	m.storeEndorsements(rec, g, resp.GetGroupSendEndorsementsResponse(), next)
@@ -452,12 +467,13 @@ func (m *Groups) commit(ctx context.Context, rec *store.GroupRecord, a *signalpb
 }
 
 // updateRecipients are members and invitees before and after, minus self
-// (§8.3); invitees known only by PNI are left out.
+// (§8.3), including invitees known only by their PNI (the reference sends
+// to them too: live 2026-10-29, its invitations by PNI reached A and B).
 func (m *Groups) updateRecipients(states ...*groups.State) []string {
-	seen := map[string]bool{m.Acct.Data.ACI: true}
+	seen := map[string]bool{m.Acct.Data.ACI: true, "PNI:" + m.Acct.Data.PNI: true}
 	var out []string
 	add := func(id string) {
-		if !seen[id] && !strings.HasPrefix(id, "PNI:") && id != groups.UnknownACI {
+		if !seen[id] && id != groups.UnknownACI {
 			seen[id] = true
 			out = append(out, id)
 		}

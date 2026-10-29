@@ -557,7 +557,7 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 // newReceiver builds the receive loop for account a on connection c
 // (pipe.md §7); onEvent gets each handled envelope and its render
 // context.
-func newReceiver(e *env, g *globals, n *network, a *store.Account, c *chat.Conn, unauth manager.Requester, o receiveOpts, onEvent func(*RenderContext, manager.Event)) *manager.Receiver {
+func newReceiver(e *env, g *globals, n *network, a *store.Account, c manager.Requester, unauth manager.Requester, o receiveOpts, onEvent func(*RenderContext, manager.Event)) *manager.Receiver {
 	cd := n.cdn()
 	var nameSender *manager.Sender // set below; names may need a lazy profile read
 	rc := &RenderContext{Self: a.Data.Number, SelfACI: a.Data.ACI, AttachmentsDir: strings.TrimRight(g.dataDir, "/") + "/attachments", Lookup: func(aci string) (string, string) {
@@ -591,6 +591,7 @@ func newReceiver(e *env, g *globals, n *network, a *store.Account, c *chat.Conn,
 		Attachments: &manager.AttachmentStore{Dir: filepath.Join(g.dataDir, "attachments"), CDN: cd, Ignore: o.ignoreAttachments, AvatarsDir: filepath.Join(g.dataDir, "avatars"), IgnoreAvatars: o.ignoreAvatars,
 			Log: func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  AttachmentHelper - "+f+"\n", args...) }},
 		SendReadReceipts: o.sendReadReceipts,
+		CaptureDir:       e.getenv("SIGNAL_CLI_GO_CAPTURE_DIR"),
 		Log:              func(s string) { fmt.Fprintln(e.stderr, "WARN  ReceiveHelper - "+s) },
 		OnEvent:          func(ev manager.Event) { onEvent(rc, ev) },
 	}

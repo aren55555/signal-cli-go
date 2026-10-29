@@ -4,13 +4,9 @@ package manager
 
 import (
 	"context"
-	"encoding/base64"
 
-	"github.com/aren55555/signal-cli-go/internal/crypto/curve25519"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
 	"github.com/aren55555/signal-cli-go/internal/protocol"
-	"github.com/aren55555/signal-cli-go/internal/service/api"
-	"github.com/aren55555/signal-cli-go/internal/service/chat"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -83,11 +79,14 @@ func (s *Sender) SendNullMessage(ctx context.Context, dest string) error {
 	return err
 }
 
-// SendRetryReceipt sends a DecryptionErrorMessage to the device whose
-// message failed, as PlaintextContent: 0xC0, the Content, 0x80, not
-// encrypted (pipe.md §7.2 item 2). Sealed, it rides in sealed sender with
-// the plaintext content type; otherwise the envelope type is 8.
-func (s *Sender) SendRetryReceipt(ctx context.Context, dest string, device uint32, dem *signalpb.AppDecryptionErrorMessage) error {
+// SendRetryReceipt sends a DecryptionErrorMessage about a message from
+// one of dest's devices, as PlaintextContent: 0xC0, the Content, 0x80, not
+// encrypted (pipe.md §7.2 item 2). It is a normal 1:1 send to all of
+// dest's devices (the message names the device); sealed, it rides in
+// sealed sender with the plaintext content type, otherwise the envelope
+// type is 8. groupID is the failed message's sealed-sender group ID, if
+// any; the sealed retry receipt carries it.
+func (s *Sender) SendRetryReceipt(ctx context.Context, dest string, dem *signalpb.AppDecryptionErrorMessage, groupID []byte) error {
 	demBytes, err := proto.Marshal(dem)
 	if err != nil {
 		return err
@@ -97,51 +96,6 @@ func (s *Sender) SendRetryReceipt(ctx context.Context, dest string, device uint3
 		return err
 	}
 	plain := append(append([]byte{0xC0}, c...), 0x80)
-	entryType, wire := envPlaintext, plain
-	acc := s.accessFor(ctx, dest)
-	if acc != nil {
-		identity, err := curve25519.NewPrivateKey(s.Acct.Data.ACIIdentity.Private)
-		if err != nil {
-			return err
-		}
-		ik, ok := s.Acct.Identities[dest]
-		recipientKey, perr := curve25519.ParsePublicKey(ik.Key)
-		if !ok || perr != nil {
-			acc = nil
-		} else {
-			usmc := protocol.EncodeSealedContent(protocol.SealedContentPlaintext, acc.cert, plain, protocol.ContentHintImplicit, nil)
-			if wire, err = protocol.SealV1(s.rand(), identity, recipientKey, usmc); err != nil {
-				return err
-			}
-			entryType = envUnidentified
-		}
-	}
-	// The registration ID comes from our session with that device, if any.
-	var regID uint32
-	if recs, err := s.sessions(dest); err == nil && recs[device] != nil {
-		regID = recs[device].RemoteRegistrationID()
-	}
-	body := outgoingMessages{Destination: dest, Timestamp: s.timestamp(), Online: false, Urgent: false,
-		Messages: []outgoingMessage{{Type: entryType, DestinationDeviceID: device, DestinationRegistrationID: regID, Content: base64.StdEncoding.EncodeToString(wire)}}}
-	b, err := api.Marshal(body)
-	if err != nil {
-		return err
-	}
-	path := "/v1/messages/" + dest + "?story=false"
-	var r *chat.Response
-	if acc != nil {
-		r, err = s.Unauth.Request(ctx, "PUT", path, append(append([]chat.Header{}, jsonHeader...), acc.header()), b)
-		if err == nil && r.Status == 401 {
-			r, err = s.Chat.Request(ctx, "PUT", path, jsonHeader, b)
-		}
-	} else {
-		r, err = s.Chat.Request(ctx, "PUT", path, jsonHeader, b)
-	}
-	if err != nil {
-		return err
-	}
-	if r.Status != 200 {
-		return &SendStatusError{Status: r.Status}
-	}
-	return nil
+	_, _, err = s.deliver(ctx, dest, plain, s.timestamp(), deliverOpts{plaintextContent: true, hint: protocol.ContentHintImplicit, noDowngrade: true, groupID: groupID})
+	return err
 }
