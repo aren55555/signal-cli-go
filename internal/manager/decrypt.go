@@ -57,6 +57,8 @@ type Decryptor struct {
 	// Retrying marks a cache retry pass: identity changes are not stored
 	// (capture.md §5).
 	Retrying bool
+	// TrustNew is --trust-new-identities (on-first-use, always, never).
+	TrustNew string
 }
 
 func (d *Decryptor) rand() io.Reader {
@@ -200,11 +202,11 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 			known, ok := a.Identities[m.Sender.ServiceID]
 			if !ok {
 				newIdentity = k.Bytes()
-				return true
+				return identityTrust(d.TrustNew, false) != store.Untrusted
 			}
 			if !bytes.Equal(known.Key, k.Bytes()) {
 				changedIdentity = k.Bytes()
-				return false
+				return identityTrust(d.TrustNew, true) != store.Untrusted
 			}
 			return known.Trust != store.Untrusted
 		}
@@ -215,10 +217,10 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 		return nil, fmt.Errorf("%w: %d", ErrUnsupportedEnvelope, kind)
 	}
 	if err != nil {
-		if errors.Is(err, protocol.ErrUntrustedIdentity) && changedIdentity != nil && !d.Retrying {
-			// The changed key replaces the old one, untrusted, so that
-			// listIdentities and trust can see it.
-			a.Identities[m.Sender.ServiceID] = store.Identity{Key: changedIdentity, Trust: store.Untrusted, Added: d.now().UnixMilli()}
+		if errors.Is(err, protocol.ErrUntrustedIdentity) && (changedIdentity != nil || newIdentity != nil) && !d.Retrying {
+			// The key is stored untrusted, so that listIdentities and
+			// trust can see it.
+			a.Identities[m.Sender.ServiceID] = store.Identity{Key: append(changedIdentity, newIdentity...), Trust: store.Untrusted, Added: d.now().UnixMilli()}
 			if serr := a.SaveIdentities(); serr != nil {
 				return nil, serr
 			}
@@ -248,12 +250,12 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 	if err := a.SaveSessions(); err != nil {
 		return nil, err
 	}
-	if newIdentity != nil {
+	if newIdentity != nil || changedIdentity != nil {
 		now := time.Now()
 		if d.Now != nil {
 			now = d.Now()
 		}
-		a.Identities[m.Sender.ServiceID] = store.Identity{Key: newIdentity, Trust: store.TrustedUnverified, Added: now.UnixMilli()}
+		a.Identities[m.Sender.ServiceID] = store.Identity{Key: append(newIdentity, changedIdentity...), Trust: store.TrustedUnverified, Added: now.UnixMilli()}
 		if err := a.SaveIdentities(); err != nil {
 			return nil, err
 		}

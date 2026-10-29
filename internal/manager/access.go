@@ -90,20 +90,15 @@ func (s *Sender) senderCertificate(ctx context.Context) []byte {
 	return b
 }
 
-// saveIdentity records a peer identity key learned outside a message: a
-// first key is trusted unverified, a changed one replaces the old one as
-// untrusted.
-func saveIdentity(a *store.Account, serviceID string, key []byte, now time.Time) {
-	known, ok := a.Identities[serviceID]
-	switch {
-	case !ok:
-		a.Identities[serviceID] = store.Identity{Key: key, Trust: store.TrustedUnverified, Added: now.UnixMilli()}
-	case !bytes.Equal(known.Key, key):
-		a.Identities[serviceID] = store.Identity{Key: key, Trust: store.Untrusted, Added: now.UnixMilli()}
-	default:
-		return
+// identityTrust is the trust level a new (or, with changed, a replaced)
+// remote identity key gets under --trust-new-identities mode
+// (profiles.md §6): a first key is trusted unless the mode is never; a
+// changed key only with always.
+func identityTrust(mode string, changed bool) string {
+	if (!changed && mode != "never") || (changed && mode == "always") {
+		return store.TrustedUnverified
 	}
-	a.SaveIdentities()
+	return store.Untrusted
 }
 
 // downgrade is the sticky downgrade after a success that was not

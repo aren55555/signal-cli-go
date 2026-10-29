@@ -558,7 +558,7 @@ func newReceiver(e *env, g *globals, n *network, a *store.Account, c *chat.Conn,
 	gm.Log = func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  GroupHelper - "+f+"\n", args...) }
 	r := &manager.Receiver{
 		Acct:      a,
-		Decryptor: &manager.Decryptor{Acct: a},
+		Decryptor: &manager.Decryptor{Acct: a, TrustNew: g.trustNew},
 		Sender:    sender,
 		Groups:    gm,
 		Storage: &manager.Storage{Sender: sender, Groups: gm, REST: gm.Svc.REST,

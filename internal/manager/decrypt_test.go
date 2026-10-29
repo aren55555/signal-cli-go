@@ -256,3 +256,36 @@ func TestServerDeliveryReceipt(t *testing.T) {
 }
 
 func bobAddrFor() protocol.Address { return protocol.Address{ServiceID: bobACI, DeviceID: 1} }
+
+// TestTrustNewIdentities: --trust-new-identities on incoming PreKey
+// messages (profiles.md §6, capture.md §5): never refuses a first key and
+// stores it untrusted; always accepts a changed key as trusted.
+func TestTrustNewIdentities(t *testing.T) {
+	me := protocol.Address{ServiceID: testACI, DeviceID: 2}
+	bob := protocol.Address{ServiceID: bobACI, DeviceID: 1}
+	for _, c := range []struct {
+		mode     string
+		known    bool // an older key is stored
+		accepted bool
+	}{
+		{"on-first-use", false, true}, {"never", false, false}, {"always", false, true},
+		{"on-first-use", true, false}, {"never", true, false}, {"always", true, true},
+	} {
+		a, bundles := testAccount(t)
+		if c.known {
+			a.Identities[bobACI] = store.Identity{Key: bytes.Repeat([]byte{5}, 33), Trust: store.TrustedUnverified}
+		}
+		s := newSender(t, bobACI, bundles["aci"], bob, me)
+		_, wire := s.encrypt(t, "hi", bob, me)
+		_, err := (&Decryptor{Acct: a, TrustNew: c.mode}).Decrypt(&signalpb.ServiceEnvelope{Type: proto.Uint32(3), SourceServiceIdBinary: uuidBytes(bobACI),
+			SourceDeviceId: proto.Uint32(1), DestinationServiceIdBinary: uuidBytes(testACI), Content: wire})
+		got := a.Identities[bobACI]
+		wantTrust := store.Untrusted
+		if c.accepted {
+			wantTrust = store.TrustedUnverified
+		}
+		if (err == nil) != c.accepted || !bytes.Equal(got.Key, s.id.PublicKey().Bytes()) || got.Trust != wantTrust {
+			t.Errorf("%s known=%v: err %v, identity %s", c.mode, c.known, err, got.Trust)
+		}
+	}
+}
