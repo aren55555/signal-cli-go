@@ -289,6 +289,11 @@ func (l *Linker) finish(ctx context.Context, pm *signalpb.ProvisionMessage, pass
 		return nil, err
 	}
 	acct.Data, acct.Keys = d, keys
+	acct.EnsureSelf() // the self recipient is the first row (contacts.md §4)
+	if err := acct.SaveRecipients(); err != nil {
+		l.Root.Delete(acct)
+		return nil, err
+	}
 	if err := acct.Save(); err != nil {
 		l.Root.Delete(acct)
 		return nil, err

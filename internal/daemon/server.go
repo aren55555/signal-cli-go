@@ -82,6 +82,7 @@ type Server struct {
 
 	mu        sync.Mutex
 	conns     map[*Conn]bool
+	order     []*Conn // conns in connection order
 	listeners map[*listener]bool
 }
 

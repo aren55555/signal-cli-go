@@ -403,9 +403,22 @@ func (a *Account) EnsureSelf() bool {
 		return false
 	}
 	ad := Address{ACI: a.Data.ACI, PNI: a.Data.PNI, Number: a.Data.Number}
-	if k, ok := a.FindByACI(a.Data.ACI); ok && a.AddressOf(k) == ad {
+	k, ok := a.FindByACI(a.Data.ACI)
+	same := func() bool {
+		got := a.AddressOf(k)
+		got.Username = ""
+		return got == ad
+	}
+	if ok && same() && a.Recipients[k].Username == a.Data.Username {
 		return false
 	}
-	a.ResolveHighTrust(ad)
+	if !ok || !same() {
+		k = a.ResolveHighTrust(ad)
+	}
+	// The self row carries the account's own username.
+	if rc, ok := a.Recipients[k]; ok && rc.Username != a.Data.Username {
+		rc.Username = a.Data.Username
+		a.Recipients[k] = rc
+	}
 	return true
 }

@@ -166,3 +166,25 @@ func TestPNINumberMemberMerges(t *testing.T) {
 	a.ResolveHighTrust(Address{ACI: aciA, PNI: pniA})
 	a.only(t, Address{ACI: aciA, PNI: pniA, Number: numA})
 }
+
+// TestEnsureSelfUsername: the self row carries the account's username
+// and follows changes to it.
+func TestEnsureSelfUsername(t *testing.T) {
+	a := newStore(t)
+	a.Data.ACI = aciA
+	a.Data.Username = "self.01"
+	if !a.EnsureSelf() {
+		t.Fatal("self row not created")
+	}
+	k, _ := a.FindByACI(aciA)
+	if a.Recipients[k].Username != "self.01" {
+		t.Errorf("username %q", a.Recipients[k].Username)
+	}
+	if a.EnsureSelf() {
+		t.Error("no change expected")
+	}
+	a.Data.Username = ""
+	if !a.EnsureSelf() || a.Recipients[k].Username != "" {
+		t.Error("deleted username not cleared")
+	}
+}

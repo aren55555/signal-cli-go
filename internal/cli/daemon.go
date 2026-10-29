@@ -37,6 +37,11 @@ type daemonState struct {
 	// --no-receive-stdout).
 	printStdout bool
 	ctx         context.Context
+	// cancel shuts the daemon down (single-account mode, after unregister).
+	cancel context.CancelFunc
+	// started is set once the initial accounts are open; later ones
+	// are announced to subscribed connections.
+	started bool
 
 	mu       sync.Mutex
 	accounts []*liveAccount
@@ -122,6 +127,9 @@ func (d *daemonState) loadAccounts() error {
 		d.mu.Lock()
 		d.accounts = append(d.accounts, la)
 		d.mu.Unlock()
+		if d.started {
+			d.srv.AccountAdded(la.number)
+		}
 		if d.mode == "on-start" {
 			d.startReceiving(la)
 		}
@@ -290,7 +298,9 @@ func (d *daemonState) start() error {
 		d.g.account = a.Data.Number
 		d.srv.SingleAccount = a.Data.Number
 	}
-	return d.loadAccounts()
+	err := d.loadAccounts()
+	d.started = true
+	return err
 }
 
 // runJSONRPC is `jsonRpc`: one JSON-RPC session over stdin and stdout
@@ -299,12 +309,19 @@ func runJSONRPC(ctx context.Context, e *env, g *globals, s *argparse.Result) err
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	d := newDaemonState(ctx, e, g, s)
+	d.cancel = cancel
 	if err := d.start(); err != nil {
 		return err
 	}
 	defer d.closeAccounts()
 	numberResolver = d.resolver()
-	err := d.srv.ServeStream(ctx, e.stdin, e.stdout)
+	done := make(chan error, 1)
+	go func() { done <- d.srv.ServeStream(ctx, e.stdin, e.stdout) }()
+	var err error
+	select {
+	case err = <-done:
+	case <-ctx.Done():
+	}
 	var crash *daemon.ErrReaderCrashed
 	if errors.As(err, &crash) {
 		return crash.Err
@@ -313,10 +330,11 @@ func runJSONRPC(ctx context.Context, e *env, g *globals, s *argparse.Result) err
 }
 
 // runDaemon is `daemon` (daemon.md).
-func runDaemon(ctx context.Context, e *env, g *globals, s *argparse.Result) error {
-	ctx, cancel := context.WithCancel(ctx)
+func runDaemon(parent context.Context, e *env, g *globals, s *argparse.Result) error {
+	ctx, cancel := context.WithCancel(parent)
 	defer cancel()
 	d := newDaemonState(ctx, e, g, s)
+	d.cancel = cancel
 	d.printStdout = !s.Bool("no_receive_stdout")
 	if err := d.start(); err != nil {
 		return err
@@ -405,7 +423,9 @@ func runDaemon(ctx context.Context, e *env, g *globals, s *argparse.Result) erro
 		return errcode.DaemonNoChannel
 	}
 	<-ctx.Done()
-	d.logf("INFO  Shutdown - Received SIGTERM signal, shutting down ...")
+	if parent.Err() != nil {
+		d.logf("INFO  Shutdown - Received SIGTERM signal, shutting down ...")
+	}
 	return nil
 }
 
@@ -472,4 +492,27 @@ func (d *daemonState) resolver() func(a *store.Account, number string) (string, 
 		defer cancel()
 		return la.sess.sender.ResolveNumber(ctx, number)
 	}
+}
+
+// unregistered closes an account after a successful unregister: the
+// single-account daemon shuts down, a multi-account daemon drops it
+// (methods/unregister.md).
+func (d *daemonState) unregistered(number string) {
+	if d.g.account != "" {
+		// Shut down once the unregister response has been written.
+		time.AfterFunc(200*time.Millisecond, d.cancel)
+		return
+	}
+	la := d.account(number)
+	if la == nil {
+		return
+	}
+	la.mu.Lock()
+	if la.sess != nil {
+		la.sess.closeConns()
+		la.sess = nil
+	}
+	la.acct.Close()
+	la.mu.Unlock()
+	d.forget(la)
 }

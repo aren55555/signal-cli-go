@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"slices"
 	"strings"
 	"sync"
 
@@ -18,7 +19,12 @@ import (
 type sub struct {
 	id       int
 	implicit bool
-	account  string // "" covers every account
+	account  string // explicit: "" covers every account
+	// accounts are an implicit subscription's accounts (those present
+	// when it was made); late are accounts added afterwards, which it
+	// delivers in wrapped form (notifications.md, the runtime-account
+	// quirk).
+	accounts, late map[string]bool
 }
 
 // Conn is one stream connection (a JSON-RPC session).
@@ -54,6 +60,9 @@ func (c *Conn) drop() {
 	c.mu.Unlock()
 	c.s.mu.Lock()
 	delete(c.s.conns, c)
+	if i := slices.Index(c.s.order, c); i >= 0 {
+		c.s.order = slices.Delete(c.s.order, i, i+1)
+	}
 	c.s.mu.Unlock()
 }
 
@@ -100,12 +109,22 @@ func (c *Conn) notify(callEvents bool, account, payload string) {
 	}
 	var lines []string
 	for _, sb := range list {
+		wrapped := func() {
+			lines = append(lines, `{"jsonrpc":"2.0","method":"`+method+`","params":{"subscription":`+itoa(sb.id)+`,"result":`+payload+`}}`)
+		}
+		if sb.implicit {
+			if sb.accounts[account] {
+				lines = append(lines, `{"jsonrpc":"2.0","method":"`+method+`","params":`+payload+`}`)
+			}
+			if sb.late[account] {
+				wrapped()
+			}
+			continue
+		}
 		if sb.account != "" && sb.account != account {
 			continue
 		}
-		if sb.implicit {
-			lines = append(lines, `{"jsonrpc":"2.0","method":"`+method+`","params":`+payload+`}`)
-		} else {
+		{
 			lines = append(lines, `{"jsonrpc":"2.0","method":"`+method+`","params":{"subscription":`+itoa(sb.id)+`,"result":`+payload+`}}`)
 		}
 	}
@@ -213,9 +232,10 @@ func (s *Server) ServeStream(ctx context.Context, r io.Reader, w io.Writer) erro
 		s.conns = map[*Conn]bool{}
 	}
 	s.conns[c] = true
+	s.order = append(s.order, c)
 	s.mu.Unlock()
 	if s.AutoSubscribe {
-		c.receive = append(c.receive, &sub{id: s.newSubID(), implicit: true})
+		c.receive = append(c.receive, s.implicitSub(accountNumbers(s.Accounts())...))
 	}
 	defer c.drop()
 	lr := &lineReader{r: bufio.NewReader(r)}
@@ -288,3 +308,47 @@ func (l *lineReader) next() (string, error) {
 }
 
 func toValidUTF8(b []byte) string { return strings.ToValidUTF8(string(b), "�") }
+
+func accountNumbers(as []Account) []string {
+	var out []string
+	for _, a := range as {
+		out = append(out, a.Number)
+	}
+	return out
+}
+
+// implicitSub makes an automatic subscription for accounts, taking an
+// id from the counter.
+func (s *Server) implicitSub(accounts ...string) *sub {
+	sb := &sub{id: s.newSubID(), implicit: true, accounts: map[string]bool{}, late: map[string]bool{}}
+	for _, a := range accounts {
+		sb.accounts[a] = true
+	}
+	return sb
+}
+
+// AccountAdded tells every automatically subscribed connection about an
+// account added at runtime (verify, finishLink): it gets a new implicit
+// subscription for the account, and every implicit subscription it had
+// also delivers the account's messages, wrapped with its id
+// (notifications.md).
+func (s *Server) AccountAdded(number string) {
+	if !s.AutoSubscribe {
+		return
+	}
+	s.mu.Lock()
+	conns := append([]*Conn(nil), s.order...)
+	s.mu.Unlock()
+	for _, c := range conns {
+		c.mu.Lock()
+		if !c.closed {
+			for _, sb := range c.receive {
+				if sb.implicit {
+					sb.late[number] = true
+				}
+			}
+			c.receive = append(c.receive, s.implicitSub(number))
+		}
+		c.mu.Unlock()
+	}
+}

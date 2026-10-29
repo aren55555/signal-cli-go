@@ -111,6 +111,9 @@ func (d *daemonState) runCommandRPC(ctx context.Context, account, name string, r
 	g.daemon = d
 	err := runCommand(ctx, e, &g, name, res)
 	result := strings.TrimSpace(out.String())
+	if err == nil && name == "unregister" {
+		d.unregistered(account)
+	}
 	if err != nil {
 		ee := errcode.As(err)
 		if result != "" {

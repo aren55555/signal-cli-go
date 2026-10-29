@@ -281,3 +281,47 @@ func TestHostPinning(t *testing.T) {
 		t.Error("wildcard bind must accept any host")
 	}
 }
+
+// An account added at runtime gets a new implicit subscription (taking
+// an id) and the existing implicit subscription delivers it wrapped
+// (notifications.md).
+func TestAccountAddedAtRuntime(t *testing.T) {
+	accounts := []string{"+15555550101"}
+	s := testServer()
+	s.Accounts = func() []Account {
+		var out []Account
+		for _, a := range accounts {
+			out = append(out, Account{Number: a})
+		}
+		return out
+	}
+	r, w := io.Pipe()
+	out, ow := io.Pipe()
+	go s.ServeStream(context.Background(), r, ow)
+	br := bufio.NewReader(out)
+	fmt.Fprintln(w, `{"jsonrpc":"2.0","method":"version","id":1}`)
+	br.ReadString('\n') // the connection is set up (implicit id 0)
+	accounts = append(accounts, "+15555550102")
+	s.AccountAdded("+15555550102")
+	go func() {
+		s.Publish(false, "+15555550101", `{"n":1}`)
+		s.Publish(false, "+15555550102", `{"n":2}`)
+	}()
+	var got []string
+	for i := 0; i < 3; i++ {
+		l, _ := br.ReadString('\n')
+		got = append(got, strings.TrimSpace(l))
+	}
+	want := []string{
+		`{"jsonrpc":"2.0","method":"receive","params":{"n":1}}`,
+		`{"jsonrpc":"2.0","method":"receive","params":{"subscription":0,"result":{"n":2}}}`,
+		`{"jsonrpc":"2.0","method":"receive","params":{"n":2}}`,
+	}
+	if strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Errorf("got %q", got)
+	}
+	if id := s.newSubID(); id != 2 {
+		t.Errorf("next id %d, want 2 (the new implicit subscription took 1)", id)
+	}
+	w.Close()
+}
