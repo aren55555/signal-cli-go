@@ -409,16 +409,21 @@ func (a *Account) EnsureSelf() bool {
 		got.Username = ""
 		return got == ad
 	}
-	if ok && same() && a.Recipients[k].Username == a.Data.Username {
+	if ok && same() && (a.Data.Username == "" || a.Recipients[k].Username == a.Data.Username) {
 		return false
 	}
 	if !ok || !same() {
 		k = a.ResolveHighTrust(ad)
 	}
-	// The self row carries the account's own username.
-	if rc, ok := a.Recipients[k]; ok && rc.Username != a.Data.Username {
+	// The self row carries the account's own username. A cleared username
+	// leaves the row's as it was (usernames.md §6), as signal-cli does.
+	if rc, ok := a.Recipients[k]; ok && a.Data.Username != "" && rc.Username != a.Data.Username {
 		rc.Username = a.Data.Username
 		a.Recipients[k] = rc
 	}
 	return true
 }
+
+// SetRecipientsNextID raises the last used row number to n, so new rows
+// never reuse an imported row's ID (signal-cli never reuses them).
+func (a *Account) SetRecipientsNextID(n int64) { a.recipientsNextID = max(a.recipientsNextID, n) }

@@ -586,7 +586,7 @@ func (st *Storage) applyContact(key string, r *signalpb.ContactRecord) {
 				case signalpb.ContactRecord_UNVERIFIED:
 					trust = store.Untrusted
 				}
-				a.Identities[aci] = store.Identity{Key: ik, Trust: trust, Added: st.Sender.now().UnixMilli()}
+				a.PutIdentity(aci, store.Identity{Key: ik, Trust: trust, Added: st.Sender.now().UnixMilli()})
 				a.SaveIdentities()
 			}
 		}

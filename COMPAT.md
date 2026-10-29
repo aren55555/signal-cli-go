@@ -247,7 +247,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | Feature | Spec'd | Impl | Tests | Notes |
 |---------|--------|------|-------|-------|
 | Crash-safe file store (temp, fsync, rename) | ✅ [`PLAN.md`](PLAN.md) storage decision | ✅ `store.WriteFileAtomic`: temp file, fsync, rename, directory fsync; advisory lock per account | ✅ store tests | |
-| Import of a signal-cli data dir (stretch goal) | ⬜ | ⬜ | ⬜ | needs an in-repo SQLite reader |
+| Import of a signal-cli data dir (stretch goal) | ✅ [`signal-cli-data-dir.md`](spec/storage/signal-cli-data-dir.md), [`signal-cli-account-db.md`](spec/storage/signal-cli-account-db.md) | ✅ `cmd/signal-cli-go-import` + [`internal/importer`](internal/importer) (modernc.org/sqlite, importer only): account file v10 and `account.db` schema 30, every table, key_value settings, storage manifest, send log, envelope cache, shared media; source opened read-only (database copied aside), running signal-cli detected by its POSIX lock | ✅ fixture database from the spec schema; opt-in `TestReferenceDirs` over copies of 5 reference-created accounts (row-by-row, source unchanged); live 2026-10-29: an imported reference linked device received and sent 1:1, group and story messages on staging without re-linking, its primary got the sync transcripts | Refused: account files below version 10 and databases below schema 30 (run signal-cli 0.14.7 once first), unregistered accounts. Not carried over: v1 groups (storage IDs kept), username link colour, pre-0.14.7 cached envelopes |
 
 ## Repository rules
 

@@ -168,7 +168,9 @@ func TestPNINumberMemberMerges(t *testing.T) {
 }
 
 // TestEnsureSelfUsername: the self row carries the account's username
-// and follows changes to it.
+// and follows changes to it. A cleared account username leaves the row's
+// alone: a reference account (capture-a, 2026-10-29) has no username in
+// its account file but keeps one on its self row.
 func TestEnsureSelfUsername(t *testing.T) {
 	a := newStore(t)
 	a.Data.ACI = aciA
@@ -184,7 +186,11 @@ func TestEnsureSelfUsername(t *testing.T) {
 		t.Error("no change expected")
 	}
 	a.Data.Username = ""
-	if !a.EnsureSelf() || a.Recipients[k].Username != "" {
-		t.Error("deleted username not cleared")
+	if a.EnsureSelf() || a.Recipients[k].Username != "self.01" {
+		t.Error("a cleared username changed the self row")
+	}
+	a.Data.Username = "self.02"
+	if !a.EnsureSelf() || a.Recipients[k].Username != "self.02" {
+		t.Error("a new username was not copied")
 	}
 }

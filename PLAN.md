@@ -29,7 +29,7 @@ every session, and update both before ending one.
 | 8  | Daemon parity (HTTP/SSE, socket, TCP); Layer B fully green | done (2026-10-27); all 162 JSON-RPC goldens green (8 CLI goldens left for milestone 9: verbose logging, -d checks, delete-account); change number and the rate-limit challenge offline-tested only; voice calls still deferred |
 | 9  | CLI parity                                   | done (2026-10-29); all 355 CLI goldens green; logging, send log, --trust-new-identities, username/PNI recipients, link QR, delete-account (offline only, as instructed); voice calls and D-Bus remain for 9b |
 | 9b | Revisit deferred items (voice calls, D-Bus client mode) | not started |
-| 10 | Stretch goal: import an existing signal-cli data dir | not started |
+| 10 | Stretch goal: import an existing signal-cli data dir | done (2026-10-29); `cmd/signal-cli-go-import` with modernc.org/sqlite (second amendment); account file v10 + schema 30 only; an imported reference device worked live on staging without re-linking |
 
 The operator reviewed this file and the first COMPAT.md draft on 2026-10-23.
 
@@ -53,7 +53,7 @@ starts. Existing pieces:
   the generated Go types; `just proto-gen` regenerates, `just proto-check`
   (and CI) fails on drift. The old hand-written codec lives on in its
   `_test.go` files as a differential oracle.
-- `vendor/`: google.golang.org/protobuf v1.36.12, the one permitted module
+- `vendor/`: google.golang.org/protobuf v1.36.12 (every binary) and modernc.org/sqlite with its modules (importer only), see Decisions
 - `internal/testvec`: loads `testdata/vectors/*.json` in tests
 - `internal/errcode`: the typed catalogue of every CLI/daemon error
   (`docs/error-codes.md` is generated from it)
@@ -82,6 +82,46 @@ starts. Existing pieces:
   `internal/proto/wire` codec is replaced by the generated types and
   survives only as a differential test. The no-dependencies repo rule
   becomes "only this module".
+- **Brief amendment 2: SQLite for the importer** (operator, 2026-10-29).
+  The operator declined an in-repo SQLite reader and sqlite.org on the
+  allowlist. Instead `modernc.org/sqlite` (pure Go) and its transitive
+  modules are permitted, vendored and pinned, **only** in
+  `cmd/signal-cli-go-import`. `internal/importer` uses `database/sql`
+  and has the driver passed in, so nothing the main binary links pulls
+  in SQLite. Rules enforced by `internal/repocheck`:
+  `TestOnlyAllowedModule` (exactly these modules and versions in
+  `go.mod`, `go.sum`, `vendor/modules.txt`; `go.sum` is trimmed to them,
+  and `go mod verify` passes), `TestProductionBinariesHaveNoC` (each
+  command under `cmd/` built as shipped: `CGO_ENABLED=0` in its build
+  info, no ELF interpreter, no shared libraries, only allowed modules;
+  `signal-cli-go` contains protobuf only) and `TestNoCgoPackages` (no
+  non-standard package in the commands' graph has cgo, C or syso files).
+  The justfile exports `CGO_ENABLED=0`; only `test-race` turns cgo on,
+  because the race runtime needs it (operator: C is fine in tests, never
+  in a shipped build). Until this change the sandbox default was
+  `CGO_ENABLED=1`, which made `signal-cli-go` a dynamically linked
+  binary (Go's resolver). ALLOWED_HOSTS gained `storage.googleapis.com`,
+  where proxy.golang.org redirects large module zips; contents are still
+  checked against sum.golang.org. Modules and licenses (all
+  GPLv3-compatible):
+
+  | Module | Version | License |
+  |--------|---------|---------|
+  | modernc.org/sqlite | v1.61.0 | BSD-3-Clause; the transpiled SQLite 3.54.1 is public domain |
+  | modernc.org/libc | v1.79.0 | BSD-3-Clause; bundles musl libc (MIT) and parts of Go (BSD-3-Clause), go-netdb (MIT), nixpkgs data (MIT) |
+  | modernc.org/mathutil | v1.7.1 | BSD-3-Clause |
+  | modernc.org/memory | v1.12.1 | BSD-3-Clause (plus a Go BSD-3-Clause file and a logo attribution) |
+  | golang.org/x/sys | v0.49.0 | BSD-3-Clause |
+  | github.com/dustin/go-humanize | v1.1.0 | MIT |
+  | github.com/google/uuid | v1.6.0 | BSD-3-Clause |
+  | github.com/mattn/go-isatty | v0.0.24 | MIT |
+  | github.com/ncruces/go-strftime | v1.1.0 | MIT |
+  | github.com/remyoudompheng/bigfft | v0.0.0-20230129092748-24d4a6f8daec | BSD-3-Clause |
+
+  Source: each module's `LICENSE` and `LICENSE-3RD-PARTY.md` in
+  `vendor/`. `golang.org/x/sys` ships Go assembly (`.s`) and one
+  gccgo-only `.c` file that the gc toolchain never compiles; no C is
+  built. `vendor/` grows by about 140 MB (2,276 files; largest 5.5 MB).
 - **Module path** `github.com/aren55555/signal-cli-go`, go 1.27.3.
 - **Oracle trust**: the tarball SHA-256 is pinned from the GitHub release
   API digest. The signature is checked against key
@@ -801,3 +841,42 @@ vectors.
   /v1/accounts/me) tested offline only, per the operator.
 - COMPAT.md swept: stale protocol, crypto and storage rows brought up
   to date.
+
+### 2026-10-29, milestone 10: importing a signal-cli data directory
+
+- Operator decisions: no in-repo SQLite reader and no sqlite.org;
+  modernc.org/sqlite permitted for a separate importer only (second
+  amendment, Decisions); C allowed in tests (race runtime) but never in
+  a shipped build; `storage.googleapis.com` added to ALLOWED_HOSTS for
+  large module zips.
+- Specs: `spec/storage/signal-cli-data-dir.md`,
+  `spec/storage/signal-cli-account-db.md` (+ §16 listing order).
+- `internal/importer` + `cmd/signal-cli-go-import`: reads accounts.json,
+  the version-10 account file and every `account.db` table (schema 30)
+  through `database/sql`; writes our store under the same account path;
+  converts signal-cli's `DecryptedGroup` (new protos), EC prekeys into
+  libsignal records, the storage manifest, the send log and v9 cached
+  envelopes; copies attachments, avatars and stickers. The source is
+  opened read-only and `account.db` (+ WAL) is copied aside before SQLite
+  opens it; a running signal-cli is detected with `F_GETLK` on its POSIX
+  account lock.
+- Found while comparing: `listIdentities` follows the identity table's
+  row order, not service-ID order (identities now carry a row number);
+  a cleared account username leaves the self row's username alone.
+- Tests: fixture database built from the spec schema (CI); opt-in
+  `TestReferenceDirs` over copies of capture-a, capture-b, capture-1
+  pre/post and ref-fresh: counts, identity order, recipient rows and
+  sessions match `account.db`, sources unchanged.
+- Live (staging): a fresh reference linked to our B (`.data/ref-fresh`),
+  given sessions, a group message, stories both ways, a sticker pack and
+  a nickname, then imported (`.data/imp-fresh`). The imported device
+  received sealed messages from A.1 and A.2 over its inherited sessions,
+  sent 1:1, group and story messages that the reference A.1 and our A.2
+  decrypted, and B's primary got the sync transcripts. Offline listings
+  (contacts, groups, identities, sticker packs, both output modes) of the
+  imported ref-fresh match the reference exactly.
+- Lesson: the reference's account check goes online even for
+  `listContacts`, so running either client on a copy of a live primary
+  (capture-a) uses that device's credentials. It changed nothing this
+  time (prekey state checked before and after), but don't repeat it;
+  compare such copies offline.

@@ -24,6 +24,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type EnabledState int32
+
+const (
+	EnabledState_ENABLED_STATE_UNKNOWN  EnabledState = 0
+	EnabledState_ENABLED_STATE_ENABLED  EnabledState = 1
+	EnabledState_ENABLED_STATE_DISABLED EnabledState = 2
+)
+
+// Enum value maps for EnabledState.
+var (
+	EnabledState_name = map[int32]string{
+		0: "ENABLED_STATE_UNKNOWN",
+		1: "ENABLED_STATE_ENABLED",
+		2: "ENABLED_STATE_DISABLED",
+	}
+	EnabledState_value = map[string]int32{
+		"ENABLED_STATE_UNKNOWN":  0,
+		"ENABLED_STATE_ENABLED":  1,
+		"ENABLED_STATE_DISABLED": 2,
+	}
+)
+
+func (x EnabledState) Enum() *EnabledState {
+	p := new(EnabledState)
+	*p = x
+	return p
+}
+
+func (x EnabledState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (EnabledState) Descriptor() protoreflect.EnumDescriptor {
+	return file_groups_proto_enumTypes[0].Descriptor()
+}
+
+func (EnabledState) Type() protoreflect.EnumType {
+	return &file_groups_proto_enumTypes[0]
+}
+
+func (x EnabledState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use EnabledState.Descriptor instead.
+func (EnabledState) EnumDescriptor() ([]byte, []int) {
+	return file_groups_proto_rawDescGZIP(), []int{0}
+}
+
 type GroupMember_Role int32
 
 const (
@@ -57,11 +106,11 @@ func (x GroupMember_Role) String() string {
 }
 
 func (GroupMember_Role) Descriptor() protoreflect.EnumDescriptor {
-	return file_groups_proto_enumTypes[0].Descriptor()
+	return file_groups_proto_enumTypes[1].Descriptor()
 }
 
 func (GroupMember_Role) Type() protoreflect.EnumType {
-	return &file_groups_proto_enumTypes[0]
+	return &file_groups_proto_enumTypes[1]
 }
 
 func (x GroupMember_Role) Number() protoreflect.EnumNumber {
@@ -112,11 +161,11 @@ func (x GroupAccessControl_AccessRequired) String() string {
 }
 
 func (GroupAccessControl_AccessRequired) Descriptor() protoreflect.EnumDescriptor {
-	return file_groups_proto_enumTypes[1].Descriptor()
+	return file_groups_proto_enumTypes[2].Descriptor()
 }
 
 func (GroupAccessControl_AccessRequired) Type() protoreflect.EnumType {
-	return &file_groups_proto_enumTypes[1]
+	return &file_groups_proto_enumTypes[2]
 }
 
 func (x GroupAccessControl_AccessRequired) Number() protoreflect.EnumNumber {
@@ -1204,6 +1253,482 @@ func (x *AvatarUploadAttributes) GetSignature() string {
 	return ""
 }
 
+// The decrypted group state as signal-cli stores it in account.db
+// (group_v2.group_data), read only by the importer. Written from
+// spec/service/groups.md §2.6 and spec/storage/signal-cli-account-db.md
+// §8.1; field numbers mirror Group.
+type DecryptedGroup struct {
+	state                     protoimpl.MessageState       `protogen:"open.v1"`
+	Title                     string                       `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Avatar                    string                       `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	DisappearingMessagesTimer *DecryptedTimer              `protobuf:"bytes,4,opt,name=disappearing_messages_timer,json=disappearingMessagesTimer,proto3" json:"disappearing_messages_timer,omitempty"`
+	AccessControl             *GroupAccessControl          `protobuf:"bytes,5,opt,name=access_control,json=accessControl,proto3" json:"access_control,omitempty"`
+	Revision                  uint32                       `protobuf:"varint,6,opt,name=revision,proto3" json:"revision,omitempty"`
+	Members                   []*DecryptedMember           `protobuf:"bytes,7,rep,name=members,proto3" json:"members,omitempty"`
+	PendingMembers            []*DecryptedPendingMember    `protobuf:"bytes,8,rep,name=pending_members,json=pendingMembers,proto3" json:"pending_members,omitempty"`
+	RequestingMembers         []*DecryptedRequestingMember `protobuf:"bytes,9,rep,name=requesting_members,json=requestingMembers,proto3" json:"requesting_members,omitempty"`
+	InviteLinkPassword        []byte                       `protobuf:"bytes,10,opt,name=invite_link_password,json=inviteLinkPassword,proto3" json:"invite_link_password,omitempty"`
+	Description               string                       `protobuf:"bytes,11,opt,name=description,proto3" json:"description,omitempty"`
+	IsAnnouncementGroup       EnabledState                 `protobuf:"varint,12,opt,name=is_announcement_group,json=isAnnouncementGroup,proto3,enum=signalcligo.EnabledState" json:"is_announcement_group,omitempty"`
+	BannedMembers             []*DecryptedBannedMember     `protobuf:"bytes,13,rep,name=banned_members,json=bannedMembers,proto3" json:"banned_members,omitempty"`
+	Terminated                bool                         `protobuf:"varint,14,opt,name=terminated,proto3" json:"terminated,omitempty"`
+	IsPlaceholderGroup        bool                         `protobuf:"varint,64,opt,name=is_placeholder_group,json=isPlaceholderGroup,proto3" json:"is_placeholder_group,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
+}
+
+func (x *DecryptedGroup) Reset() {
+	*x = DecryptedGroup{}
+	mi := &file_groups_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecryptedGroup) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecryptedGroup) ProtoMessage() {}
+
+func (x *DecryptedGroup) ProtoReflect() protoreflect.Message {
+	mi := &file_groups_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecryptedGroup.ProtoReflect.Descriptor instead.
+func (*DecryptedGroup) Descriptor() ([]byte, []int) {
+	return file_groups_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *DecryptedGroup) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *DecryptedGroup) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *DecryptedGroup) GetDisappearingMessagesTimer() *DecryptedTimer {
+	if x != nil {
+		return x.DisappearingMessagesTimer
+	}
+	return nil
+}
+
+func (x *DecryptedGroup) GetAccessControl() *GroupAccessControl {
+	if x != nil {
+		return x.AccessControl
+	}
+	return nil
+}
+
+func (x *DecryptedGroup) GetRevision() uint32 {
+	if x != nil {
+		return x.Revision
+	}
+	return 0
+}
+
+func (x *DecryptedGroup) GetMembers() []*DecryptedMember {
+	if x != nil {
+		return x.Members
+	}
+	return nil
+}
+
+func (x *DecryptedGroup) GetPendingMembers() []*DecryptedPendingMember {
+	if x != nil {
+		return x.PendingMembers
+	}
+	return nil
+}
+
+func (x *DecryptedGroup) GetRequestingMembers() []*DecryptedRequestingMember {
+	if x != nil {
+		return x.RequestingMembers
+	}
+	return nil
+}
+
+func (x *DecryptedGroup) GetInviteLinkPassword() []byte {
+	if x != nil {
+		return x.InviteLinkPassword
+	}
+	return nil
+}
+
+func (x *DecryptedGroup) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *DecryptedGroup) GetIsAnnouncementGroup() EnabledState {
+	if x != nil {
+		return x.IsAnnouncementGroup
+	}
+	return EnabledState_ENABLED_STATE_UNKNOWN
+}
+
+func (x *DecryptedGroup) GetBannedMembers() []*DecryptedBannedMember {
+	if x != nil {
+		return x.BannedMembers
+	}
+	return nil
+}
+
+func (x *DecryptedGroup) GetTerminated() bool {
+	if x != nil {
+		return x.Terminated
+	}
+	return false
+}
+
+func (x *DecryptedGroup) GetIsPlaceholderGroup() bool {
+	if x != nil {
+		return x.IsPlaceholderGroup
+	}
+	return false
+}
+
+type DecryptedTimer struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Duration      uint32                 `protobuf:"varint,1,opt,name=duration,proto3" json:"duration,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DecryptedTimer) Reset() {
+	*x = DecryptedTimer{}
+	mi := &file_groups_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecryptedTimer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecryptedTimer) ProtoMessage() {}
+
+func (x *DecryptedTimer) ProtoReflect() protoreflect.Message {
+	mi := &file_groups_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecryptedTimer.ProtoReflect.Descriptor instead.
+func (*DecryptedTimer) Descriptor() ([]byte, []int) {
+	return file_groups_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *DecryptedTimer) GetDuration() uint32 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
+type DecryptedMember struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	AciBytes         []byte                 `protobuf:"bytes,1,opt,name=aci_bytes,json=aciBytes,proto3" json:"aci_bytes,omitempty"`
+	Role             GroupMember_Role       `protobuf:"varint,2,opt,name=role,proto3,enum=signalcligo.GroupMember_Role" json:"role,omitempty"`
+	ProfileKey       []byte                 `protobuf:"bytes,3,opt,name=profile_key,json=profileKey,proto3" json:"profile_key,omitempty"`
+	JoinedAtRevision uint32                 `protobuf:"varint,5,opt,name=joined_at_revision,json=joinedAtRevision,proto3" json:"joined_at_revision,omitempty"`
+	PniBytes         []byte                 `protobuf:"bytes,6,opt,name=pni_bytes,json=pniBytes,proto3" json:"pni_bytes,omitempty"`
+	LabelEmoji       string                 `protobuf:"bytes,7,opt,name=label_emoji,json=labelEmoji,proto3" json:"label_emoji,omitempty"`
+	LabelString      string                 `protobuf:"bytes,8,opt,name=label_string,json=labelString,proto3" json:"label_string,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *DecryptedMember) Reset() {
+	*x = DecryptedMember{}
+	mi := &file_groups_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecryptedMember) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecryptedMember) ProtoMessage() {}
+
+func (x *DecryptedMember) ProtoReflect() protoreflect.Message {
+	mi := &file_groups_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecryptedMember.ProtoReflect.Descriptor instead.
+func (*DecryptedMember) Descriptor() ([]byte, []int) {
+	return file_groups_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *DecryptedMember) GetAciBytes() []byte {
+	if x != nil {
+		return x.AciBytes
+	}
+	return nil
+}
+
+func (x *DecryptedMember) GetRole() GroupMember_Role {
+	if x != nil {
+		return x.Role
+	}
+	return GroupMember_UNKNOWN
+}
+
+func (x *DecryptedMember) GetProfileKey() []byte {
+	if x != nil {
+		return x.ProfileKey
+	}
+	return nil
+}
+
+func (x *DecryptedMember) GetJoinedAtRevision() uint32 {
+	if x != nil {
+		return x.JoinedAtRevision
+	}
+	return 0
+}
+
+func (x *DecryptedMember) GetPniBytes() []byte {
+	if x != nil {
+		return x.PniBytes
+	}
+	return nil
+}
+
+func (x *DecryptedMember) GetLabelEmoji() string {
+	if x != nil {
+		return x.LabelEmoji
+	}
+	return ""
+}
+
+func (x *DecryptedMember) GetLabelString() string {
+	if x != nil {
+		return x.LabelString
+	}
+	return ""
+}
+
+type DecryptedPendingMember struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	ServiceIdBytes      []byte                 `protobuf:"bytes,1,opt,name=service_id_bytes,json=serviceIdBytes,proto3" json:"service_id_bytes,omitempty"`
+	Role                GroupMember_Role       `protobuf:"varint,2,opt,name=role,proto3,enum=signalcligo.GroupMember_Role" json:"role,omitempty"`
+	AddedByAci          []byte                 `protobuf:"bytes,3,opt,name=added_by_aci,json=addedByAci,proto3" json:"added_by_aci,omitempty"`
+	Timestamp           uint64                 `protobuf:"varint,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	ServiceIdCipherText []byte                 `protobuf:"bytes,5,opt,name=service_id_cipher_text,json=serviceIdCipherText,proto3" json:"service_id_cipher_text,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *DecryptedPendingMember) Reset() {
+	*x = DecryptedPendingMember{}
+	mi := &file_groups_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecryptedPendingMember) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecryptedPendingMember) ProtoMessage() {}
+
+func (x *DecryptedPendingMember) ProtoReflect() protoreflect.Message {
+	mi := &file_groups_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecryptedPendingMember.ProtoReflect.Descriptor instead.
+func (*DecryptedPendingMember) Descriptor() ([]byte, []int) {
+	return file_groups_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *DecryptedPendingMember) GetServiceIdBytes() []byte {
+	if x != nil {
+		return x.ServiceIdBytes
+	}
+	return nil
+}
+
+func (x *DecryptedPendingMember) GetRole() GroupMember_Role {
+	if x != nil {
+		return x.Role
+	}
+	return GroupMember_UNKNOWN
+}
+
+func (x *DecryptedPendingMember) GetAddedByAci() []byte {
+	if x != nil {
+		return x.AddedByAci
+	}
+	return nil
+}
+
+func (x *DecryptedPendingMember) GetTimestamp() uint64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+func (x *DecryptedPendingMember) GetServiceIdCipherText() []byte {
+	if x != nil {
+		return x.ServiceIdCipherText
+	}
+	return nil
+}
+
+type DecryptedRequestingMember struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AciBytes      []byte                 `protobuf:"bytes,1,opt,name=aci_bytes,json=aciBytes,proto3" json:"aci_bytes,omitempty"`
+	ProfileKey    []byte                 `protobuf:"bytes,2,opt,name=profile_key,json=profileKey,proto3" json:"profile_key,omitempty"`
+	Timestamp     uint64                 `protobuf:"varint,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DecryptedRequestingMember) Reset() {
+	*x = DecryptedRequestingMember{}
+	mi := &file_groups_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecryptedRequestingMember) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecryptedRequestingMember) ProtoMessage() {}
+
+func (x *DecryptedRequestingMember) ProtoReflect() protoreflect.Message {
+	mi := &file_groups_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecryptedRequestingMember.ProtoReflect.Descriptor instead.
+func (*DecryptedRequestingMember) Descriptor() ([]byte, []int) {
+	return file_groups_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *DecryptedRequestingMember) GetAciBytes() []byte {
+	if x != nil {
+		return x.AciBytes
+	}
+	return nil
+}
+
+func (x *DecryptedRequestingMember) GetProfileKey() []byte {
+	if x != nil {
+		return x.ProfileKey
+	}
+	return nil
+}
+
+func (x *DecryptedRequestingMember) GetTimestamp() uint64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+type DecryptedBannedMember struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ServiceIdBytes []byte                 `protobuf:"bytes,1,opt,name=service_id_bytes,json=serviceIdBytes,proto3" json:"service_id_bytes,omitempty"`
+	Timestamp      uint64                 `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *DecryptedBannedMember) Reset() {
+	*x = DecryptedBannedMember{}
+	mi := &file_groups_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecryptedBannedMember) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecryptedBannedMember) ProtoMessage() {}
+
+func (x *DecryptedBannedMember) ProtoReflect() protoreflect.Message {
+	mi := &file_groups_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecryptedBannedMember.ProtoReflect.Descriptor instead.
+func (*DecryptedBannedMember) Descriptor() ([]byte, []int) {
+	return file_groups_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *DecryptedBannedMember) GetServiceIdBytes() []byte {
+	if x != nil {
+		return x.ServiceIdBytes
+	}
+	return nil
+}
+
+func (x *DecryptedBannedMember) GetTimestamp() uint64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
 type GroupInviteLink_V1 struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	GroupMasterKey     []byte                 `protobuf:"bytes,1,opt,name=group_master_key,json=groupMasterKey,proto3" json:"group_master_key,omitempty"`
@@ -1214,7 +1739,7 @@ type GroupInviteLink_V1 struct {
 
 func (x *GroupInviteLink_V1) Reset() {
 	*x = GroupInviteLink_V1{}
-	mi := &file_groups_proto_msgTypes[14]
+	mi := &file_groups_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1226,7 +1751,7 @@ func (x *GroupInviteLink_V1) String() string {
 func (*GroupInviteLink_V1) ProtoMessage() {}
 
 func (x *GroupInviteLink_V1) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[14]
+	mi := &file_groups_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1292,7 +1817,7 @@ type GroupChange_Actions struct {
 
 func (x *GroupChange_Actions) Reset() {
 	*x = GroupChange_Actions{}
-	mi := &file_groups_proto_msgTypes[15]
+	mi := &file_groups_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1304,7 +1829,7 @@ func (x *GroupChange_Actions) String() string {
 func (*GroupChange_Actions) ProtoMessage() {}
 
 func (x *GroupChange_Actions) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[15]
+	mi := &file_groups_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1526,7 +2051,7 @@ type GroupChange_Actions_AddMember struct {
 
 func (x *GroupChange_Actions_AddMember) Reset() {
 	*x = GroupChange_Actions_AddMember{}
-	mi := &file_groups_proto_msgTypes[16]
+	mi := &file_groups_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1538,7 +2063,7 @@ func (x *GroupChange_Actions_AddMember) String() string {
 func (*GroupChange_Actions_AddMember) ProtoMessage() {}
 
 func (x *GroupChange_Actions_AddMember) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[16]
+	mi := &file_groups_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1577,7 +2102,7 @@ type GroupChange_Actions_DeleteMember struct {
 
 func (x *GroupChange_Actions_DeleteMember) Reset() {
 	*x = GroupChange_Actions_DeleteMember{}
-	mi := &file_groups_proto_msgTypes[17]
+	mi := &file_groups_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1589,7 +2114,7 @@ func (x *GroupChange_Actions_DeleteMember) String() string {
 func (*GroupChange_Actions_DeleteMember) ProtoMessage() {}
 
 func (x *GroupChange_Actions_DeleteMember) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[17]
+	mi := &file_groups_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1622,7 +2147,7 @@ type GroupChange_Actions_ModifyMemberRole struct {
 
 func (x *GroupChange_Actions_ModifyMemberRole) Reset() {
 	*x = GroupChange_Actions_ModifyMemberRole{}
-	mi := &file_groups_proto_msgTypes[18]
+	mi := &file_groups_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1634,7 +2159,7 @@ func (x *GroupChange_Actions_ModifyMemberRole) String() string {
 func (*GroupChange_Actions_ModifyMemberRole) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyMemberRole) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[18]
+	mi := &file_groups_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1675,7 +2200,7 @@ type GroupChange_Actions_ModifyMemberProfileKey struct {
 
 func (x *GroupChange_Actions_ModifyMemberProfileKey) Reset() {
 	*x = GroupChange_Actions_ModifyMemberProfileKey{}
-	mi := &file_groups_proto_msgTypes[19]
+	mi := &file_groups_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1687,7 +2212,7 @@ func (x *GroupChange_Actions_ModifyMemberProfileKey) String() string {
 func (*GroupChange_Actions_ModifyMemberProfileKey) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyMemberProfileKey) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[19]
+	mi := &file_groups_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1733,7 +2258,7 @@ type GroupChange_Actions_AddMemberPendingProfileKey struct {
 
 func (x *GroupChange_Actions_AddMemberPendingProfileKey) Reset() {
 	*x = GroupChange_Actions_AddMemberPendingProfileKey{}
-	mi := &file_groups_proto_msgTypes[20]
+	mi := &file_groups_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1745,7 +2270,7 @@ func (x *GroupChange_Actions_AddMemberPendingProfileKey) String() string {
 func (*GroupChange_Actions_AddMemberPendingProfileKey) ProtoMessage() {}
 
 func (x *GroupChange_Actions_AddMemberPendingProfileKey) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[20]
+	mi := &file_groups_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1777,7 +2302,7 @@ type GroupChange_Actions_DeleteMemberPendingProfileKey struct {
 
 func (x *GroupChange_Actions_DeleteMemberPendingProfileKey) Reset() {
 	*x = GroupChange_Actions_DeleteMemberPendingProfileKey{}
-	mi := &file_groups_proto_msgTypes[21]
+	mi := &file_groups_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1789,7 +2314,7 @@ func (x *GroupChange_Actions_DeleteMemberPendingProfileKey) String() string {
 func (*GroupChange_Actions_DeleteMemberPendingProfileKey) ProtoMessage() {}
 
 func (x *GroupChange_Actions_DeleteMemberPendingProfileKey) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[21]
+	mi := &file_groups_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1823,7 +2348,7 @@ type GroupChange_Actions_PromoteMemberPendingProfileKey struct {
 
 func (x *GroupChange_Actions_PromoteMemberPendingProfileKey) Reset() {
 	*x = GroupChange_Actions_PromoteMemberPendingProfileKey{}
-	mi := &file_groups_proto_msgTypes[22]
+	mi := &file_groups_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1835,7 +2360,7 @@ func (x *GroupChange_Actions_PromoteMemberPendingProfileKey) String() string {
 func (*GroupChange_Actions_PromoteMemberPendingProfileKey) ProtoMessage() {}
 
 func (x *GroupChange_Actions_PromoteMemberPendingProfileKey) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[22]
+	mi := &file_groups_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1881,7 +2406,7 @@ type GroupChange_Actions_ModifyTitle struct {
 
 func (x *GroupChange_Actions_ModifyTitle) Reset() {
 	*x = GroupChange_Actions_ModifyTitle{}
-	mi := &file_groups_proto_msgTypes[23]
+	mi := &file_groups_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1893,7 +2418,7 @@ func (x *GroupChange_Actions_ModifyTitle) String() string {
 func (*GroupChange_Actions_ModifyTitle) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyTitle) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[23]
+	mi := &file_groups_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1925,7 +2450,7 @@ type GroupChange_Actions_ModifyAvatar struct {
 
 func (x *GroupChange_Actions_ModifyAvatar) Reset() {
 	*x = GroupChange_Actions_ModifyAvatar{}
-	mi := &file_groups_proto_msgTypes[24]
+	mi := &file_groups_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1937,7 +2462,7 @@ func (x *GroupChange_Actions_ModifyAvatar) String() string {
 func (*GroupChange_Actions_ModifyAvatar) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyAvatar) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[24]
+	mi := &file_groups_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1969,7 +2494,7 @@ type GroupChange_Actions_ModifyDisappearingMessageTimer struct {
 
 func (x *GroupChange_Actions_ModifyDisappearingMessageTimer) Reset() {
 	*x = GroupChange_Actions_ModifyDisappearingMessageTimer{}
-	mi := &file_groups_proto_msgTypes[25]
+	mi := &file_groups_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1981,7 +2506,7 @@ func (x *GroupChange_Actions_ModifyDisappearingMessageTimer) String() string {
 func (*GroupChange_Actions_ModifyDisappearingMessageTimer) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyDisappearingMessageTimer) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[25]
+	mi := &file_groups_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2013,7 +2538,7 @@ type GroupChange_Actions_ModifyAttributesAccess struct {
 
 func (x *GroupChange_Actions_ModifyAttributesAccess) Reset() {
 	*x = GroupChange_Actions_ModifyAttributesAccess{}
-	mi := &file_groups_proto_msgTypes[26]
+	mi := &file_groups_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2025,7 +2550,7 @@ func (x *GroupChange_Actions_ModifyAttributesAccess) String() string {
 func (*GroupChange_Actions_ModifyAttributesAccess) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyAttributesAccess) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[26]
+	mi := &file_groups_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2057,7 +2582,7 @@ type GroupChange_Actions_ModifyMembersAccess struct {
 
 func (x *GroupChange_Actions_ModifyMembersAccess) Reset() {
 	*x = GroupChange_Actions_ModifyMembersAccess{}
-	mi := &file_groups_proto_msgTypes[27]
+	mi := &file_groups_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2069,7 +2594,7 @@ func (x *GroupChange_Actions_ModifyMembersAccess) String() string {
 func (*GroupChange_Actions_ModifyMembersAccess) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyMembersAccess) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[27]
+	mi := &file_groups_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2101,7 +2626,7 @@ type GroupChange_Actions_ModifyAddFromInviteLinkAccess struct {
 
 func (x *GroupChange_Actions_ModifyAddFromInviteLinkAccess) Reset() {
 	*x = GroupChange_Actions_ModifyAddFromInviteLinkAccess{}
-	mi := &file_groups_proto_msgTypes[28]
+	mi := &file_groups_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2113,7 +2638,7 @@ func (x *GroupChange_Actions_ModifyAddFromInviteLinkAccess) String() string {
 func (*GroupChange_Actions_ModifyAddFromInviteLinkAccess) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyAddFromInviteLinkAccess) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[28]
+	mi := &file_groups_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2145,7 +2670,7 @@ type GroupChange_Actions_AddMemberPendingAdminApproval struct {
 
 func (x *GroupChange_Actions_AddMemberPendingAdminApproval) Reset() {
 	*x = GroupChange_Actions_AddMemberPendingAdminApproval{}
-	mi := &file_groups_proto_msgTypes[29]
+	mi := &file_groups_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2157,7 +2682,7 @@ func (x *GroupChange_Actions_AddMemberPendingAdminApproval) String() string {
 func (*GroupChange_Actions_AddMemberPendingAdminApproval) ProtoMessage() {}
 
 func (x *GroupChange_Actions_AddMemberPendingAdminApproval) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[29]
+	mi := &file_groups_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2189,7 +2714,7 @@ type GroupChange_Actions_DeleteMemberPendingAdminApproval struct {
 
 func (x *GroupChange_Actions_DeleteMemberPendingAdminApproval) Reset() {
 	*x = GroupChange_Actions_DeleteMemberPendingAdminApproval{}
-	mi := &file_groups_proto_msgTypes[30]
+	mi := &file_groups_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2201,7 +2726,7 @@ func (x *GroupChange_Actions_DeleteMemberPendingAdminApproval) String() string {
 func (*GroupChange_Actions_DeleteMemberPendingAdminApproval) ProtoMessage() {}
 
 func (x *GroupChange_Actions_DeleteMemberPendingAdminApproval) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[30]
+	mi := &file_groups_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2234,7 +2759,7 @@ type GroupChange_Actions_PromoteMemberPendingAdminApproval struct {
 
 func (x *GroupChange_Actions_PromoteMemberPendingAdminApproval) Reset() {
 	*x = GroupChange_Actions_PromoteMemberPendingAdminApproval{}
-	mi := &file_groups_proto_msgTypes[31]
+	mi := &file_groups_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2246,7 +2771,7 @@ func (x *GroupChange_Actions_PromoteMemberPendingAdminApproval) String() string 
 func (*GroupChange_Actions_PromoteMemberPendingAdminApproval) ProtoMessage() {}
 
 func (x *GroupChange_Actions_PromoteMemberPendingAdminApproval) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[31]
+	mi := &file_groups_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2285,7 +2810,7 @@ type GroupChange_Actions_ModifyInviteLinkPassword struct {
 
 func (x *GroupChange_Actions_ModifyInviteLinkPassword) Reset() {
 	*x = GroupChange_Actions_ModifyInviteLinkPassword{}
-	mi := &file_groups_proto_msgTypes[32]
+	mi := &file_groups_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2297,7 +2822,7 @@ func (x *GroupChange_Actions_ModifyInviteLinkPassword) String() string {
 func (*GroupChange_Actions_ModifyInviteLinkPassword) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyInviteLinkPassword) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[32]
+	mi := &file_groups_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2329,7 +2854,7 @@ type GroupChange_Actions_ModifyDescription struct {
 
 func (x *GroupChange_Actions_ModifyDescription) Reset() {
 	*x = GroupChange_Actions_ModifyDescription{}
-	mi := &file_groups_proto_msgTypes[33]
+	mi := &file_groups_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2341,7 +2866,7 @@ func (x *GroupChange_Actions_ModifyDescription) String() string {
 func (*GroupChange_Actions_ModifyDescription) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyDescription) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[33]
+	mi := &file_groups_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2373,7 +2898,7 @@ type GroupChange_Actions_ModifyAnnouncementsOnly struct {
 
 func (x *GroupChange_Actions_ModifyAnnouncementsOnly) Reset() {
 	*x = GroupChange_Actions_ModifyAnnouncementsOnly{}
-	mi := &file_groups_proto_msgTypes[34]
+	mi := &file_groups_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2385,7 +2910,7 @@ func (x *GroupChange_Actions_ModifyAnnouncementsOnly) String() string {
 func (*GroupChange_Actions_ModifyAnnouncementsOnly) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyAnnouncementsOnly) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[34]
+	mi := &file_groups_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2417,7 +2942,7 @@ type GroupChange_Actions_AddMemberBanned struct {
 
 func (x *GroupChange_Actions_AddMemberBanned) Reset() {
 	*x = GroupChange_Actions_AddMemberBanned{}
-	mi := &file_groups_proto_msgTypes[35]
+	mi := &file_groups_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2429,7 +2954,7 @@ func (x *GroupChange_Actions_AddMemberBanned) String() string {
 func (*GroupChange_Actions_AddMemberBanned) ProtoMessage() {}
 
 func (x *GroupChange_Actions_AddMemberBanned) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[35]
+	mi := &file_groups_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2461,7 +2986,7 @@ type GroupChange_Actions_DeleteMemberBanned struct {
 
 func (x *GroupChange_Actions_DeleteMemberBanned) Reset() {
 	*x = GroupChange_Actions_DeleteMemberBanned{}
-	mi := &file_groups_proto_msgTypes[36]
+	mi := &file_groups_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2473,7 +2998,7 @@ func (x *GroupChange_Actions_DeleteMemberBanned) String() string {
 func (*GroupChange_Actions_DeleteMemberBanned) ProtoMessage() {}
 
 func (x *GroupChange_Actions_DeleteMemberBanned) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[36]
+	mi := &file_groups_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2508,7 +3033,7 @@ type GroupChange_Actions_PromoteMemberPendingPniAciProfileKey struct {
 
 func (x *GroupChange_Actions_PromoteMemberPendingPniAciProfileKey) Reset() {
 	*x = GroupChange_Actions_PromoteMemberPendingPniAciProfileKey{}
-	mi := &file_groups_proto_msgTypes[37]
+	mi := &file_groups_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2520,7 +3045,7 @@ func (x *GroupChange_Actions_PromoteMemberPendingPniAciProfileKey) String() stri
 func (*GroupChange_Actions_PromoteMemberPendingPniAciProfileKey) ProtoMessage() {}
 
 func (x *GroupChange_Actions_PromoteMemberPendingPniAciProfileKey) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[37]
+	mi := &file_groups_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2575,7 +3100,7 @@ type GroupChange_Actions_ModifyMemberLabel struct {
 
 func (x *GroupChange_Actions_ModifyMemberLabel) Reset() {
 	*x = GroupChange_Actions_ModifyMemberLabel{}
-	mi := &file_groups_proto_msgTypes[38]
+	mi := &file_groups_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2587,7 +3112,7 @@ func (x *GroupChange_Actions_ModifyMemberLabel) String() string {
 func (*GroupChange_Actions_ModifyMemberLabel) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyMemberLabel) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[38]
+	mi := &file_groups_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2633,7 +3158,7 @@ type GroupChange_Actions_ModifyMemberLabelAccess struct {
 
 func (x *GroupChange_Actions_ModifyMemberLabelAccess) Reset() {
 	*x = GroupChange_Actions_ModifyMemberLabelAccess{}
-	mi := &file_groups_proto_msgTypes[39]
+	mi := &file_groups_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2645,7 +3170,7 @@ func (x *GroupChange_Actions_ModifyMemberLabelAccess) String() string {
 func (*GroupChange_Actions_ModifyMemberLabelAccess) ProtoMessage() {}
 
 func (x *GroupChange_Actions_ModifyMemberLabelAccess) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[39]
+	mi := &file_groups_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2676,7 +3201,7 @@ type GroupChange_Actions_TerminateGroup struct {
 
 func (x *GroupChange_Actions_TerminateGroup) Reset() {
 	*x = GroupChange_Actions_TerminateGroup{}
-	mi := &file_groups_proto_msgTypes[40]
+	mi := &file_groups_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2688,7 +3213,7 @@ func (x *GroupChange_Actions_TerminateGroup) String() string {
 func (*GroupChange_Actions_TerminateGroup) ProtoMessage() {}
 
 func (x *GroupChange_Actions_TerminateGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[40]
+	mi := &file_groups_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2714,7 +3239,7 @@ type GroupChanges_GroupChangeState struct {
 
 func (x *GroupChanges_GroupChangeState) Reset() {
 	*x = GroupChanges_GroupChangeState{}
-	mi := &file_groups_proto_msgTypes[41]
+	mi := &file_groups_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2726,7 +3251,7 @@ func (x *GroupChanges_GroupChangeState) String() string {
 func (*GroupChanges_GroupChangeState) ProtoMessage() {}
 
 func (x *GroupChanges_GroupChangeState) ProtoReflect() protoreflect.Message {
-	mi := &file_groups_proto_msgTypes[41]
+	mi := &file_groups_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2968,7 +3493,56 @@ const file_groups_proto_rawDesc = "" +
 	"\talgorithm\x18\x04 \x01(\tR\talgorithm\x12\x12\n" +
 	"\x04date\x18\x05 \x01(\tR\x04date\x12\x16\n" +
 	"\x06policy\x18\x06 \x01(\tR\x06policy\x12\x1c\n" +
-	"\tsignature\x18\a \x01(\tR\tsignatureB<Z:github.com/aren55555/signal-cli-go/internal/proto/signalpbb\x06proto3"
+	"\tsignature\x18\a \x01(\tR\tsignature\"\x9c\x06\n" +
+	"\x0eDecryptedGroup\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12\x16\n" +
+	"\x06avatar\x18\x03 \x01(\tR\x06avatar\x12[\n" +
+	"\x1bdisappearing_messages_timer\x18\x04 \x01(\v2\x1b.signalcligo.DecryptedTimerR\x19disappearingMessagesTimer\x12F\n" +
+	"\x0eaccess_control\x18\x05 \x01(\v2\x1f.signalcligo.GroupAccessControlR\raccessControl\x12\x1a\n" +
+	"\brevision\x18\x06 \x01(\rR\brevision\x126\n" +
+	"\amembers\x18\a \x03(\v2\x1c.signalcligo.DecryptedMemberR\amembers\x12L\n" +
+	"\x0fpending_members\x18\b \x03(\v2#.signalcligo.DecryptedPendingMemberR\x0ependingMembers\x12U\n" +
+	"\x12requesting_members\x18\t \x03(\v2&.signalcligo.DecryptedRequestingMemberR\x11requestingMembers\x120\n" +
+	"\x14invite_link_password\x18\n" +
+	" \x01(\fR\x12inviteLinkPassword\x12 \n" +
+	"\vdescription\x18\v \x01(\tR\vdescription\x12M\n" +
+	"\x15is_announcement_group\x18\f \x01(\x0e2\x19.signalcligo.EnabledStateR\x13isAnnouncementGroup\x12I\n" +
+	"\x0ebanned_members\x18\r \x03(\v2\".signalcligo.DecryptedBannedMemberR\rbannedMembers\x12\x1e\n" +
+	"\n" +
+	"terminated\x18\x0e \x01(\bR\n" +
+	"terminated\x120\n" +
+	"\x14is_placeholder_group\x18@ \x01(\bR\x12isPlaceholderGroup\",\n" +
+	"\x0eDecryptedTimer\x12\x1a\n" +
+	"\bduration\x18\x01 \x01(\rR\bduration\"\x91\x02\n" +
+	"\x0fDecryptedMember\x12\x1b\n" +
+	"\taci_bytes\x18\x01 \x01(\fR\baciBytes\x121\n" +
+	"\x04role\x18\x02 \x01(\x0e2\x1d.signalcligo.GroupMember.RoleR\x04role\x12\x1f\n" +
+	"\vprofile_key\x18\x03 \x01(\fR\n" +
+	"profileKey\x12,\n" +
+	"\x12joined_at_revision\x18\x05 \x01(\rR\x10joinedAtRevision\x12\x1b\n" +
+	"\tpni_bytes\x18\x06 \x01(\fR\bpniBytes\x12\x1f\n" +
+	"\vlabel_emoji\x18\a \x01(\tR\n" +
+	"labelEmoji\x12!\n" +
+	"\flabel_string\x18\b \x01(\tR\vlabelString\"\xea\x01\n" +
+	"\x16DecryptedPendingMember\x12(\n" +
+	"\x10service_id_bytes\x18\x01 \x01(\fR\x0eserviceIdBytes\x121\n" +
+	"\x04role\x18\x02 \x01(\x0e2\x1d.signalcligo.GroupMember.RoleR\x04role\x12 \n" +
+	"\fadded_by_aci\x18\x03 \x01(\fR\n" +
+	"addedByAci\x12\x1c\n" +
+	"\ttimestamp\x18\x04 \x01(\x04R\ttimestamp\x123\n" +
+	"\x16service_id_cipher_text\x18\x05 \x01(\fR\x13serviceIdCipherText\"w\n" +
+	"\x19DecryptedRequestingMember\x12\x1b\n" +
+	"\taci_bytes\x18\x01 \x01(\fR\baciBytes\x12\x1f\n" +
+	"\vprofile_key\x18\x02 \x01(\fR\n" +
+	"profileKey\x12\x1c\n" +
+	"\ttimestamp\x18\x04 \x01(\x04R\ttimestamp\"_\n" +
+	"\x15DecryptedBannedMember\x12(\n" +
+	"\x10service_id_bytes\x18\x01 \x01(\fR\x0eserviceIdBytes\x12\x1c\n" +
+	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp*`\n" +
+	"\fEnabledState\x12\x19\n" +
+	"\x15ENABLED_STATE_UNKNOWN\x10\x00\x12\x19\n" +
+	"\x15ENABLED_STATE_ENABLED\x10\x01\x12\x1a\n" +
+	"\x16ENABLED_STATE_DISABLED\x10\x02B<Z:github.com/aren55555/signal-cli-go/internal/proto/signalpbb\x06proto3"
 
 var (
 	file_groups_proto_rawDescOnce sync.Once
@@ -2982,113 +3556,129 @@ func file_groups_proto_rawDescGZIP() []byte {
 	return file_groups_proto_rawDescData
 }
 
-var file_groups_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_groups_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
+var file_groups_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_groups_proto_msgTypes = make([]protoimpl.MessageInfo, 48)
 var file_groups_proto_goTypes = []any{
-	(GroupMember_Role)(0),                                            // 0: signalcligo.GroupMember.Role
-	(GroupAccessControl_AccessRequired)(0),                           // 1: signalcligo.GroupAccessControl.AccessRequired
-	(*GroupMember)(nil),                                              // 2: signalcligo.GroupMember
-	(*GroupMemberPendingProfileKey)(nil),                             // 3: signalcligo.GroupMemberPendingProfileKey
-	(*GroupMemberPendingAdminApproval)(nil),                          // 4: signalcligo.GroupMemberPendingAdminApproval
-	(*GroupMemberBanned)(nil),                                        // 5: signalcligo.GroupMemberBanned
-	(*GroupAccessControl)(nil),                                       // 6: signalcligo.GroupAccessControl
-	(*Group)(nil),                                                    // 7: signalcligo.Group
-	(*GroupAttributeBlob)(nil),                                       // 8: signalcligo.GroupAttributeBlob
-	(*GroupInviteLink)(nil),                                          // 9: signalcligo.GroupInviteLink
-	(*GroupJoinInfo)(nil),                                            // 10: signalcligo.GroupJoinInfo
-	(*GroupChange)(nil),                                              // 11: signalcligo.GroupChange
-	(*GroupChanges)(nil),                                             // 12: signalcligo.GroupChanges
-	(*GroupResponse)(nil),                                            // 13: signalcligo.GroupResponse
-	(*GroupChangeResponse)(nil),                                      // 14: signalcligo.GroupChangeResponse
-	(*AvatarUploadAttributes)(nil),                                   // 15: signalcligo.AvatarUploadAttributes
-	(*GroupInviteLink_V1)(nil),                                       // 16: signalcligo.GroupInviteLink.V1
-	(*GroupChange_Actions)(nil),                                      // 17: signalcligo.GroupChange.Actions
-	(*GroupChange_Actions_AddMember)(nil),                            // 18: signalcligo.GroupChange.Actions.AddMember
-	(*GroupChange_Actions_DeleteMember)(nil),                         // 19: signalcligo.GroupChange.Actions.DeleteMember
-	(*GroupChange_Actions_ModifyMemberRole)(nil),                     // 20: signalcligo.GroupChange.Actions.ModifyMemberRole
-	(*GroupChange_Actions_ModifyMemberProfileKey)(nil),               // 21: signalcligo.GroupChange.Actions.ModifyMemberProfileKey
-	(*GroupChange_Actions_AddMemberPendingProfileKey)(nil),           // 22: signalcligo.GroupChange.Actions.AddMemberPendingProfileKey
-	(*GroupChange_Actions_DeleteMemberPendingProfileKey)(nil),        // 23: signalcligo.GroupChange.Actions.DeleteMemberPendingProfileKey
-	(*GroupChange_Actions_PromoteMemberPendingProfileKey)(nil),       // 24: signalcligo.GroupChange.Actions.PromoteMemberPendingProfileKey
-	(*GroupChange_Actions_ModifyTitle)(nil),                          // 25: signalcligo.GroupChange.Actions.ModifyTitle
-	(*GroupChange_Actions_ModifyAvatar)(nil),                         // 26: signalcligo.GroupChange.Actions.ModifyAvatar
-	(*GroupChange_Actions_ModifyDisappearingMessageTimer)(nil),       // 27: signalcligo.GroupChange.Actions.ModifyDisappearingMessageTimer
-	(*GroupChange_Actions_ModifyAttributesAccess)(nil),               // 28: signalcligo.GroupChange.Actions.ModifyAttributesAccess
-	(*GroupChange_Actions_ModifyMembersAccess)(nil),                  // 29: signalcligo.GroupChange.Actions.ModifyMembersAccess
-	(*GroupChange_Actions_ModifyAddFromInviteLinkAccess)(nil),        // 30: signalcligo.GroupChange.Actions.ModifyAddFromInviteLinkAccess
-	(*GroupChange_Actions_AddMemberPendingAdminApproval)(nil),        // 31: signalcligo.GroupChange.Actions.AddMemberPendingAdminApproval
-	(*GroupChange_Actions_DeleteMemberPendingAdminApproval)(nil),     // 32: signalcligo.GroupChange.Actions.DeleteMemberPendingAdminApproval
-	(*GroupChange_Actions_PromoteMemberPendingAdminApproval)(nil),    // 33: signalcligo.GroupChange.Actions.PromoteMemberPendingAdminApproval
-	(*GroupChange_Actions_ModifyInviteLinkPassword)(nil),             // 34: signalcligo.GroupChange.Actions.ModifyInviteLinkPassword
-	(*GroupChange_Actions_ModifyDescription)(nil),                    // 35: signalcligo.GroupChange.Actions.ModifyDescription
-	(*GroupChange_Actions_ModifyAnnouncementsOnly)(nil),              // 36: signalcligo.GroupChange.Actions.ModifyAnnouncementsOnly
-	(*GroupChange_Actions_AddMemberBanned)(nil),                      // 37: signalcligo.GroupChange.Actions.AddMemberBanned
-	(*GroupChange_Actions_DeleteMemberBanned)(nil),                   // 38: signalcligo.GroupChange.Actions.DeleteMemberBanned
-	(*GroupChange_Actions_PromoteMemberPendingPniAciProfileKey)(nil), // 39: signalcligo.GroupChange.Actions.PromoteMemberPendingPniAciProfileKey
-	(*GroupChange_Actions_ModifyMemberLabel)(nil),                    // 40: signalcligo.GroupChange.Actions.ModifyMemberLabel
-	(*GroupChange_Actions_ModifyMemberLabelAccess)(nil),              // 41: signalcligo.GroupChange.Actions.ModifyMemberLabelAccess
-	(*GroupChange_Actions_TerminateGroup)(nil),                       // 42: signalcligo.GroupChange.Actions.TerminateGroup
-	(*GroupChanges_GroupChangeState)(nil),                            // 43: signalcligo.GroupChanges.GroupChangeState
+	(EnabledState)(0),                                                // 0: signalcligo.EnabledState
+	(GroupMember_Role)(0),                                            // 1: signalcligo.GroupMember.Role
+	(GroupAccessControl_AccessRequired)(0),                           // 2: signalcligo.GroupAccessControl.AccessRequired
+	(*GroupMember)(nil),                                              // 3: signalcligo.GroupMember
+	(*GroupMemberPendingProfileKey)(nil),                             // 4: signalcligo.GroupMemberPendingProfileKey
+	(*GroupMemberPendingAdminApproval)(nil),                          // 5: signalcligo.GroupMemberPendingAdminApproval
+	(*GroupMemberBanned)(nil),                                        // 6: signalcligo.GroupMemberBanned
+	(*GroupAccessControl)(nil),                                       // 7: signalcligo.GroupAccessControl
+	(*Group)(nil),                                                    // 8: signalcligo.Group
+	(*GroupAttributeBlob)(nil),                                       // 9: signalcligo.GroupAttributeBlob
+	(*GroupInviteLink)(nil),                                          // 10: signalcligo.GroupInviteLink
+	(*GroupJoinInfo)(nil),                                            // 11: signalcligo.GroupJoinInfo
+	(*GroupChange)(nil),                                              // 12: signalcligo.GroupChange
+	(*GroupChanges)(nil),                                             // 13: signalcligo.GroupChanges
+	(*GroupResponse)(nil),                                            // 14: signalcligo.GroupResponse
+	(*GroupChangeResponse)(nil),                                      // 15: signalcligo.GroupChangeResponse
+	(*AvatarUploadAttributes)(nil),                                   // 16: signalcligo.AvatarUploadAttributes
+	(*DecryptedGroup)(nil),                                           // 17: signalcligo.DecryptedGroup
+	(*DecryptedTimer)(nil),                                           // 18: signalcligo.DecryptedTimer
+	(*DecryptedMember)(nil),                                          // 19: signalcligo.DecryptedMember
+	(*DecryptedPendingMember)(nil),                                   // 20: signalcligo.DecryptedPendingMember
+	(*DecryptedRequestingMember)(nil),                                // 21: signalcligo.DecryptedRequestingMember
+	(*DecryptedBannedMember)(nil),                                    // 22: signalcligo.DecryptedBannedMember
+	(*GroupInviteLink_V1)(nil),                                       // 23: signalcligo.GroupInviteLink.V1
+	(*GroupChange_Actions)(nil),                                      // 24: signalcligo.GroupChange.Actions
+	(*GroupChange_Actions_AddMember)(nil),                            // 25: signalcligo.GroupChange.Actions.AddMember
+	(*GroupChange_Actions_DeleteMember)(nil),                         // 26: signalcligo.GroupChange.Actions.DeleteMember
+	(*GroupChange_Actions_ModifyMemberRole)(nil),                     // 27: signalcligo.GroupChange.Actions.ModifyMemberRole
+	(*GroupChange_Actions_ModifyMemberProfileKey)(nil),               // 28: signalcligo.GroupChange.Actions.ModifyMemberProfileKey
+	(*GroupChange_Actions_AddMemberPendingProfileKey)(nil),           // 29: signalcligo.GroupChange.Actions.AddMemberPendingProfileKey
+	(*GroupChange_Actions_DeleteMemberPendingProfileKey)(nil),        // 30: signalcligo.GroupChange.Actions.DeleteMemberPendingProfileKey
+	(*GroupChange_Actions_PromoteMemberPendingProfileKey)(nil),       // 31: signalcligo.GroupChange.Actions.PromoteMemberPendingProfileKey
+	(*GroupChange_Actions_ModifyTitle)(nil),                          // 32: signalcligo.GroupChange.Actions.ModifyTitle
+	(*GroupChange_Actions_ModifyAvatar)(nil),                         // 33: signalcligo.GroupChange.Actions.ModifyAvatar
+	(*GroupChange_Actions_ModifyDisappearingMessageTimer)(nil),       // 34: signalcligo.GroupChange.Actions.ModifyDisappearingMessageTimer
+	(*GroupChange_Actions_ModifyAttributesAccess)(nil),               // 35: signalcligo.GroupChange.Actions.ModifyAttributesAccess
+	(*GroupChange_Actions_ModifyMembersAccess)(nil),                  // 36: signalcligo.GroupChange.Actions.ModifyMembersAccess
+	(*GroupChange_Actions_ModifyAddFromInviteLinkAccess)(nil),        // 37: signalcligo.GroupChange.Actions.ModifyAddFromInviteLinkAccess
+	(*GroupChange_Actions_AddMemberPendingAdminApproval)(nil),        // 38: signalcligo.GroupChange.Actions.AddMemberPendingAdminApproval
+	(*GroupChange_Actions_DeleteMemberPendingAdminApproval)(nil),     // 39: signalcligo.GroupChange.Actions.DeleteMemberPendingAdminApproval
+	(*GroupChange_Actions_PromoteMemberPendingAdminApproval)(nil),    // 40: signalcligo.GroupChange.Actions.PromoteMemberPendingAdminApproval
+	(*GroupChange_Actions_ModifyInviteLinkPassword)(nil),             // 41: signalcligo.GroupChange.Actions.ModifyInviteLinkPassword
+	(*GroupChange_Actions_ModifyDescription)(nil),                    // 42: signalcligo.GroupChange.Actions.ModifyDescription
+	(*GroupChange_Actions_ModifyAnnouncementsOnly)(nil),              // 43: signalcligo.GroupChange.Actions.ModifyAnnouncementsOnly
+	(*GroupChange_Actions_AddMemberBanned)(nil),                      // 44: signalcligo.GroupChange.Actions.AddMemberBanned
+	(*GroupChange_Actions_DeleteMemberBanned)(nil),                   // 45: signalcligo.GroupChange.Actions.DeleteMemberBanned
+	(*GroupChange_Actions_PromoteMemberPendingPniAciProfileKey)(nil), // 46: signalcligo.GroupChange.Actions.PromoteMemberPendingPniAciProfileKey
+	(*GroupChange_Actions_ModifyMemberLabel)(nil),                    // 47: signalcligo.GroupChange.Actions.ModifyMemberLabel
+	(*GroupChange_Actions_ModifyMemberLabelAccess)(nil),              // 48: signalcligo.GroupChange.Actions.ModifyMemberLabelAccess
+	(*GroupChange_Actions_TerminateGroup)(nil),                       // 49: signalcligo.GroupChange.Actions.TerminateGroup
+	(*GroupChanges_GroupChangeState)(nil),                            // 50: signalcligo.GroupChanges.GroupChangeState
 }
 var file_groups_proto_depIdxs = []int32{
-	0,  // 0: signalcligo.GroupMember.role:type_name -> signalcligo.GroupMember.Role
-	2,  // 1: signalcligo.GroupMemberPendingProfileKey.member:type_name -> signalcligo.GroupMember
-	1,  // 2: signalcligo.GroupAccessControl.attributes:type_name -> signalcligo.GroupAccessControl.AccessRequired
-	1,  // 3: signalcligo.GroupAccessControl.members:type_name -> signalcligo.GroupAccessControl.AccessRequired
-	1,  // 4: signalcligo.GroupAccessControl.add_from_invite_link:type_name -> signalcligo.GroupAccessControl.AccessRequired
-	1,  // 5: signalcligo.GroupAccessControl.member_label:type_name -> signalcligo.GroupAccessControl.AccessRequired
-	6,  // 6: signalcligo.Group.access_control:type_name -> signalcligo.GroupAccessControl
-	2,  // 7: signalcligo.Group.members:type_name -> signalcligo.GroupMember
-	3,  // 8: signalcligo.Group.members_pending_profile_key:type_name -> signalcligo.GroupMemberPendingProfileKey
-	4,  // 9: signalcligo.Group.members_pending_admin_approval:type_name -> signalcligo.GroupMemberPendingAdminApproval
-	5,  // 10: signalcligo.Group.members_banned:type_name -> signalcligo.GroupMemberBanned
-	16, // 11: signalcligo.GroupInviteLink.contents_v1:type_name -> signalcligo.GroupInviteLink.V1
-	1,  // 12: signalcligo.GroupJoinInfo.add_from_invite_link:type_name -> signalcligo.GroupAccessControl.AccessRequired
-	43, // 13: signalcligo.GroupChanges.group_changes:type_name -> signalcligo.GroupChanges.GroupChangeState
-	7,  // 14: signalcligo.GroupResponse.group:type_name -> signalcligo.Group
-	11, // 15: signalcligo.GroupChangeResponse.group_change:type_name -> signalcligo.GroupChange
-	18, // 16: signalcligo.GroupChange.Actions.add_members:type_name -> signalcligo.GroupChange.Actions.AddMember
-	19, // 17: signalcligo.GroupChange.Actions.delete_members:type_name -> signalcligo.GroupChange.Actions.DeleteMember
-	20, // 18: signalcligo.GroupChange.Actions.modify_member_roles:type_name -> signalcligo.GroupChange.Actions.ModifyMemberRole
-	21, // 19: signalcligo.GroupChange.Actions.modify_member_profile_keys:type_name -> signalcligo.GroupChange.Actions.ModifyMemberProfileKey
-	22, // 20: signalcligo.GroupChange.Actions.add_members_pending_profile_key:type_name -> signalcligo.GroupChange.Actions.AddMemberPendingProfileKey
-	23, // 21: signalcligo.GroupChange.Actions.delete_members_pending_profile_key:type_name -> signalcligo.GroupChange.Actions.DeleteMemberPendingProfileKey
-	24, // 22: signalcligo.GroupChange.Actions.promote_members_pending_profile_key:type_name -> signalcligo.GroupChange.Actions.PromoteMemberPendingProfileKey
-	25, // 23: signalcligo.GroupChange.Actions.modify_title:type_name -> signalcligo.GroupChange.Actions.ModifyTitle
-	26, // 24: signalcligo.GroupChange.Actions.modify_avatar:type_name -> signalcligo.GroupChange.Actions.ModifyAvatar
-	27, // 25: signalcligo.GroupChange.Actions.modify_disappearing_message_timer:type_name -> signalcligo.GroupChange.Actions.ModifyDisappearingMessageTimer
-	28, // 26: signalcligo.GroupChange.Actions.modify_attributes_access:type_name -> signalcligo.GroupChange.Actions.ModifyAttributesAccess
-	29, // 27: signalcligo.GroupChange.Actions.modify_member_access:type_name -> signalcligo.GroupChange.Actions.ModifyMembersAccess
-	30, // 28: signalcligo.GroupChange.Actions.modify_add_from_invite_link_access:type_name -> signalcligo.GroupChange.Actions.ModifyAddFromInviteLinkAccess
-	31, // 29: signalcligo.GroupChange.Actions.add_members_pending_admin_approval:type_name -> signalcligo.GroupChange.Actions.AddMemberPendingAdminApproval
-	32, // 30: signalcligo.GroupChange.Actions.delete_members_pending_admin_approval:type_name -> signalcligo.GroupChange.Actions.DeleteMemberPendingAdminApproval
-	33, // 31: signalcligo.GroupChange.Actions.promote_members_pending_admin_approval:type_name -> signalcligo.GroupChange.Actions.PromoteMemberPendingAdminApproval
-	34, // 32: signalcligo.GroupChange.Actions.modify_invite_link_password:type_name -> signalcligo.GroupChange.Actions.ModifyInviteLinkPassword
-	35, // 33: signalcligo.GroupChange.Actions.modify_description:type_name -> signalcligo.GroupChange.Actions.ModifyDescription
-	36, // 34: signalcligo.GroupChange.Actions.modify_announcements_only:type_name -> signalcligo.GroupChange.Actions.ModifyAnnouncementsOnly
-	37, // 35: signalcligo.GroupChange.Actions.add_members_banned:type_name -> signalcligo.GroupChange.Actions.AddMemberBanned
-	38, // 36: signalcligo.GroupChange.Actions.delete_members_banned:type_name -> signalcligo.GroupChange.Actions.DeleteMemberBanned
-	39, // 37: signalcligo.GroupChange.Actions.promote_members_pending_pni_aci_profile_key:type_name -> signalcligo.GroupChange.Actions.PromoteMemberPendingPniAciProfileKey
-	40, // 38: signalcligo.GroupChange.Actions.modify_member_labels:type_name -> signalcligo.GroupChange.Actions.ModifyMemberLabel
-	41, // 39: signalcligo.GroupChange.Actions.modify_member_label_access:type_name -> signalcligo.GroupChange.Actions.ModifyMemberLabelAccess
-	42, // 40: signalcligo.GroupChange.Actions.terminate_group:type_name -> signalcligo.GroupChange.Actions.TerminateGroup
-	2,  // 41: signalcligo.GroupChange.Actions.AddMember.added:type_name -> signalcligo.GroupMember
-	0,  // 42: signalcligo.GroupChange.Actions.ModifyMemberRole.role:type_name -> signalcligo.GroupMember.Role
-	3,  // 43: signalcligo.GroupChange.Actions.AddMemberPendingProfileKey.added:type_name -> signalcligo.GroupMemberPendingProfileKey
-	1,  // 44: signalcligo.GroupChange.Actions.ModifyAttributesAccess.attributes_access:type_name -> signalcligo.GroupAccessControl.AccessRequired
-	1,  // 45: signalcligo.GroupChange.Actions.ModifyMembersAccess.members_access:type_name -> signalcligo.GroupAccessControl.AccessRequired
-	1,  // 46: signalcligo.GroupChange.Actions.ModifyAddFromInviteLinkAccess.add_from_invite_link_access:type_name -> signalcligo.GroupAccessControl.AccessRequired
-	4,  // 47: signalcligo.GroupChange.Actions.AddMemberPendingAdminApproval.added:type_name -> signalcligo.GroupMemberPendingAdminApproval
-	0,  // 48: signalcligo.GroupChange.Actions.PromoteMemberPendingAdminApproval.role:type_name -> signalcligo.GroupMember.Role
-	5,  // 49: signalcligo.GroupChange.Actions.AddMemberBanned.added:type_name -> signalcligo.GroupMemberBanned
-	1,  // 50: signalcligo.GroupChange.Actions.ModifyMemberLabelAccess.member_label_access:type_name -> signalcligo.GroupAccessControl.AccessRequired
-	11, // 51: signalcligo.GroupChanges.GroupChangeState.group_change:type_name -> signalcligo.GroupChange
-	7,  // 52: signalcligo.GroupChanges.GroupChangeState.group_state:type_name -> signalcligo.Group
-	53, // [53:53] is the sub-list for method output_type
-	53, // [53:53] is the sub-list for method input_type
-	53, // [53:53] is the sub-list for extension type_name
-	53, // [53:53] is the sub-list for extension extendee
-	0,  // [0:53] is the sub-list for field type_name
+	1,  // 0: signalcligo.GroupMember.role:type_name -> signalcligo.GroupMember.Role
+	3,  // 1: signalcligo.GroupMemberPendingProfileKey.member:type_name -> signalcligo.GroupMember
+	2,  // 2: signalcligo.GroupAccessControl.attributes:type_name -> signalcligo.GroupAccessControl.AccessRequired
+	2,  // 3: signalcligo.GroupAccessControl.members:type_name -> signalcligo.GroupAccessControl.AccessRequired
+	2,  // 4: signalcligo.GroupAccessControl.add_from_invite_link:type_name -> signalcligo.GroupAccessControl.AccessRequired
+	2,  // 5: signalcligo.GroupAccessControl.member_label:type_name -> signalcligo.GroupAccessControl.AccessRequired
+	7,  // 6: signalcligo.Group.access_control:type_name -> signalcligo.GroupAccessControl
+	3,  // 7: signalcligo.Group.members:type_name -> signalcligo.GroupMember
+	4,  // 8: signalcligo.Group.members_pending_profile_key:type_name -> signalcligo.GroupMemberPendingProfileKey
+	5,  // 9: signalcligo.Group.members_pending_admin_approval:type_name -> signalcligo.GroupMemberPendingAdminApproval
+	6,  // 10: signalcligo.Group.members_banned:type_name -> signalcligo.GroupMemberBanned
+	23, // 11: signalcligo.GroupInviteLink.contents_v1:type_name -> signalcligo.GroupInviteLink.V1
+	2,  // 12: signalcligo.GroupJoinInfo.add_from_invite_link:type_name -> signalcligo.GroupAccessControl.AccessRequired
+	50, // 13: signalcligo.GroupChanges.group_changes:type_name -> signalcligo.GroupChanges.GroupChangeState
+	8,  // 14: signalcligo.GroupResponse.group:type_name -> signalcligo.Group
+	12, // 15: signalcligo.GroupChangeResponse.group_change:type_name -> signalcligo.GroupChange
+	18, // 16: signalcligo.DecryptedGroup.disappearing_messages_timer:type_name -> signalcligo.DecryptedTimer
+	7,  // 17: signalcligo.DecryptedGroup.access_control:type_name -> signalcligo.GroupAccessControl
+	19, // 18: signalcligo.DecryptedGroup.members:type_name -> signalcligo.DecryptedMember
+	20, // 19: signalcligo.DecryptedGroup.pending_members:type_name -> signalcligo.DecryptedPendingMember
+	21, // 20: signalcligo.DecryptedGroup.requesting_members:type_name -> signalcligo.DecryptedRequestingMember
+	0,  // 21: signalcligo.DecryptedGroup.is_announcement_group:type_name -> signalcligo.EnabledState
+	22, // 22: signalcligo.DecryptedGroup.banned_members:type_name -> signalcligo.DecryptedBannedMember
+	1,  // 23: signalcligo.DecryptedMember.role:type_name -> signalcligo.GroupMember.Role
+	1,  // 24: signalcligo.DecryptedPendingMember.role:type_name -> signalcligo.GroupMember.Role
+	25, // 25: signalcligo.GroupChange.Actions.add_members:type_name -> signalcligo.GroupChange.Actions.AddMember
+	26, // 26: signalcligo.GroupChange.Actions.delete_members:type_name -> signalcligo.GroupChange.Actions.DeleteMember
+	27, // 27: signalcligo.GroupChange.Actions.modify_member_roles:type_name -> signalcligo.GroupChange.Actions.ModifyMemberRole
+	28, // 28: signalcligo.GroupChange.Actions.modify_member_profile_keys:type_name -> signalcligo.GroupChange.Actions.ModifyMemberProfileKey
+	29, // 29: signalcligo.GroupChange.Actions.add_members_pending_profile_key:type_name -> signalcligo.GroupChange.Actions.AddMemberPendingProfileKey
+	30, // 30: signalcligo.GroupChange.Actions.delete_members_pending_profile_key:type_name -> signalcligo.GroupChange.Actions.DeleteMemberPendingProfileKey
+	31, // 31: signalcligo.GroupChange.Actions.promote_members_pending_profile_key:type_name -> signalcligo.GroupChange.Actions.PromoteMemberPendingProfileKey
+	32, // 32: signalcligo.GroupChange.Actions.modify_title:type_name -> signalcligo.GroupChange.Actions.ModifyTitle
+	33, // 33: signalcligo.GroupChange.Actions.modify_avatar:type_name -> signalcligo.GroupChange.Actions.ModifyAvatar
+	34, // 34: signalcligo.GroupChange.Actions.modify_disappearing_message_timer:type_name -> signalcligo.GroupChange.Actions.ModifyDisappearingMessageTimer
+	35, // 35: signalcligo.GroupChange.Actions.modify_attributes_access:type_name -> signalcligo.GroupChange.Actions.ModifyAttributesAccess
+	36, // 36: signalcligo.GroupChange.Actions.modify_member_access:type_name -> signalcligo.GroupChange.Actions.ModifyMembersAccess
+	37, // 37: signalcligo.GroupChange.Actions.modify_add_from_invite_link_access:type_name -> signalcligo.GroupChange.Actions.ModifyAddFromInviteLinkAccess
+	38, // 38: signalcligo.GroupChange.Actions.add_members_pending_admin_approval:type_name -> signalcligo.GroupChange.Actions.AddMemberPendingAdminApproval
+	39, // 39: signalcligo.GroupChange.Actions.delete_members_pending_admin_approval:type_name -> signalcligo.GroupChange.Actions.DeleteMemberPendingAdminApproval
+	40, // 40: signalcligo.GroupChange.Actions.promote_members_pending_admin_approval:type_name -> signalcligo.GroupChange.Actions.PromoteMemberPendingAdminApproval
+	41, // 41: signalcligo.GroupChange.Actions.modify_invite_link_password:type_name -> signalcligo.GroupChange.Actions.ModifyInviteLinkPassword
+	42, // 42: signalcligo.GroupChange.Actions.modify_description:type_name -> signalcligo.GroupChange.Actions.ModifyDescription
+	43, // 43: signalcligo.GroupChange.Actions.modify_announcements_only:type_name -> signalcligo.GroupChange.Actions.ModifyAnnouncementsOnly
+	44, // 44: signalcligo.GroupChange.Actions.add_members_banned:type_name -> signalcligo.GroupChange.Actions.AddMemberBanned
+	45, // 45: signalcligo.GroupChange.Actions.delete_members_banned:type_name -> signalcligo.GroupChange.Actions.DeleteMemberBanned
+	46, // 46: signalcligo.GroupChange.Actions.promote_members_pending_pni_aci_profile_key:type_name -> signalcligo.GroupChange.Actions.PromoteMemberPendingPniAciProfileKey
+	47, // 47: signalcligo.GroupChange.Actions.modify_member_labels:type_name -> signalcligo.GroupChange.Actions.ModifyMemberLabel
+	48, // 48: signalcligo.GroupChange.Actions.modify_member_label_access:type_name -> signalcligo.GroupChange.Actions.ModifyMemberLabelAccess
+	49, // 49: signalcligo.GroupChange.Actions.terminate_group:type_name -> signalcligo.GroupChange.Actions.TerminateGroup
+	3,  // 50: signalcligo.GroupChange.Actions.AddMember.added:type_name -> signalcligo.GroupMember
+	1,  // 51: signalcligo.GroupChange.Actions.ModifyMemberRole.role:type_name -> signalcligo.GroupMember.Role
+	4,  // 52: signalcligo.GroupChange.Actions.AddMemberPendingProfileKey.added:type_name -> signalcligo.GroupMemberPendingProfileKey
+	2,  // 53: signalcligo.GroupChange.Actions.ModifyAttributesAccess.attributes_access:type_name -> signalcligo.GroupAccessControl.AccessRequired
+	2,  // 54: signalcligo.GroupChange.Actions.ModifyMembersAccess.members_access:type_name -> signalcligo.GroupAccessControl.AccessRequired
+	2,  // 55: signalcligo.GroupChange.Actions.ModifyAddFromInviteLinkAccess.add_from_invite_link_access:type_name -> signalcligo.GroupAccessControl.AccessRequired
+	5,  // 56: signalcligo.GroupChange.Actions.AddMemberPendingAdminApproval.added:type_name -> signalcligo.GroupMemberPendingAdminApproval
+	1,  // 57: signalcligo.GroupChange.Actions.PromoteMemberPendingAdminApproval.role:type_name -> signalcligo.GroupMember.Role
+	6,  // 58: signalcligo.GroupChange.Actions.AddMemberBanned.added:type_name -> signalcligo.GroupMemberBanned
+	2,  // 59: signalcligo.GroupChange.Actions.ModifyMemberLabelAccess.member_label_access:type_name -> signalcligo.GroupAccessControl.AccessRequired
+	12, // 60: signalcligo.GroupChanges.GroupChangeState.group_change:type_name -> signalcligo.GroupChange
+	8,  // 61: signalcligo.GroupChanges.GroupChangeState.group_state:type_name -> signalcligo.Group
+	62, // [62:62] is the sub-list for method output_type
+	62, // [62:62] is the sub-list for method input_type
+	62, // [62:62] is the sub-list for extension type_name
+	62, // [62:62] is the sub-list for extension extendee
+	0,  // [0:62] is the sub-list for field type_name
 }
 
 func init() { file_groups_proto_init() }
@@ -3110,8 +3700,8 @@ func file_groups_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_groups_proto_rawDesc), len(file_groups_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   42,
+			NumEnums:      3,
+			NumMessages:   48,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -499,8 +499,8 @@ func (r *Registrar) complete(ctx context.Context, a *store.Account, sides *regKe
 			}
 		}
 	}
-	a.Identities[d.ACI] = store.Identity{Key: d.ACIIdentity.Public, Trust: store.TrustedVerified, Added: now.UnixMilli()}
-	a.Identities["PNI:"+d.PNI] = store.Identity{Key: d.PNIIdentity.Public, Trust: store.TrustedVerified, Added: now.UnixMilli()}
+	a.PutIdentity(d.ACI, store.Identity{Key: d.ACIIdentity.Public, Trust: store.TrustedVerified, Added: now.UnixMilli()})
+	a.PutIdentity("PNI:"+d.PNI, store.Identity{Key: d.PNIIdentity.Public, Trust: store.TrustedVerified, Added: now.UnixMilli()})
 	a.EnsureSelf()
 	for _, save := range []func() error{a.Save, a.SaveKeys, a.SaveSessions, a.SaveIdentities, a.SaveRecipients} {
 		if err := save(); err != nil {

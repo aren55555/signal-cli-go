@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -137,5 +138,26 @@ func TestIndexIsSignalCLIFormat(t *testing.T) {
 	empty := Open(filepath.Join(root, "none"))
 	if e, err := empty.Accounts(); err != nil || len(e) != 0 {
 		t.Errorf("missing index: %v %v", e, err)
+	}
+}
+
+// TestIdentityRows: updates keep an identity's row, new addresses go
+// last, and rowless entries from older stores are numbered in service-ID
+// order after the numbered ones.
+func TestIdentityRows(t *testing.T) {
+	a := &Account{Identities: map[string]Identity{
+		"c": {Key: []byte{1}}, "a": {Key: []byte{2}}, "z": {Key: []byte{3}, Row: 7},
+	}}
+	a.numberIdentities()
+	if got := strings.Join(a.IdentityOrder(), ","); got != "z,a,c" {
+		t.Fatalf("order %s", got)
+	}
+	a.PutIdentity("b", Identity{Key: []byte{4}})
+	a.PutIdentity("z", Identity{Key: []byte{5}, Trust: TrustedVerified})
+	if got := strings.Join(a.IdentityOrder(), ","); got != "z,a,c,b" {
+		t.Errorf("order after updates %s", got)
+	}
+	if a.Identities["b"].Row != 10 || a.Identities["z"].Row != 7 || a.Identities["z"].Trust != TrustedVerified {
+		t.Errorf("rows %+v", a.Identities)
 	}
 }

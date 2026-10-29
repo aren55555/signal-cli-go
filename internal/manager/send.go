@@ -218,7 +218,7 @@ func (s *Sender) trusted(dest string, key *curve25519.PublicKey) bool {
 	known, ok := s.Acct.Identities[dest]
 	if !ok || (!bytes.Equal(known.Key, key.Bytes()) && s.TrustNew == "always") {
 		trust := identityTrust(s.TrustNew, ok)
-		s.Acct.Identities[dest] = store.Identity{Key: key.Bytes(), Trust: trust, Added: s.now().UnixMilli()}
+		s.Acct.PutIdentity(dest, store.Identity{Key: key.Bytes(), Trust: trust, Added: s.now().UnixMilli()})
 		return trust != store.Untrusted
 	}
 	return bytes.Equal(known.Key, key.Bytes()) && known.Trust != store.Untrusted

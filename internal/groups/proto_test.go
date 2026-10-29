@@ -30,6 +30,7 @@ func TestProtoEncodings(t *testing.T) {
 		"GroupContextV2":         func() proto.Message { return &signalpb.AppGroupContextV2{} },
 		"GroupJoinInfo":          func() proto.Message { return &signalpb.GroupJoinInfo{} },
 		"GroupResponse":          func() proto.Message { return &signalpb.GroupResponse{} },
+		"DecryptedGroup":         func() proto.Message { return &signalpb.DecryptedGroup{} },
 		"Member":                 func() proto.Message { return &signalpb.GroupMember{} },
 	}
 	n := 0
@@ -40,7 +41,7 @@ func TestProtoEncodings(t *testing.T) {
 		}
 		mk := types[strings.SplitN(name, " ", 2)[0]]
 		if mk == nil {
-			continue // DecryptedGroup, ExternalGroupCredential: not used
+			continue // ExternalGroupCredential: not used
 		}
 		b := testvec.Hex(t, s)
 		m := mk()

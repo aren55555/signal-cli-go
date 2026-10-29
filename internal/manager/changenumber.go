@@ -317,7 +317,7 @@ func applyPniChange(a *store.Account, pni, number string, pub, priv []byte, regI
 	d.PNI = pni
 	d.PNIIdentity = store.KeyPair{Public: pub, Private: priv}
 	d.PNIRegistrationID = regID
-	a.Identities["PNI:"+pni] = store.Identity{Key: pub, Trust: store.TrustedVerified, Added: nowMs}
+	a.PutIdentity("PNI:"+pni, store.Identity{Key: pub, Trust: store.TrustedVerified, Added: nowMs})
 	keys := &a.Keys.PNI
 	if keys.SignedPreKeys == nil {
 		keys.SignedPreKeys = map[uint32]store.StoredKey{}

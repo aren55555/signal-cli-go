@@ -190,3 +190,63 @@ message AvatarUploadAttributes {
   string policy = 6;
   string signature = 7;
 }
+
+// The decrypted group state as signal-cli stores it in account.db
+// (group_v2.group_data), read only by the importer. Written from
+// spec/service/groups.md §2.6 and spec/storage/signal-cli-account-db.md
+// §8.1; field numbers mirror Group.
+message DecryptedGroup {
+  string title = 2;
+  string avatar = 3;
+  DecryptedTimer disappearing_messages_timer = 4;
+  GroupAccessControl access_control = 5;
+  uint32 revision = 6;
+  repeated DecryptedMember members = 7;
+  repeated DecryptedPendingMember pending_members = 8;
+  repeated DecryptedRequestingMember requesting_members = 9;
+  bytes invite_link_password = 10;
+  string description = 11;
+  EnabledState is_announcement_group = 12;
+  repeated DecryptedBannedMember banned_members = 13;
+  bool terminated = 14;
+  bool is_placeholder_group = 64;
+}
+
+enum EnabledState {
+  ENABLED_STATE_UNKNOWN = 0;
+  ENABLED_STATE_ENABLED = 1;
+  ENABLED_STATE_DISABLED = 2;
+}
+
+message DecryptedTimer {
+  uint32 duration = 1;
+}
+
+message DecryptedMember {
+  bytes aci_bytes = 1;
+  GroupMember.Role role = 2;
+  bytes profile_key = 3;
+  uint32 joined_at_revision = 5;
+  bytes pni_bytes = 6;
+  string label_emoji = 7;
+  string label_string = 8;
+}
+
+message DecryptedPendingMember {
+  bytes service_id_bytes = 1;
+  GroupMember.Role role = 2;
+  bytes added_by_aci = 3;
+  uint64 timestamp = 4;
+  bytes service_id_cipher_text = 5;
+}
+
+message DecryptedRequestingMember {
+  bytes aci_bytes = 1;
+  bytes profile_key = 2;
+  uint64 timestamp = 4;
+}
+
+message DecryptedBannedMember {
+  bytes service_id_bytes = 1;
+  uint64 timestamp = 2;
+}

@@ -331,7 +331,7 @@ func saveProfileIdentity(a *store.Account, id string, key []byte, trust string, 
 	case ok && bytes.Equal(known.Key, key):
 		return
 	default:
-		a.Identities[id] = store.Identity{Key: key, Trust: identityTrust(trust, ok), Added: now.UnixMilli()}
+		a.PutIdentity(id, store.Identity{Key: key, Trust: identityTrust(trust, ok), Added: now.UnixMilli()})
 	}
 	a.SaveIdentities()
 }

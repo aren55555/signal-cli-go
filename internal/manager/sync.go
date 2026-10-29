@@ -261,7 +261,7 @@ func (r *Receiver) applySync(ctx context.Context, sm *signalpb.AppSyncMessage) {
 		default:
 			return
 		}
-		a.Identities[aci] = id
+		a.PutIdentity(aci, id)
 		a.SaveIdentities()
 	case SyncConfiguration:
 		c, cfg := sm.Configuration, &a.Data.Configuration

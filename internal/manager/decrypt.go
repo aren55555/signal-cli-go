@@ -220,7 +220,7 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 		if errors.Is(err, protocol.ErrUntrustedIdentity) && (changedIdentity != nil || newIdentity != nil) && !d.Retrying {
 			// The key is stored untrusted, so that listIdentities and
 			// trust can see it.
-			a.Identities[m.Sender.ServiceID] = store.Identity{Key: append(changedIdentity, newIdentity...), Trust: store.Untrusted, Added: d.now().UnixMilli()}
+			a.PutIdentity(m.Sender.ServiceID, store.Identity{Key: append(changedIdentity, newIdentity...), Trust: store.Untrusted, Added: d.now().UnixMilli()})
 			if serr := a.SaveIdentities(); serr != nil {
 				return nil, serr
 			}
@@ -255,7 +255,7 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 		if d.Now != nil {
 			now = d.Now()
 		}
-		a.Identities[m.Sender.ServiceID] = store.Identity{Key: append(newIdentity, changedIdentity...), Trust: store.TrustedUnverified, Added: now.UnixMilli()}
+		a.PutIdentity(m.Sender.ServiceID, store.Identity{Key: append(newIdentity, changedIdentity...), Trust: store.TrustedUnverified, Added: now.UnixMilli()})
 		if err := a.SaveIdentities(); err != nil {
 			return nil, err
 		}

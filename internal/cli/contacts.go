@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"maps"
 	"os"
 	"path/filepath"
 	"slices"
@@ -449,7 +448,7 @@ func runGetAvatar(ctx context.Context, e *env, g *globals, contact, prof, group 
 }
 
 // runListIdentities is `listIdentities` (contacts.md §11, fingerprint.md
-// §5). Identities print in service-ID order.
+// §5). Identities print in row order (signal-cli-account-db.md §16).
 func runListIdentities(e *env, g *globals, number string, hasNumber bool) error {
 	return withAccount(g, func(a *store.Account) error {
 		a.EnsureSelf()
@@ -470,7 +469,7 @@ func runListIdentities(e *env, g *globals, number string, hasNumber bool) error 
 				}
 			}
 		} else {
-			for _, id := range slices.Sorted(maps.Keys(a.Identities)) {
+			for _, id := range a.IdentityOrder() {
 				ad := store.Address{ACI: id}
 				if strings.HasPrefix(id, "PNI:") {
 					ad = store.Address{PNI: strings.TrimPrefix(id, "PNI:")}

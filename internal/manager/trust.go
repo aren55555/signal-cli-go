@@ -46,7 +46,7 @@ func (s *Sender) TrustAllKnownKeys(ctx context.Context, id string) error {
 			continue
 		}
 		ident.Trust = store.TrustedUnverified
-		s.Acct.Identities[k] = ident
+		s.Acct.PutIdentity(k, ident)
 		if err := s.Acct.SaveIdentities(); err != nil {
 			return err
 		}
@@ -68,7 +68,7 @@ func (s *Sender) TrustVerifiedKey(ctx context.Context, id string, key []byte) er
 		}
 		if ident.Trust != store.TrustedVerified {
 			ident.Trust = store.TrustedVerified
-			s.Acct.Identities[k] = ident
+			s.Acct.PutIdentity(k, ident)
 			if err := s.Acct.SaveIdentities(); err != nil {
 				return err
 			}

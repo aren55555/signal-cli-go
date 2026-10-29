@@ -3,11 +3,13 @@
 package store
 
 import (
+	"cmp"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
@@ -153,6 +155,10 @@ type Identity struct {
 	Key   []byte `json:"key"`
 	Trust string `json:"trust"`
 	Added int64  `json:"added,omitempty"` // ms
+	// Row orders the listing like signal-cli's identity table rows: kept
+	// when the key or trust changes, highest+1 for a new address
+	// (spec/storage/signal-cli-account-db.md §16).
+	Row int64 `json:"row,omitempty"`
 }
 
 type sessionsDoc struct {
@@ -286,6 +292,16 @@ func (r *Root) accountDir(path string) string { return filepath.Join(r.dir, path
 
 // Create makes and locks a new account directory for number.
 func (r *Root) Create(number, env string) (*Account, error) {
+	var id [4]byte
+	if _, err := rand.Read(id[:]); err != nil {
+		return nil, err
+	}
+	return r.CreateAt(hex.EncodeToString(id[:]), number, env)
+}
+
+// CreateAt is Create with a given directory name (the importer keeps
+// signal-cli's account path).
+func (r *Root) CreateAt(path, number, env string) (*Account, error) {
 	if err := os.MkdirAll(r.dir, 0o700); err != nil {
 		return nil, err
 	}
@@ -298,11 +314,14 @@ func (r *Root) Create(number, env string) (*Account, error) {
 			return nil, fmt.Errorf("store: an account for this number already exists")
 		}
 	}
-	var id [4]byte
-	if _, err := rand.Read(id[:]); err != nil {
-		return nil, err
+	if path == "" || strings.ContainsAny(path, `/\`) || path == "." || path == ".." {
+		return nil, fmt.Errorf("store: bad account path %q", path)
 	}
-	path := hex.EncodeToString(id[:])
+	for _, e := range idx.Accounts {
+		if e.Path == path {
+			return nil, fmt.Errorf("store: account path %s is already in use", path)
+		}
+	}
 	if err := os.Mkdir(r.accountDir(path), 0o700); err != nil {
 		return nil, err
 	}
@@ -385,6 +404,7 @@ func (r *Root) Load(path string) (*Account, error) {
 	if a.Identities == nil {
 		a.Identities = map[string]Identity{}
 	}
+	a.numberIdentities()
 	return a, nil
 }
 
@@ -710,3 +730,45 @@ func (a *Account) SetNumber(number string) error {
 
 // Root is the account's directory root.
 func (a *Account) Root() *Root { return a.root }
+
+// PutIdentity stores ident under the service ID id, keeping the row of an
+// existing entry.
+func (a *Account) PutIdentity(id string, ident Identity) {
+	if old, ok := a.Identities[id]; ok {
+		ident.Row = old.Row
+	} else {
+		ident.Row = 1
+		for _, o := range a.Identities {
+			ident.Row = max(ident.Row, o.Row+1)
+		}
+	}
+	a.Identities[id] = ident
+}
+
+// IdentityOrder lists the stored service IDs in row order.
+func (a *Account) IdentityOrder() []string {
+	ids := slices.Collect(maps.Keys(a.Identities))
+	slices.SortFunc(ids, func(x, y string) int {
+		if c := cmp.Compare(a.Identities[x].Row, a.Identities[y].Row); c != 0 {
+			return c
+		}
+		return strings.Compare(x, y)
+	})
+	return ids
+}
+
+// numberIdentities gives entries without a row one, after the numbered
+// ones, in service-ID order (stores from before rows existed).
+func (a *Account) numberIdentities() {
+	var next int64
+	for _, o := range a.Identities {
+		next = max(next, o.Row)
+	}
+	for _, id := range a.IdentityOrder() {
+		if ident := a.Identities[id]; ident.Row == 0 {
+			next++
+			ident.Row = next
+			a.Identities[id] = ident
+		}
+	}
+}
