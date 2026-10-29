@@ -27,7 +27,7 @@ every session, and update both before ending one.
 | 6  | Groups v2 and zkgroup                        | done (2026-10-24); sender-key group sends and group stories proven offline only (they need a third account); JSON-RPC group methods with milestone 8 |
 | 7  | Profiles, contacts, usernames, storage service, CDSI, SVR | done (2026-10-27); the registration-lock 423 restore and reactivation are offline-tested only; PINs needing NFKD are refused |
 | 8  | Daemon parity (HTTP/SSE, socket, TCP); Layer B fully green | done (2026-10-27); all 162 JSON-RPC goldens green (8 CLI goldens left for milestone 9: verbose logging, -d checks, delete-account); change number and the rate-limit challenge offline-tested only; voice calls still deferred |
-| 9  | CLI parity                                   | not started |
+| 9  | CLI parity                                   | done (2026-10-29); all 355 CLI goldens green; logging, send log, --trust-new-identities, username/PNI recipients, link QR, delete-account (offline only, as instructed); voice calls and D-Bus remain for 9b |
 | 9b | Revisit deferred items (voice calls, D-Bus client mode) | not started |
 | 10 | Stretch goal: import an existing signal-cli data dir | not started |
 
@@ -785,3 +785,19 @@ vectors.
   reference daemon on the same account; SSE stream, TCP notifications,
   stdio session byte-identical; startLink/finishLink linked a device to
   our B (removed afterwards); single-account manual mode checked.
+
+### 2026-10-29, milestone 9: CLI parity
+
+- The last 8 CLI goldens: verbose start-up lines, multi-account start
+  (`-d /nonexistent/x`), `unregister --delete-account` account check.
+- Logging per logging.md: simple/detailed formats, `--log-file`
+  routing, `--scrub-log`; black-box identical to the reference.
+- Message send log (send-log.md) with retry-receipt resends;
+  `--disable-send-log` stops inserts only.
+- `--trust-new-identities` applies to bundles, PreKey messages and
+  profiles; `u:`/`-u` and `PNI:` recipients; link QR code (ISO 18004,
+  byte-identical to the reference's terminal output).
+- `unregister --delete-account` (SVR2 PIN removal, DELETE
+  /v1/accounts/me) tested offline only, per the operator.
+- COMPAT.md swept: stale protocol, crypto and storage rows brought up
+  to date.
