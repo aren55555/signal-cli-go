@@ -278,3 +278,24 @@ func (s *Sender) RestoreMasterKey(ctx context.Context, user, pass, pin string) (
 	}
 	return [32]byte{}, ErrPinDataDeleted
 }
+
+// DeleteAccount is `unregister --delete-account` (svr.md §4.5): the PIN
+// data is removed from SVR2 first (pinErr reports a failure there, which
+// the caller only logs), the local PIN is cleared, then the account is
+// deleted on the server with DELETE /v1/accounts/me.
+func (s *Sender) DeleteAccount(ctx context.Context) (pinErr, err error) {
+	a := s.Acct
+	pinErr = s.RemovePin(ctx)
+	a.Data.RegistrationLockPin, a.Data.PinMasterKey = "", nil
+	if err := a.Save(); err != nil {
+		return pinErr, err
+	}
+	r, err := s.Chat.Request(ctx, "DELETE", "/v1/accounts/me", nil, nil)
+	if err != nil {
+		return pinErr, err
+	}
+	if r.Status < 200 || r.Status > 299 {
+		return pinErr, fmt.Errorf("[%d] ", r.Status)
+	}
+	return pinErr, nil
+}

@@ -18,6 +18,7 @@ import (
 	"github.com/aren55555/signal-cli-go/internal/groups"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/protocol"
+	"github.com/aren55555/signal-cli-go/internal/qr"
 	"github.com/aren55555/signal-cli-go/internal/service/agent"
 	"github.com/aren55555/signal-cli-go/internal/service/cdn"
 	"github.com/aren55555/signal-cli-go/internal/service/chat"
@@ -129,7 +130,18 @@ func runLink(ctx context.Context, e *env, g *globals, name string) error {
 			return provision.Open(ctx, provision.Endpoint{Proxy: n.proxy, UserAgentOverride: n.userAgent})
 		},
 		DeviceName: name,
-		OnURL:      func(u string) { fmt.Fprintln(e.stdout, u) },
+		OnURL: func(u string) {
+			if isTerminal(e.stdout) {
+				if c, err := qr.Encode([]byte(u)); err == nil {
+					fmt.Fprintln(e.stdout, "\x1b[37;40m")
+					for _, l := range c.Lines() {
+						fmt.Fprintln(e.stdout, l)
+					}
+					fmt.Fprintln(e.stdout, "\x1b[39;49m")
+				}
+			}
+			fmt.Fprintln(e.stdout, u)
+		},
 		PostLink: func(ctx context.Context, a *store.Account) error {
 			c, err := n.dialChat(ctx, a, false)
 			if err != nil {

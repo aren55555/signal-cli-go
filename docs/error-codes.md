@@ -207,7 +207,6 @@ Every error the CLI or the JSON-RPC daemon reports is one of these codes. `exit`
 | RemoveDeviceFailed | io | 3 | -3 |  | `` Error while removing device: %s `` | the device removal request failed | spec |
 | UpdateDeviceFailed | io | 3 | -3 |  | `` Error while updating device: %s `` | the device rename request failed | spec |
 | UnregisterFailed | io | 3 | -3 |  | `` Unregister error: %s `` | the unregister request failed | spec |
-| DeleteAccountUnsupported | user | 1 | -1 |  | `` Deleting the account is not supported by signal-cli-go yet `` | account deletion is not implemented | deviation |
 | GroupLinkNotALink | user | 1 | -1 |  | `` Link is not a signal group invitation link `` | the URI is not a signal.group link | spec |
 | GroupLinkIncompatible | user | 1 | -1 |  | `` Group link was created with an incompatible version: %s `` | the link has no known content version | spec |
 | GroupLinkInvalid | user | 1 | -1 |  | `` Group link is invalid: %s `` | the link's fragment could not be decoded | spec |

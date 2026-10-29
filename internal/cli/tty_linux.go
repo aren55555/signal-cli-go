@@ -22,3 +22,15 @@ func ttyColumns() int {
 	}
 	return int(ws.cols)
 }
+
+// isTerminal reports whether w is a terminal (the reference prints the
+// link QR code only on a console).
+func isTerminal(w any) bool {
+	f, ok := w.(*os.File)
+	if !ok {
+		return false
+	}
+	var t syscall.Termios
+	_, _, e := syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), syscall.TCGETS, uintptr(unsafe.Pointer(&t)))
+	return e == 0
+}

@@ -1,10 +1,2 @@
 # Scenarios known not to match signal-cli 0.14.7 yet. They still run;
 # a match while listed here fails the test, so remove names as features land.
-obs005--v_--version
-obs038--d_nonexistent_x_version
-obs194--a_15555550123_unregister_--delete-account
-obs205-finishChangeNumber_-v_123
-obs206--a_15555550123_finishChangeNumber_-v_123_15555550124
-obs242-register_-v_--bogus
-obs330-trust_-a_-v_123_15555550199
-obs373--a_15555550123_trust_-v_123_15555550199

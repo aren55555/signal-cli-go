@@ -243,7 +243,6 @@ const (
 	RemoveDeviceFailed
 	UpdateDeviceFailed
 	UnregisterFailed
-	DeleteAccountUnsupported
 
 	// Groups.
 	GroupLinkNotALink
@@ -541,14 +540,13 @@ var table = [numCodes]info{
 	AvatarNotFound:        user("AvatarNotFound", "Could not find avatar", "no avatar is stored", Spec),
 	AvatarReadFailed:      unexpected("AvatarReadFailed", "An error occurred reading avatar", "the avatar file could not be read", Spec),
 
-	ListDevicesFailed:        ioErr("ListDevicesFailed", "Failed to get linked devices: %s", "the device list request failed", Spec),
-	InvalidDeviceLink:        user("InvalidDeviceLink", "Invalid device link", "the device link URI lacks a valid uuid or key", Spec),
-	TooManyDevices:           user("TooManyDevices", "Account has too many linked devices already", "the server's device limit was reached", Spec),
-	AddDeviceFailed:          ioErr("AddDeviceFailed", "Add device link failed", "provisioning the new device failed", Spec),
-	RemoveDeviceFailed:       ioErr("RemoveDeviceFailed", "Error while removing device: %s", "the device removal request failed", Spec),
-	UpdateDeviceFailed:       ioErr("UpdateDeviceFailed", "Error while updating device: %s", "the device rename request failed", Spec),
-	UnregisterFailed:         ioErr("UnregisterFailed", "Unregister error: %s", "the unregister request failed", Spec),
-	DeleteAccountUnsupported: user("DeleteAccountUnsupported", "Deleting the account is not supported by signal-cli-go yet", "account deletion is not implemented", Deviation),
+	ListDevicesFailed:  ioErr("ListDevicesFailed", "Failed to get linked devices: %s", "the device list request failed", Spec),
+	InvalidDeviceLink:  user("InvalidDeviceLink", "Invalid device link", "the device link URI lacks a valid uuid or key", Spec),
+	TooManyDevices:     user("TooManyDevices", "Account has too many linked devices already", "the server's device limit was reached", Spec),
+	AddDeviceFailed:    ioErr("AddDeviceFailed", "Add device link failed", "provisioning the new device failed", Spec),
+	RemoveDeviceFailed: ioErr("RemoveDeviceFailed", "Error while removing device: %s", "the device removal request failed", Spec),
+	UpdateDeviceFailed: ioErr("UpdateDeviceFailed", "Error while updating device: %s", "the device rename request failed", Spec),
+	UnregisterFailed:   ioErr("UnregisterFailed", "Unregister error: %s", "the unregister request failed", Spec),
 
 	GroupLinkNotALink:      user("GroupLinkNotALink", "Link is not a signal group invitation link", "the URI is not a signal.group link", Spec),
 	GroupLinkIncompatible:  user("GroupLinkIncompatible", "Group link was created with an incompatible version: %s", "the link has no known content version", Spec),

@@ -143,11 +143,17 @@ func runUpdateDevice(ctx context.Context, e *env, g *globals, id int, name strin
 }
 
 func runUnregister(ctx context.Context, e *env, g *globals, deleteAccount bool) error {
-	if deleteAccount {
-		return errcode.DeleteAccountUnsupported
-	}
 	return withSession(ctx, e, g, func(s *session) error {
-		if err := manager.ClearPushToken(ctx, s.chat); err != nil {
+		if deleteAccount {
+			// svr.md §4.5: a failed PIN removal is only logged.
+			pinErr, err := s.sender.DeleteAccount(ctx)
+			if pinErr != nil {
+				fmt.Fprintln(e.stderr, "WARN  AccountHelper - Failed to remove registration lock pin")
+			}
+			if err != nil {
+				return errcode.UnregisterFailed.WrapText(err)
+			}
+		} else if err := manager.ClearPushToken(ctx, s.chat); err != nil {
 			return errcode.UnregisterFailed.WrapText(err)
 		}
 		s.acct.Data.Registered = false

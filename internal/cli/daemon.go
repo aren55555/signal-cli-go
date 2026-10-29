@@ -101,6 +101,11 @@ func (d *daemonState) list() []daemon.Account {
 // (multi-account mode), or the single account. New accounts start
 // receiving in on-start mode.
 func (d *daemonState) loadAccounts() error {
+	if d.g.account == "" {
+		if err := os.MkdirAll(filepath.Join(d.g.dataDir, "data"), 0o700); err != nil {
+			return errcode.AccountsListRead.Wrap(err)
+		}
+	}
 	root := d.g.root()
 	entries, err := root.Accounts()
 	if err != nil {

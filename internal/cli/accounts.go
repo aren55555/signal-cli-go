@@ -5,6 +5,8 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -71,23 +73,9 @@ func runListAccounts(e *env, g *globals) error {
 	if g.account != "" {
 		return errcode.MultiAccountOnly
 	}
-	root := g.root()
-	entries, err := root.Accounts()
+	numbers, err := multiAccountStart(e, g)
 	if err != nil {
-		return errcode.AccountsFileLoad.Wrap(err)
-	}
-	var numbers []string
-	for _, en := range entries {
-		a, err := root.Load(en.Path)
-		if err != nil || !a.Data.Registered {
-			if a != nil {
-				a.Close()
-			}
-			fmt.Fprintf(e.stderr, "WARN  MultiAccountManager - Ignoring %s: User is not registered. (NotRegisteredException)\n", en.Number)
-			continue
-		}
-		numbers = append(numbers, a.Data.Number)
-		a.Close()
+		return err
 	}
 	if g.json() {
 		items := make([]string, len(numbers))
@@ -129,4 +117,33 @@ func runDeleteLocalAccountData(e *env, g *globals, ignoreRegistered bool) error 
 		return errcode.DeletionFailed.WrapText(err)
 	}
 	return nil
+}
+
+// multiAccountStart is the start of a command running in multi-account
+// mode (index.md, account selection rule 2): the data directory is
+// created, and each local account that is not registered is skipped
+// with a warning. It returns the registered accounts' numbers.
+func multiAccountStart(e *env, g *globals) ([]string, error) {
+	if err := os.MkdirAll(filepath.Join(g.dataDir, "data"), 0o700); err != nil {
+		return nil, errcode.AccountsListRead.Wrap(err)
+	}
+	root := g.root()
+	entries, err := root.Accounts()
+	if err != nil {
+		return nil, errcode.AccountsFileLoad.Wrap(err)
+	}
+	var numbers []string
+	for _, en := range entries {
+		a, err := root.Load(en.Path)
+		if err != nil || !a.Data.Registered {
+			if a != nil {
+				a.Close()
+			}
+			fmt.Fprintf(e.stderr, "WARN  MultiAccountManager - Ignoring %s: User is not registered. (NotRegisteredException)\n", en.Number)
+			continue
+		}
+		numbers = append(numbers, a.Data.Number)
+		a.Close()
+	}
+	return numbers, nil
 }
