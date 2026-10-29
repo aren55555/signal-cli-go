@@ -649,6 +649,7 @@ func runTrust(ctx context.Context, e *env, g *globals, recipient string, all boo
 func (g *globals) withProfiles(e *env, s *manager.Sender) *manager.Sender {
 	s.AvatarsDir = filepath.Join(g.dataDir, "avatars")
 	s.TrustNew = g.trustNew
+	s.DisableSendLog = g.disableSendLog
 	s.Log = func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  ProfileHelper - "+f+"\n", args...) }
 	return s
 }

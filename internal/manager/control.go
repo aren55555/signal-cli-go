@@ -41,8 +41,12 @@ func (s *Sender) SendReceiptAt(ctx context.Context, dest string, kind signalpb.A
 		return 0, err
 	}
 	ts := s.timestamp()
-	_, _, err = s.send(ctx, dest, c, ts, false, protocol.ContentHintImplicit)
-	return ts, err
+	var devices []uint32
+	if _, _, err = s.deliver(ctx, dest, c, ts, deliverOpts{hint: protocol.ContentHintImplicit, devices: &devices}); err != nil {
+		return ts, err
+	}
+	s.logSend(c, ts, protocol.ContentHintImplicit, false, dest, devices)
+	return ts, nil
 }
 
 // SendTyping sends a TypingMessage (content.md §5.2): online, not urgent,

@@ -262,6 +262,7 @@ type Account struct {
 	root       *Root
 	path       string
 	lock       *FileLock
+	sendLog    *sendLogDoc // read on first use (sendlog.go)
 	Data       AccountData
 	Keys       KeysData
 	Sessions   map[string][]byte   // "aci:<address>.<device>" -> SessionRecord

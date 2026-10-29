@@ -68,7 +68,10 @@ type Sender struct {
 	// --trust-new-identities mode; Log receives warnings.
 	AvatarsDir string
 	TrustNew   string
-	Log        func(format string, args ...any)
+	// DisableSendLog is --disable-send-log: nothing is written to the
+	// send log (send-log.md §2.4).
+	DisableSendLog bool
+	Log            func(format string, args ...any)
 	// DialCDSI opens CDSI channels; nil disables number lookups.
 	DialCDSI CDSIDialer
 	// DialSVR2 opens SVR2 channels; nil disables PIN operations.
@@ -362,6 +365,12 @@ type deliverOpts struct {
 	groupID        []byte // USMC group ID (group sends)
 	groupToken     []byte // full group send token: sealed access without a key, or fallback
 	hint           uint32
+	// devices, if set, receives the device IDs of the successful attempt
+	// (send-log.md §1.1).
+	devices *[]uint32
+	// noDowngrade skips the sticky sealed-sender downgrade (resends,
+	// send-log.md §4.2).
+	noDowngrade bool
 }
 
 // deliver encrypts for dest's devices and puts the message, sealed when
@@ -381,7 +390,7 @@ func (s *Sender) deliver(ctx context.Context, dest string, plaintext []byte, ts 
 		}
 	}
 	defer func() {
-		if err == nil && !unidentified && !self && !unsealed {
+		if err == nil && !unidentified && !self && !unsealed && !o.noDowngrade {
 			s.downgrade(dest)
 		}
 	}()
@@ -488,6 +497,12 @@ func (s *Sender) deliver(ctx context.Context, dest string, plaintext []byte, ts 
 				NeedsSync bool `json:"needsSync"`
 			}
 			json.Unmarshal(r.Body, &ok)
+			if o.devices != nil {
+				*o.devices = (*o.devices)[:0]
+				for _, m := range body.Messages {
+					*o.devices = append(*o.devices, m.DestinationDeviceID)
+				}
+			}
 			return ok.NeedsSync, sealedPut, nil
 		case 401:
 			return false, false, fmt.Errorf("authorization failed")

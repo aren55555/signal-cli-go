@@ -75,3 +75,13 @@ func SenderRatchetKey(wire []byte, messageType int) []byte {
 	}
 	return nil
 }
+
+// SenderRatchetKey returns the 33-byte public sender ratchet key of the
+// current session, nil without one (to match a retry receipt's
+// ratchet_key, send-log.md §4.3).
+func (r *SessionRecord) SenderRatchetKey() []byte {
+	if r.current == nil || r.current.senderRatchet == nil {
+		return nil
+	}
+	return r.current.senderRatchet.PublicKey().Bytes()
+}

@@ -130,6 +130,14 @@ func TestGroupSendSenderKey(t *testing.T) {
 	if !w.accSelf.Group(w.rec.GroupID).ProfileSharing {
 		t.Error("profile sharing not switched on")
 	}
+	// One send-log entry with the group id and a row per member device
+	// (send-log.md §1.3).
+	for _, dest := range []string{w.b, w.c} {
+		entries, _ := w.accSelf.SendLogLookup(dest, 1, ts, true)
+		if len(entries) != 1 || !slices.Equal(entries[0].GroupID, w.rec.GroupID) {
+			t.Errorf("send log for %s: %+v", dest, entries)
+		}
+	}
 }
 
 // TestGroupSendFanOut: with one qualifying member there are no sender-key

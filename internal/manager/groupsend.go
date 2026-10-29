@@ -104,6 +104,10 @@ func (m *Groups) sendGroup(ctx context.Context, rec *store.GroupRecord, recipien
 			fanout = append(fanout, r)
 		}
 	}
+	var gl *groupLog // one send-log entry for the whole send (send-log.md §1.3)
+	if !o.story && !o.online {
+		gl = &groupLog{s: s, content: content, ts: ts, hint: o.hint, urgent: o.urgent}
+	}
 	skSucceeded := false
 	if len(targets) > 0 {
 		dist, _ := uuidRaw(rec.DistributionID)
@@ -139,6 +143,7 @@ func (m *Groups) sendGroup(ctx context.Context, rec *store.GroupRecord, recipien
 		}
 		results = append(results, ok...)
 		skSucceeded = len(ok) > 0
+		gl.add(ok)
 		if len(ok) > 0 && dm != nil && !o.story && s.Acct.IsMultiDevice() {
 			s.groupTranscript(ctx, dm, ok, ts, false)
 		}
@@ -160,9 +165,12 @@ func (m *Groups) sendGroup(ctx context.Context, rec *store.GroupRecord, recipien
 			if withKey {
 				opts.groupToken = tokens[r]
 			}
+			var devices []uint32
+			opts.devices = &devices
 			ns, _, err := s.deliver(ctx, r, content, ts, opts)
 			needsSync = needsSync || ns
-			fan = append(fan, SendResult{Dest: r, Err: err})
+			fan = append(fan, SendResult{Dest: r, Err: err, Devices: devices})
+			gl.add(fan[len(fan)-1:])
 		}
 		results = append(results, fan...)
 		if dm != nil && (needsSync || s.Acct.IsMultiDevice()) {
@@ -230,6 +238,9 @@ func (m *Groups) SendData(ctx context.Context, id []byte, d DataSend) (uint64, [
 	if !rec.ProfileSharing {
 		rec.ProfileSharing = true
 		rec = m.save(rec)
+	}
+	if del := d.Message.GetDelete(); del != nil {
+		m.Acct.SendLogRemoteDelete(del.GetTargetSentTimestamp(), "", rec.GroupID) // send-log.md §3.2
 	}
 	ts := d.Timestamp
 	if ts == 0 {

@@ -75,9 +75,10 @@ type actions struct {
 	refresh  bool
 	// syncAnswers are the sync requests to answer (primary only).
 	syncAnswers map[signalpb.AppSyncMessage_Request_Type]bool
-	ownProfile  bool        // a FetchLatest LOCAL_PROFILE arrived
-	storage     bool        // a sync message queued a storage sync (storage.md §6.1)
-	stickers    [][2][]byte // sticker packs to download (id, key)
+	ownProfile  bool                    // a FetchLatest LOCAL_PROFILE arrived
+	storage     bool                    // a sync message queued a storage sync (storage.md §6.1)
+	stickers    [][2][]byte             // sticker packs to download (id, key)
+	resends     map[string]resendAction // send-log resends, by action equality (send-log.md §4.4)
 }
 
 type retryReceipt struct {
@@ -231,6 +232,8 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 		return
 	}
 	if m.ServerReceipt {
+		// The device received our message: its send-log rows go (send-log.md §3.1).
+		r.Acct.SendLogDelivered(m.Sender.ServiceID, m.Sender.DeviceID, []uint64{env.GetClientTimestamp()})
 		r.emit(Event{Envelope: &env, ServerDelivered: delivered, Message: m})
 		return
 	}
@@ -297,11 +300,13 @@ func (r *Receiver) handle(ctx context.Context, path string, body []byte, deliver
 			r.queueReceipt(&r.pending.read, m.Sender.ServiceID, dm.GetTimestamp())
 		}
 	}
+	if rc := c.GetReceiptMessage(); rc != nil && rc.GetKind() == ReceiptDelivery {
+		r.Acct.SendLogDelivered(m.Sender.ServiceID, m.Sender.DeviceID, rc.GetTimestamps())
+	}
 	if dem := c.GetDecryptionErrorMessage(); dem != nil {
 		var d signalpb.AppDecryptionErrorMessage
 		if proto.Unmarshal(dem, &d) == nil && d.GetDeviceId() == uint32(r.Acct.Data.DeviceID) {
-			// No send log to resend from: renew the session (§7.3).
-			r.queueRenewal(false, m.Sender.ServiceID)
+			r.handleRetryReceipt(m.Sender, m.ToPNI, &d) // pipe.md §7.3, send-log.md §4
 		}
 	}
 	ev := Event{Envelope: &env, ServerDelivered: delivered, Message: m}
@@ -421,6 +426,16 @@ func (r *Receiver) flush(ctx context.Context) {
 		r.archiveAll(kind == "pni", peer)
 		if err := r.Sender.SendNullMessage(ctx, peer); err != nil {
 			r.logf("Failed to renew the session with %s: %v", peer, err)
+		}
+	}
+	resends := make([]string, 0, len(p.resends))
+	for k := range p.resends {
+		resends = append(resends, k)
+	}
+	slices.Sort(resends)
+	for _, k := range resends {
+		if err := r.Sender.resend(ctx, r.Groups, p.resends[k]); err != nil {
+			r.logf("Message action failed. %v", err)
 		}
 	}
 	for _, rr := range p.retry {

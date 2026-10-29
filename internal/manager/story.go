@@ -300,10 +300,17 @@ func (s *Sender) sendSenderKey(ctx context.Context, recipients []string, plainte
 			var results []SendResult
 			for _, rcp := range recipients {
 				var rerr error
+				var devs []uint32
 				if slices.Contains(res.Unregistered, rcp) {
 					rerr = ErrUnregistered
+				} else {
+					for _, d := range all {
+						if d.id == rcp {
+							devs = append(devs, d.dev)
+						}
+					}
 				}
-				results = append(results, SendResult{Dest: rcp, Err: rerr})
+				results = append(results, SendResult{Dest: rcp, Err: rerr, Devices: devs})
 			}
 			return results, nil
 		}

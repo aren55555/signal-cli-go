@@ -108,6 +108,8 @@ type DataSend struct {
 type SendResult struct {
 	Dest string
 	Err  error
+	// Devices are the device IDs a successful send was encrypted for.
+	Devices []uint32
 }
 
 // SendData sends d to each destination ACI with one shared timestamp and
@@ -119,6 +121,9 @@ func (s *Sender) SendData(ctx context.Context, dests []string, d DataSend) (uint
 	}
 	var results []SendResult
 	for _, dest := range dests {
+		if del := d.Message.GetDelete(); del != nil {
+			s.Acct.SendLogRemoteDelete(del.GetTargetSentTimestamp(), dest, nil) // send-log.md §3.2
+		}
 		results = append(results, SendResult{Dest: dest, Err: s.sendDataTo(ctx, dest, d, ts)})
 	}
 	return ts, results
@@ -179,10 +184,12 @@ func (s *Sender) sendDataTo(ctx context.Context, dest string, d DataSend, ts uin
 	if err != nil {
 		return err
 	}
-	needsSync, _, err := s.send(ctx, dest, c, ts, d.Urgent, protocol.ContentHintResendable)
+	var devices []uint32
+	needsSync, _, err := s.deliver(ctx, dest, c, ts, deliverOpts{urgent: d.Urgent, hint: protocol.ContentHintResendable, devices: &devices})
 	if err != nil {
 		return err
 	}
+	s.logSend(c, ts, protocol.ContentHintResendable, d.Urgent, dest, devices)
 	if self {
 		return nil
 	}
