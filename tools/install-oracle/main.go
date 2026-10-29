@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Command install-oracle downloads the reference signal-cli release into
 // third_party/ and verifies it before anything runs it.
 //

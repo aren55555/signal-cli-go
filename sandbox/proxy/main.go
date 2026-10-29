@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Command egress-proxy is a tiny allowlisting HTTP forward proxy.
 //
 // The sandbox's agent container is attached only to an internal network

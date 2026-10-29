@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package cdn talks to Signal's attachment CDNs: resumable uploads to CDN 2
 // and 3 and plain downloads (spec/service/attachments.md §4-5).
 package cdn

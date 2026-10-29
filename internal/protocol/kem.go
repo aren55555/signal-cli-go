@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package protocol implements the Signal protocol core: PQXDH session
 // setup and the Double Ratchet, following Signal's published
 // specifications (signal.org/docs) and the libsignal v0.99.1 specifics in

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package cdsi encodes CDSI requests and parses responses
 // (spec/service/cdsi.md §4, §5) and runs the lookup over an attested
 // enclave connection.

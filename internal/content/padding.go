@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package content holds Signal's application-level content messages and
 // their transport padding (spec/service/content.md).
 package content

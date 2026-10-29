@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package edwards25519 implements the edwards25519 group of RFC 8032
 // (-x^2 + y^2 = 1 + d x^2 y^2 over GF(2^255-19)) and its scalars.
 //

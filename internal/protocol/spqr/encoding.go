@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package spqr implements SPQR, the Sparse Post-Quantum Ratchet, as
 // libsignal v0.99.1 uses it (spqr 1.5.3, protocol V1), from the specs in
 // spec/protocol/spqr/ and Signal's published Double Ratchet document.

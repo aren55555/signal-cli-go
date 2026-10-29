@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package groups is the client side of Signal groups v2: identifiers,
 // invite links, decrypted group state and changes
 // (spec/service/groups.md).

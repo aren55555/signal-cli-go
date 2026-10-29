@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Command staging is a development harness for exercising signal-cli-go
 // against Signal's staging service before the CLI exists. Account data
 // goes under -data, which must be a gitignored scratch directory. Phone

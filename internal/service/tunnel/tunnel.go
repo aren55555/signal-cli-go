@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package tunnel dials TCP connections, directly or through an HTTP
 // CONNECT proxy. The sandbox reaches the Internet only through such a
 // proxy, and every Signal transport (WebSockets, HTTP/2) dials through

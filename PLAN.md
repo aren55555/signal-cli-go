@@ -226,7 +226,10 @@ vectors.
   relax the comparison to code plus `data` for those cases, documented as a
   normalization. Verbose `-v` log lines (upstream logger names) raise the
   same question for the CLI.
-- **License**: undecided. See `CLEANROOM.md`.
+  **Resolved for JSON-RPC** (operator, milestone 8): reproduce them byte
+  for byte; see `internal/jackson` and `internal/errcode`.
+- **License**: **resolved** (operator, 2026-10-28): GPL-3.0-or-later, matching
+  signal-cli. See `LICENSE` and `CLEANROOM.md` ("License decision").
 
 ## Progress log
 

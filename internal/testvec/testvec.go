@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package testvec loads JSON test vectors from testdata/vectors/ for tests.
 package testvec
 

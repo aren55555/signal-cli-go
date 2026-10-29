@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package h2 is a minimal HTTP/2 client (RFC 9113) with HPACK (RFC 7541),
 // enough to open the WebSocket-over-HTTP/2 stream (RFC 8441) that
 // libsignal-net uses for Signal's chat service. Go's standard library

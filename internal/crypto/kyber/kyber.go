@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package kyber implements CRYSTALS-Kyber1024 as submitted to round 3 of
 // the NIST PQC process (the non-90s variant), which libsignal v0.99.1 uses
 // for PQXDH prekeys (key type 0x08; see spec/crypto/kem.md). It is not

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package provision is the secondary side of device linking: the
 // provisioning WebSocket and the sgnl://linkdevice URL
 // (spec/service/linking.md §2, §5).

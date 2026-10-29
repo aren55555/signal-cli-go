@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package profile implements Signal profile field encryption and the
 // decoding of profile responses (spec/crypto/profile-cipher.md).
 package profile

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package blake2b implements BLAKE2b (RFC 7693) with variable output
 // length and optional key, as Argon2 (RFC 9106) needs it.
 package blake2b

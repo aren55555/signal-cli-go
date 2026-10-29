@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package fingerprint computes safety numbers: the numeric fingerprint
 // and the scannable form, and parses what users paste into `trust -v`
 // (spec/crypto/fingerprint.md).

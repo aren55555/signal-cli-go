@@ -1,6 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package repocheck holds tests that enforce repository-wide rules from
 // PROMPT.md as amended (PLAN.md, Decisions): no third-party module except
-// the vendored google.golang.org/protobuf, and no secrets in testdata/.
+// the vendored google.golang.org/protobuf, no secrets in testdata/, and
+// the GPLv3 license header on every Go file we wrote.
 package repocheck
 
 import (
@@ -196,5 +199,53 @@ func TestSecretPatternsFire(t *testing.T) {
 		if !allowedPhone.MatchString(ok) {
 			t.Errorf("placeholder %s should be allowed", ok)
 		}
+	}
+}
+
+const spdxLine = "// SPDX-License-Identifier: GPL-3.0-or-later"
+
+var generatedRe = regexp.MustCompile(`(?m)^// Code generated .* DO NOT EDIT\.$`)
+
+// TestLicenseHeaders: every Go file we wrote starts with the SPDX
+// line (operator decision 2026-10-28: GPLv3). vendor/, third_party/ and
+// generated files are exempt.
+func TestLicenseHeaders(t *testing.T) {
+	n := 0
+	err := filepath.WalkDir(repoRoot, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, _ := filepath.Rel(repoRoot, path)
+		if d.IsDir() {
+			if rel != "." && (strings.HasPrefix(d.Name(), ".") || rel == "vendor" || rel == "third_party") {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if !strings.HasSuffix(path, ".go") {
+			return nil
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		if generatedRe.Match(data) {
+			return nil
+		}
+		n++
+		if first, _, _ := strings.Cut(string(data), "\n"); first != spdxLine {
+			t.Errorf("%s: first line must be %q", rel, spdxLine)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n < 100 {
+		t.Fatalf("only %d Go files checked", n)
+	}
+	lic, err := os.ReadFile(filepath.Join(repoRoot, "LICENSE"))
+	if err != nil || !strings.Contains(string(lic), "GNU GENERAL PUBLIC LICENSE\n                       Version 3, 29 June 2007") {
+		t.Errorf("LICENSE is missing or not the GPLv3 text")
 	}
 }

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package store is signal-cli-go's own on-disk storage: JSON documents
 // written crash-safely (temp file, fsync, rename, directory fsync), each
 // carrying a version and migrated forward on load, under a per-account

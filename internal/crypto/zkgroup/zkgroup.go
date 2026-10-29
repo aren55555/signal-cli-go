@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package zkgroup implements the parts of Signal's zkgroup that
 // signal-cli-go needs, from spec/crypto/zkgroup-profile.md: the Sho
 // construction and the profile-key version and commitment.

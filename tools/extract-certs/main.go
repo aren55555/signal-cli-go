@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Command extract-certs finds DER X.509 certificates embedded in binary
 // files (a jar's native library, a keystore) and writes those whose SHA-256
 // fingerprint is listed. Certificates are public data; the fingerprints

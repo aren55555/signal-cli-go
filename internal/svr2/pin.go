@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package svr2 holds the PIN cryptography (spec/crypto/pin.md) and the
 // SVR2 enclave messages (spec/service/svr.md §3).
 package svr2

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package manager runs signal-cli's account operations on top of the
 // protocol, service and store layers.
 package manager

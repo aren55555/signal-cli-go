@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package jackson is a JSON tree with the behavior of the Jackson
 // databind library as signal-cli 0.14.7 uses it: the parser reports
 // Jackson's error messages and locations, numbers keep Jackson's node

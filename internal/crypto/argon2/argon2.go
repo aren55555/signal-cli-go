@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package argon2 implements Argon2 version 0x13 (RFC 9106): Argon2d,
 // Argon2i and Argon2id, with secret and associated data. Signal's PIN
 // hashing uses Argon2id.

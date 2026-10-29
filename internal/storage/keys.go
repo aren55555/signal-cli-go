@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package storage holds the storage-service keys and encryption
 // (spec/service/storage.md §2, §3). The sync itself is in the manager.
 package storage

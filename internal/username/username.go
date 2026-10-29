@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package username parses usernames, generates candidates and handles
 // username links (spec/crypto/usernames.md §2, §4, §6). The hash and the
 // proof are in internal/crypto/zkgroup.

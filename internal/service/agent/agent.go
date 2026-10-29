@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package agent builds signal-cli's agent strings
 // (spec/service/transport.md §4.2).
 package agent

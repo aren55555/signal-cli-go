@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package difftest runs the same scenario against the reference signal-cli
 // and signal-cli-go and compares what a user would see: stdout, stderr and
 // the exit code.

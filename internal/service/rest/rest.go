@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package rest is the HTTPS side of the chat service (spec/service/api.md
 // §1-4, transport.md §5): registration, device linking and the send
 // fallback.

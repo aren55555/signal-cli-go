@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package errcode is the catalogue of every error signal-cli-go's CLI and
 // JSON-RPC daemon can report. Each Code carries the JSON-RPC error code,
 // the CLI exit code, the reference's exact message template and a short

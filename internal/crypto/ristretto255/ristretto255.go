@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package ristretto255 implements the ristretto255 prime-order group of
 // RFC 9496 on top of edwards25519. zkgroup builds on it.
 //

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Command signal-cli-go is a clean-room, standard-library-only
 // reimplementation of signal-cli. See PLAN.md for status.
 package main

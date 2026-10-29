@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Command obs2scenarios turns the account-free invocations logged in
 // spec/surface/cli/observations.md into difftest scenarios.
 //

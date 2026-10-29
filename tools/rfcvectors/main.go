@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Command rfcvectors extracts test vectors from the plain-text RFCs into
 // JSON files under testdata/vectors/, so the vectors are reproducible from
 // the published documents instead of hand-copied.

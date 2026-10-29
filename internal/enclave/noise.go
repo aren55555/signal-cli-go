@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package enclave implements the attested channel to SGX enclaves (CDSI,
 // SVR2): the Noise handshake and transport (spec/enclave/noise.md) and
 // the attestation checks (spec/enclave/attestation.md).

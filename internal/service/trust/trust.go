@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package trust holds the TLS roots for Signal's servers
 // (spec/service/transport.md §3.3, §5). The system trust store is never
 // consulted.

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package websocket is a client for the WebSocket protocol (RFC 6455),
 // written for signal-cli-go's message pipe and provisioning sockets. It
 // dials through an HTTP CONNECT proxy when one is given (the sandbox has

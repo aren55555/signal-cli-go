@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package curve25519 implements Signal's Curve25519 key layer: the
 // 0x05-prefixed public key encoding, clamped private keys, X25519
 // agreement, XEd25519 signatures, and the canonical-key check PQXDH

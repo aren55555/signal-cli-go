@@ -40,8 +40,25 @@ but it **cannot certify independence**. The implementation role writes
 code in its own structure and idiom and does not transliterate recalled
 upstream code.
 
-**Licensing flag:** if this project is released under any license other
-than GPL or AGPL, the owner should get a legal review first.
+## License decision (operator, 2026-10-28)
+
+signal-cli-go is licensed under the **GNU General Public License,
+version 3 or later** (GPL-3.0-or-later), the same license as signal-cli.
+The full text is in `LICENSE`, and every Go file we wrote starts with an
+`SPDX-License-Identifier: GPL-3.0-or-later` line (enforced by
+`internal/repocheck`; vendored and generated files are exempt).
+
+Choosing the same license as signal-cli sidesteps the derivative-work
+question: even if some part of this code were found to derive from
+signal-cli, it is distributed under signal-cli's own terms. That does not
+make the process above unnecessary. It still reduces copying, and the
+limits stated in "Honest limits" still apply: the process cannot certify
+independence.
+
+The sidestep covers signal-cli only. libsignal and Signal-Server are
+AGPLv3, and GPLv3 does not answer the same question for them: code
+derived from them would carry AGPLv3 terms. For those projects the
+clean-room process remains the safeguard, with the same limits.
 
 ## Log
 

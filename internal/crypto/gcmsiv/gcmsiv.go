@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package gcmsiv implements AES-GCM-SIV (RFC 8452), which sealed sender v2
 // uses for its shared ciphertext (spec/protocol/sealed-sender.md §6). The
 // standard library has AES-GCM but not GCM-SIV.

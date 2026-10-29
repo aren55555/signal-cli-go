@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 package errcode
 
 // Fixed parts of Jackson's messages (spec/surface/jsonrpc/errors.md,

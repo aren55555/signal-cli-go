@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package argparse reproduces the argument parsing, help and error text
 // of argparse4j 0.9.0 as signal-cli configures it
 // (spec/surface/cli/argparse.md, refining spec/surface/cli/index.md).

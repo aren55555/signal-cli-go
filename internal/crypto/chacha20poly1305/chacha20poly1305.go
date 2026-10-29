@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package chacha20poly1305 implements the ChaCha20 stream cipher, the
 // Poly1305 one-time authenticator and their AEAD combination, as defined
 // in RFC 8439. The enclave channels (Noise) use the AEAD.

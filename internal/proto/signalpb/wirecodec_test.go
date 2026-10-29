@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // This file is the hand-written protobuf wire codec that the project used
 // before the protobuf amendment (PLAN.md, Decisions). It is kept only as an
 // independent oracle for differential tests of the generated code, which

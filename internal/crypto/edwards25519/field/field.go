@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package field implements constant-time arithmetic in GF(2^255-19), the
 // base field of Curve25519 and edwards25519.
 //

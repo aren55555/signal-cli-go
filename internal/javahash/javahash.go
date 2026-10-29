@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package javahash reproduces the iteration order of Java's HashSet and
 // HashMap for outputs the reference builds with them
 // (spec/surface/jsonrpc/serialization.md §1.1).

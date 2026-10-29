@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package attachment implements attachment encryption, pointers, file
 // naming, data URIs and long text (spec/service/attachments.md).
 package attachment

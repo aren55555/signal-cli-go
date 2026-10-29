@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package chat speaks Signal's chat-socket protocol (spec/service/pipe.md,
 // transport.md §3.5): HTTP-like requests and responses framed as
 // ChatWebSocketMessage protobufs, one per binary WebSocket message, in both

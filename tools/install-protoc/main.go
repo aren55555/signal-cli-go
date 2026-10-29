@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Command install-protoc downloads protoc into third_party/, for
 // regenerating the protobuf code in internal/proto (see `just proto-gen`).
 // It is a build tool only, never a runtime dependency.

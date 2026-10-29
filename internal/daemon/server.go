@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package daemon serves signal-cli's JSON-RPC API over line-delimited
 // streams (stdin/stdout, UNIX sockets, TCP) and HTTP
 // (spec/surface/jsonrpc/transports.md, errors.md). Methods are supplied

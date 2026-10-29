@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Package api holds the chat service's JSON bodies and their encoding
 // conventions (spec/service/api.md §3), shared by the REST and WebSocket
 // transports.
