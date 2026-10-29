@@ -5,9 +5,10 @@ package manager
 import (
 	"context"
 	"errors"
-	"github.com/aren55555/signal-cli-go/internal/attachment"
+	"fmt"
 	"time"
 
+	"github.com/aren55555/signal-cli-go/internal/attachment"
 	"github.com/aren55555/signal-cli-go/internal/crypto/zkgroup"
 	"github.com/aren55555/signal-cli-go/internal/groups"
 	"github.com/aren55555/signal-cli-go/internal/proto/signalpb"
@@ -61,6 +62,17 @@ func (m *Groups) trusted(aci string) bool {
 	return ok && id.Trust != store.Untrusted
 }
 
+// logFallback names recipients that did not get the multi-recipient
+// sender-key send: a 1:1 fan-out for messages, nothing at all for
+// stories (stories.md §2.4: no fallback).
+func (o groupSendOpts) logFallback(s *Sender, n, of int, why string) {
+	if o.story {
+		s.debugf("Group send path: story not sent to %d of %d recipient(s): %s", n, of, why)
+		return
+	}
+	s.debugf("Group send path: 1:1 fallback for %d of %d recipient(s): %s", n, of, why)
+}
+
 // sendGroup is §12.2: sender key to qualifying members, fan-out to the
 // rest (not for stories), transcripts.
 func (m *Groups) sendGroup(ctx context.Context, rec *store.GroupRecord, recipients []string, content []byte, dm *signalpb.AppDataMessage, ts uint64, o groupSendOpts) []SendResult {
@@ -85,7 +97,14 @@ func (m *Groups) sendGroup(ctx context.Context, rec *store.GroupRecord, recipien
 		}
 	}
 	if len(targets) < 2 {
+		why := "no usable group send endorsements"
+		if haveEnds {
+			why = fmt.Sprintf("only %d member(s) qualify for sender key", len(targets))
+		}
 		targets = nil
+		if len(rest) > 0 {
+			o.logFallback(s, len(rest), len(rest), why)
+		}
 	}
 	tokens := map[string][]byte{}
 	for _, r := range rest {
@@ -131,14 +150,22 @@ func (m *Groups) sendGroup(ctx context.Context, rec *store.GroupRecord, recipien
 			if !o.story {
 				fanout = append(fanout, targets...)
 			}
+			o.logFallback(s, len(targets), len(rest), "sender-key send failed: "+err.Error())
 		} else {
+			failed := 0
 			for _, r := range res {
 				switch {
 				case r.Err == nil:
 					ok = append(ok, r)
 				case !o.story:
 					fanout = append(fanout, r.Dest)
+					failed++
+				default:
+					failed++
 				}
+			}
+			if failed > 0 {
+				o.logFallback(s, failed, len(rest), "sender-key send failed for them")
 			}
 		}
 		results = append(results, ok...)

@@ -59,6 +59,9 @@ type Decryptor struct {
 	Retrying bool
 	// TrustNew is --trust-new-identities (on-first-use, always, never).
 	TrustNew string
+	// Debug receives one "Envelope path:" line per decrypted envelope,
+	// naming how it was sent (spec/testing/groups-interop.md §3).
+	Debug func(format string, args ...any)
 }
 
 func (d *Decryptor) rand() io.Reader {
@@ -155,6 +158,10 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 		if roots == nil {
 			roots = protocol.TrustRoots(protocol.Staging)
 		}
+		sealedVersion := 0
+		if len(wire) > 0 {
+			sealedVersion = int(wire[0] >> 4)
+		}
 		sc, err := protocol.Unseal(identity, roots, env.GetServerTimestamp(), wire)
 		if err != nil {
 			return nil, err
@@ -177,6 +184,9 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 		default:
 			return nil, fmt.Errorf("%w: sealed content kind %d", ErrUnsupportedEnvelope, sc.Kind)
 		}
+		d.logPath(sealedVersion, kind, m.Sender, len(sc.GroupID) > 0, m.ClientTimestamp)
+	} else if kind == envCiphertext || kind == envPreKeyBundle || kind == envPlaintext {
+		d.logPath(-1, kind, m.Sender, false, m.ClientTimestamp)
 	}
 
 	m.InnerType = kind
@@ -401,4 +411,25 @@ func ProcessSenderKeyDistribution(a *store.Account, sender protocol.Address, skd
 	}
 	a.SenderKeys.Records[name] = b
 	return a.SaveSenderKeys()
+}
+
+// logPath is the receive half of the send-path assertion
+// (spec/testing/groups-interop.md §3): sealed sender v2 carrying a
+// sender-key message can only come from the multi-recipient endpoint;
+// anything else was a 1:1 delivery. sealed is the sealed-sender version
+// (1 or 2), or -1 for an unsealed envelope.
+func (d *Decryptor) logPath(sealed, kind int, from protocol.Address, group bool, ts uint64) {
+	if d.Debug == nil {
+		return
+	}
+	how := "unsealed"
+	if sealed >= 0 {
+		how = fmt.Sprintf("sealed sender v%d", max(sealed, 1))
+	}
+	inner := map[int]string{envCiphertext: "whisper", envPreKeyBundle: "prekey", envPlaintext: "plaintext", envSenderKey: "sender key"}[kind]
+	path := "1:1"
+	if sealed == 2 && kind == envSenderKey {
+		path = "multi-recipient"
+	}
+	d.Debug("Envelope path: %s (%s, %s message, group id %t) from %s.%d, timestamp %d", path, how, inner, group, from.ServiceID, from.DeviceID, ts)
 }

@@ -6,6 +6,8 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/protocol"
 	"slices"
 	"strings"
 	"testing"
@@ -203,5 +205,72 @@ func TestGroupSendUntrusted(t *testing.T) {
 	w.m.SendData(context.Background(), w.rec.GroupID, DataSend{Message: &signalpb.AppDataMessage{Body: proto.String("x")}})
 	if len(w.fc.mrPaths) != 0 {
 		t.Errorf("sender-key send with an untrusted member: %v", w.fc.mrPaths)
+	}
+}
+
+// TestGroupSendPathLog: every group send names its path in a debug line,
+// which the live interop runs assert (spec/testing/groups-interop.md §3).
+func TestGroupSendPathLog(t *testing.T) {
+	capture := func(w *groupWorld) *[]string {
+		var lines []string
+		w.m.Sender.Debug = func(f string, args ...any) { lines = append(lines, fmt.Sprintf(f, args...)) }
+		return &lines
+	}
+	has := func(lines []string, s string) bool {
+		return slices.ContainsFunc(lines, func(l string) bool { return strings.Contains(l, s) })
+	}
+	msg := DataSend{Message: &signalpb.AppDataMessage{Body: proto.String("x")}}
+	src := attachment.Source{Data: []byte("img"), ContentType: "image/png"}
+
+	w := newGroupWorld(t)
+	lines := capture(w)
+	w.m.SendData(context.Background(), w.rec.GroupID, msg)
+	if !has(*lines, "multi-recipient endpoint with group-send token, sender key, sealed sender v2, 2 recipient(s), 2 device(s)") ||
+		!has(*lines, "multi-recipient endpoint accepted") || !has(*lines, "sender key distribution to 2 recipient(s)") || has(*lines, "fallback") {
+		t.Errorf("sender-key send logged %q", *lines)
+	}
+
+	w = newGroupWorld(t)
+	delete(w.accSelf.Group(w.rec.GroupID).Endorsements, w.c)
+	lines = capture(w)
+	w.m.SendData(context.Background(), w.rec.GroupID, msg)
+	if !has(*lines, "Group send path: 1:1 fallback for 2 of 2 recipient(s): only 1 member(s) qualify for sender key") || has(*lines, "multi-recipient") {
+		t.Errorf("fan-out logged %q", *lines)
+	}
+
+	w = newGroupWorld(t)
+	lines = capture(w)
+	w.m.SendStory(context.Background(), w.rec.GroupID, src, true)
+	if !has(*lines, "multi-recipient endpoint with story, sender key") || has(*lines, "not sent") {
+		t.Errorf("story logged %q", *lines)
+	}
+
+	w = newGroupWorld(t)
+	delete(w.accSelf.Group(w.rec.GroupID).Endorsements, w.c)
+	lines = capture(w)
+	w.m.SendStory(context.Background(), w.rec.GroupID, src, true)
+	if !has(*lines, "Group send path: story not sent to 2 of 2 recipient(s)") {
+		t.Errorf("story without targets logged %q", *lines)
+	}
+}
+
+// TestEnvelopePathLog: the receive side classifies envelopes by
+// sealed-sender version and inner message type.
+func TestEnvelopePathLog(t *testing.T) {
+	var got []string
+	d := &Decryptor{Debug: func(f string, args ...any) { got = append(got, fmt.Sprintf(f, args...)) }}
+	from := protocol.Address{ServiceID: "s", DeviceID: 2}
+	d.logPath(2, envSenderKey, from, true, 7)
+	d.logPath(1, envCiphertext, from, true, 7)
+	d.logPath(2, envPreKeyBundle, from, false, 7)
+	d.logPath(-1, envPreKeyBundle, from, false, 7)
+	want := []string{
+		"Envelope path: multi-recipient (sealed sender v2, sender key message, group id true) from s.2, timestamp 7",
+		"Envelope path: 1:1 (sealed sender v1, whisper message, group id true) from s.2, timestamp 7",
+		"Envelope path: 1:1 (sealed sender v2, prekey message, group id false) from s.2, timestamp 7",
+		"Envelope path: 1:1 (unsealed, prekey message, group id false) from s.2, timestamp 7",
+	}
+	if !slices.Equal(got, want) {
+		t.Errorf("got %q", got)
 	}
 }

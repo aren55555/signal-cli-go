@@ -72,6 +72,9 @@ type Sender struct {
 	// send log (send-log.md §2.4).
 	DisableSendLog bool
 	Log            func(format string, args ...any)
+	// Debug receives the "Group send path:" lines naming which path a
+	// group send took (spec/testing/groups-interop.md §3).
+	Debug func(format string, args ...any)
 	// DialCDSI opens CDSI channels; nil disables number lookups.
 	DialCDSI CDSIDialer
 	// DialSVR2 opens SVR2 channels; nil disables PIN operations.
@@ -569,4 +572,10 @@ func (s *Sender) archive(dest string, devices []uint32) error {
 		}
 	}
 	return s.Acct.SaveSessions()
+}
+
+func (s *Sender) debugf(format string, args ...any) {
+	if s.Debug != nil {
+		s.Debug(format, args...)
+	}
 }

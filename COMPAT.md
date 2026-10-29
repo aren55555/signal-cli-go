@@ -125,7 +125,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | Parse errors (usage + `signal-cli: error:`, `Did you mean:`, prefix abbreviation, exit 1) | ✅ [`argparse.md`](spec/surface/cli/argparse.md) | ✅ | ✅ 169 synthetic parser cases, real-parser cases at 4 widths | ✅ every parse-error golden replays | n/a | |
 | Exit codes 0–6 | ✅ | ✅ `internal/errcode` | ✅ | ✅ | ✅ | 6 (captcha rejected) is unreachable against a real server in 0.14.7 (rate-limit-challenge.md §2.4) |
 | Config file (`SIGNAL_CLI_CONFIG`, per-user file, unknown keys rejected) | ✅ | ✅ | n/a | ✅ all cfgfile goldens replay | n/a | binary differs from man page; binary is authoritative |
-| Logging to stderr (`-v` levels, `--log-file`, `--scrub-log`) | ✅ [`logging.md`](spec/surface/cli/logging.md) | ✅ | ✅ | ✅ | ✅ | the verbose levels show only the log lines signal-cli-go emits; JVM/libsignal-internal lines (e.g. `-vvv` JDK traces) are not reproduced |
+| Logging to stderr (`-v` levels, `--log-file`, `--scrub-log`) | ✅ [`logging.md`](spec/surface/cli/logging.md) | ✅ | ✅ | ✅ | ✅ | the verbose levels show only the log lines signal-cli-go emits; JVM/libsignal-internal lines (e.g. `-vvv` JDK traces) are not reproduced. signal-cli-go adds two DEBUG diagnostics of its own for the interop tests (`Group send path:` under SendHelper, `Envelope path:` under ReceiveHelper; spec/testing/groups-interop.md §3), shown only with `-v` |
 
 ### Subcommands
 

@@ -238,6 +238,8 @@ func (s *Sender) sendSenderKey(ctx context.Context, recipients []string, plainte
 			if err != nil {
 				return nil, err
 			}
+			_, existed := s.Acct.SenderKeys.Records[name]
+			s.debugf("Group send path: sender key distribution to %d recipient(s), distribution %s, new key %t", len(needs), dist, !existed)
 			rec, skdm, err := rec.NewDistribution(s.rand(), dist)
 			if err != nil {
 				return nil, err
@@ -285,16 +287,34 @@ func (s *Sender) sendSenderKey(ctx context.Context, recipients []string, plainte
 			return nil, err
 		}
 		headers := []chat.Header{{Name: "content-type", Value: mrmContentType}}
-		if o.combinedToken != nil && !story {
+		auth := "no authorization"
+		switch {
+		case story:
+			auth = "story"
+		case o.combinedToken != nil:
 			headers = append(headers, chat.Header{Name: "group-send-token", Value: base64.StdEncoding.EncodeToString(o.combinedToken(recipients))})
+			auth = "group-send token"
 		}
+		devices := 0
+		for _, d := range all {
+			if slices.Contains(recipients, d.id) {
+				devices++
+			}
+		}
+		s.debugf("Group send path: multi-recipient endpoint with %s, sender key, sealed sender v2, %d recipient(s), %d device(s), attempt %d", auth, len(recipients), devices, attempt+1)
 		r, err := s.Unauth.Request(ctx, "PUT", multiRecipientPath(ts, o.online, o.urgent, story), headers, body)
 		if err != nil {
 			return nil, err
 		}
 		res, err := parseMultiRecipientResponse(r.Status, r.Body)
 		if err != nil {
+			s.debugf("Group send path: multi-recipient endpoint answered %d", r.Status)
 			return nil, err
+		}
+		if res.Mismatches == nil {
+			s.debugf("Group send path: multi-recipient endpoint accepted (%d unregistered)", len(res.Unregistered))
+		} else {
+			s.debugf("Group send path: multi-recipient endpoint answered %d (device mismatch), retrying", r.Status)
 		}
 		if res.Mismatches == nil {
 			var results []SendResult

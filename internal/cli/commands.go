@@ -579,10 +579,11 @@ func newReceiver(e *env, g *globals, n *network, a *store.Account, c *chat.Conn,
 	gm.IgnoreAvatars = o.ignoreAvatars
 	gm.Log = func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  GroupHelper - "+f+"\n", args...) }
 	r := &manager.Receiver{
-		Acct:      a,
-		Decryptor: &manager.Decryptor{Acct: a, TrustNew: g.trustNew},
-		Sender:    sender,
-		Groups:    gm,
+		Acct: a,
+		Decryptor: &manager.Decryptor{Acct: a, TrustNew: g.trustNew,
+			Debug: func(f string, args ...any) { fmt.Fprintf(e.stderr, "DEBUG ReceiveHelper - "+f+"\n", args...) }},
+		Sender: sender,
+		Groups: gm,
 		Storage: &manager.Storage{Sender: sender, Groups: gm, REST: gm.Svc.REST,
 			Log: func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  StorageHelper - "+f+"\n", args...) }},
 		Stickers: &manager.StickerStore{Dir: filepath.Join(g.dataDir, "stickers"), CDN: cd, Ignore: o.ignoreStickers,
@@ -673,6 +674,7 @@ func (g *globals) withProfiles(e *env, s *manager.Sender) *manager.Sender {
 	s.TrustNew = g.trustNew
 	s.DisableSendLog = g.disableSendLog
 	s.Log = func(f string, args ...any) { fmt.Fprintf(e.stderr, "WARN  ProfileHelper - "+f+"\n", args...) }
+	s.Debug = func(f string, args ...any) { fmt.Fprintf(e.stderr, "DEBUG SendHelper - "+f+"\n", args...) }
 	return s
 }
 
