@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	_ "time/tzdata" // log timestamps use the local zone (logging.md §2.2)
 
 	"github.com/aren55555/signal-cli-go/internal/cli"
 )

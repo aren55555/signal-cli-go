@@ -343,6 +343,9 @@ Source: ConfigLoader/GlobalConfig + man page "Configuration file"; verified by b
 
 ## 8. Logging (stderr)
 
+Byte-exact details (line formats, name abbreviation, logger names, `--scrub-log` rules)
+are in [logging.md](logging.md); it takes precedence over this summary.
+
 - Quirk: logging options are read by an early pass over the **entire** argument list
   that ignores unknown arguments. Consequently a subcommand's own `-v` (e.g.
   `register -v` meaning `--voice`, `trust -v SAFETY_NUMBER`, `finishChangeNumber -v CODE`,

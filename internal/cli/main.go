@@ -52,9 +52,15 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 	p := newParser(d)
 	p.Width = width
 	showLoggingHelp := loggingPreparse(args)
-	verbose := earlyVerbosity(args)
+	ls := earlyLogging(args, d)
+	verbose := ls.verbose
+	log := newLogger(ls, stderr)
+	lw := &logWriter{l: log, out: stderr}
+	defer lw.flush()
+	stderr = lw
+	e.stderr = lw
 	if getenv("XDG_RUNTIME_DIR") == "" {
-		debugf(stderr, verbose, "org.asamk.signal.util.IOUtils", "XDG_RUNTIME_DIR not set, falling back to temp dir")
+		log.log("DEBUG", "org.asamk.signal.util.IOUtils", "XDG_RUNTIME_DIR not set, falling back to temp dir")
 	}
 	r, err := p.Parse(args)
 	if err != nil {
@@ -80,7 +86,8 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 		fmt.Fprintf(stdout, "signal-cli %s\n", Version)
 		return 0
 	}
-	debugf(stderr, verbose, "org.asamk.signal.App", "Starting signal-cli %s", Version)
+	log.log("DEBUG", "org.asamk.signal.App", "Starting signal-cli "+Version)
+	log.log("TRACE", "org.asamk.signal.manager.Manager", "Expected exception when checking libsignal-client: Failed to deserialize zkgroup::api::groups::uuid_ciphertext::UuidCiphertext")
 	g := &globals{
 		verbose:        max(verbose, r.Int("verbose")),
 		dataDir:        r.String("data-dir"),
@@ -499,50 +506,4 @@ func negativeInteger(s string) bool {
 		}
 	}
 	return true
-}
-
-// earlyVerbosity is the verbosity the early logging pass sets
-// (index.md §8): every -v/--verbose on the whole line counts, including
-// a subcommand's own -v. A pass that fails (a --log-file without a
-// value) leaves logging at its default.
-func earlyVerbosity(args []string) int {
-	n := 0
-	for i := 0; i < len(args); i++ {
-		tok := args[i]
-		if tok == "--" {
-			break
-		}
-		if !strings.HasPrefix(tok, "-") || strings.Trim(tok, "-") == "" || negativeInteger(tok) {
-			continue
-		}
-		part, _, attached := strings.Cut(tok, "=")
-		switch {
-		case part == "-v" || (strings.HasPrefix(part, "--v") && strings.HasPrefix("--verbose", part)):
-			n++
-		case part == "--log-file" || (strings.HasPrefix(part, "--l") && strings.HasPrefix("--log-file", part)):
-			if !attached {
-				if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") {
-					return 0
-				}
-				i++
-			}
-		case !strings.HasPrefix(tok, "--"):
-			for _, c := range tok[1:] {
-				if c != 'v' {
-					break
-				}
-				n++
-			}
-		}
-	}
-	return n
-}
-
-// debugf writes one of signal-cli's own DEBUG log lines, shown from
-// verbosity 1 on, in the verbose console format (index.md §8).
-func debugf(w io.Writer, verbose int, logger, format string, args ...any) {
-	if verbose < 1 {
-		return
-	}
-	fmt.Fprintf(w, "%s [main] DEBUG %s - %s\n", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"), logger, fmt.Sprintf(format, args...))
 }
