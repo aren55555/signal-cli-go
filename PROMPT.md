@@ -119,6 +119,21 @@ black-box observation, and both roles may do it.
 
 - **Go standard library only**: no third-party modules, no cgo, no assembly
   beyond what the standard library ships. `go.mod` has no `require` lines.
+  *Amended twice by the operator; the amendments below take precedence.*
+- **Amendment 1 (2026-10-23): protobuf.** `google.golang.org/protobuf`
+  v1.36.12 is permitted, vendored and pinned. Details: PLAN.md, Decisions.
+- **Amendment 2 (2026-10-29): SQLite for the importer only.**
+  `modernc.org/sqlite` (pure Go, no cgo) is permitted, vendored and
+  pinned, together with its transitive modules, and only in the separate
+  importer command `cmd/signal-cli-go-import`. The main `signal-cli-go`
+  binary keeps protobuf as its only dependency, and a repo test fails if
+  its dependency list ever includes modernc.org/sqlite or its modules. The
+  dependency rule test allows exactly the listed modules at their pinned
+  versions across `go.mod`, `go.sum` and `vendor/modules.txt`. No
+  shipped binary may contain C: every build uses `CGO_ENABLED=0`, and a
+  repo test checks the built binaries (only the race-detector test run
+  may enable cgo, for the race runtime). Module list and licenses:
+  PLAN.md, Decisions.
 - Anything the standard library doesn't provide, you implement in-repo under
   `internal/`, each piece with its own test vectors. Expect to write:
   - edwards25519 field and group arithmetic, plus Ristretto255 (the

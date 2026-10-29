@@ -27,6 +27,10 @@ raw.githubusercontent.com
 # module, fetched once for `go mod vendor` and verified against sum.golang.org.
 proxy.golang.org
 sum.golang.org
+# Operator-approved 2026-10-29 (milestone 10, second amendment): proxy.golang.org
+# redirects large module zips (modernc.org/sqlite, modernc.org/libc) to signed
+# Google Cloud Storage URLs. Contents are still verified against sum.golang.org.
+storage.googleapis.com
 
 # --- Signal staging environment (Layer C interop tests; never production) ---
 chat.staging.signal.org

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // Package repocheck holds tests that enforce repository-wide rules from
-// PROMPT.md as amended (PLAN.md, Decisions): no third-party module except
-// the vendored google.golang.org/protobuf, no secrets in testdata/, and
-// the GPLv3 license header on every Go file we wrote.
+// PROMPT.md as amended (PLAN.md, Decisions): only the pinned, vendored
+// modules (protobuf everywhere, modernc.org/sqlite and its modules in the
+// importer only), no C in any shipped binary, no secrets in testdata/,
+// and the GPLv3 license header on every Go file we wrote.
 package repocheck
 
 import (
@@ -11,18 +12,48 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 )
 
 const repoRoot = "../.."
 
-// The one permitted third-party module (brief amendment, 2026-10-23),
+// The main binary's one permitted module (brief amendment, 2026-10-23),
 // pinned so that any upgrade is a deliberate edit here.
 const (
 	allowedModule  = "google.golang.org/protobuf"
 	allowedVersion = "v1.36.12"
 )
+
+// allowedModules is every permitted module at its pinned version:
+// protobuf, plus modernc.org/sqlite and its transitive modules for the
+// importer only (second amendment, 2026-10-29). go.mod, go.sum and
+// vendor/modules.txt must list exactly these.
+var allowedModules = map[string]string{
+	allowedModule: allowedVersion,
+
+	// Importer only (cmd/signal-cli-go-import).
+	"modernc.org/sqlite":               "v1.61.0",
+	"modernc.org/libc":                 "v1.79.0",
+	"modernc.org/mathutil":             "v1.7.1",
+	"modernc.org/memory":               "v1.12.1",
+	"golang.org/x/sys":                 "v0.49.0",
+	"github.com/dustin/go-humanize":    "v1.1.0",
+	"github.com/google/uuid":           "v1.6.0",
+	"github.com/mattn/go-isatty":       "v0.0.24",
+	"github.com/ncruces/go-strftime":   "v1.1.0",
+	"github.com/remyoudompheng/bigfft": "v0.0.0-20230129092748-24d4a6f8daec",
+}
+
+func sortedAllowed() []string {
+	var out []string
+	for m, v := range allowedModules {
+		out = append(out, m+" "+v)
+	}
+	slices.Sort(out)
+	return out
+}
 
 // requires returns the "module version" pairs of a go.mod's require
 // directives, in both the single-line and the block form.
@@ -76,19 +107,20 @@ func TestOnlyAllowedModule(t *testing.T) {
 		t.Fatal(err)
 	}
 	root := filepath.Join(repoRoot, "go.mod")
-	want := allowedModule + " " + allowedVersion
+	want := sortedAllowed()
 	for _, mod := range mods {
 		data, err := os.ReadFile(mod)
 		if err != nil {
 			t.Fatal(err)
 		}
 		reqs := requires(string(data))
+		slices.Sort(reqs)
 		if filepath.Clean(mod) == filepath.Clean(root) {
-			if len(reqs) != 1 || reqs[0] != want {
+			if !slices.Equal(reqs, want) {
 				t.Errorf("%s requires %q; exactly %q is allowed", mod, reqs, want)
 			}
 		} else if len(reqs) != 0 {
-			t.Errorf("%s requires %q; only the root module may require %s", mod, reqs, allowedModule)
+			t.Errorf("%s requires %q; only the root module may require modules", mod, reqs)
 		}
 	}
 
@@ -96,10 +128,18 @@ func TestOnlyAllowedModule(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	summed := map[string]bool{}
 	for _, line := range strings.Split(strings.TrimSpace(string(sum)), "\n") {
 		f := strings.Fields(line)
-		if len(f) != 3 || f[0] != allowedModule || !strings.HasPrefix(f[1], allowedVersion) {
+		if len(f) != 3 || (f[1] != allowedModules[f[0]] && f[1] != allowedModules[f[0]]+"/go.mod") {
 			t.Errorf("go.sum: unexpected line %q", line)
+			continue
+		}
+		summed[f[0]+" "+f[1]] = true
+	}
+	for m, v := range allowedModules {
+		if !summed[m+" "+v] || !summed[m+" "+v+"/go.mod"] {
+			t.Errorf("go.sum lacks the hashes of %s %s", m, v)
 		}
 	}
 
@@ -113,7 +153,8 @@ func TestOnlyAllowedModule(t *testing.T) {
 			vendored = append(vendored, m)
 		}
 	}
-	if len(vendored) != 1 || vendored[0] != want {
+	slices.Sort(vendored)
+	if !slices.Equal(vendored, want) {
 		t.Errorf("vendor/modules.txt lists %q; exactly %q is allowed", vendored, want)
 	}
 }

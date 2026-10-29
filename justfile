@@ -4,8 +4,12 @@
 # /tmp is noexec in the sandbox; build test binaries in the agent volume.
 export GOTMPDIR := env("GOTMPDIR", env("HOME", "/home/agent") / ".cache/gotmp")
 
-# Build only from vendor/ (google.golang.org/protobuf, the one permitted module).
+# Build only from vendor/ (the permitted modules, see PLAN.md Decisions).
 export GOFLAGS := "-mod=vendor"
+
+# No C in any build (operator, 2026-10-29). Only test-race turns cgo on, for
+# the race runtime; TestProductionBinariesHaveNoC checks the shipped builds.
+export CGO_ENABLED := "0"
 
 oracle_dir := "third_party/signal-cli-0.14.7"
 protoc := "third_party/protoc-36.2/bin/protoc"
@@ -36,13 +40,14 @@ fmt-check:
 test: _gotmp
     go test ./...
 
-# Tests with the race detector (needs gcc in the image)
+# Tests with the race detector (the race runtime needs cgo and gcc; tests only)
 test-race: _gotmp
-    go test -race ./...
+    CGO_ENABLED=1 go test -race ./...
 
-# Fail unless google.golang.org/protobuf (pinned, vendored) is the only module dependency
+# Fail unless only the permitted modules (pinned, vendored) are dependencies,
+# the main binary contains protobuf only, and no shipped binary contains C
 check-deps: _gotmp
-    go test ./internal/repocheck -run 'TestOnlyAllowedModule|TestRequiresParser' -count=1
+    go test ./internal/repocheck -run 'TestOnlyAllowedModule|TestRequiresParser|TestProductionBinariesHaveNoC|TestNoCgoPackages' -count=1
 
 # Everything CI runs
 ci: fmt-check check-deps vet test-race proto-check
