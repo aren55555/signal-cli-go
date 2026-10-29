@@ -59,6 +59,7 @@ services:
       # unset otherwise. Secrets are never written to disk or committed.
       - SIGNAL_STAGING_NUMBER_A
       - SIGNAL_STAGING_NUMBER_B
+      - SIGNAL_STAGING_NUMBER_C
       - SIGNAL_CAPTCHA_TOKEN
       # Optional: API-key auth for Claude Code instead of OAuth login.
       - ANTHROPIC_API_KEY
