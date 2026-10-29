@@ -55,10 +55,11 @@ func (rs recipientSpec) targets(a *store.Account) ([]resolved, error) {
 		}
 		groupTargets = append(groupTargets, resolved{key: groups.FormatGroupID(id), group: id})
 	}
-	if len(rs.usernames) > 0 {
-		return nil, errcode.UsernameSendUnsupported
+	names := append([]string(nil), rs.recipients...)
+	for _, u := range rs.usernames {
+		names = append(names, "u:"+u)
 	}
-	out, err := resolveAll(a, rs.recipients)
+	out, err := resolveAll(a, names)
 	if err != nil {
 		return nil, err
 	}
@@ -111,15 +112,18 @@ func sendDataCommand(ctx context.Context, e *env, g *globals, a *store.Account, 
 			return errcode.SendIOFailed.WrapText(err)
 		}
 	}
+	var unresolved []sendResult
 	var people, groupTargets []resolved
 	for _, t := range targets {
 		if t.group != nil {
 			groupTargets = append(groupTargets, t)
+		} else if t.aci == "" {
+			unresolved = append(unresolved, unregisteredResult(t))
 		} else {
 			people = append(people, t)
 		}
 	}
-	var results []sendResult
+	results := unresolved
 	var ts uint64
 	if len(people) > 0 {
 		acis := make([]string, len(people))
@@ -132,6 +136,9 @@ func sendDataCommand(ctx context.Context, e *env, g *globals, a *store.Account, 
 			results = append(results, resultFor(people[i].key, people[i].aci, transcriptOK(r.Err)))
 		}
 		d.Timestamp = ts
+	}
+	if ts == 0 && len(unresolved) > 0 && len(groupTargets) == 0 {
+		ts = uint64(time.Now().UnixMilli()) // every recipient was unresolved
 	}
 	for _, t := range groupTargets {
 		gts, res, err := s.groups.SendData(ctx, t.group, d)
@@ -638,6 +645,9 @@ func runMessageRequestResponse(ctx context.Context, e *env, g *globals, rs recip
 		}
 		defer s.close()
 		for _, t := range targets {
+			if t.aci == "" {
+				continue
+			}
 			if err := s.sender.SendMessageRequestResponse(ctx, t.aci, kind == "accept"); err != nil {
 				return errcode.MessageRequestFailed.WrapText(err)
 			}

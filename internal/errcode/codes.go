@@ -136,8 +136,6 @@ const (
 	// Recipients and groups.
 	InvalidPhoneNumber
 	RecipientNotRegistered
-	PNIUnsupported
-	UsernameSendUnsupported
 	NoRecipients
 	NoRecipient
 	InvalidGroupID
@@ -444,18 +442,16 @@ var table = [numCodes]info{
 	AccountCheckFailed:   ioErr("AccountCheckFailed", "Error while checking account %s: %s", "the start-up account check against the server failed", Spec),
 	NotPrimaryDevice:     user("NotPrimaryDevice", "This command doesn't work on linked devices.", "the command needs the primary device", Spec),
 
-	InvalidPhoneNumber:      user("InvalidPhoneNumber", "Invalid phone number '%s': %s", "a recipient could not be parsed as a number, UUID, PNI or username", Spec),
-	RecipientNotRegistered:  user("RecipientNotRegistered", "The user %s is not registered.", "a recipient is not a Signal user", Spec),
-	PNIUnsupported:          user("PNIUnsupported", "Sending to a PNI is not supported by signal-cli-go yet", "PNI recipients are not implemented", Deviation),
-	UsernameSendUnsupported: user("UsernameSendUnsupported", "Sending to a username is not supported by signal-cli-go yet", "username recipients are not implemented for this command", Deviation),
-	NoRecipients:            user("NoRecipients", "No recipients given", "no recipient, group or note-to-self target", Spec),
-	NoRecipient:             user("NoRecipient", "No recipient given", "the command needs exactly one recipient", Spec),
-	InvalidGroupID:          user("InvalidGroupID", "Invalid group id: %s", "a group id is not base64 of 16 or 32 bytes", Spec),
-	GroupNotFound:           user("GroupNotFound", "Group not found: %s", "no local group with that id", Spec),
-	GroupNotMember:          user("GroupNotMember", "User is not a member in group: %s (%s)", "the account is not a member of the group", Spec),
-	GroupSendNotAllowed:     user("GroupSendNotAllowed", "User is not allowed to send message to group: %s (%s)", "the group only lets admins send", Spec),
-	GroupSendFailed:         user("GroupSendFailed", "Failed to send to group: %s", "sending to a group failed on a group problem", Spec),
-	GroupLastAdmin:          user("GroupLastAdmin", "You need to specify a new admin with --admin: User is last admin in group: %s (%s)", "the last admin tried to leave without naming a successor", Spec),
+	InvalidPhoneNumber:     user("InvalidPhoneNumber", "Invalid phone number '%s': %s", "a recipient could not be parsed as a number, UUID, PNI or username", Spec),
+	RecipientNotRegistered: user("RecipientNotRegistered", "The user %s is not registered.", "a recipient is not a Signal user", Spec),
+	NoRecipients:           user("NoRecipients", "No recipients given", "no recipient, group or note-to-self target", Spec),
+	NoRecipient:            user("NoRecipient", "No recipient given", "the command needs exactly one recipient", Spec),
+	InvalidGroupID:         user("InvalidGroupID", "Invalid group id: %s", "a group id is not base64 of 16 or 32 bytes", Spec),
+	GroupNotFound:          user("GroupNotFound", "Group not found: %s", "no local group with that id", Spec),
+	GroupNotMember:         user("GroupNotMember", "User is not a member in group: %s (%s)", "the account is not a member of the group", Spec),
+	GroupSendNotAllowed:    user("GroupSendNotAllowed", "User is not allowed to send message to group: %s (%s)", "the group only lets admins send", Spec),
+	GroupSendFailed:        user("GroupSendFailed", "Failed to send to group: %s", "sending to a group failed on a group problem", Spec),
+	GroupLastAdmin:         user("GroupLastAdmin", "You need to specify a new admin with --admin: User is last admin in group: %s (%s)", "the last admin tried to leave without naming a successor", Spec),
 
 	SendFailed:              user("SendFailed", "Failed to send message", "every recipient failed, for mixed reasons", Spec),
 	SendUntrusted:           info{name: "SendUntrusted", kind: KindUntrusted, exit: 4, rpc: -4, msg: "Failed to send message due to untrusted identities", cause: "every recipient failed on an untrusted identity", source: Spec},

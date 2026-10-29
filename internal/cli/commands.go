@@ -267,6 +267,10 @@ func resolveAll(a *store.Account, recipients []string) ([]resolved, error) {
 	seen := map[string]bool{}
 	for _, r := range recipients {
 		t, err := resolveRecipient(a, r)
+		var uu *unresolvedUsername
+		if errors.As(err, &uu) {
+			t, err = resolved{key: r, username: uu.name}, nil
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -324,6 +328,10 @@ func runSend(ctx context.Context, e *env, g *globals, o sendOpts) error {
 	var ts uint64
 	for _, t := range targets {
 		var err error
+		if t.aci == "" {
+			results = append(results, unregisteredResult(t))
+			continue
+		}
 		ts, err = s.sender.SendTextAt(ctx, t.aci, text, ts, !o.noUrgent)
 		results = append(results, resultFor(t.key, t.aci, err))
 	}
@@ -363,6 +371,10 @@ func runSendTyping(ctx context.Context, e *env, g *globals, recipients, groupArg
 	var ts uint64
 	for _, t := range targets {
 		var err error
+		if t.aci == "" {
+			results = append(results, unregisteredResult(t))
+			continue
+		}
 		ts, err = s.sender.SendTyping(ctx, t.aci, stop, ts)
 		results = append(results, resultFor(t.key, t.aci, err))
 	}
@@ -440,6 +452,9 @@ func resultFor(key, aci string, err error) sendResult {
 type resolved struct {
 	key, aci string
 	group    []byte // set for a group recipient
+	// username is set for a username the server does not know: the send
+	// reports it as an unregistered user (usernames.md §7.2 step 4).
+	username string
 }
 
 // resolveRecipient interprets a RECIPIENT (index.md §10). Phone numbers
@@ -453,9 +468,16 @@ func resolveRecipient(a *store.Account, s string) (resolved, error) {
 		if !uuidRe.MatchString(s[4:]) {
 			return resolved{}, errcode.InvalidPhoneNumber.New(s, "Invalid PNI")
 		}
-		return resolved{}, errcode.PNIUnsupported
+		pni := "PNI:" + strings.ToLower(s[4:])
+		return resolved{key: s, aci: pni}, nil
 	case strings.HasPrefix(s, "u:"):
-		return resolved{}, errcode.UsernameSendUnsupported
+		name := s[2:]
+		if usernameResolver != nil {
+			if aci, ok := usernameResolver(a, name); ok {
+				return resolved{key: s, aci: aci}, nil
+			}
+		}
+		return resolved{}, &unresolvedUsername{name: name}
 	case strings.Contains(s, "@"):
 		return resolved{}, errcode.InvalidPhoneNumber.New(s, "Possible attempt to use email address.")
 	}
@@ -679,4 +701,18 @@ func (s *session) syncStorage(ctx context.Context, e *env) {
 	if err := st.Sync(ctx); err != nil {
 		fmt.Fprintf(e.stderr, "WARN  SyncStorageJob - Failed to sync storage data: %v\n", err)
 	}
+}
+
+// unresolvedUsername is a u:<name> recipient the server does not know;
+// commands with one recipient report it as not registered, sends as an
+// unregistered user result.
+type unresolvedUsername struct{ name string }
+
+func (e *unresolvedUsername) Error() string { return errcode.Message(e.Unwrap()) }
+
+func (e *unresolvedUsername) Unwrap() error { return errcode.RecipientNotRegistered.New(e.name) }
+
+// unregisteredResult is the send result for an unresolved username.
+func unregisteredResult(t resolved) sendResult {
+	return sendResult{key: t.key, username: t.username, kind: resultUnregistered}
 }

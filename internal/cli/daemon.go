@@ -320,6 +320,7 @@ func runJSONRPC(ctx context.Context, e *env, g *globals, s *argparse.Result) err
 	}
 	defer d.closeAccounts()
 	numberResolver = d.resolver()
+	usernameResolver = d.usernameResolver()
 	done := make(chan error, 1)
 	go func() { done <- d.srv.ServeStream(ctx, e.stdin, e.stdout) }()
 	var err error
@@ -351,6 +352,7 @@ func runDaemon(parent context.Context, e *env, g *globals, s *argparse.Result) e
 		d.logf("INFO  DaemonCommand - Starting daemon in multi-account mode")
 	}
 	numberResolver = d.resolver()
+	usernameResolver = d.usernameResolver()
 	var closers []func()
 	defer func() {
 		for i := len(closers) - 1; i >= 0; i-- {
@@ -490,11 +492,14 @@ func javaIOMessage(err error) string {
 func (d *daemonState) resolver() func(a *store.Account, number string) (string, bool) {
 	return func(a *store.Account, number string) (string, bool) {
 		la := d.byAccount(a)
-		if la == nil || la.sess == nil {
+		if la == nil {
 			return "", false
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 		defer cancel()
+		if _, err := d.sessionLocked(ctx, la); err != nil {
+			return "", false
+		}
 		return la.sess.sender.ResolveNumber(ctx, number)
 	}
 }
@@ -520,4 +525,26 @@ func (d *daemonState) unregistered(number string) {
 	la.acct.Close()
 	la.mu.Unlock()
 	d.forget(la)
+}
+
+// usernameResolver is usernameResolver for the daemon: the lookup goes
+// over the account's shared connection (the caller holds the account).
+func (d *daemonState) usernameResolver() func(a *store.Account, name string) (string, bool) {
+	return func(a *store.Account, name string) (string, bool) {
+		la := d.byAccount(a)
+		if la == nil {
+			return "", false
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+		if _, err := d.sessionLocked(ctx, la); err != nil {
+			return "", false
+		}
+		k, ok, err := la.sess.sender.ResolveUsername(ctx, name, false)
+		if err != nil || !ok {
+			return "", false
+		}
+		aci := a.AddressOf(k).ACI
+		return aci, aci != ""
+	}
 }

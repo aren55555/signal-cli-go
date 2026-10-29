@@ -63,3 +63,36 @@ func (n *network) svr2Dialer() manager.SVR2Dialer {
 		return c, c.Claims, func() { c.Close() }, nil
 	}
 }
+
+// usernameResolver resolves a username or username link to an ACI
+// (usernames.md §7.2); set per run like numberResolver.
+var usernameResolver func(a *store.Account, name string) (string, bool)
+
+// cliUsernameResolver opens its own authenticated connection for one
+// lookup.
+func cliUsernameResolver(e *env, g *globals) func(a *store.Account, name string) (string, bool) {
+	return func(a *store.Account, name string) (string, bool) {
+		n, err := e.network(g)
+		if err != nil {
+			return "", false
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+		c, err := n.dialChat(ctx, a, false)
+		if err != nil {
+			return "", false
+		}
+		defer c.Close()
+		s := &manager.Sender{Acct: a, Chat: c}
+		if u, err := n.dialChat(ctx, nil, false); err == nil {
+			defer u.Close()
+			s.Unauth = u
+		}
+		k, ok, err := s.ResolveUsername(ctx, name, false)
+		if err != nil || !ok {
+			return "", false
+		}
+		aci := a.AddressOf(k).ACI
+		return aci, aci != ""
+	}
+}

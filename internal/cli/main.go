@@ -126,6 +126,8 @@ func Main(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io
 	}
 	numberResolver = cdsiResolver(e, g)
 	defer func() { numberResolver = nil }()
+	usernameResolver = cliUsernameResolver(e, g)
+	defer func() { usernameResolver = nil }()
 	if err := runCommand(ctx, e, g, cmd, r.Sub); err != nil {
 		return fail(stderr, err)
 	}

@@ -112,8 +112,6 @@ Every error the CLI or the JSON-RPC daemon reports is one of these codes. `exit`
 | NotPrimaryDevice | user | 1 | -1 |  | `` This command doesn't work on linked devices. `` | the command needs the primary device | spec |
 | InvalidPhoneNumber | user | 1 | -1 |  | `` Invalid phone number '%s': %s `` | a recipient could not be parsed as a number, UUID, PNI or username | spec |
 | RecipientNotRegistered | user | 1 | -1 |  | `` The user %s is not registered. `` | a recipient is not a Signal user | spec |
-| PNIUnsupported | user | 1 | -1 |  | `` Sending to a PNI is not supported by signal-cli-go yet `` | PNI recipients are not implemented | deviation |
-| UsernameSendUnsupported | user | 1 | -1 |  | `` Sending to a username is not supported by signal-cli-go yet `` | username recipients are not implemented for this command | deviation |
 | NoRecipients | user | 1 | -1 |  | `` No recipients given `` | no recipient, group or note-to-self target | spec |
 | NoRecipient | user | 1 | -1 |  | `` No recipient given `` | the command needs exactly one recipient | spec |
 | InvalidGroupID | user | 1 | -1 |  | `` Invalid group id: %s `` | a group id is not base64 of 16 or 32 bytes | spec |
