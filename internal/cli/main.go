@@ -170,7 +170,7 @@ func runCommand(ctx context.Context, e *env, g *globals, cmd string, s *argparse
 		runErr = runStartCall(g)
 	case "version":
 		if g.account != "" {
-			a, err := selectAccount(g.root(), g.account)
+			a, err := selectAccount(g, g.root(), g.account)
 			if err != nil {
 				return err
 			}

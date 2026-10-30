@@ -202,7 +202,7 @@ func (s *Sender) retrieveProfile(ctx context.Context, key string, credential boo
 	var newCred []byte
 	if rctx != nil && resp.Credential != nil {
 		if b, derr := base64.StdEncoding.DecodeString(*resp.Credential); derr == nil {
-			c, verr := rctx.Receive(ServerParams(), b, uint64(s.now().Unix()))
+			c, verr := rctx.Receive(paramsFor(s.Acct), b, uint64(s.now().Unix()))
 			if verr != nil {
 				s.profileFailed(key, verr, false)
 				return verr

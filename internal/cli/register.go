@@ -26,6 +26,7 @@ func registrationAccount(g *globals) (string, error) {
 		if err != nil {
 			return "", errcode.AccountsFileLoad.Wrap(err)
 		}
+		entries = visible(g, entries)
 		switch len(entries) {
 		case 0:
 			return "", errcode.NoLocalUsers
@@ -48,7 +49,8 @@ func atLine(prefix string, t time.Time) string {
 func (e *env) registrar(g *globals, n *network) *manager.Registrar {
 	return &manager.Registrar{
 		Root:     g.root(),
-		REST:     rest.New(rest.Config{Proxy: n.proxy, UserAgentOverride: n.userAgent}),
+		Env:      n.env,
+		REST:     n.rest(),
 		Language: "en-US",
 		Log:      func(s string) { fmt.Fprintln(e.stderr, "DEBUG RegistrationManagerImpl - "+s) },
 		PostRegister: func(ctx context.Context, a *store.Account) error {

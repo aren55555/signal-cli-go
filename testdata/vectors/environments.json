@@ -1,0 +1,159 @@
+{
+  "description": "Service values that differ between signal-cli 0.14.7's staging (STAGING) and production (LIVE) environments. Prose, encodings and citations: spec/service/environments.md. No server was contacted; values from upstream source, cross-checked against the reference jars.",
+  "encodings": {
+    "zkgroup_*": "standard base64 with padding, exactly as in signal-cli's config classes",
+    "sealed_sender_trust_roots": "standard base64 of the 33-byte public key (0x05 type byte), as configured",
+    "mrenclave, keytrans keys": "lowercase hex, as in the upstream constants",
+    "group_id": "decimal string (values exceed 2^63)",
+    "sha256_der": "lowercase hex SHA-256 of the DER certificate"
+  },
+  "staging": {
+    "account_environment": "STAGING",
+    "cli_value": "staging",
+    "libsignal_net_environment": "STAGING",
+    "chat_rest_url": "https://chat.staging.signal.org",
+    "chat_ws_host": "grpc.chat.staging.signal.org",
+    "chat_grpc_host": "grpc.chat.staging.signal.org",
+    "chat_ws_path": "/v1/websocket/",
+    "provisioning_url": "wss://chat.staging.signal.org/v1/websocket/provisioning/",
+    "storage_url": "https://storage-staging.signal.org",
+    "groups_url": "https://storage-staging.signal.org",
+    "cdn_urls": {"0": "https://cdn-staging.signal.org", "2": "https://cdn2-staging.signal.org", "3": "https://cdn3-staging.signal.org"},
+    "cdsi_host": "cdsi.staging.signal.org",
+    "cdsi_url": "wss://cdsi.staging.signal.org/v1/6d9b9649fa3a337754a98059c66d48ac77aaca5299d3b27d6ed1e646c7c81c0a/discovery",
+    "cdsi_mrenclave": "6d9b9649fa3a337754a98059c66d48ac77aaca5299d3b27d6ed1e646c7c81c0a",
+    "cdsi_advisories": ["INTEL-SA-00615", "INTEL-SA-00657"],
+    "signal_cli_cdsi_mrenclave_unused": "0f6fd79cdfdaa5b2e6337f534d3baf999318b0c462a7ac1f41297a3e4b424a57",
+    "svr2_url": "https://svr2.staging.signal.org",
+    "svr2_enclaves": [
+      {"role": "current", "mrenclave": "3c699f4975aaa3d172c0aad042f94f031b2b03e10b9c19a45116a01693d83302", "url": "https://svr2.staging.signal.org/v1/3c699f4975aaa3d172c0aad042f94f031b2b03e10b9c19a45116a01693d83302", "min_voting_replicas": 3, "max_voting_replicas": 9, "super_majority": 0, "group_id": "5138641357881452604", "db_version": 2, "attestation_timeout": 604800, "simulated": false, "advisories": ["INTEL-SA-00615", "INTEL-SA-00657"]},
+      {"role": "legacy", "mrenclave": "97f151f6ed078edbbfd72fa9cae694dcc08353f1f5e8d9ccd79a971b10ffc535", "url": "https://svr2.staging.signal.org/v1/97f151f6ed078edbbfd72fa9cae694dcc08353f1f5e8d9ccd79a971b10ffc535", "min_voting_replicas": 3, "max_voting_replicas": 9, "super_majority": 0, "group_id": "2330628069874851020", "db_version": 2, "attestation_timeout": 604800, "simulated": false, "advisories": ["INTEL-SA-00615", "INTEL-SA-00657"]}
+    ],
+    "svrb": {
+      "used_by_signal_cli": false,
+      "host": "svrb.staging.signal.org",
+      "enclaves": [
+        {"role": "current", "mrenclave": "3c699f4975aaa3d172c0aad042f94f031b2b03e10b9c19a45116a01693d83302", "min_voting_replicas": 3, "max_voting_replicas": 9, "super_majority": 0, "group_id": "11614651745041226414", "db_version": 4, "attestation_timeout": 604800, "simulated": false, "advisories": ["INTEL-SA-00615", "INTEL-SA-00657"]},
+        {"role": "current", "mrenclave": "97f151f6ed078edbbfd72fa9cae694dcc08353f1f5e8d9ccd79a971b10ffc535", "min_voting_replicas": 3, "max_voting_replicas": 9, "super_majority": 0, "group_id": "1416305463306398324", "db_version": 4, "attestation_timeout": 604800, "simulated": false, "advisories": ["INTEL-SA-00615", "INTEL-SA-00657"]}
+      ]
+    },
+    "zkgroup_server_public_params": "ABSY21VckQcbSXVNCGRYJcfWHiAMZmpTtTELcDmxgdFbtp/bWsSxZdMKzfCp8rvIs8ocCU3B37fT3r4Mi5qAemeGeR2X+/YmOGR5ofui7tD5mDQfstAI9i+4WpMtIe8KC3wU5w3Inq3uNWVmoGtpKndsNfwJrCg0Hd9zmObhypUnSkfYn2ooMOOnBpfdanRtrvetZUayDMSC5iSRcXKpdlukrpzzsCIvEwjwQlJYVPOQPj4V0F4UXXBdHSLK05uoPBCQG8G9rYIGedYsClJXnbrgGYG3eMTG5hnx4X4ntARBgELuMWWUEEfSK0mjXg+/2lPmWcTZWR9nkqgQQP0tbzuiPm74H2wMO4u1Wafe+UwyIlIT9L7KLS19Aw8r4sPrXZSSsOZ6s7M1+rTJN0bI5CKY2PX29y5Ok3jSWufIKcgKOnWoP67d5b2du2ZVJjpjfibNIHbT/cegy/sBLoFwtHogVYUewANUAXIaMPyCLRArsKhfJ5wBtTminG/PAvuBdJ70Z/bXVPf8TVsR292zQ65xwvWTejROW6AZX6aqucUjlENAErBme1YHmOSpU6tr6doJ66dPzVAWIanmO/5mgjNEDeK7DDqQdB1xd03HT2Qs2TxY3kCK8aAb/0iM0HQiXjxZ9HIgYhbtvGEnDKW5ILSUydqH/KBhW4Pb0jZWnqN/YgbWDKeJxnDbYcUob5ZY5Lt5ZCMKuaGUvCJRrCtuugSMaqjowCGRempsDdJEt+cMaalhZ6gczklJB/IbdwENW9KeVFPoFNFzhxWUIS5ML9riVYhAtE6JE5jX0xiHNVIIPthb458cfA8daR0nYfYAUKogQArm0iBezOO+mPk5vCNWI+wwkyFCqNDXz/qxl1gAntuCJtSfq9OC3NkdhQlgYQ==",
+    "zkgroup_generic_server_public_params": "AHILOIrFPXX9laLbalbA9+L1CXpSbM/bTJXZGZiuyK1JaI6dK5FHHWL6tWxmHKYAZTSYmElmJ5z2A5YcirjO/yfoemE03FItyaf8W1fE4p14hzb5qnrmfXUSiAIVrhaXVwIwSzH6RL/+EO8jFIjJ/YfExfJ8aBl48CKHgu1+A6kWynhttonvWWx6h7924mIzW0Czj2ROuh4LwQyZypex4GuOPW8sgIT21KNZaafgg+KbV7XM1x1tF3XA17B4uGUaDbDw2O+nR1+U5p6qHPzmJ7ggFjSN6Utu+35dS1sS0P9N",
+    "zkgroup_backup_server_public_params": "AHYrGb9IfugAAJiPKp+mdXUx+OL9zBolPYHYQz6GI1gWjpEu5me3zVNSvmYY4zWboZHif+HG1sDHSuvwFd0QszSwuSF4X4kRP3fJREdTZ5MCR0n55zUppTwfHRW2S4sdQ0JGz7YDQIJCufYSKh0pGNEHL6hv79Agrdnr4momr3oXdnkpVBIp3HWAQ6IbXQVSG18X36GaicI1vdT0UFmTwU2KTneluC2eyL9c5ff8PcmiS+YcLzh0OKYQXB5ZfQ06d6DiINvDQLy75zcfUOniLAj0lGJiHxGczin/RXisKSR8",
+    "sealed_sender_trust_roots": ["BbqY1DzohE4NUZoVF+L18oUPrK3kILllLEJh2UnPSsEx", "BYhU6tPjqP46KGZEzRs1OL4U39V5dlPJ/X09ha4rErkm"],
+    "tls_roots": {
+      "libsignal_net": {"hosts": ["grpc.chat.staging.signal.org", "cdsi.staging.signal.org", "svrb.staging.signal.org"], "sha256_der": ["ddb0f92bb95c8d6fd202ea6e8cc5ccd182b544f8cd696f47d580659ddc9df65a", "2642f1f90b389fed2558d7324ca26d70e750b06f87c595c5de955e2560821657"]},
+      "okhttp_whisper_store": {"hosts": ["chat.staging.signal.org", "storage-staging.signal.org", "cdn-staging.signal.org", "cdn2-staging.signal.org", "cdn3-staging.signal.org", "svr2.staging.signal.org"], "sha256_der": ["ddb0f92bb95c8d6fd202ea6e8cc5ccd182b544f8cd696f47d580659ddc9df65a", "098fd5403f63fef89fba4cb4b98135ca2e73dc42c0ed03a377e8383f2d1fe9ea"]}
+    },
+    "captcha_registration_url": "https://signalcaptchas.org/staging/registration/generate.html",
+    "captcha_challenge_url": "https://signalcaptchas.org/staging/registration/generate.html",
+    "keytrans": {
+      "used_by_signal_cli": false,
+      "signing_key": "ac0de1fd7f33552bbeb6ebc12b9d4ea10bf5f025c45073d3fb5f5648955a749e",
+      "vrf_key": "ec3a268237cf5c47115cf222405d5f90cc633ebe05caf82c0dd5acf9d341dadb",
+      "auditor_keys": ["1123b13ee32479ae6af5739e5d687b51559abf7684120511f68cde7a21a0e755", "bd1e26a0fbdbfa923486ccc9296f4227db490b4add29f5507775171ea0fb7a4e", "093ee42d95502b3e81f4e604179c82c149fffb96167642b9eb81b03d6e2dd636"]
+    },
+    "fronting": {
+      "used_by_signal_cli": false,
+      "reflector_hosts": ["reflector-staging-signal.global.ssl.fastly.net", "reflector-nrgwuv7kwq-uc.a.run.app"],
+      "path_prefixes": {"chat": "/service-staging", "cdsi": "/cdsi-staging", "svr2": "/svr2-staging", "svrb": "/svrb-staging", "tls_tunnel": "/tls-tunnel-staging"}
+    },
+    "static_ip_fallback": {
+      "grpc.chat.staging.signal.org": ["99.83.186.178", "166.117.39.117", "2600:9000:a61f:527c:a456:24e3:e151:80d", "2600:9000:a507:ab6d:8674:deea:e137:6b31"],
+      "cdsi.staging.signal.org": ["104.43.162.137", "2603:1030:7::732"],
+      "svr2.staging.signal.org": ["104.43.134.192", "20.253.229.239", "157.55.188.67", "20.127.86.118", "20.186.175.196", "2603:1030:20e:31::20e", "2603:1030:403:29::7f", "2603:1030:b:2c::26", "2603:1030:800:5::bfee:ab23", "2603:1030:a04:16::3a"]
+    }
+  },
+  "production": {
+    "account_environment": "LIVE",
+    "cli_value": "live",
+    "libsignal_net_environment": "PRODUCTION",
+    "chat_rest_url": "https://chat.signal.org",
+    "chat_ws_host": "grpc.chat.signal.org",
+    "chat_grpc_host": "grpc.chat.signal.org",
+    "chat_ws_path": "/v1/websocket/",
+    "provisioning_url": "wss://chat.signal.org/v1/websocket/provisioning/",
+    "storage_url": "https://storage.signal.org",
+    "groups_url": "https://storage.signal.org",
+    "cdn_urls": {"0": "https://cdn.signal.org", "2": "https://cdn2.signal.org", "3": "https://cdn3.signal.org"},
+    "cdsi_host": "cdsi.signal.org",
+    "cdsi_url": "wss://cdsi.signal.org/v1/15637fa1e54fe655176d3df1a9f94b87c01ed377acaa570682dc5d72c95ef07b/discovery",
+    "cdsi_mrenclave": "15637fa1e54fe655176d3df1a9f94b87c01ed377acaa570682dc5d72c95ef07b",
+    "cdsi_advisories": ["INTEL-SA-00615", "INTEL-SA-00657"],
+    "signal_cli_cdsi_mrenclave_unused": "0f6fd79cdfdaa5b2e6337f534d3baf999318b0c462a7ac1f41297a3e4b424a57",
+    "svr2_url": "https://svr2.signal.org",
+    "svr2_enclaves": [
+      {"role": "current", "mrenclave": "ced8217b26228e4b210c985786999d095c4958a94faf37b14acaf25c4cbb02a4", "url": "https://svr2.signal.org/v1/ced8217b26228e4b210c985786999d095c4958a94faf37b14acaf25c4cbb02a4", "min_voting_replicas": 4, "max_voting_replicas": 13, "super_majority": 2, "group_id": "11311619198250676136", "db_version": 2, "attestation_timeout": 604800, "simulated": false, "advisories": ["INTEL-SA-00615", "INTEL-SA-00657"]},
+      {"role": "legacy", "mrenclave": "1240acbd4aa26974184844c8a46b1022d3957ac8a76c1fd8f5b1a15141ee0708", "url": "https://svr2.signal.org/v1/1240acbd4aa26974184844c8a46b1022d3957ac8a76c1fd8f5b1a15141ee0708", "min_voting_replicas": 4, "max_voting_replicas": 13, "super_majority": 2, "group_id": "2076725645304009823", "db_version": 2, "attestation_timeout": 604800, "simulated": false, "advisories": ["INTEL-SA-00615", "INTEL-SA-00657"]}
+    ],
+    "svrb": {
+      "used_by_signal_cli": false,
+      "host": "svrb.signal.org",
+      "enclaves": [
+        {"role": "current", "mrenclave": "2048e20fcd07d0992c4907e8e04c5a85f1f993d195004c7342675343ca2e524b", "min_voting_replicas": 4, "max_voting_replicas": 13, "super_majority": 2, "group_id": "15457520608692442134", "db_version": 4, "attestation_timeout": 604800, "simulated": false, "advisories": ["INTEL-SA-00615", "INTEL-SA-00657"]},
+        {"role": "current", "mrenclave": "bee62050df1072e3d9fdf7660bfaf4e4b71f5622db9de8b30fc5f4b9852d8359", "min_voting_replicas": 4, "max_voting_replicas": 13, "super_majority": 2, "group_id": "16652830871035963553", "db_version": 4, "attestation_timeout": 604800, "simulated": false, "advisories": ["INTEL-SA-00615", "INTEL-SA-00657"]}
+      ]
+    },
+    "zkgroup_server_public_params": "AMhf5ywVwITZMsff/eCyudZx9JDmkkkbV6PInzG4p8x3VqVJSFiMvnvlEKWuRob/1eaIetR31IYeAbm0NdOuHH8Qi+Rexi1wLlpzIo1gstHWBfZzy1+qHRV5A4TqPp15YzBPm0WSggW6PbSn+F4lf57VCnHF7p8SvzAA2ZZJPYJURt8X7bbg+H3i+PEjH9DXItNEqs2sNcug37xZQDLm7X36nOoGPs54XsEGzPdEV+itQNGUFEjY6X9Uv+Acuks7NpyGvCoKxGwgKgE5XyJ+nNKlyHHOLb6N1NuHyBrZrgtY/JYJHRooo5CEqYKBqdFnmbTVGEkCvJKxLnjwKWf+fEPoWeQFj5ObDjcKMZf2Jm2Ae69x+ikU5gBXsRmoF94GXTLfN0/vLt98KDPnxwAQL9j5V1jGOY8jQl6MLxEs56cwXN0dqCnImzVH3TZT1cJ8SW1BRX6qIVxEzjsSGx3yxF3suAilPMqGRp4ffyopjMD1JXiKR2RwLKzizUe5e8XyGOy9fplzhw3jVzTRyUZTRSZKkMLWcQ/gv0E4aONNqs4P+NameAZYOD12qRkxosQQP5uux6B2nRyZ7sAV54DgFyLiRcq1FvwKw2EPQdk4HDoePrO/RNUbyNddnM/mMgj4FW65xCoT1LmjrIjsv/Ggdlx46ueczhMgtBunx1/w8k8V+l8LVZ8gAT6wkU5J+DPQalQguMg12Jzug3q4TbdHiGCmD9EunCwOmsLuLJkz6EcSYXtrlDEnAM+hicw7iergYLLlMXpfTdGxJCWJmP4zqUFeTTmsmhsjGBt7NiEB/9pFFEB3pSbf4iiUukw63Eo8Aqnf4iwob6X1QviCWuc8t0LUlT9vALgh/f2DPVOOmR0RW6bgRvc7DSF20V/omg+YBw==",
+    "zkgroup_generic_server_public_params": "AByD873dTilmOSG0TjKrvpeaKEsUmIO8Vx9BeMmftwUs9v7ikPwM8P3OHyT0+X3EUMZrSe9VUp26Wai51Q9I8mdk0hX/yo7CeFGJyzoOqn8e/i4Ygbn5HoAyXJx5eXfIbqpc0bIxzju4H/HOQeOpt6h742qii5u/cbwOhFZCsMIbElZTaeU+BWMBQiZHIGHT5IE0qCordQKZ5iPZom0HeFa8Yq0ShuEyAl0WINBiY6xE3H/9WnvzXBbMuuk//eRxXgzO8ieCeK8FwQNxbfXqZm6Ro1cMhCOF3u7xoX83QhpN",
+    "zkgroup_backup_server_public_params": "AJwNSU55fsFCbgaxGRD11wO1juAs8Yr5GF8FPlGzzvdJJIKH5/4CC7ZJSOe3yL2vturVaRU2Cx0n751Vt8wkj1bozK3CBV1UokxV09GWf+hdVImLGjXGYLLhnI1J2TWEe7iWHyb553EEnRb5oxr9n3lUbNAJuRmFM7hrr0Al0F0wrDD4S8lo2mGaXe0MJCOM166F8oYRQqpFeEHfiLnxA1O8ZLh7vMdv4g9jI5phpRBTsJ5IjiJrWeP0zdIGHEssUeprDZ9OUJ14m0v61eYJMKsf59Bn+mAT2a7YfB+Don9O",
+    "sealed_sender_trust_roots": ["BXu6QIKVz5MA8gstzfOgRQGqyLqOwNKHL6INkv3IHWMF", "BUkY0I+9+oPgDCn4+Ac6Iu813yvqkDr/ga8DzLxFxuk6"],
+    "tls_roots": {
+      "libsignal_net": {"hosts": ["grpc.chat.signal.org", "cdsi.signal.org", "svrb.signal.org"], "sha256_der": ["ddb0f92bb95c8d6fd202ea6e8cc5ccd182b544f8cd696f47d580659ddc9df65a", "2642f1f90b389fed2558d7324ca26d70e750b06f87c595c5de955e2560821657"]},
+      "okhttp_whisper_store": {"hosts": ["chat.signal.org", "storage.signal.org", "cdn.signal.org", "cdn2.signal.org", "cdn3.signal.org", "svr2.signal.org"], "sha256_der": ["ddb0f92bb95c8d6fd202ea6e8cc5ccd182b544f8cd696f47d580659ddc9df65a", "098fd5403f63fef89fba4cb4b98135ca2e73dc42c0ed03a377e8383f2d1fe9ea"]}
+    },
+    "captcha_registration_url": "https://signalcaptchas.org/registration/generate.html",
+    "captcha_challenge_url": "https://signalcaptchas.org/challenge/generate.html",
+    "keytrans": {
+      "used_by_signal_cli": false,
+      "signing_key": "a3973067984382cfa89ec26d7cc176680aefe92b3d2eba85159dad0b8354b622",
+      "vrf_key": "3849cf116c7bc9aef5f13f0c61a7c246e5bade4eb7e1c7b0efcacdd8c1e6a6ff",
+      "auditor_keys": ["2d973608e909a09e12cbdbd21ad58775fd72fe1034a5a079f26541d5764ce17f", "2f217a86cd2dbc95d46a84420942a95877b3723f634bc64bb9e406796df746ef", "7fe5d91de235188486d8fb836a6da37e625e2b10eb6d144185b9364cc83cbbb6"]
+    },
+    "fronting": {
+      "used_by_signal_cli": false,
+      "reflector_hosts": ["reflector-signal.global.ssl.fastly.net", "reflector-nrgwuv7kwq-uc.a.run.app"],
+      "path_prefixes": {"chat": "/service", "cdsi": "/cdsi", "svr2": "/svr2", "svrb": "/svrb", "tls_tunnel": "/tls-tunnel"}
+    },
+    "static_ip_fallback": {
+      "grpc.chat.signal.org": ["76.223.66.180", "15.197.251.99", "2600:9000:a507:ab6d:575d:9d9f:64af:7a5a", "2600:9000:a61f:527c:8e4a:4b48:bbfd:c9bb"],
+      "cdsi.signal.org": ["40.122.45.194", "2603:1030:7::1"],
+      "svr2.signal.org": ["20.236.21.158", "20.104.52.125", "20.9.45.98", "20.66.40.69", "20.119.62.85", "20.65.43.198", "13.84.216.212", "2603:1030:20e:33::6", "2603:1030:408:3::1d", "2603:1030:b:2a::12", "2603:1030:803:4::65", "2a01:111:f100:3000::a83e:1208", "2603:1030:c04:1e::31c", "2603:1030:f00::17"]
+    }
+  },
+  "citations": {
+    "E1": "https://github.com/AsamK/signal-cli @ v0.14.7 (b01b6b370dc063599a1a2b9fde0f5ff4e2d78fe8)",
+    "E2": "https://github.com/Turasa/libsignal-service-java @ v2.15.3_unofficial_151 (66956cb4a0394d50cee3590209baf58312084a44)",
+    "E3": "https://github.com/signalapp/libsignal @ v0.99.1 (97801d22dcf9f5bf714f7b8fa3212cdc973ae1c8)",
+    "E4": "reference distribution /work/third_party/signal-cli-0.14.7/lib/",
+    "account_environment": "E1 lib/.../storage/accounts/AccountsStore.java lines 281-286; lib/.../storage/SignalAccount.java lines 505, 588-592, 1003",
+    "cli_value": "E1 src/main/java/org/asamk/signal/ServiceEnvironmentCli.java lines 11-34; App.java lines 100-103, 249-252",
+    "libsignal_net_environment": "E1 lib/.../config/{StagingConfig,LiveConfig}.java line 57; E3 java/client/src/main/java/org/signal/libsignal/net/Network.java lines 24-26",
+    "chat_rest_url": "E1 lib/.../config/{StagingConfig,LiveConfig}.java line 36 (used line 62); E4 javap",
+    "chat_ws_host": "E3 rust/net/src/env.rs lines 52 (prod), 77 (staging); Env PROD/STAGING lines 865-866, 829-830; E4 libsignal_jni_amd64.so strings",
+    "chat_grpc_host": "same value as chat_ws_host; see chat_ws_host",
+    "chat_ws_path": "E3 rust/net/src/env.rs line 906",
+    "provisioning_url": "E2 lib/libsignal-service/.../api/provisioning/ProvisioningSocket.kt lines 114, 132-135, applied to chat_rest_url",
+    "storage_url": "E1 lib/.../config/{StagingConfig,LiveConfig}.java line 40 (used line 69); E4 javap",
+    "groups_url": "E2 lib/libsignal-service/.../internal/push/PushServiceSocket.java lines 172-178, 225, 1349-1358, 1838-1839 (groups use the storage URL)",
+    "cdn_urls": "E1 lib/.../config/{StagingConfig,LiveConfig}.java lines 37-39, map at lines 63-68; E4 javap",
+    "cdsi_host": "E3 rust/net/src/env.rs lines 93 (prod), 111 (staging); E2 api/cds/CdsiV2Service.java line 47 (lookup via libsignal Network)",
+    "cdsi_url": "path form spec/service/cdsi.md section 2 with cdsi_host and cdsi_mrenclave",
+    "cdsi_mrenclave": "E3 rust/attest/src/constants.rs lines 69-70; env.rs lines 311-314, 358-361; E4 libsignal_jni_amd64.so hex search",
+    "cdsi_advisories": "E3 rust/attest/src/constants.rs lines 14-17, 69-70",
+    "signal_cli_cdsi_mrenclave_unused": "E1 lib/.../config/{StagingConfig,LiveConfig}.java line 32; E4 byte search: only ServiceEnvironmentConfig.class references cdsiMrenclave; absent from libsignal_jni_amd64.so",
+    "svr2_url": "E1 lib/.../config/{StagingConfig,LiveConfig}.java line 42 (used line 71); E4 javap",
+    "svr2_enclaves": "E1 lib/.../config/{StagingConfig,LiveConfig}.java lines 33-34, order line 97; SignalDependencies.java lines 376-382; E2 api/svr/Svr2Socket.kt lines 35-41 (url); E3 rust/attest/src/constants.rs lines 60-61, 64-65 (ids), 87-105, 127-145 (raft), 169-182 (lookup table); E4 libsignal_jni_amd64.so hex search (production ids and group ids)",
+    "svrb": "E3 rust/net/src/env.rs lines 190-252, 845-860, 885-899; rust/attest/src/constants.rs lines 62-63, 66-67, 107-125, 147-165; unused per E4 byte search",
+    "zkgroup_server_public_params": "E1 lib/.../config/{StagingConfig,LiveConfig}.java line 50; E4 javap",
+    "zkgroup_generic_server_public_params": "E1 lib/.../config/{StagingConfig,LiveConfig}.java line 52; E4 javap",
+    "zkgroup_backup_server_public_params": "E1 lib/.../config/{StagingConfig,LiveConfig}.java line 55; E4 javap",
+    "sealed_sender_trust_roots": "E1 lib/.../config/{StagingConfig,LiveConfig}.java lines 28-31, 82-89; SignalDependencies.java line 401; E4 javap",
+    "tls_roots": "E3 rust/net/src/certs.rs lines 8-13, rust/net/res/{signal.cer,signal-ed25519.cer} (sha256 computed; both present byte-for-byte in libsignal_jni_amd64.so), env.rs cert fields; E1 lib/.../config/WhisperTrustStore.java, lib/src/main/resources/org/asamk/signal/manager/config/whisper.store (sha256 388a24e1ab8c205b6135615e59335097595176e6f66ba29fca007070530c6bdf, keytool listing), {StagingConfig,LiveConfig}.java line 43",
+    "captcha_registration_url": "production: E1 src/main/java/org/asamk/signal/util/CommandUtil.java line 127 (printed in both environments); staging: E1 man/signal-cli.1.adoc lines 118-119, 199-200",
+    "captcha_challenge_url": "production: E1 src/main/java/org/asamk/signal/util/SendMessageResultUtils.java line 99; staging: E1 man/signal-cli.1.adoc lines 1127-1128",
+    "keytrans": "E3 rust/net/src/env.rs lines 363-393; unused per E4 byte search",
+    "fronting": "E3 rust/net/src/env.rs lines 58-61, 82-85, 101-103, 119-121, 137-139, 171-173, 201-203, 231-233, 254-309; unused (E1 censored=false line 79; spec/service/transport.md section 3.2)",
+    "static_ip_fallback": "E3 rust/net/src/env.rs lines 43-47, 67-74, 104-105, 122-123, 141-157, 175-187"
+  }
+}

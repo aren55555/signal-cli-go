@@ -118,7 +118,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | `--dbus-system` | ✅ | deferred | n/a | deferred | n/a | **deferred**, as `--dbus` |
 | `--bus-name` | ✅ | deferred | n/a | deferred | n/a | **deferred**, as `--dbus` |
 | `-o`, `--output` | ✅ | ✅ | n/a | ✅ | ✅ | |
-| `--service-environment` | ✅ | 🟡 | n/a | ✅ | ✅ | `live` (production) is refused on purpose: the brief allows staging only |
+| `--service-environment` | ✅ [`environments.md`](spec/service/environments.md) | 🟡 both environments built in ([`internal/environment`](internal/environment), every value tested against `testdata/vectors/environments.json`); accounts of the other environment are invisible to a run | ✅ value tests, account visibility | ✅ | ✅ staging | `live` (production) is still refused before any connection, until the operator approves a live check (milestone 11) |
 | `--trust-new-identities` | ✅ | ✅ incoming PreKey messages, bundle fetches, profile fetches | ✅ all three modes | ✅ parse goldens | ⬜ | not exercised live (needs a key change between the staging accounts) |
 | `--disable-send-log` | ✅ [`send-log.md`](spec/service/send-log.md) | ✅ the send log exists now; the flag stops new entries only | ✅ | ✅ parse goldens | 🟡 | resends from the send log live 2026-10-29 (groups-interop S5: a retry receipt answered with a 1:1 resend carrying a fresh sender key); the flag itself is offline-tested only |
 | Help layout (width 75 or `$COLUMNS`, fully justified; leading logging-parser block) | ✅ [`argparse.md`](spec/surface/cli/argparse.md) | ✅ [`internal/cli/argparse`](internal/cli/argparse) | ✅ all text vectors (segmentation, justification, wrap, help rows) | ✅ every help golden replays | n/a | |

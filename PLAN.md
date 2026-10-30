@@ -30,6 +30,7 @@ every session, and update both before ending one.
 | 9  | CLI parity                                   | done (2026-10-29); all 355 CLI goldens green; logging, send log, --trust-new-identities, username/PNI recipients, link QR, delete-account (offline only, as instructed); voice calls and D-Bus remain for 9b |
 | 9b | Revisit deferred items (voice calls, D-Bus client mode) | not started |
 | 10 | Stretch goal: import an existing signal-cli data dir | done (2026-10-29); `cmd/signal-cli-go-import` with modernc.org/sqlite (second amendment); account file v10 + schema 30 only; an imported reference device worked live on staging without re-linking |
+| 11 | Production support | in progress (2026-10-30): production values specified and built in alongside staging, tested against the spec; `live` still refused until the operator approves a live check and allowlists the production hosts |
 
 The operator reviewed this file and the first COMPAT.md draft on 2026-10-23.
 
@@ -904,3 +905,24 @@ vectors.
   changes, and no group resends at all in 0.14.7. Operator decision
   (2026-10-30): keep resending, as a documented deviation; upstream
   report drafted in docs/upstream-reports/; session recovery green.
+
+### 2026-10-30, milestone 11: production support (values only)
+
+- Spec subagent: `spec/service/environments.md` and
+  `testdata/vectors/environments.json`, every staging/production value of
+  signal-cli 0.14.7 with citations. No discrepancy with the staging specs.
+  TLS roots and attestation inputs are the same in both environments; the
+  differences are hosts, the CDSI and SVR2 enclave identities (production
+  SVR2: Raft 4/13 with super-majority 2), zkgroup params and sealed-sender
+  roots. An account file without an environment counts as LIVE.
+- `internal/environment` holds both environments; the CLI's network
+  layer takes hosts from the run's environment, account-bound code
+  (zkgroup params, SVR2 enclaves, sealed-sender roots, new accounts) from
+  the account's. Accounts of the other environment are invisible to a run,
+  as in signal-cli. `TestValuesMatchSpec`, `TestOtherCopiesAgree` and
+  `TestRootsMatchEnvironments` pin every value to the vector file.
+- The `live` refusal stays (errcode.LiveUnsupported, before any
+  connection). Production hosts signal-cli-go would contact, all
+  unreachable from the sandbox until allowlisted: grpc.chat.signal.org,
+  chat.signal.org, storage.signal.org, cdn.signal.org, cdn2.signal.org,
+  cdn3.signal.org, cdsi.signal.org, svr2.signal.org.

@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"github.com/aren55555/signal-cli-go/internal/environment"
 	"strings"
 	"testing"
 
@@ -370,7 +371,7 @@ func TestServerPublicParams(t *testing.T) {
 			t.Errorf("%s short: %v", env, err)
 		}
 	}
-	if p, err := ParseServerPublicParams(StagingServerPublicParams()); err != nil || p == nil {
+	if p, err := ParseServerPublicParams(environment.Staging.ZkgroupParams()); err != nil || p == nil {
 		t.Errorf("built-in staging params: %v", err)
 	}
 }

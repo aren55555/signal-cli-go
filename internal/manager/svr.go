@@ -139,7 +139,7 @@ func (s *Sender) SetPin(ctx context.Context, pin string) error {
 	}
 	var lastErr error
 	succeeded := false
-	for _, e := range svr2.StagingEnclaves {
+	for _, e := range s.svr2Enclaves() {
 		user, pass, err := s.svrCredentials(ctx)
 		if errors.Is(err, errEnclaveNotFound) {
 			s.logf("Backup svr failed: EnclaveNotFound")
@@ -200,7 +200,7 @@ func (s *Sender) RemovePin(ctx context.Context) error {
 	a := s.Acct
 	var lastErr error
 	succeeded := false
-	for _, e := range svr2.StagingEnclaves {
+	for _, e := range s.svr2Enclaves() {
 		user, pass, err := s.svrCredentials(ctx)
 		if errors.Is(err, errEnclaveNotFound) {
 			s.logf("Delete svr2 failed: EnclaveNotFound")
@@ -247,7 +247,7 @@ func (s *Sender) RestoreMasterKey(ctx context.Context, user, pass, pin string) (
 		return [32]byte{}, err
 	}
 	var lastErr error
-	for _, e := range svr2.StagingEnclaves {
+	for _, e := range s.svr2Enclaves() {
 		enc, acc, err := svr2.PINHash(norm, svr2.Salt(user, e.GroupID))
 		if err != nil {
 			return [32]byte{}, err

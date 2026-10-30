@@ -15,11 +15,12 @@ import (
 	"github.com/aren55555/signal-cli-go/internal/svr2"
 )
 
-// cdsiDialer opens attested CDSI channels on staging (cdsi.md §2).
+// cdsiDialer opens attested CDSI channels in the run's environment
+// (cdsi.md §2).
 func (n *network) cdsiDialer() manager.CDSIDialer {
 	return func(ctx context.Context, user, pass string) (cdsi.Channel, func(), error) {
-		mr, _ := hex.DecodeString(cdsi.StagingMREnclave)
-		c, err := enclave.Dial(ctx, cdsi.StagingURL, mr, enclave.DialOptions{Username: user, Password: pass,
+		mr, _ := hex.DecodeString(n.env.CDSIMREnclave)
+		c, err := enclave.Dial(ctx, n.env.CDSIURL, mr, enclave.DialOptions{Username: user, Password: pass,
 			Roots: trust.ChatRoots(), Proxy: n.proxy, UserAgent: n.userAgent})
 		if err != nil {
 			return nil, nil, err
@@ -51,7 +52,8 @@ func cdsiResolver(e *env, g *globals) func(a *store.Account, number string) (str
 	}
 }
 
-// svr2Dialer opens attested SVR2 channels on staging (svr.md §3.1).
+// svr2Dialer opens attested SVR2 channels; the enclave carries its
+// environment's host (svr.md §3.1).
 func (n *network) svr2Dialer() manager.SVR2Dialer {
 	return func(ctx context.Context, en svr2.Enclave, user, pass string) (cdsi.Channel, map[string][]byte, func(), error) {
 		mr, _ := hex.DecodeString(en.MREnclave)

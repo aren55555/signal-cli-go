@@ -164,7 +164,7 @@ func runUploadStickerPack(ctx context.Context, e *env, g *globals, path string) 
 		}
 		defer s.close()
 		n, _ := e.network(g)
-		rc := rest.New(rest.Config{Proxy: n.proxy, UserAgentOverride: n.userAgent})
+		rc := n.rest()
 		user := a.Data.ACI
 		if a.Data.DeviceID != 1 {
 			user += "." + strconv.Itoa(a.Data.DeviceID)

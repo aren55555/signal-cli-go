@@ -5,6 +5,7 @@ package cli
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/aren55555/signal-cli-go/internal/errcode"
@@ -47,7 +48,7 @@ func TestSelectAccount(t *testing.T) {
 		{"uuid unknown", empty, "0b6ab9b6-0000-4000-8000-00000000c5d3", true, "User 0b6ab9b6-0000-4000-8000-00000000c5d3 is not registered.", 1},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			_, err := selectAccount(store.Open(filepath.Join(tc.dir, "data")), tc.account)
+			_, err := selectAccount(&globals{serviceEnv: "live"}, store.Open(filepath.Join(tc.dir, "data")), tc.account) // the index entries are LIVE
 			if err == nil || errcode.Message(err) != tc.wantErr || errcode.ExitCode(err) != tc.wantCode {
 				t.Errorf("got %v, want %q (%d)", err, tc.wantErr, tc.wantCode)
 			}
@@ -60,5 +61,26 @@ func TestValidAccountNumber(t *testing.T) {
 		if got := validNumber(in); got != want {
 			t.Errorf("%q: %v", in, got)
 		}
+	}
+}
+
+// TestAccountsOfOtherEnvironmentsAreInvisible: an index entry belongs to
+// the run only if its environment is the run's or unset (data-dir §2.2).
+func TestAccountsOfOtherEnvironmentsAreInvisible(t *testing.T) {
+	entries := []store.IndexEntry{{Path: "1", Environment: "LIVE"}, {Path: "2", Environment: "STAGING"}, {Path: "3"}}
+	for env, want := range map[string]string{"staging": "2,3", "live": "1,3"} {
+		var got []string
+		for _, e := range visible(&globals{serviceEnv: env}, entries) {
+			got = append(got, e.Path)
+		}
+		if strings.Join(got, ",") != want {
+			t.Errorf("%s: visible %v, want %s", env, got, want)
+		}
+	}
+	two := t.TempDir()
+	writeIndex(t, two, [2]string{"111111", "+15555550111"}, [2]string{"222222", "+15555550122"})
+	_, err := selectAccount(&globals{serviceEnv: "staging"}, store.Open(filepath.Join(two, "data")), "")
+	if errcode.Message(err) != "No local users found, you first need to register or link an account" {
+		t.Errorf("LIVE accounts seen from a staging run: %v", err)
 	}
 }

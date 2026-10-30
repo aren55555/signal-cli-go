@@ -179,7 +179,7 @@ func useAccount(g *globals) (*store.Account, func(), error) {
 		la.mu.Lock()
 		return la.acct, la.mu.Unlock, nil
 	}
-	a, err := selectAccount(g.root(), g.account)
+	a, err := selectAccount(g, g.root(), g.account)
 	if err != nil {
 		return nil, nil, err
 	}

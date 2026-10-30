@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/environment"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -23,7 +24,7 @@ import (
 
 // StagingHost is the libsignal-net chat host for staging
 // (spec/service/transport.md §3).
-const StagingHost = "grpc.chat.staging.signal.org"
+var StagingHost = environment.Staging.ChatHost
 
 // Upgrade failures (pipe.md §2, transport.md §3.4).
 var (

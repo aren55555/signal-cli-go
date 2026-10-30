@@ -158,7 +158,7 @@ func (m *Groups) storeEndorsements(rec *store.GroupRecord, g *zkgroup.GroupSecre
 		}
 		members = append(members, id)
 	}
-	res, err := zkgroup.ReceiveGroupSendEndorsements(ServerParams(), g, resp, members, uint64(m.now().Unix()))
+	res, err := zkgroup.ReceiveGroupSendEndorsements(paramsFor(m.Acct), g, resp, members, uint64(m.now().Unix()))
 	if err != nil {
 		m.logf("Failed to receive group send endorsements: %v", err)
 		return
@@ -270,7 +270,7 @@ func (m *Groups) HandleContext(ctx context.Context, gc *signalpb.AppGroupContext
 	if len(gc.GetGroupChange()) > 0 && st != nil && st.Revision+1 == rev {
 		var signed signalpb.GroupChange
 		if proto.Unmarshal(gc.GetGroupChange(), &signed) == nil {
-			if c, err := groups.DecryptSignedChange(g, ServerParams(), &signed); err == nil {
+			if c, err := groups.DecryptSignedChange(g, paramsFor(m.Acct), &signed); err == nil {
 				if aci, key, ok := groups.ProfileKeysFromChange(c); ok && aci != m.Acct.Data.ACI {
 					rc := m.Acct.Recipients[aci]
 					rc.ProfileKey = key
@@ -372,7 +372,7 @@ func (m *Groups) Create(ctx context.Context, name string, members []string, avat
 	var mk [32]byte
 	rand.Read(mk[:])
 	g := zkgroup.DeriveGroupSecretParams(mk)
-	params := ServerParams()
+	params := paramsFor(m.Acct)
 	group := &signalpb.Group{
 		PublicKey:                 g.PublicParams(),
 		Title:                     m.blob(g, &signalpb.GroupAttributeBlob{Content: &signalpb.GroupAttributeBlob_Title{Title: name}}),
@@ -552,7 +552,7 @@ func (m *Groups) Update(ctx context.Context, rec *store.GroupRecord, o UpdateOpt
 func (m *Groups) updateSteps(ctx context.Context, rec *store.GroupRecord, o UpdateOptions) (*GroupResult, error) {
 	var last *GroupResult
 	self := m.Acct.Data.ACI
-	params := ServerParams()
+	params := paramsFor(m.Acct)
 	step := func(a *signalpb.GroupChange_Actions) error {
 		r, err := m.commit(ctx, rec, a)
 		if err != nil {
@@ -847,7 +847,7 @@ func (m *Groups) Join(ctx context.Context, link string) (*GroupResult, bool, err
 	if err != nil {
 		return nil, false, ErrNoOwnCredentialJn
 	}
-	pres := own.Present(ServerParams(), g, m.random32())
+	pres := own.Present(paramsFor(m.Acct), g, m.random32())
 	a := &signalpb.GroupChange_Actions{Version: info.GetVersion() + 1}
 	if info.GetAddFromInviteLink() == signalpb.GroupAccessControl_ADMINISTRATOR {
 		a.AddMembersPendingAdminApproval = []*signalpb.GroupChange_Actions_AddMemberPendingAdminApproval{{Added: &signalpb.GroupMemberPendingAdminApproval{Presentation: pres}}}
@@ -1015,7 +1015,7 @@ func (m *Groups) updateOwnKey(ctx context.Context, id []byte) error {
 	if err != nil {
 		return err
 	}
-	pres := own.Present(ServerParams(), Secret(rec), m.random32())
+	pres := own.Present(paramsFor(m.Acct), Secret(rec), m.random32())
 	_, err = m.commit(ctx, rec, &signalpb.GroupChange_Actions{
 		ModifyMemberProfileKeys: []*signalpb.GroupChange_Actions_ModifyMemberProfileKey{{Presentation: pres}}})
 	return err

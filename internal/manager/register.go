@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/environment"
 	"github.com/aren55555/signal-cli-go/internal/svr2"
 	"io"
 	"slices"
@@ -64,7 +65,9 @@ func (m *sessionMeta) challenged() bool {
 
 // Registrar runs register and verify for a primary device.
 type Registrar struct {
-	Root         *store.Root
+	Root *store.Root
+	// Env is the service environment new accounts belong to; nil is staging.
+	Env          *environment.Environment
 	REST         *rest.Client
 	Language     string // Accept-Language for the code request, e.g. "en-US"
 	Rand         io.Reader
@@ -98,7 +101,7 @@ func (r *Registrar) now() time.Time {
 
 // newAccount creates the local material of §1.
 func (r *Registrar) newAccount(number string) (*store.Account, error) {
-	a, err := r.Root.Create(number, store.EnvStaging)
+	a, err := r.Root.Create(number, envOrStaging(r.Env).Account)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +191,7 @@ func (r *Registrar) Register(ctx context.Context, number, captcha string, voice,
 	}
 	defer a.Close()
 	// svr.md §4.4 steps 1-3.
-	if a.Data.Registered && a.Data.Environment != "" && a.Data.Environment != store.EnvStaging {
+	if a.Data.Registered && a.Data.Environment != "" && a.Data.Environment != envOrStaging(r.Env).Account {
 		return fmt.Errorf("Account is registered in another environment: %s", a.Data.Environment)
 	}
 	if !reregister {
@@ -565,7 +568,7 @@ func (r *Registrar) unlock(ctx context.Context, body []byte, pin string) ([32]by
 	if b.SVR2Credentials == nil {
 		return [32]byte{}, ErrPinDataDeleted
 	}
-	s := &Sender{DialSVR2: r.DialSVR2}
+	s := &Sender{DialSVR2: r.DialSVR2, Env: r.Env}
 	return s.RestoreMasterKey(ctx, b.SVR2Credentials.Username, b.SVR2Credentials.Password, pin)
 }
 

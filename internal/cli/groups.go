@@ -59,7 +59,7 @@ func groupResults(a *store.Account, key string, res []manager.SendResult) []send
 // groupsManager builds the group manager for a session.
 func (n *network) groupsManager(g *globals, a *store.Account, c manager.Requester, s *manager.Sender) *manager.Groups {
 	svc := &manager.GroupsService{Acct: a, Chat: c, CDN: n.cdn(),
-		REST: rest.New(rest.Config{BaseURL: "https://storage-staging.signal.org", Proxy: n.proxy, UserAgentOverride: n.userAgent})}
+		REST: rest.New(rest.Config{BaseURL: n.env.StorageURL, Proxy: n.proxy, UserAgentOverride: n.userAgent})}
 	return &manager.Groups{Acct: a, Svc: svc, Sender: s, AvatarsDir: filepath.Join(g.dataDir, "avatars")}
 }
 

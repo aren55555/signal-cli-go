@@ -11,6 +11,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/environment"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -25,11 +26,7 @@ import (
 )
 
 // StagingBases are the configured base URLs per CDN number (§4.3).
-var StagingBases = map[uint32]string{
-	0: "https://cdn-staging.signal.org",
-	2: "https://cdn2-staging.signal.org",
-	3: "https://cdn3-staging.signal.org",
-}
+var StagingBases = environment.Staging.CDN
 
 // Caps (§2.5).
 const (

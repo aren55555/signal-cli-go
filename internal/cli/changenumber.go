@@ -92,7 +92,7 @@ func runFinishChangeNumber(ctx context.Context, e *env, g *globals, number, code
 		if err != nil {
 			return err
 		}
-		rc := rest.New(rest.Config{Proxy: n.proxy, UserAgentOverride: n.userAgent})
+		rc := n.rest()
 		return changeNumberError(s.sender.FinishChangeNumber(ctx, rc, number, code))
 	})
 }

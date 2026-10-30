@@ -5,6 +5,7 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/environment"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -26,11 +27,12 @@ func validNumber(s string) bool { return e164Re.MatchString(s) }
 // selectAccount applies index.md §2's rules for a local command: with no
 // -a the single local account, else the named one (number or ACI), which
 // must exist and be registered.
-func selectAccount(r *store.Root, account string) (*store.Account, error) {
+func selectAccount(g *globals, r *store.Root, account string) (*store.Account, error) {
 	entries, err := r.Accounts()
 	if err != nil {
 		return nil, errcode.AccountsFileLoad.Wrap(err)
 	}
+	entries = visible(g, entries)
 	if account == "" {
 		switch len(entries) {
 		case 0:
@@ -132,6 +134,7 @@ func multiAccountStart(e *env, g *globals) ([]string, error) {
 	if err != nil {
 		return nil, errcode.AccountsFileLoad.Wrap(err)
 	}
+	entries = visible(g, entries)
 	var numbers []string
 	for _, en := range entries {
 		a, err := root.Load(en.Path)
@@ -146,4 +149,17 @@ func multiAccountStart(e *env, g *globals) ([]string, error) {
 		a.Close()
 	}
 	return numbers, nil
+}
+
+// visible keeps the index entries of the run's environment, or with none
+// recorded (data-dir §2.2): the others do not exist for this run.
+func visible(g *globals, entries []store.IndexEntry) []store.IndexEntry {
+	want := environment.AccountName(g.serviceEnv)
+	var out []store.IndexEntry
+	for _, e := range entries {
+		if e.Environment == "" || e.Environment == want {
+			out = append(out, e)
+		}
+	}
+	return out
 }

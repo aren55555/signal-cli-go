@@ -13,7 +13,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/aren55555/signal-cli-go/internal/crypto/zkgroup"
@@ -52,17 +51,6 @@ const (
 	epJoinInfo
 	epAvatarForm
 )
-
-var serverParams = sync.OnceValue(func() *zkgroup.ServerPublicParams {
-	p, err := zkgroup.ParseServerPublicParams(zkgroup.StagingServerPublicParams())
-	if err != nil {
-		panic("zkgroup: bad built-in server params")
-	}
-	return p
-})
-
-// ServerParams returns the staging zkgroup server public params.
-func ServerParams() *zkgroup.ServerPublicParams { return serverParams() }
 
 // GroupsService talks to the groups host for one account.
 type GroupsService struct {
@@ -142,7 +130,7 @@ func (s *GroupsService) authCredential(ctx context.Context) (*zkgroup.AuthCreden
 		if !ok {
 			continue
 		}
-		cred, err := zkgroup.ReceiveAuthCredentialWithPni(ServerParams(), uuid16(s.Acct.Data.ACI), uuid16(s.Acct.Data.PNI), today, resp)
+		cred, err := zkgroup.ReceiveAuthCredentialWithPni(paramsFor(s.Acct), uuid16(s.Acct.Data.ACI), uuid16(s.Acct.Data.PNI), today, resp)
 		if err == nil {
 			return cred, nil
 		}
@@ -159,7 +147,7 @@ func (s *GroupsService) authHeader(ctx context.Context, g *zkgroup.GroupSecretPa
 	if err != nil {
 		return "", err
 	}
-	pres := cred.Present(ServerParams(), g, s.random32())
+	pres := cred.Present(paramsFor(s.Acct), g, s.random32())
 	user := hex.EncodeToString(g.PublicParams()) + ":" + hex.EncodeToString(pres)
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(user)), nil
 }

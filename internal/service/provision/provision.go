@@ -12,6 +12,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/environment"
 	"net/http"
 	"net/url"
 	"strings"
@@ -34,7 +35,7 @@ var (
 )
 
 // StagingHost is the REST host whose provisioning socket is used.
-const StagingHost = "chat.staging.signal.org"
+var StagingHost = environment.Staging.ProvisioningHost
 
 // Socket is a message-oriented transport: a WebSocket.
 type Socket interface {

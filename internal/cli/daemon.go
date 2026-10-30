@@ -111,6 +111,7 @@ func (d *daemonState) loadAccounts() error {
 	if err != nil {
 		return errcode.AccountsFileLoad.Wrap(err)
 	}
+	entries = visible(d.g, entries)
 	for _, en := range entries {
 		if d.g.account != "" && en.Number != d.g.account && en.UUID != d.g.account {
 			continue
@@ -295,7 +296,7 @@ func newDaemonState(ctx context.Context, e *env, g *globals, s *argparse.Result)
 // exist and be registered.
 func (d *daemonState) start() error {
 	if d.g.account != "" {
-		a, err := selectAccount(d.g.root(), d.g.account)
+		a, err := selectAccount(d.g, d.g.root(), d.g.account)
 		if err != nil {
 			return err
 		}

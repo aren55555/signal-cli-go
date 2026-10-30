@@ -13,6 +13,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/environment"
 	"io"
 	"strings"
 	"time"
@@ -36,7 +37,10 @@ const idSpace = 0xFFFFFF
 
 // Linker links this client as a secondary device (linking.md §7).
 type Linker struct {
-	Root         *store.Root
+	Root *store.Root
+	// Env is the service environment the new account belongs to; nil is
+	// staging.
+	Env          *environment.Environment
 	REST         *rest.Client
 	OpenSocket   func(context.Context) (*provision.Session, error)
 	OnURL        func(string) // shows the sgnl://linkdevice URL
@@ -224,7 +228,7 @@ func (l *Linker) finish(ctx context.Context, pm *signalpb.ProvisionMessage, pass
 	}
 
 	d := store.AccountData{
-		Environment: store.EnvStaging, Number: number, ACI: aci, PNI: pni, Password: password,
+		Environment: envOrStaging(l.Env).Account, Number: number, ACI: aci, PNI: pni, Password: password,
 		ACIIdentity: aciPair, PNIIdentity: pniPair, ProfileKey: profileKey,
 		AccountEntropyPool: pm.GetAccountEntropyPool(), MediaRootBackupKey: pm.GetMediaRootBackupKey(),
 	}
@@ -284,7 +288,7 @@ func (l *Linker) finish(ctx context.Context, pm *signalpb.ProvisionMessage, pass
 	d.DeviceName = req.AccountAttributes.Name
 	d.Registered = true
 
-	acct, err := l.Root.Create(number, store.EnvStaging)
+	acct, err := l.Root.Create(number, envOrStaging(l.Env).Account)
 	if err != nil {
 		return nil, err
 	}

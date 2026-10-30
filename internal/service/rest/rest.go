@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/environment"
 	"io"
 	"net/http"
 	"net/url"
@@ -27,7 +28,7 @@ import (
 )
 
 // StagingURL is the REST base URL for staging.
-const StagingURL = "https://chat.staging.signal.org"
+var StagingURL = environment.Staging.ChatRESTURL
 
 // Errors (api.md §4.1).
 var ErrAuthorization = errors.New("rest: authorization failed")

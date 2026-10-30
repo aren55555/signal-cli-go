@@ -17,7 +17,6 @@ import (
 	"github.com/aren55555/signal-cli-go/internal/jackson"
 	"github.com/aren55555/signal-cli-go/internal/manager"
 	"github.com/aren55555/signal-cli-go/internal/service/provision"
-	"github.com/aren55555/signal-cli-go/internal/service/rest"
 	"github.com/aren55555/signal-cli-go/internal/store"
 )
 
@@ -557,9 +556,10 @@ func (d *daemonState) linker() (*manager.Linker, error) {
 	}
 	return &manager.Linker{
 		Root: d.g.root(),
-		REST: rest.New(rest.Config{Proxy: n.proxy, UserAgentOverride: n.userAgent}),
+		Env:  n.env,
+		REST: n.rest(),
 		OpenSocket: func(ctx context.Context) (*provision.Session, error) {
-			return provision.Open(ctx, provision.Endpoint{Proxy: n.proxy, UserAgentOverride: n.userAgent})
+			return n.openProvisioning(ctx)
 		},
 		PostLink: func(ctx context.Context, a *store.Account) error {
 			c, err := n.dialChat(ctx, a, false)

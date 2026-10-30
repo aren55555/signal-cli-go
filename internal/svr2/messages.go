@@ -4,26 +4,41 @@ package svr2
 
 import (
 	"errors"
+	"github.com/aren55555/signal-cli-go/internal/environment"
 
 	"google.golang.org/protobuf/encoding/protowire"
 )
 
 // Enclave is one SVR2 enclave with its Raft group (svr.md §3.1).
 type Enclave struct {
+	Host      string // WebSocket host; staging when empty
 	MREnclave string
 	GroupID   uint64
 	// Config is the expected serialized RaftGroupConfig claim.
 	Min, Max, SuperMajority uint32
 }
 
-// StagingEnclaves in signal-cli's order: current, then legacy.
-var StagingEnclaves = []Enclave{
-	{MREnclave: "3c699f4975aaa3d172c0aad042f94f031b2b03e10b9c19a45116a01693d83302", GroupID: 5138641357881452604, Min: 3, Max: 9},
-	{MREnclave: "97f151f6ed078edbbfd72fa9cae694dcc08353f1f5e8d9ccd79a971b10ffc535", GroupID: 2330628069874851020, Min: 3, Max: 9},
+// Enclaves returns an environment's enclaves in signal-cli's order:
+// current, then legacy (spec/service/environments.md).
+func Enclaves(env *environment.Environment) []Enclave {
+	out := make([]Enclave, len(env.SVR2))
+	for i, e := range env.SVR2 {
+		out[i] = Enclave{Host: env.SVR2Host, MREnclave: e.MREnclave, GroupID: e.GroupID, Min: e.Min, Max: e.Max, SuperMajority: e.SuperMajority}
+	}
+	return out
 }
 
-// URL is the enclave's WebSocket URL on staging.
-func (e Enclave) URL() string { return "wss://svr2.staging.signal.org/v1/" + e.MREnclave }
+// StagingEnclaves are the staging enclaves.
+var StagingEnclaves = Enclaves(environment.Staging)
+
+// URL is the enclave's WebSocket URL.
+func (e Enclave) URL() string {
+	host := e.Host
+	if host == "" {
+		host = environment.Staging.SVR2Host
+	}
+	return "wss://" + host + "/v1/" + e.MREnclave
+}
 
 // RaftConfig is the expected `config` claim (attestation.md §7.2): all
 // seven fields, db_version 2, timeout 604800, not simulated.

@@ -4,13 +4,14 @@ package cdsi
 
 import (
 	"github.com/aren55555/signal-cli-go/internal/enclave"
+	"github.com/aren55555/signal-cli-go/internal/environment"
 )
 
-// StagingMREnclave and StagingURL are libsignal's staging CDSI enclave
-// (cdsi.md §2).
-const (
-	StagingMREnclave = "6d9b9649fa3a337754a98059c66d48ac77aaca5299d3b27d6ed1e646c7c81c0a"
-	StagingURL       = "wss://cdsi.staging.signal.org/v1/" + StagingMREnclave + "/discovery"
+// StagingMREnclave and StagingURL are the staging CDSI enclave (cdsi.md §2,
+// spec/service/environments.md).
+var (
+	StagingMREnclave = environment.Staging.CDSIMREnclave
+	StagingURL       = environment.Staging.CDSIURL
 )
 
 // Channel is the attested connection a lookup runs on.

@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/environment"
 	"io"
 	"net/url"
 	"os"
@@ -56,6 +57,7 @@ func (g *globals) root() *store.Root { return store.Open(filepath.Join(g.dataDir
 type network struct {
 	proxy     *url.URL
 	userAgent string
+	env       *environment.Environment // spec/service/environments.md
 }
 
 func (e *env) network(g *globals) (*network, error) {
@@ -64,6 +66,11 @@ func (e *env) network(g *globals) (*network, error) {
 		return nil, errcode.LiveUnsupported
 	}
 	n := &network{userAgent: e.getenv(agent.EnvOverride)}
+	environmentOf, err := environment.ByCLI(g.serviceEnv)
+	if err != nil {
+		return nil, err
+	}
+	n.env = environmentOf
 	for _, k := range []string{"HTTPS_PROXY", "https_proxy", "ALL_PROXY", "all_proxy"} {
 		if v := e.getenv(k); v != "" {
 			u, err := url.Parse(v)
@@ -82,7 +89,7 @@ func (e *env) network(g *globals) (*network, error) {
 
 // cdn is the attachment CDN client.
 func (n *network) cdn() *cdn.Client {
-	return cdn.New(cdn.Config{Proxy: n.proxy, UserAgentOverride: n.userAgent})
+	return cdn.New(cdn.Config{Bases: n.env.CDN, Proxy: n.proxy, UserAgentOverride: n.userAgent})
 }
 
 func (n *network) dialChat(ctx context.Context, a *store.Account, keepAlive bool) (*chat.Conn, error) {
@@ -91,7 +98,7 @@ func (n *network) dialChat(ctx context.Context, a *store.Account, keepAlive bool
 
 // dialChatStories is dialChat with x-signal-receive-stories set (pipe.md §2).
 func (n *network) dialChatStories(ctx context.Context, a *store.Account, keepAlive, stories bool) (*chat.Conn, error) {
-	ep := chat.Endpoint{Proxy: n.proxy, UserAgentOverride: n.userAgent, ReceiveStories: stories}
+	ep := chat.Endpoint{Host: n.env.ChatHost, Proxy: n.proxy, UserAgentOverride: n.userAgent, ReceiveStories: stories}
 	if a != nil {
 		ep.Credentials = &chat.Credentials{ACI: a.Data.ACI, DeviceID: a.Data.DeviceID, Password: a.Data.Password}
 	}
@@ -125,9 +132,10 @@ func runLink(ctx context.Context, e *env, g *globals, name string) error {
 	}
 	l := &manager.Linker{
 		Root: g.root(),
-		REST: rest.New(rest.Config{Proxy: n.proxy, UserAgentOverride: n.userAgent}),
+		Env:  n.env,
+		REST: n.rest(),
 		OpenSocket: func(ctx context.Context) (*provision.Session, error) {
-			return provision.Open(ctx, provision.Endpoint{Proxy: n.proxy, UserAgentOverride: n.userAgent})
+			return n.openProvisioning(ctx)
 		},
 		DeviceName: name,
 		OnURL: func(u string) {
@@ -718,4 +726,14 @@ func (e *unresolvedUsername) Unwrap() error { return errcode.RecipientNotRegiste
 // unregisteredResult is the send result for an unresolved username.
 func unregisteredResult(t resolved) sendResult {
 	return sendResult{key: t.key, username: t.username, kind: resultUnregistered}
+}
+
+// rest is a REST client for the chat service of the run's environment.
+func (n *network) rest() *rest.Client {
+	return rest.New(rest.Config{BaseURL: n.env.ChatRESTURL, Proxy: n.proxy, UserAgentOverride: n.userAgent})
+}
+
+// openProvisioning opens the provisioning socket of the run's environment.
+func (n *network) openProvisioning(ctx context.Context) (*provision.Session, error) {
+	return provision.Open(ctx, provision.Endpoint{Host: n.env.ProvisioningHost, Proxy: n.proxy, UserAgentOverride: n.userAgent})
 }

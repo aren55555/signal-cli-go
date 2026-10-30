@@ -158,7 +158,7 @@ func (d *Decryptor) Decrypt(env *signalpb.ServiceEnvelope) (*Message, error) {
 	if kind == envUnidentified {
 		roots := d.Roots
 		if roots == nil {
-			roots = protocol.TrustRoots(protocol.Staging)
+			roots = trustRootsFor(a)
 		}
 		sealedVersion := 0
 		if len(wire) > 0 {

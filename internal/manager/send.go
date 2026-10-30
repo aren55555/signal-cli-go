@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aren55555/signal-cli-go/internal/environment"
 	"io"
 	"maps"
 	"slices"
@@ -71,7 +72,10 @@ type Sender struct {
 	// DisableSendLog is --disable-send-log: nothing is written to the
 	// send log (send-log.md §2.4).
 	DisableSendLog bool
-	Log            func(format string, args ...any)
+	// Env is the service environment when there is no account yet
+	// (registration lock recovery); otherwise the account's is used.
+	Env *environment.Environment
+	Log func(format string, args ...any)
 	// Debug receives the "Group send path:" lines naming which path a
 	// group send took (spec/testing/groups-interop.md §3).
 	Debug func(format string, args ...any)
