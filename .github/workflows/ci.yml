@@ -8,18 +8,22 @@ jobs:
   test:
     runs-on: ubuntu-24.04
     env:
-      # Build only from vendor/ (google.golang.org/protobuf, the one
-      # permitted module; see PLAN.md, Decisions).
+      # Build only from vendor/ (the pinned modules: protobuf everywhere,
+      # modernc.org/sqlite and its modules in the importer only; see
+      # PLAN.md, Decisions). No C in any build.
       GOFLAGS: -mod=vendor
+      CGO_ENABLED: "0"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # the secret scan covers the full history
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
           cache: false
-      - name: only the permitted module
-        run: go test ./internal/repocheck -run 'TestOnlyAllowedModule|TestRequiresParser' -count=1
-      - name: vendor/ matches the checksum-verified module
+      - name: only the permitted modules; no C in the shipped binaries
+        run: go test ./internal/repocheck -run 'TestOnlyAllowedModule|TestRequiresParser|TestProductionBinariesHaveNoC|TestNoCgoPackages' -count=1
+      - name: vendor/ matches the checksum-verified modules
         env:
           GOFLAGS: -mod=mod
           GOPROXY: https://proxy.golang.org
@@ -35,14 +39,21 @@ jobs:
           test -z "$(gofmt -l $files)" || { gofmt -l $files; exit 1; }
       - name: vet
         run: go vet ./...
-      - name: test (race)
+      - name: test (race; the race runtime alone needs cgo)
+        env:
+          CGO_ENABLED: "1"
         run: go test -race ./...
       - name: regenerating protobuf code is a no-op
         run: |
           go run ./tools/install-protoc
           bash tools/proto-check/check.sh third_party/protoc-36.2/bin/protoc
+      - name: no secrets in the git history (gitleaks)
+        run: |
+          go run ./tools/install-gitleaks
+          third_party/bin/gitleaks git --config .gitleaks.toml --redact --no-banner --exit-code 1 .
       - name: egress proxy
         working-directory: sandbox/proxy
         env:
           GOFLAGS: ""
+          CGO_ENABLED: "1" # for -race only
         run: go vet ./... && go test -race ./...

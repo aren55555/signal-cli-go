@@ -1,0 +1,39 @@
+# gitleaks configuration for signal-cli-go: the default rules, plus
+# allowlists for findings that were checked by hand and are not secrets.
+# Run with `just secret-scan` (full history). Add an entry only after
+# checking the value, and say where it comes from.
+
+title = "signal-cli-go"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Test vectors: published upstream vectors and values derived from fictional inputs, each cited in its file and in CLEANROOM.md"
+paths = ['''^testdata/vectors/''']
+
+[[allowlists]]
+description = "Vendored third-party modules (pinned, see PLAN.md Decisions): Windows API constant names in the transpiled SQLite match the generic key rule"
+paths = ['''^vendor/''']
+
+[[allowlists]]
+description = "Known false positives, matched by exact value"
+regexTarget = "secret"
+regexes = [
+  # RFC 6455 section 1.3: the WebSocket accept-key GUID, a public constant
+  # (internal/service/websocket/websocket.go).
+  '''^258EAFA5-E914-47DA-95CA-C5AB0DC85B11$''',
+  # Hex of the SPQR KDF label "Signal_PQCKA_V1_MLKEM768:SCKA Key"
+  # (internal/protocol/spqr/chain_test.go).
+  '''^5369676e616c5f5051434b415f56315f4d4c4b454d3736383a53434b41204b6579$''',
+  # The example account in spec/storage/signal-cli-data-dir.md and the
+  # importer's test fixture: an unregistered scratch account created
+  # offline with a fictional number and throwaway keys (CLEANROOM.md,
+  # 2026-10-29). Password, identity private key, profile key.
+  '''^UbffUm\+Sy5hGlL2nQhUfLhvy$''',
+  '''^oPyqJvqfMWt6HWpUkhY1galZGhU63s0BrlhF0UicEmk=$''',
+  '''^3qk/OHF9Wnnkt1yzKXNWGKlI5wH4K2wyEFROn4Sy1sY=$''',
+  # Recovery password in the spec/service/svr.md example, derived from the
+  # fictional master key 0x20..0x3f of testdata/vectors/pin.json.
+  '''^Ve3mYvM90mir28jVHNx80Bgl4c8wLbv9JPAUU5tfe0M=$''',
+]
