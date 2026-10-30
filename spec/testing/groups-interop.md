@@ -400,5 +400,6 @@ Findings about the reference (signal-cli 0.14.7):
 5. It never resends a logged group message in answer to a retry receipt:
    the membership check always fails (send-log.md §4.2.1). It still resets
    its sharing state, so its next send hands out the key again.
-   signal-cli-go resends as intended; whether to match 0.14.7 is an open
-   operator decision.
+   signal-cli-go resends as intended: a deliberate deviation (operator
+   decision 2026-10-30, COMPAT.md "Session recovery"); upstream report in
+   `docs/upstream-reports/signal-cli-group-resend-never-happens.md`.

@@ -901,5 +901,6 @@ vectors.
   sender-key retry receipts, multi-device retry receipts, retry-receipt
   group ID, sender-key failure rendering). Reference findings: no PNI
   invite acceptance, stale endorsements after message-learned membership
-  changes, and no group resends at all in 0.14.7 (open decision whether
-  to match).
+  changes, and no group resends at all in 0.14.7. Operator decision
+  (2026-10-30): keep resending, as a documented deviation; upstream
+  report drafted in docs/upstream-reports/; session recovery green.
