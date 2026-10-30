@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0 # the secret scan covers the full history
+          fetch-depth: 0 # the secret scan covers every commit
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
@@ -47,10 +47,8 @@ jobs:
         run: |
           go run ./tools/install-protoc
           bash tools/proto-check/check.sh third_party/protoc-36.2/bin/protoc
-      - name: no secrets in the git history (gitleaks)
-        run: |
-          go run ./tools/install-gitleaks
-          third_party/bin/gitleaks git --config .gitleaks.toml --redact --no-banner --exit-code 1 .
+      - name: no secrets in the tree or in any commit (internal/repocheck; not under -race, too slow there)
+        run: go test ./internal/repocheck -run 'TestTreeHasNoSecrets|TestHistoryHasNoSecrets|TestSecretPatternsFire' -count=1 -v
       - name: egress proxy
         working-directory: sandbox/proxy
         env:

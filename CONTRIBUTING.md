@@ -49,8 +49,9 @@ in full. For contributors this means:
   Never commit phone numbers, keys, captcha tokens, verification codes or
   transcripts with real identifiers. Test data uses the fictional range
   +1 NPA 555-0100…0199. Live data belongs in the gitignored `.data/` directory.
-  CI runs gitleaks over the whole history; see `.gitleaks.toml` for the reviewed
-  exceptions.
+  CI scans the tree and every commit in history for phone numbers, Signal
+  ACIs and PNIs, captcha tokens and private-key encodings (`internal/repocheck`);
+  its exemptions are listed there, each with its reason.
 
 ## Workflow
 

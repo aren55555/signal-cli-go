@@ -49,10 +49,9 @@ test-race: _gotmp
 check-deps: _gotmp
     go test ./internal/repocheck -run 'TestOnlyAllowedModule|TestRequiresParser|TestProductionBinariesHaveNoC|TestNoCgoPackages' -count=1
 
-# Scan the whole git history for secrets (gitleaks, pinned; .gitleaks.toml)
+# Scan the tree and every commit in history for secrets (internal/repocheck)
 secret-scan: _gotmp
-    @test -x third_party/bin/gitleaks || go run ./tools/install-gitleaks
-    third_party/bin/gitleaks git --config .gitleaks.toml --redact --no-banner --exit-code 1 .
+    go test ./internal/repocheck -run 'TestTreeHasNoSecrets|TestHistoryHasNoSecrets|TestSecretPatternsFire' -count=1
 
 # Everything CI runs
 ci: fmt-check check-deps vet test-race proto-check secret-scan

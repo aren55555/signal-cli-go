@@ -254,5 +254,5 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | Rule | Test | Status |
 |------|------|--------|
 | go.mod has no `require` lines, and there is no go.sum | `internal/repocheck` `TestGoModHasNoRequires`; CI step | ✅ |
-| No phone numbers, captchas, or keys in `testdata/` | `internal/repocheck` `TestTestdataHasNoSecrets` | ✅ |
+| No phone numbers, Signal ACIs/PNIs, captcha tokens or private keys in the tree or in any commit (`git rev-list --all`); `testdata/vectors/`, published test numbers and listed known values exempt | `internal/repocheck` `TestTreeHasNoSecrets`, `TestHistoryHasNoSecrets`, `TestSecretPatternsFire` (`just secret-scan`, CI) | ✅ |
 | Oracle download verified (SHA-256 and signature) | `tools/install-oracle` (runtime check) + extraction tests | ✅ |

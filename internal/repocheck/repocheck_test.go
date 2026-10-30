@@ -3,7 +3,8 @@
 // Package repocheck holds tests that enforce repository-wide rules from
 // PROMPT.md as amended (PLAN.md, Decisions): only the pinned, vendored
 // modules (protobuf everywhere, modernc.org/sqlite and its modules in the
-// importer only), no C in any shipped binary, no secrets in testdata/,
+// importer only), no C in any shipped binary, no secrets in the tree or in
+// any commit (secrets_test.go),
 // and the GPLv3 license header on every Go file we wrote.
 package repocheck
 
@@ -156,90 +157,6 @@ func TestOnlyAllowedModule(t *testing.T) {
 	slices.Sort(vendored)
 	if !slices.Equal(vendored, want) {
 		t.Errorf("vendor/modules.txt lists %q; exactly %q is allowed", vendored, want)
-	}
-}
-
-// secretPatterns flag likely real identifiers. Golden transcripts must use
-// the reserved placeholders documented in testdata/README.md instead.
-var secretPatterns = []struct {
-	name string
-	re   *regexp.Regexp
-}{
-	// E.164 numbers. The fictional +1-555-01xx range is allowed below.
-	{"phone number", regexp.MustCompile(`\+[1-9][0-9]{7,14}\b`)},
-	{"captcha token", regexp.MustCompile(`signalcaptcha://`)},
-	{"PEM private key", regexp.MustCompile(`BEGIN [A-Z ]*PRIVATE KEY`)},
-	{"Anthropic API key", regexp.MustCompile(`sk-ant-`)},
-	// A 32-byte value in base64 next to a key-ish JSON name.
-	{"key material", regexp.MustCompile(`(?i)"[a-z]*(private|secret|password|pin)[a-z]*"\s*:\s*"[A-Za-z0-9+/=_-]{20,}"`)},
-}
-
-// allowedPhone is the NANP range reserved for fiction, +1 NPA 555-0100..0199.
-var allowedPhone = regexp.MustCompile(`^\+1[2-9][0-9]{2}55501[0-9]{2}$`)
-
-// publishedTestPhones are numbers that appear in published upstream test
-// vectors and are kept verbatim so the vectors stay faithful to their
-// source: libsignal v0.99.1 rust/net/src/cdsi.rs (serialize_e164s and the
-// response-parsing test), copied into testdata/vectors/cdsi.json.
-// Also libsignal v0.99.1 rust/protocol/src/fingerprint.rs tests, copied into
-// testdata/vectors/fingerprint.json.
-var publishedTestPhones = map[string]bool{
-	"+18005551001": true, "+18005551002": true, "+18005551003": true, "+18005551004": true, "+18005551005": true,
-	"+14152222222": true, "+14153333333": true, "+141512222222": true,
-}
-
-// TestTestdataHasNoSecrets scans testdata/ for phone numbers and keys.
-// Test vectors from published standards are exempt only for the key
-// material pattern, and only under testdata/vectors/.
-func TestTestdataHasNoSecrets(t *testing.T) {
-	root := filepath.Join(repoRoot, "testdata")
-	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
-			return err
-		}
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		rel, _ := filepath.Rel(root, path)
-		inVectors := strings.HasPrefix(rel, "vectors"+string(filepath.Separator))
-		for _, p := range secretPatterns {
-			if inVectors && p.name == "key material" {
-				continue
-			}
-			for _, m := range p.re.FindAllString(string(data), -1) {
-				if p.name == "phone number" && (allowedPhone.MatchString(m) || inVectors && publishedTestPhones[m]) {
-					continue
-				}
-				t.Errorf("%s: possible %s: %q", rel, p.name, m)
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestSecretPatternsFire(t *testing.T) {
-	bad := []string{`"number":"+14155552671"`, `signalcaptcha://abc`, `"pinHash":"AAAAAAAAAAAAAAAAAAAAAAAAAAAA"`}
-	for _, s := range bad {
-		hit := false
-		for _, p := range secretPatterns {
-			for _, m := range p.re.FindAllString(s, -1) {
-				if !(p.name == "phone number" && allowedPhone.MatchString(m)) {
-					hit = true
-				}
-			}
-		}
-		if !hit {
-			t.Errorf("no pattern matched %q", s)
-		}
-	}
-	for _, ok := range []string{"+12025550100", "+12025550199"} {
-		if !allowedPhone.MatchString(ok) {
-			t.Errorf("placeholder %s should be allowed", ok)
-		}
 	}
 }
 

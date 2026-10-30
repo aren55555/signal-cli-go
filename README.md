@@ -112,9 +112,10 @@ gaps:
 ## Development
 
 `just ci` runs what CI runs: formatting, the dependency and no-C checks, vet,
-tests with the race detector, the protobuf drift check and a gitleaks scan of the
-whole history. See [`CONTRIBUTING.md`](CONTRIBUTING.md) before sending changes,
-and [`SECURITY.md`](SECURITY.md) to report a vulnerability.
+tests with the race detector, the protobuf drift check and a secret scan of the
+tree and of every commit in history (`internal/repocheck`). See
+[`CONTRIBUTING.md`](CONTRIBUTING.md) before sending changes, and
+[`SECURITY.md`](SECURITY.md) to report a vulnerability.
 
 ## How it was built
 
