@@ -1,4 +1,3 @@
-		echo "B1 fault injected on this device (its copy of the sender key was dropped); it cannot match B2 by design" >"$RUN/$pre-1send/skip-B1"
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -406,6 +405,7 @@ s5() {
 		sleep 20
 		"$TOOL" drop-sender-keys "$dir" "$n" "$caci" || log "$pre: B1 holds no sender key from C (already dropped)"
 		gsend "$pre-1send" send -g "$g" -m "S5 ref: retry receipt test" || return
+		echo "B1 fault injected on this device (its copy of the sender key was dropped); it cannot match B2 by design" >"$RUN/$pre-1send/skip-B1"
 		receive_all "$pre-1send" plain B1 B2 A1 A2 C2
 		expect_recv "$pre-1send" B1 multi-recipient
 		receive_all "$pre-2retry" plain C1        # the reference handles the retry receipt and resends

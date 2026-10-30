@@ -1,7 +1,9 @@
 # signal-cli 0.14.7 never resends a group message in answer to a retry receipt
 
 Report for https://github.com/AsamK/signal-cli (draft, 2026-10-30). Observed
-with signal-cli 0.14.7 against Signal's staging servers on 2026-10-29.
+with signal-cli 0.14.7 against Signal's staging servers on 2026-10-29, and
+reproduced on 2026-10-30 with signal-cli 0.14.7 on every participating
+device.
 
 ## What happens
 
@@ -37,11 +39,7 @@ tested a patch.
 
 You need three accounts on staging (`--service-environment staging`):
 **A** runs signal-cli 0.14.7 and sends; **B** and **C** are group members.
-B needs a client whose stored sender keys you can remove and which sends
-retry receipts for sender-key failures. We used signal-cli-go (a separate
-client) for B. signal-cli itself should work too, since it sends retry
-receipts for this failure, but we did not run that variant; the steps
-below are written for a signal-cli B.
+All three run signal-cli 0.14.7.
 
 1. Create a group on A with B and C as full members (all three must have
    exchanged profile keys, e.g. by messaging each other first, so that A
@@ -65,6 +63,29 @@ below are written for a signal-cli B.
 
 We saw the same result with the requester's membership coming from an
 accepted invitation and from being in the group since creation.
+
+### Observed run (2026-10-30, signal-cli 0.14.7 on every device involved)
+
+C sent, B received on a linked signal-cli device whose stored sender keys
+from C had been removed (the account's other device stayed idle), A was the
+third member. Output, with identifiers shortened:
+
+- B, receiving the test message:
+
+      Sent by unidentified/sealed sender
+      Exception: org.signal.libsignal.protocol.NoSessionException: missing sender key state for distribution ID e771…a5cd (ProtocolNoSessionException)
+
+- A decrypted the same message normally.
+- C, receiving B's retry receipt:
+
+      WARN  SendHelper - The target user is no longer in the group 1Do2…x+c=! Skipping message send.
+
+- B, receiving again: the test message never arrived. C's next group
+  message did decrypt on B (it carried a fresh sender key distribution
+  message), but the test message stayed lost.
+
+An earlier run (2026-10-29) with a different client as B gave the same
+WARN on C.
 
 ## Expected behaviour
 
