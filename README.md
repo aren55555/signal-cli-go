@@ -5,18 +5,18 @@ in Go. It aims to be a **drop-in replacement for signal-cli 0.14.7**: the same
 command line, output, exit codes and JSON-RPC daemon (HTTP with server-sent events,
 UNIX socket, TCP, and `jsonRpc` on stdio). Its behaviour is checked against the
 real signal-cli 0.14.7, using recorded transcripts and live differential runs on
-Signal's staging servers, and on production with test accounts.
+Signal's staging servers.
 
 The main binary uses only the Go standard library and the vendored
 `google.golang.org/protobuf`, with no C code. A separate import tool also links the
 pure-Go `modernc.org/sqlite` to read signal-cli's database.
 
-> **Status: production and staging.** Like signal-cli, signal-cli-go talks to Signal's
-> production service by default (`--service-environment live`);
-> `--service-environment staging` selects the staging servers. Everything was first
-> proven on staging. Production results are tracked separately in
-> [`COMPAT.md`](COMPAT.md#production), because staging results don't count for
-> production. Read [Known gaps](#known-gaps) and
+> **Status: production enabled, live verification in progress — see
+> [COMPAT.md#production](COMPAT.md#production).** Like signal-cli, signal-cli-go uses
+> Signal's production service by default (`--service-environment live`);
+> `--service-environment staging` selects the staging servers. The features below
+> are proven on staging. Production is verified separately, row by row, in
+> COMPAT.md, because staging results don't count for production. Read [Known gaps](#known-gaps) and
 > [`docs/cutover.md`](docs/cutover.md) before moving a real account.
 
 ## Status
@@ -33,10 +33,11 @@ pure-Go `modernc.org/sqlite` to read signal-cli's database.
   Every CLI command and output mode matches the recorded transcripts.
 - Existing signal-cli 0.14.7 accounts can be imported (see
   [Migrating from signal-cli](#migrating-from-signal-cli)).
-- Production: the service values of signal-cli 0.14.7's production configuration
-  are built in and tested against the spec. The live production proof (messaging
-  with an official Signal app, import of a production account, the daemon side by
-  side with signal-cli) is listed in COMPAT.md's Production section.
+- Production: enabled, live verification in progress — see
+  [COMPAT.md#production](COMPAT.md#production). Built in are the service values of
+  signal-cli 0.14.7's production configuration, tested against the spec. The live
+  checks (messaging with an official Signal app, import of a production account, the
+  daemon side by side with signal-cli) turn green there one by one.
 
 ## Install
 
@@ -140,8 +141,8 @@ as JSON-RPC notifications. D-Bus (`--dbus`, `--dbus-system`) is not supported.
 [`COMPAT.md`](COMPAT.md) lists every row that isn't fully green and why. The main
 gaps:
 
-- **Production is newer than staging:** the live production proof is in progress
-  (COMPAT.md, Production). Until a row there is green, that feature has been
+- **Production: enabled, live verification in progress** — see
+  [COMPAT.md#production](COMPAT.md#production). Until a row there is green, that feature has been
   proven on staging only. Production rate limits and captcha challenges are
   stricter, and the rate-limit challenge flow has never been seen live.
 - **Going back to the JVM signal-cli** after signal-cli-go has run an account
