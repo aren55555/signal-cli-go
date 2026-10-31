@@ -91,7 +91,6 @@ Every error the CLI or the JSON-RPC daemon reports is one of these codes. `exit`
 | MultiAccountOnly | startup | 1 |  |  | `` Command only works in multi-account mode `` | a multi-account command was given -a | golden |
 | DBusUnavailable | startup | 2 |  |  | `` Dbus client failed: Cannot Resolve Session Bus Address: %s `` | --dbus or --dbus-system without a reachable bus | golden |
 | LinkWithAccount | startup | 1 |  |  | `` You cannot specify a account (phone number) when linking `` | link was given -a | golden |
-| LiveUnsupported | startup | 1 |  |  | `` The live service environment is not supported by signal-cli-go yet; use --service-environment staging `` | only the staging environment is configured | deviation |
 | InvalidProxy | startup | 1 |  |  | `` Invalid proxy setting: %s `` | the proxy environment variable could not be parsed | deviation |
 | NotImplemented | unexpected | 2 | -32603 |  | `` Command %s is not implemented in signal-cli-go yet `` | the command has no implementation | deviation |
 | DaemonNoChannel | startup | 1 |  |  | `` At least one channel parameter is required, e.g. --socket or --dbus. `` | daemon was started without a transport | spec |

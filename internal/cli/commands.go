@@ -61,10 +61,6 @@ type network struct {
 }
 
 func (e *env) network(g *globals) (*network, error) {
-	if g.serviceEnv != "staging" {
-		// The brief forbids production; only staging endpoints exist here.
-		return nil, errcode.LiveUnsupported
-	}
 	n := &network{userAgent: e.getenv(agent.EnvOverride)}
 	environmentOf, err := environment.ByCLI(g.serviceEnv)
 	if err != nil {

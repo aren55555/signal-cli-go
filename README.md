@@ -5,16 +5,19 @@ in Go. It aims to be a **drop-in replacement for signal-cli 0.14.7**: the same
 command line, output, exit codes and JSON-RPC daemon (HTTP with server-sent events,
 UNIX socket, TCP, and `jsonRpc` on stdio). Its behaviour is checked against the
 real signal-cli 0.14.7, using recorded transcripts and live differential runs on
-Signal's staging servers.
+Signal's staging servers, and on production with test accounts.
 
 The main binary uses only the Go standard library and the vendored
 `google.golang.org/protobuf`, with no C code. A separate import tool also links the
 pure-Go `modernc.org/sqlite` to read signal-cli's database.
 
-> **Status: staging only.** signal-cli-go currently refuses the production service
-> environment (`--service-environment live`) on purpose. Everything below works
-> against Signal's staging servers, which is what the test accounts use. Don't
-> expect to message regular Signal users with it yet.
+> **Status: production and staging.** Like signal-cli, signal-cli-go talks to Signal's
+> production service by default (`--service-environment live`);
+> `--service-environment staging` selects the staging servers. Everything was first
+> proven on staging. Production results are tracked separately in
+> [`COMPAT.md`](COMPAT.md#production), because staging results don't count for
+> production. Read [Known gaps](#known-gaps) and
+> [`docs/cutover.md`](docs/cutover.md) before moving a real account.
 
 ## Status
 
@@ -30,6 +33,10 @@ pure-Go `modernc.org/sqlite` to read signal-cli's database.
   Every CLI command and output mode matches the recorded transcripts.
 - Existing signal-cli 0.14.7 accounts can be imported (see
   [Migrating from signal-cli](#migrating-from-signal-cli)).
+- Production: the service values of signal-cli 0.14.7's production configuration
+  are built in and tested against the spec. The live production proof (messaging
+  with an official Signal app, import of a production account, the daemon side by
+  side with signal-cli) is listed in COMPAT.md's Production section.
 
 ## Install
 
@@ -45,13 +52,15 @@ The builds use only the vendored modules (`-mod=vendor` is the default when a
 
 Then use it like signal-cli, for example:
 
-    ./signal-cli-go --service-environment staging -a +15555550100 register --captcha 'signalcaptcha://…'
-    ./signal-cli-go --service-environment staging -a +15555550100 verify 123456
-    ./signal-cli-go --service-environment staging -a +15555550100 send -m "hello" +15555550101
-    ./signal-cli-go --service-environment staging -a +15555550100 receive
+    ./signal-cli-go -a +15555550100 register --captcha 'signalcaptcha://…'
+    ./signal-cli-go -a +15555550100 verify 123456
+    ./signal-cli-go -a +15555550100 send -m "hello" +15555550101
+    ./signal-cli-go -a +15555550100 receive
+
+(add `--service-environment staging` to use Signal's staging servers instead)
 
 or link it to an existing account as a secondary device with
-`./signal-cli-go --service-environment staging link -n my-device`. The data
+`./signal-cli-go link -n my-device`. The data
 directory defaults to `$XDG_DATA_HOME/signal-cli` (or
 `~/.local/share/signal-cli`), as for signal-cli; `-d DIR` chooses another.
 signal-cli-go shares signal-cli's account index (`data/accounts.json`) but keeps
@@ -67,7 +76,7 @@ working without being linked or registered again:
 
     # stop signal-cli first (the importer refuses an account that is in use)
     ./signal-cli-go-import -from ~/.local/share/signal-cli -to ~/signal-cli-go-data [-a +15555550100]
-    ./signal-cli-go --service-environment staging -d ~/signal-cli-go-data -a +15555550100 receive
+    ./signal-cli-go -d ~/signal-cli-go-data -a +15555550100 receive
 
 - The source directory is never modified. The database is copied aside before it is
   read.
@@ -84,10 +93,10 @@ working without being linked or registered again:
 As with signal-cli, `daemon` serves JSON-RPC (see signal-cli's
 `signal-cli-jsonrpc(5)`; the method set, parameters and results are the same):
 
-    ./signal-cli-go --service-environment staging -a +15555550100 daemon --http 127.0.0.1:8080
-    ./signal-cli-go --service-environment staging daemon --socket /run/user/1000/signal-cli.socket   # all accounts
-    ./signal-cli-go --service-environment staging -a +15555550100 daemon --tcp 127.0.0.1:7583
-    ./signal-cli-go --service-environment staging -a +15555550100 jsonRpc                          # stdio
+    ./signal-cli-go --config ~/signal-cli-go-data -a +15555550100 daemon --http=127.0.0.1:8080 --receive-mode=on-start
+    ./signal-cli-go daemon --socket /run/user/1000/signal-cli.socket   # all accounts
+    ./signal-cli-go -a +15555550100 daemon --tcp 127.0.0.1:7583
+    ./signal-cli-go -a +15555550100 jsonRpc                          # stdio
 
 With `--http`, requests go to `POST /api/v1/rpc` and incoming messages stream from
 `GET /api/v1/events` as server-sent events. With `--socket` and `--tcp` they arrive
@@ -98,7 +107,12 @@ as JSON-RPC notifications. D-Bus (`--dbus`, `--dbus-system`) is not supported.
 [`COMPAT.md`](COMPAT.md) lists every row that isn't fully green and why. The main
 gaps:
 
-- **Production is refused:** only `--service-environment staging` works.
+- **Production is newer than staging:** the live production proof is in progress
+  (COMPAT.md, Production). Until a row there is green, that feature has been
+  proven on staging only. Production rate limits and captcha challenges are
+  stricter, and the rate-limit challenge flow has never been seen live.
+- **Going back to the JVM signal-cli** after signal-cli-go has run an account
+  needs care; see [`docs/cutover.md`](docs/cutover.md).
 - **Voice calls** (`startCall`, `acceptCall` and friends, call events) are
   deferred. With no active call the commands behave like signal-cli's.
 - **D-Bus** client and daemon modes are deferred.

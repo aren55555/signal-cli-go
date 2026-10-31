@@ -111,7 +111,6 @@ const (
 	MultiAccountOnly
 	DBusUnavailable
 	LinkWithAccount
-	LiveUnsupported
 	InvalidProxy
 	NotImplemented
 	DaemonNoChannel
@@ -421,7 +420,6 @@ var table = [numCodes]info{
 	MultiAccountOnly:      startup("MultiAccountOnly", 1, "Command only works in multi-account mode", "a multi-account command was given -a", Observed),
 	DBusUnavailable:       startup("DBusUnavailable", 2, "Dbus client failed: Cannot Resolve Session Bus Address: %s", "--dbus or --dbus-system without a reachable bus", Observed),
 	LinkWithAccount:       startup("LinkWithAccount", 1, "You cannot specify a account (phone number) when linking", "link was given -a", Observed),
-	LiveUnsupported:       startup("LiveUnsupported", 1, "The live service environment is not supported by signal-cli-go yet; use --service-environment staging", "only the staging environment is configured", Deviation),
 	InvalidProxy:          startup("InvalidProxy", 1, "Invalid proxy setting: %s", "the proxy environment variable could not be parsed", Deviation),
 	NotImplemented:        info{name: "NotImplemented", kind: KindUnexpected, exit: 2, rpc: -32603, msg: "Command %s is not implemented in signal-cli-go yet", rpcMsg: "Command %s is not implemented in signal-cli-go yet", cause: "the command has no implementation", source: Deviation},
 	DaemonNoChannel:       startup("DaemonNoChannel", 1, "At least one channel parameter is required, e.g. --socket or --dbus.", "daemon was started without a transport", Spec),

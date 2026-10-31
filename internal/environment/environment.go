@@ -73,9 +73,8 @@ var Staging = &Environment{
 	},
 }
 
-// Production is Signal's production environment ("LIVE"). The CLI still
-// refuses it (errcode.LiveUnsupported) until the operator approves a live
-// check; these values only make it selectable then.
+// Production is Signal's production environment ("LIVE"), the default of
+// --service-environment as in signal-cli (operator decision 2026-10-31).
 var Production = &Environment{
 	Name: "production", CLI: "live", Account: "LIVE",
 

@@ -6,7 +6,7 @@ is stated in the Notes column.
 
 Legend: ✅ done · 🟡 partial (see notes) · ⬜ not started · n/a not applicable · deferred: out of scope for now, revisited later (not "won't do")
 
-**Status (2026-10-29, milestone 9 done):** every Layer B golden replays green (CLI 355, JSON-RPC 162). Rows that are not fully ✅ say why in their notes; the remaining gaps are deferred features (voice calls, D-Bus), paths that staging cannot exercise safely with two accounts, and Layer A cells with no upstream vectors.
+**Status (2026-10-31):** production is enabled and is the default; its live proof is in the [Production](#production) section, separate from staging. **Staging (2026-10-29, milestone 9 done):** every Layer B golden replays green (CLI 355, JSON-RPC 162). Rows that are not fully ✅ say why in their notes; the remaining gaps are deferred features (voice calls, D-Bus), paths that staging cannot exercise safely with two accounts, and Layer A cells with no upstream vectors.
 
 Layer B goldens: all account-free behavior is recorded (CLI 355, JSON-RPC 162 scenarios, see `testdata/README.md`). A Layer B cell turns ✅ only when the scenario replays green against signal-cli-go, not when it is recorded.
 
@@ -118,7 +118,7 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | `--dbus-system` | ✅ | deferred | n/a | deferred | n/a | **deferred**, as `--dbus` |
 | `--bus-name` | ✅ | deferred | n/a | deferred | n/a | **deferred**, as `--dbus` |
 | `-o`, `--output` | ✅ | ✅ | n/a | ✅ | ✅ | |
-| `--service-environment` | ✅ [`environments.md`](spec/service/environments.md) | 🟡 both environments built in ([`internal/environment`](internal/environment), every value tested against `testdata/vectors/environments.json`); accounts of the other environment are invisible to a run | ✅ value tests, account visibility | ✅ | ✅ staging | `live` (production) is still refused before any connection, until the operator approves a live check (milestone 11) |
+| `--service-environment` | ✅ [`environments.md`](spec/service/environments.md) | ✅ both environments built in ([`internal/environment`](internal/environment), every value tested against `testdata/vectors/environments.json`); `live` is the default as in signal-cli (refusal removed 2026-10-31); accounts of the other environment are invisible to a run | ✅ value tests, account visibility | ✅ | ✅ staging; production: see [Production](#production) | the Layer B replays run with networking blocked (`difftest.DeadProxy`), so no test reaches either environment by accident |
 | `--trust-new-identities` | ✅ | ✅ incoming PreKey messages, bundle fetches, profile fetches | ✅ all three modes | ✅ parse goldens | ⬜ | not exercised live (needs a key change between the staging accounts) |
 | `--disable-send-log` | ✅ [`send-log.md`](spec/service/send-log.md) | ✅ the send log exists now; the flag stops new entries only | ✅ | ✅ parse goldens | 🟡 | resends from the send log live 2026-10-29 (groups-interop S5: a retry receipt answered with a 1:1 resend carrying a fresh sender key); the flag itself is offline-tested only |
 | Help layout (width 75 or `$COLUMNS`, fully justified; leading logging-parser block) | ✅ [`argparse.md`](spec/surface/cli/argparse.md) | ✅ [`internal/cli/argparse`](internal/cli/argparse) | ✅ all text vectors (segmentation, justification, wrap, help rows) | ✅ every help golden replays | n/a | |
@@ -194,6 +194,29 @@ Spec: [`spec/surface/cli/index.md`](spec/surface/cli/index.md). Raw observations
 | [`uploadStickerPack`](spec/surface/cli/uploadStickerPack.md) | ✅ | ✅ manifest.json and zip, CDN 0 multipart upload | n/a | ✅ goldens replay | ✅ | Live 2026-10-24: the reference downloaded our pack byte-identically |
 | [`verify`](spec/surface/cli/verify.md) | ✅ | ✅ incl. registration lock: 423 messages, SVR2 restore with `--pin`, retry with the restored token | n/a | ✅ verify goldens replay | 🟡 | Live 2026-10-24 without a lock; the 423 path is covered offline against a fake server and SVR2 (re-registering B live would risk the account) |
 | [`version`](spec/surface/cli/version.md) | ✅ | ✅ | n/a | ✅ | ✅ | `-a` takes the local-command path; multi-account start creates the data directory |
+
+## Production
+
+Results against Signal's **production** service (milestone 12, operator-approved
+2026-10-31). Staging results do not count here: a row turns ✅ only on a live
+production run with test accounts (numbers from `/tmp/live-numbers`, guarded by
+[`internal/livetest`](internal/livetest)), with an official Signal app as the
+counterpart where the row says so. The operator's real account is never used.
+
+| Feature | Status | Evidence | Notes |
+|---------|--------|----------|-------|
+| Service values (hosts, enclaves, zkgroup params, sealed-sender roots, TLS roots) | ✅ | `internal/environment` tests against [`environments.md`](spec/service/environments.md) | offline; values from signal-cli 0.14.7's production configuration |
+| `--service-environment live` reaches production (the default) | 🟡 | | enabled 2026-10-31; first live run pending (P7) |
+| Registering or linking a throwaway production number | ⬜ | | P7, needs operator numbers and a production captcha |
+| 1:1 text both ways with an official Signal app | ⬜ | | P7 |
+| Group v2 messages both ways, with  and quotes | ⬜ | | P7, throwaway group of test accounts only |
+| Attachments both ways (images) | ⬜ | | P7 |
+| Reactions and typing indicators | ⬜ | | P7 |
+| CDSI lookups | ⬜ | | P7 |
+| Receiving through `daemon --http` (SSE `GET /api/v1/events`) | ⬜ | | P7 |
+| Import of a production account registered with signal-cli 0.14.7 (sessions decrypt both ways, groups intact, no re-registration, re-link or safety-number change on the official app) | ⬜ | | P8 |
+| The operator's daemon setup (`--config <dir> -a <n> daemon --http=127.0.0.1:8080 --receive-mode=on-start`) and its methods, side by side with signal-cli 0.14.7 | ⬜ | | P9; offline parity: see the JSON-RPC section |
+| linux/arm64 build (daemon and importer) | ⬜ | | P5 |
 
 ## Protocol and interop (priority 3)
 
