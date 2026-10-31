@@ -99,6 +99,9 @@ and to smoke-test the release binaries themselves:
 
 ## Migrating from signal-cli
 
+For a real account, follow [`docs/cutover.md`](docs/cutover.md) (backup, checks, and
+what going back to the JVM signal-cli costs).
+
 `signal-cli-go-import` copies accounts from a signal-cli 0.14.7 data directory into
 a signal-cli-go data directory, keeping the identity keys, prekeys, sessions,
 sender keys, contacts, groups, sticker packs and settings, so the account keeps

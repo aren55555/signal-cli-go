@@ -985,3 +985,28 @@ vectors.
   unreachable from the sandbox until allowlisted: grpc.chat.signal.org,
   chat.signal.org, storage.signal.org, cdn.signal.org, cdn2.signal.org,
   cdn3.signal.org, cdsi.signal.org, svr2.signal.org.
+
+### 2026-10-31, milestone 12 (offline phases P1-P6)
+
+- P1: Layer B replays run with networking blocked (`difftest.DeadProxy`);
+  `TestReplayIsOffline` proves it in staging, live and the default.
+- P2: `internal/livetest` (SIGNAL_CLI_GO_LIVE=1, /tmp/live-numbers only,
+  number checks, pacing, back-off, hard stop, message cap);
+  `TestStagingDriverCannotPickLive`; repocheck refuses live numbers.
+- P3: the LiveUnsupported refusal is gone; live is the default. README and
+  COMPAT.md (new Production section, staging results don't count) updated.
+- P4: golden `bridge-daemon-unregistered` with the bridge's exact daemon
+  invocation; the 21 bridge methods replay green.
+- P5: `just build-arm64`, `just check-arm64` (in `just ci`);
+  byte-reproducible from a clean checkout with Go 1.27.3.
+- P6: docs/cutover.md. Going back to the JVM tested on staging with the
+  reference B.2 (backup, import, a few messages with signal-cli-go, restore):
+  messages received meanwhile are lost to the JVM; its first 1:1 sends are
+  rejected (reused message keys) and resent after retry receipts; its
+  first group send is lost everywhere (sender-key distribution on stale
+  sessions, and 0.14.7 never resends group messages); one round of
+  renewals heals it; no safety-number change. Run directory
+  .data/interop/cutover-20261031; the retired signal-cli-go copy is kept
+  at .data/interop/ref-b-go.retired and must never run again.
+- Next: P7-P9 need the operator (throwaway numbers, an official app,
+  production captchas).
