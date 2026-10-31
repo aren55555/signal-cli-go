@@ -1,0 +1,21 @@
+{
+  "scenario": {
+    "name": "bridge-daemon-unregistered",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+12025550100",
+      "daemon",
+      "--http=127.0.0.1:8080",
+      "--receive-mode=on-start"
+    ],
+    "note": "the operator bridge's exact daemon invocation (milestone 12 P4), on a fictional unregistered number: stops before any network access"
+  },
+  "oracle": "signal-cli 0.14.7",
+  "result": {
+    "stdout": "",
+    "stderr": "User +12025550100 is not registered.\n",
+    "exitCode": 1
+  }
+}

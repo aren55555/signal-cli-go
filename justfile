@@ -54,7 +54,7 @@ secret-scan: _gotmp
     go test ./internal/repocheck -run 'TestTreeHasNoSecrets|TestHistoryHasNoSecrets|TestSecretPatternsFire' -count=1
 
 # Everything CI runs
-ci: fmt-check check-deps vet test-race proto-check secret-scan
+ci: fmt-check check-deps vet test-race proto-check secret-scan check-arm64
 
 # Download and verify the reference signal-cli 0.14.7 into third_party/
 install-oracle: _gotmp
@@ -86,3 +86,19 @@ proto-gen: _gotmp
 # Fail if regenerating the protobuf code would change anything
 proto-check: _gotmp
     bash tools/proto-check/check.sh {{protoc}}
+
+# Release builds for the Raspberry Pi (linux/arm64): static, no C, paths
+# trimmed, with the pinned Go toolchain. Byte-reproducible from a clean
+# checkout of the same commit (see README, Building for linux/arm64).
+build-arm64: _gotmp
+    @mkdir -p dist/linux-arm64
+    GOTOOLCHAIN=go1.27.3 CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o dist/linux-arm64/signal-cli-go ./cmd/signal-cli-go
+    GOTOOLCHAIN=go1.27.3 CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o dist/linux-arm64/signal-cli-go-import ./cmd/signal-cli-go-import
+    @cd dist/linux-arm64 && sha256sum signal-cli-go signal-cli-go-import
+
+# Cross-checks for linux/arm64 that run on any host: vet, and every test
+# package compiles (executing them needs an arm64 machine; see README).
+check-arm64: _gotmp
+    GOOS=linux GOARCH=arm64 go vet ./...
+    @mkdir -p dist/linux-arm64-tests
+    @for p in $(go list ./...); do n=$(echo "${p#github.com/aren55555/signal-cli-go/}" | tr / -); GOOS=linux GOARCH=arm64 go test -c -o dist/linux-arm64-tests/$n.test $p >/dev/null || exit 1; done; echo "arm64: all test packages compile"

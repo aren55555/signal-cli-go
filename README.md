@@ -67,6 +67,36 @@ signal-cli-go shares signal-cli's account index (`data/accounts.json`) but keeps
 each account's data in its own format, next to signal-cli's files. It doesn't
 read signal-cli's account files or database; migrate those with the importer.
 
+### Building for linux/arm64 (Raspberry Pi)
+
+    just build-arm64        # dist/linux-arm64/signal-cli-go and signal-cli-go-import, with SHA-256 sums
+
+or by hand, with exactly Go 1.27.3:
+
+    GOTOOLCHAIN=go1.27.3 CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o signal-cli-go ./cmd/signal-cli-go
+    GOTOOLCHAIN=go1.27.3 CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o signal-cli-go-import ./cmd/signal-cli-go-import
+
+The output is a static binary with no dependencies.
+
+The build is **byte-reproducible**: the same commit built from a clean checkout
+with Go 1.27.3 gives identical files, whatever the checkout path, host or build
+cache (checked on two paths and with a cold cache). Go stamps the commit and a
+"modified" flag into the binary, so a checkout with uncommitted changes builds a
+different file.
+
+`just check-arm64` (part of `just ci`) runs `go vet` for arm64 and compiles every
+test package for it. Running the tests needs an arm64 machine. On a Mac with an
+arm64 Docker host (Colima's VM is arm64 natively), from the repository root:
+
+    docker run --rm --platform linux/arm64 -v "$PWD":/src -w /src \
+      -e GOFLAGS=-mod=vendor -e CGO_ENABLED=0 -e GOTOOLCHAIN=local \
+      golang:1.27.3 go test ./...
+
+and to smoke-test the release binaries themselves:
+
+    docker run --rm --platform linux/arm64 -v "$PWD/dist/linux-arm64":/opt/sg:ro \
+      alpine:3 /opt/sg/signal-cli-go --version
+
 ## Migrating from signal-cli
 
 `signal-cli-go-import` copies accounts from a signal-cli 0.14.7 data directory into

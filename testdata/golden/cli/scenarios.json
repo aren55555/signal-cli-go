@@ -325,5 +325,18 @@
       "COLUMNS": "120"
     },
     "note": "parse-error usage wrap width from COLUMNS"
+  },
+  {
+    "name": "bridge-daemon-unregistered",
+    "args": [
+      "--config",
+      "{{CONFIG}}",
+      "-a",
+      "+12025550100",
+      "daemon",
+      "--http=127.0.0.1:8080",
+      "--receive-mode=on-start"
+    ],
+    "note": "the operator bridge's exact daemon invocation (milestone 12 P4), on a fictional unregistered number: stops before any network access"
   }
 ]

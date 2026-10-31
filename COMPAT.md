@@ -6,9 +6,9 @@ is stated in the Notes column.
 
 Legend: ✅ done · 🟡 partial (see notes) · ⬜ not started · n/a not applicable · deferred: out of scope for now, revisited later (not "won't do")
 
-**Status (2026-10-31):** production is enabled and is the default; its live proof is in the [Production](#production) section, separate from staging. **Staging (2026-10-29, milestone 9 done):** every Layer B golden replays green (CLI 355, JSON-RPC 162). Rows that are not fully ✅ say why in their notes; the remaining gaps are deferred features (voice calls, D-Bus), paths that staging cannot exercise safely with two accounts, and Layer A cells with no upstream vectors.
+**Status (2026-10-31):** production is enabled and is the default; its live proof is in the [Production](#production) section, separate from staging. **Staging (2026-10-29, milestone 9 done):** every Layer B golden replays green (CLI 356, JSON-RPC 162). Rows that are not fully ✅ say why in their notes; the remaining gaps are deferred features (voice calls, D-Bus), paths that staging cannot exercise safely with two accounts, and Layer A cells with no upstream vectors.
 
-Layer B goldens: all account-free behavior is recorded (CLI 355, JSON-RPC 162 scenarios, see `testdata/README.md`). A Layer B cell turns ✅ only when the scenario replays green against signal-cli-go, not when it is recorded.
+Layer B goldens: all account-free behavior is recorded (CLI 356, JSON-RPC 162 scenarios, see `testdata/README.md`). A Layer B cell turns ✅ only when the scenario replays green against signal-cli-go, not when it is recorded.
 
 ## JSON-RPC daemon (priority 1)
 
@@ -215,8 +215,8 @@ counterpart where the row says so. The operator's real account is never used.
 | CDSI lookups | ⬜ | | P7 |
 | Receiving through `daemon --http` (SSE `GET /api/v1/events`) | ⬜ | | P7 |
 | Import of a production account registered with signal-cli 0.14.7 (sessions decrypt both ways, groups intact, no re-registration, re-link or safety-number change on the official app) | ⬜ | | P8 |
-| The operator's daemon setup (`--config <dir> -a <n> daemon --http=127.0.0.1:8080 --receive-mode=on-start`) and its methods, side by side with signal-cli 0.14.7 | ⬜ | | P9; offline parity: see the JSON-RPC section |
-| linux/arm64 build (daemon and importer) | ⬜ | | P5 |
+| The operator's daemon setup (`--config <dir> -a <n> daemon --http=127.0.0.1:8080 --receive-mode=on-start`) and its methods, side by side with signal-cli 0.14.7 | ⬜ | | P9 live. Offline (P4): the exact invocation matches the reference (golden `bridge-daemon-unregistered`); `--config` is the data directory as in 0.14.7; all 21 methods replay green in Layer B; on staging the SSE stream was byte-identical (milestone 8) |
+| linux/arm64 build (daemon and importer) | 🟡 | `just build-arm64`, `just check-arm64` (in `just ci`) | static, CGO_ENABLED=0, -trimpath, Go 1.27.3; byte-reproducible from a clean checkout (two paths and a cold cache gave identical hashes); vet and all 58 test packages compile for arm64. Running the tests and binaries on arm64 needs the operator's arm64 Docker host (README gives the commands) |
 
 ## Protocol and interop (priority 3)
 

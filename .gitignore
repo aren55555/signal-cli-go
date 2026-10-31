@@ -5,3 +5,6 @@
 /signal-cli-go
 # Scratch data directories for local runs.
 /.data/
+
+# linux/arm64 builds and test binaries (just build-arm64, just check-arm64)
+/dist/
