@@ -30,9 +30,68 @@ every session, and update both before ending one.
 | 9  | CLI parity                                   | done (2026-10-29); all 355 CLI goldens green; logging, send log, --trust-new-identities, username/PNI recipients, link QR, delete-account (offline only, as instructed); voice calls and D-Bus remain for 9b |
 | 9b | Revisit deferred items (voice calls, D-Bus client mode) | not started |
 | 10 | Stretch goal: import an existing signal-cli data dir | done (2026-10-29); `cmd/signal-cli-go-import` with modernc.org/sqlite (second amendment); account file v10 + schema 30 only; an imported reference device worked live on staging without re-linking |
-| 11 | Production support | in progress (2026-10-30): production values specified and built in alongside staging, tested against the spec; `live` still refused until the operator approves a live check and allowlists the production hosts |
+| 11 | Production environment values | done (2026-10-30): production values specified and built in alongside staging, tested against the spec; `live` still refused |
+| 12 | Production support | in progress (2026-10-31, operator-approved): see "Milestone 12 plan" |
 
 The operator reviewed this file and the first COMPAT.md draft on 2026-10-23.
+
+## Milestone 12 plan: production support (operator decision 2026-10-31)
+
+Goal: replace JVM signal-cli 0.14.7 under the operator's bridge
+(signal-cli-to-rpc on a Raspberry Pi, linux/arm64), which runs
+`signal-cli --config <dir> -a <number> daemon --http=127.0.0.1:8080
+--receive-mode=on-start` against a real production account. That account
+is never touched by tests; its number is never given to us; tests use only
+the live test numbers in /tmp/live-numbers. Allowed production hosts:
+chat, grpc.chat, storage, cdn, cdn2, cdn3, cdsi, svr2 (all .signal.org),
+nothing else; any other host means stop and ask.
+
+Phases (each ends with `just ci` green and a commit):
+
+- **P1 Hermetic tests.** Layer B replay and every offline test run with
+  networking blocked (dead proxy), so removing the refusal cannot make a
+  test reach production. A test proves staging drivers always pass
+  `--service-environment staging` and that offline tests cannot connect.
+- **P2 Live safety guard (item 2).** `internal/livetest`: live tests and
+  drivers run only with SIGNAL_CLI_GO_LIVE=1, read numbers only from
+  /tmp/live-numbers and refuse any other; pacing well below staging's,
+  exponential backoff on 413/428/429 with a hard stop, a per-run message
+  cap. repocheck extended so live numbers, codes and tokens cannot be
+  committed.
+- **P3 Production enabled (item 1).** Remove LiveUnsupported; `live` is the
+  default as in signal-cli. README, COMPAT.md, PLAN.md describe production
+  as supported with its gaps listed; COMPAT.md gains a production column
+  where staging results do not count.
+- **P4 Daemon parity offline (item 5, offline part).** `--config`,
+  `daemon --http=… --receive-mode=on-start`, and the listed methods
+  (send, sendReaction, sendTyping, listGroups, updateGroup, joinGroup,
+  quitGroup, listContacts, updateContact, block, unblock, listIdentities,
+  trust, listDevices, getUserStatus, updateProfile, updateAccount,
+  register, verify, startLink, finishLink) against the Layer B goldens and
+  the SSE event JSON for data messages; gaps listed.
+- **P5 linux/arm64 (item 6).** Cross-compile daemon and importer with
+  CGO_ENABLED=0 GOOS=linux GOARCH=arm64, `just` recipe, reproducible-build
+  notes (pinned Go, -trimpath, byte-reproducibility checked), tests run
+  for arm64 where possible (the sandbox is x86_64; the operator's Colima
+  VM is arm64 — exact command given).
+- **P6 Cutover doc (item 7).** docs/cutover.md: backup, health checks,
+  what breaks when going back to the JVM signal-cli (state divergence),
+  tested where possible on staging.
+- **P7 Live proof (item 3), needs the operator:** throwaway numbers, an
+  official app on a phone, production captchas. Register or link a
+  throwaway number; 1:1, group (mentions, quotes), attachments (images),
+  reactions, typing both ways with the official app; CDSI; receiving
+  through `daemon --http` SSE. Throwaway group of test accounts only.
+- **P8 Production import (item 4), needs the operator:** a throwaway
+  number registered with the JVM signal-cli in the sandbox, sessions,
+  groups and sender keys built with the official app, imported, run with
+  signal-cli-go: sessions decrypt both ways, groups intact, no
+  re-registration, re-link or safety-number change on the official app.
+- **P9 Daemon side by side on production (item 5, live part):** the JVM
+  and signal-cli-go daemons on test accounts, diffed with Layer B
+  normalization, scrubbed before anything is committed.
+
+Risks and open questions are recorded here as they come up.
 
 ## Architecture
 

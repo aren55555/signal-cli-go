@@ -57,6 +57,7 @@ func loadCLIScenarios(t *testing.T) []Scenario {
 func TestCLIGolden(t *testing.T) {
 	scs := loadCLIScenarios(t)
 	if *record {
+		AllowNetwork = true // the reference, not signal-cli-go
 		recordAll(t, scs)
 		return
 	}

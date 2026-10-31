@@ -133,6 +133,17 @@ func scratchDir() string {
 	return os.TempDir()
 }
 
+// AllowNetwork lets runs use the real proxy settings. Only recording the
+// reference sets it; replaying signal-cli-go never touches the network.
+var AllowNetwork = false
+
+// DeadProxy is the proxy every replay is pointed at: nothing listens there,
+// so any connection attempt fails at once. signal-cli-go sends all its
+// traffic through HTTPS_PROXY or ALL_PROXY when set, so a scenario that
+// unexpectedly tries the network fails instead of reaching Signal, staging
+// or production (milestone 12 P1; CI runners have open internet).
+const DeadProxy = "http://127.0.0.1:9"
+
 // scenarioEnv is a minimal, stable environment so the operator's locale,
 // config files and secrets never leak into a run. COLUMNS is left unset:
 // with no terminal, signal-cli wraps help at 75 columns, which is what
@@ -141,11 +152,20 @@ func scratchDir() string {
 func scenarioEnv(scratch string) []string {
 	env := []string{"LANG=C.UTF-8", "LC_ALL=C.UTF-8", "TZ=UTC", "TERM=dumb",
 		"HOME=" + filepath.Join(scratch, "home")}
-	for _, k := range []string{"PATH", "JAVA_HOME",
-		"HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "NO_PROXY", "no_proxy"} {
+	for _, k := range []string{"PATH", "JAVA_HOME"} {
 		if v, ok := os.LookupEnv(k); ok {
 			env = append(env, k+"="+v)
 		}
+	}
+	if AllowNetwork {
+		for _, k := range []string{"HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "NO_PROXY", "no_proxy"} {
+			if v, ok := os.LookupEnv(k); ok {
+				env = append(env, k+"="+v)
+			}
+		}
+	} else {
+		env = append(env, "HTTPS_PROXY="+DeadProxy, "https_proxy="+DeadProxy, "ALL_PROXY="+DeadProxy, "all_proxy="+DeadProxy,
+			"HTTP_PROXY="+DeadProxy, "http_proxy="+DeadProxy, "NO_PROXY=", "no_proxy=")
 	}
 	return append(env, "JAVA_OPTS="+javaOpts())
 }

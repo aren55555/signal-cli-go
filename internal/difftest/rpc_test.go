@@ -47,6 +47,7 @@ func loadRPCScenarios(t *testing.T) []RPCScenario {
 func TestRPCGolden(t *testing.T) {
 	scs := loadRPCScenarios(t)
 	if *record {
+		AllowNetwork = true // the reference, not signal-cli-go
 		recordRPC(t, scs)
 		return
 	}

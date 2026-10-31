@@ -113,11 +113,21 @@ type finding struct{ where, rule, match string }
 
 // scan applies the patterns to one file's content.
 func scan(path string, data []byte, history bool) []finding {
-	if strings.HasPrefix(path, "testdata/vectors/") || bytes.IndexByte(data, 0) >= 0 {
-		return nil // exempt, or binary
+	if bytes.IndexByte(data, 0) >= 0 {
+		return nil // binary
 	}
 	var out []finding
 	text := string(data)
+	// Live test numbers (milestone 12): never anywhere, not even in an
+	// exempt path, with or without the plus sign.
+	for _, n := range liveNumbers {
+		if strings.Contains(text, n) || strings.Contains(text, strings.TrimPrefix(n, "+")) {
+			out = append(out, finding{path, "live test number", n})
+		}
+	}
+	if strings.HasPrefix(path, "testdata/vectors/") {
+		return out // exempt from the other rules
+	}
 	for _, p := range secretPatterns {
 		for _, sm := range p.re.FindAllStringSubmatch(text, -1) {
 			m := sm[0]
@@ -312,6 +322,12 @@ func TestSecretPatternsFire(t *testing.T) {
 			t.Errorf("%q reported: %+v", s, fs)
 		}
 	}
+	saved := liveNumbers
+	liveNumbers = []string{"+12025550142"} // a stand-in for the operator's file
+	if fs := scan("testdata/vectors/x.json", []byte(`call 12025550142`), false); len(fs) != 1 || fs[0].rule != "live test number" {
+		t.Errorf("a live number in an exempt path, without the plus: %+v", fs)
+	}
+	liveNumbers = saved
 	if fs := scan("testdata/vectors/x.json", []byte(`"number":"`+j([]string{"+1415", "555", "2671"}, "")+`"`), false); len(fs) > 0 {
 		t.Error("testdata/vectors/ is exempt")
 	}
@@ -322,3 +338,21 @@ func TestSecretPatternsFire(t *testing.T) {
 }
 
 func readFile(rel string) ([]byte, error) { return os.ReadFile(filepath.Join(repoRoot, rel)) }
+
+// liveNumbers are the operator's live test numbers, read from the tmpfs
+// file the live tests use (internal/livetest) when it exists on the
+// machine running the scan. CI has no such file; locally the scan then
+// also proves none of them was committed.
+var liveNumbers = func() []string {
+	b, err := os.ReadFile("/tmp/live-numbers")
+	if err != nil {
+		return nil
+	}
+	var out []string
+	for _, l := range strings.Split(string(b), "\n") {
+		if l = strings.TrimSpace(l); strings.HasPrefix(l, "+") && len(l) >= 8 {
+			out = append(out, l)
+		}
+	}
+	return out
+}()
