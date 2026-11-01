@@ -15,9 +15,9 @@ pure-Go `modernc.org/sqlite` to read signal-cli's database.
 > Like signal-cli, signal-cli-go uses Signal's production service by default
 > (`--service-environment live`); `--service-environment staging` selects the staging
 > servers. Every row of COMPAT.md's Production section was proven live on production
-> with throwaway accounts and the official iOS app: registration, contact discovery,
-> 1:1 and group messaging with mentions, quotes, images, reactions and typing, a first
-> message from a stranger, the `daemon --http` event stream, importing an account
+> with throwaway accounts and the official iOS app: registration, linking as a secondary
+> device, contact discovery, 1:1 and group messaging with mentions, quotes, images,
+> reactions and typing, a first message from a stranger, the `daemon --http` event stream, importing an account
 > registered with signal-cli 0.14.7, and the JSON-RPC daemon side by side with signal-cli
 > 0.14.7. Read [Known gaps](#known-gaps) (including the production gaps) and
 > [`docs/cutover.md`](docs/cutover.md) before moving a real account.
@@ -154,8 +154,6 @@ gaps:
   - The rate-limit challenge flow (a send answered with "proof required" and a captcha,
     `submitRateLimitChallenge`) has never been seen live, on production or staging. It is
     tested offline only. Production rate limits are stricter than staging's.
-  - Linking signal-cli-go as a secondary device to a production primary was not
-    exercised. Registration was, as was signal-cli-go as the primary adding a device.
   - Change number and registration-lock (PIN) recovery are tested offline only.
   - The live runs used throwaway accounts with a few contacts and groups and daemon runs
     of up to about an hour. Large accounts, high message rates and multi-day uptime were

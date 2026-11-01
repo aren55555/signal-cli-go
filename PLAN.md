@@ -31,7 +31,7 @@ every session, and update both before ending one.
 | 9b | Revisit deferred items (voice calls, D-Bus client mode) | not started |
 | 10 | Stretch goal: import an existing signal-cli data dir | done (2026-10-29); `cmd/signal-cli-go-import` with modernc.org/sqlite (second amendment); account file v10 + schema 30 only; an imported reference device worked live on staging without re-linking |
 | 11 | Production environment values | done (2026-10-30): production values specified and built in alongside staging, tested against the spec; `live` still refused |
-| 12 | Production support | production supported (2026-11-01): P1–P9 done, all production rows green; P10 (release the leased numbers) waits for the operator |
+| 12 | Production support | production supported (2026-11-01): P1–P9 done, all production rows green (14, incl. linking); P10 (release the leased numbers) waits for the operator |
 
 The operator reviewed this file and the first COMPAT.md draft on 2026-10-23.
 
@@ -1199,3 +1199,20 @@ anyway (N3 then deleted for good).
   and lists the production gaps; COMPAT.md (status line and Production
   section) and this plan agree. CONTRIBUTING describes guarded production
   runs. Next: P10 on the operator's go-ahead.
+
+### 2026-11-01, linking as a secondary device to the iPhone
+
+- signal-cli-go linked to the fresh N3 (iOS primary) as device 2: a link
+  URI lives 90 s (server "Timeout", same lifespan as signal-cli's), so the
+  first attempt expired before the QR reached the operator; a loop of
+  fresh attempts with the URI pasted into qrencode worked first time.
+- Sync from the primary (complete contacts, blocked, configuration);
+  send from signal-cli-go (N2 got it, the iPhone showed it as sent);
+  send from the iPhone (sync transcript on signal-cli-go, N2 got it);
+  N2's reply on both devices; the iPhone's read as a read sync. The
+  linking gap is now a green production row.
+- Fixed: signal-cli-go did not store its own identities as
+  TRUSTED_VERIFIED when linking (signal-cli does: the JVM linked device in
+  P9 listed itself TRUSTED_VERIFIED from link time; linking.md is silent,
+  so this rests on that observation). TestLink covers it; the device
+  linked today predates the fix.

@@ -158,6 +158,13 @@ func TestLink(t *testing.T) {
 		d.Environment != store.EnvStaging || string(d.ProfileKey) != string(profileKey) || string(d.ACIIdentity.Private) != string(aciID.Bytes()) {
 		t.Errorf("stored account %+v", d)
 	}
+	// Own identities are verified from the start, as signal-cli stores
+	// them when it links (observed on production, 2026-11-01).
+	for _, k := range []string{testACI, "PNI:" + testPNI} {
+		if id := acct.Identities[k]; id.Trust != store.TrustedVerified || id.Added != 1700000000000 || len(id.Key) != 33 {
+			t.Errorf("own identity %s: %+v", k, id)
+		}
+	}
 	for name, ks := range map[string]struct {
 		state store.PreKeyState
 		keys  store.IdentityKeys

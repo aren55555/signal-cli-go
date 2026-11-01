@@ -30,6 +30,7 @@ captchas, tokens or transcripts. Results go in COMPAT.md, section Production.
 - [x] Reactions and typing indicators both ways
 - [x] Receiving through `daemon --http` (`curl -N http://127.0.0.1:PORT/api/v1/events`)
 - [x] A true stranger's first message: the official app (fresh install and registration) messages N2 (fresh local store) by number; delivered to the PNI, reply in the same chat (2026-11-01)
+- [x] Link signal-cli-go as a secondary device to the iPhone; sync, send and receive both ways (2026-11-01)
 
 ## P8: import of a production account (N1)
 

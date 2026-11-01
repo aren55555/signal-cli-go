@@ -293,7 +293,18 @@ func (l *Linker) finish(ctx context.Context, pm *signalpb.ProvisionMessage, pass
 		return nil, err
 	}
 	acct.Data, acct.Keys = d, keys
+	// The account's own identities are stored as verified, as at
+	// registration (registration.md §7). linking.md does not say so;
+	// observed on production: signal-cli 0.14.7, linked as a secondary,
+	// lists its own identity as TRUSTED_VERIFIED, added at link time.
+	nowMs := l.now().UnixMilli()
+	acct.PutIdentity(d.ACI, store.Identity{Key: d.ACIIdentity.Public, Trust: store.TrustedVerified, Added: nowMs})
+	acct.PutIdentity("PNI:"+d.PNI, store.Identity{Key: d.PNIIdentity.Public, Trust: store.TrustedVerified, Added: nowMs})
 	acct.EnsureSelf() // the self recipient is the first row (contacts.md §4)
+	if err := acct.SaveIdentities(); err != nil {
+		l.Root.Delete(acct)
+		return nil, err
+	}
 	if err := acct.SaveRecipients(); err != nil {
 		l.Root.Delete(acct)
 		return nil, err
