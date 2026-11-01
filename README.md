@@ -89,9 +89,14 @@ different file.
 test package for it. Running the tests needs an arm64 machine. On a Mac with an
 arm64 Docker host (Colima's VM is arm64 natively), from the repository root:
 
-    docker run --rm --platform linux/arm64 -v "$PWD":/src -w /src \
+    docker run --rm --platform linux/arm64 --network none -v "$PWD":/src:ro -w /src \
+      --user 1000:1000 -e HOME=/tmp -e GOCACHE=/tmp/gocache \
       -e GOFLAGS=-mod=vendor -e CGO_ENABLED=0 -e GOTOOLCHAIN=local \
       golang:1.27.3 go test ./...
+
+Run the tests as a normal user, as above. As root, one recorded case (`-d` under
+`/nonexistent`) would behave differently, because root can create directories in
+`/`. It is skipped with a message when the tests run as root.
 
 and to smoke-test the release binaries themselves:
 

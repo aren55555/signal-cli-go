@@ -1133,3 +1133,16 @@ first message is an unsealed PreKey message to the PNI. Options:
 Recommendation: option 2. It tests exactly the bot's case with the
 official iOS app, needs nothing new, and ends in the state P10 needs
 anyway (N3 then deleted for good).
+
+### 2026-11-01, arm64 on the operator's host
+
+- Operator ran the suite natively on arm64 (Colima, --network none, source
+  read-only): all packages ok as uid 1000; as root obs038 (`-d
+  /nonexistent/x version`) gave exit 0 instead of the recorded exit 3,
+  because root can create /nonexistent. The golden test now skips that one
+  case as root with a reason (TestRootSkipIsNarrow pins it to obs038);
+  README's arm64 command runs as --user 1000:1000.
+- The a1dc0b5 release binaries ran in alpine:3 arm64: version, importer
+  usage, and the bridge's daemon command (unregistered: exit 1) as
+  signal-cli 0.14.7. arm64 row green.
+- Operator decided the stranger test: option 2, re-register N3 fresh.
