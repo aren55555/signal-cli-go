@@ -22,6 +22,64 @@ pure-Go `modernc.org/sqlite` to read signal-cli's database.
 > 0.14.7. Read [Known gaps](#known-gaps) (including the production gaps) and
 > [`docs/cutover.md`](docs/cutover.md) before moving a real account.
 
+## Why signal-cli-go
+
+signal-cli is the backbone of most Signal bots, bridges and home-automation
+integrations. It runs on the JVM and needs Signal's native library (`libsignal_jni`)
+for each platform. signal-cli-go is written in plain Go: the standard library plus
+the vendored protobuf module, with no cgo, no Rust and no native libraries. That
+gives you:
+
+- **One static binary that runs anywhere Go does.** The daemon is about 17 MB;
+  signal-cli 0.14.7 is 126 MB of jars plus a Java 25 runtime, or a 372 MB native
+  binary for x86-64 Linux only. There's no Java to install and no per-platform native library to find, build or
+  patch into a jar. That covers Raspberry Pi (arm64 and armv7), Alpine/musl, older
+  glibc and FreeBSD: `GOOS=linux GOARCH=arm64 go build` on any machine builds it.
+  signal-cli itself bundles `libsignal_jni` only for x86-64 Linux, Windows and
+  macOS (see its wiki,
+  [Provide native lib for libsignal](https://github.com/AsamK/signal-cli/wiki/Provide-native-lib-for-libsignal)).
+- **No Java version treadmill.** signal-cli 0.14.7 needs Java 25 or later, so
+  older or long-term-support systems may need a separately installed JRE. signal-cli-go
+  needs nothing at runtime.
+- **Reproducible, auditable builds.** Two builds of the same commit are
+  byte-identical, so anyone can check that a binary matches the source. Every
+  dependency is vendored and in one language, and nothing is downloaded or
+  extracted at runtime.
+- **No JNI boundary.** Nothing crosses from the JVM into native code, so there's no
+  reflection metadata to keep in sync for a native image.
+- **Truly drop-in.** The same commands, output, exit codes, JSON-RPC methods and
+  event JSON as signal-cli 0.14.7, checked against recorded transcripts. On
+  production it was also checked side by side with signal-cli. Existing scripts,
+  bots and wrappers keep working.
+- **Keep your account.** `signal-cli-go-import` moves an existing signal-cli account
+  across. You don't register or link again, and your contacts see no safety-number
+  change.
+- **A primary device, not just a linked one.** Registration, PINs (SVR2), groups v2
+  and contact discovery are all implemented, not only the linked-device subset.
+- **Your licence, not libsignal's.** The protocol is a clean-room implementation, so
+  it doesn't link Signal's AGPL-licensed libsignal. signal-cli-go is GPL-3.0-or-later,
+  like signal-cli.
+
+### When not to use it (yet)
+
+- **You need a battle-tested client.** signal-cli has years of real-world use.
+  signal-cli-go's production evidence so far is a set of live checks with throwaway
+  accounts, and multi-day uptime and large accounts haven't been tested (see
+  [Known gaps](#known-gaps)).
+- **You need audited cryptography.** The Signal protocol, zkgroup, Kyber and the
+  enclave attestation are implemented in this repository. They're checked against
+  published test vectors and by live interoperability with the official apps, but
+  no one has independently audited them. Reviews are welcome; see
+  [`SECURITY.md`](SECURITY.md).
+- **You need voice calls or D-Bus.** Neither is implemented yet.
+- **You need it to track Signal changes immediately.** Like signal-cli, this is an
+  unofficial client that Signal doesn't support, and Signal changes its servers
+  without notice. Unlike signal-cli, signal-cli-go doesn't get protocol updates for
+  free from libsignal: each change has to be specified and implemented here.
+- **You want to switch back and forth.** Going back to signal-cli after signal-cli-go
+  has run an account costs messages and needs session repair (see
+  [`docs/cutover.md`](docs/cutover.md)). Treat the switch as one-way.
+
 ## Status
 
 [`COMPAT.md`](COMPAT.md) has the feature-by-feature matrix and
