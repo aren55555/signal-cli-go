@@ -39,7 +39,7 @@ captchas, tokens or transcripts. Results go in COMPAT.md, section Production.
 
 ## P9: daemon side by side
 
-- [ ] The JVM and signal-cli-go daemons on test accounts, the listed methods and
+- [x] The JVM and signal-cli-go daemons on test accounts, the listed methods and
       SSE events diffed with Layer B normalization, scrubbed
 
 ## P10: release the leased numbers (before the leases end)

@@ -1079,3 +1079,12 @@ vectors.
   fails with a NullPointerException (no self profile yet).
 - The live driver now streams output (masked) while commands run.
 - Open: the SSE event comparison needs messages from the iOS app.
+- SSE side by side: the iOS app sent a 1:1 text, a group quote with a
+  mention, an image, a reaction and typing to N1; all 11 events from N3
+  were identical between the JVM and signal-cli-go daemons after
+  scrubbing, and the downloaded image is byte-identical. No warnings in
+  either daemon log. P9 complete. Only the duplicated P9 test messages
+  (sent by both N1 devices on purpose) showed twice on iOS.
+- Remaining in milestone 12: running the arm64 build on an arm64 host
+  (operator), and P10 (delete N1 and N2, operator deletes N3) before the
+  leases end. Still unexplained: N3's very first message to N2 (P7).
