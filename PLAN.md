@@ -1050,3 +1050,16 @@ vectors.
 - Typing N2 → N3 confirmed on iOS, sent through the fixed daemon after
   16 minutes idle (no warnings in its 17-minute log). P7 complete; next P8
   (N1 with the JVM signal-cli, then import).
+
+### 2026-11-01, milestone 12 P8 (live import)
+
+- N1 registered on production with the JVM signal-cli 0.14.7; 1:1 with N3
+  (iOS) and N2; a group of N1, N2, N3 created by the JVM (all full
+  members, since N1 had both profile keys), sender-key messages from all
+  three. JVM stopped, backed up, imported (nothing skipped).
+- `listDevices`, `listIdentities`, `listGroups -d`, `listContacts`
+  byte-identical before and after. signal-cli-go as N1 sent 1:1 and group
+  (reusing the JVM's distributed sender key) and received N3's 1:1 and
+  group replies (pre-import session and sender key). No notice on iOS.
+- The JVM copy is renamed .data/live/n1-jvm.retired-do-not-run; the backup
+  tar stays until P10. Next: P9 (daemon side by side), then P10.

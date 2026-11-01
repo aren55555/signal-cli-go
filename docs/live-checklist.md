@@ -32,9 +32,9 @@ captchas, tokens or transcripts. Results go in COMPAT.md, section Production.
 
 ## P8: import of a production account (N1)
 
-- [ ] Register N1 with the JVM signal-cli (`ref`); 1:1 and group messages with N3
-- [ ] Stop it, import with `signal-cli-go-import`, run signal-cli-go on N1
-- [ ] Sessions decrypt both ways and groups are intact; N3's app shows no
+- [x] Register N1 with the JVM signal-cli (`ref`); 1:1 and group messages with N3
+- [x] Stop it, import with `signal-cli-go-import`, run signal-cli-go on N1
+- [x] Sessions decrypt both ways and groups are intact; N3's app shows no
       re-registration, re-link or safety-number change
 
 ## P9: daemon side by side
