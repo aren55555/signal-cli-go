@@ -1108,3 +1108,28 @@ vectors.
 - Conclusion: no loss in signal-cli-go; no fix needed. The prekey-count
   comparison is a useful check for "did the sender ever try" (added to
   docs/live-checklist.md).
+
+### Open: stranger's first message (operator decision needed)
+
+No live proof yet that a first message from a true stranger, sent with an
+official Signal app, reaches a signal-cli-go account. For the bridge this
+is the common case: new people message the bot. Such a sender knows only
+the bot's number, so CDSI gives it only the PNI (cdsi.md §4.4) and its
+first message is an unsealed PreKey message to the PNI. Options:
+
+1. **A fourth leased number with an official app** on a second phone,
+   messaging N2 out of the blue. Cleanest; needs a second device (one
+   iPhone holds one Signal account) and another lease to clean up in P10.
+2. **Re-register N3 fresh**: delete N3's account in the iOS app, register
+   N3 again (new ACI, PNI and keys, no contacts), then message N2 by
+   number. To N2 this is a new identity without a profile key, i.e. a
+   stranger; to the phone, N2 is an unknown number. Needs no new number or
+   device; costs N3's chat history, and N3 is deleted in P10 anyway.
+3. **Accept the existing evidence**: the live PNI PreKey repro from N1 (a
+   signal-cli-go sender) plus `TestDecryptToPNIAndSealed`. No official-app
+   proof; differences in what an official app puts in a first message
+   (PNI signature, profile key, message-request flags) stay untested.
+
+Recommendation: option 2. It tests exactly the bot's case with the
+official iOS app, needs nothing new, and ends in the state P10 needs
+anyway (N3 then deleted for good).
