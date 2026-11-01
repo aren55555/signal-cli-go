@@ -22,13 +22,13 @@ captchas, tokens or transcripts. Results go in COMPAT.md, section Production.
 
 - [x] Register N2 (production captcha and SMS code from the operator); set a profile name (2026-10-31)
 - [x] CDSI negative lookup: numbers not on Signal return `isRegistered: false` (2026-10-31)
-- [ ] The operator registers N3 in the official app
-- [ ] CDSI positive lookup of N3 (`getUserStatus @N3` returns its ACI)
-- [ ] 1:1 text both ways, N2 ↔ N3
-- [ ] Throwaway group of N2 and N3 (test accounts only): messages both ways, with @mentions and quotes
-- [ ] Images both ways (1:1 and in the group)
+- [x] The operator registers N3 in the official app
+- [x] CDSI positive lookup of N3 (`getUserStatus @N3` returns its ACI)
+- [x] 1:1 text both ways, N2 ↔ N3
+- [x] Throwaway group of N2 and N3 (test accounts only): messages both ways, with @mentions and quotes
+- [x] Images both ways (1:1 and in the group)
 - [ ] Reactions and typing indicators both ways
-- [ ] Receiving through `daemon --http` (`curl -N http://127.0.0.1:PORT/api/v1/events`)
+- [x] Receiving through `daemon --http` (`curl -N http://127.0.0.1:PORT/api/v1/events`)
 
 ## P8: import of a production account (N1)
 

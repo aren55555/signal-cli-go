@@ -73,7 +73,8 @@ func run(args []string) error {
 		if strings.HasPrefix(a, "--service-environment") || a == "live" && i > 0 && cmdArgs[i-1] == "--service-environment" {
 			return errors.New("the environment is set by the driver (live); remove --service-environment")
 		}
-		if a == "-d" || a == "--data-dir" || a == "-c" || a == "--config" {
+		// Global flags only: after the subcommand, -d is e.g. listGroups --detailed.
+		if sub == "" && (a == "-d" || a == "--data-dir" || a == "-c" || a == "--config") {
 			return errors.New("the data directory is set by the driver; remove " + a)
 		}
 		expanded[i] = a

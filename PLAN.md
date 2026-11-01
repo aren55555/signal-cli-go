@@ -1034,3 +1034,16 @@ vectors.
   registration.
 - Added P10: delete N1 and N2's accounts and have the operator delete N3's
   before the leases end.
+- 2026-11-01: N3 registered in the official iOS app. CDSI positive lookup;
+  1:1 both ways; throwaway group (N2, N3) with mentions and quotes both
+  ways; images both ways; reactions both ways; typing N3 → N2; SSE.
+  Production CDSI returns only the PNI for a number whose profile key is
+  unknown (cdsi.md §4.4), so N2's first message went to N3's PNI (a
+  message request on iOS) and the group invited N3 instead of adding it;
+  after N3's messages carried its profile key, a new lookup returned the
+  ACI and merged the records. All as signal-cli does.
+- Bug found live and fixed: daemon sends failed with NETWORK_FAILURE after
+  production closed the idle unauthenticated socket (1001 "Connection Idle
+  Timeout"); signal-cli-go now opens that socket on demand, closes it
+  after 30 s idle and redials it (pipe.md §5.3), in daemon, jsonRpc and
+  receive. Staging runs were never idle long enough to show it.

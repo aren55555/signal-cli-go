@@ -104,6 +104,14 @@ func (n *network) dialChatStories(ctx context.Context, a *store.Account, keepAli
 	return chat.Dial(ctx, ep)
 }
 
+// unauthSocket opens the unauthenticated socket of a long-running
+// session (see unauthSocket); nil if it cannot be dialed.
+func (n *network) unauthSocket(ctx context.Context) *unauthSocket {
+	return newUnauthSocket(ctx, func(ctx context.Context) (unauthConn, error) {
+		return n.dialChat(ctx, nil, false)
+	})
+}
+
 // checkAccount runs the start-up account check on the authenticated
 // socket (api.md §4.3).
 func checkAccount(ctx context.Context, a *store.Account, c *chat.Conn, account string) error {
@@ -240,7 +248,7 @@ func openSessionWith(ctx context.Context, e *env, g *globals, a *store.Account, 
 	}
 	s := &session{acct: a, sender: g.withProfiles(e, &manager.Sender{Acct: a, Chat: c, CDN: n.cdn()}), chat: c}
 	closers := []func() error{c.Close}
-	if u, err := n.dialChat(ctx, nil, false); err == nil {
+	if u := n.unauthSocket(ctx); u != nil {
 		s.sender.Unauth = u
 		closers = append(closers, u.Close)
 	}
@@ -538,7 +546,7 @@ func runReceive(ctx context.Context, e *env, g *globals, o receiveOpts) error {
 		return err
 	}
 	var unauth manager.Requester
-	if u, err := n.dialChat(ctx, nil, false); err == nil {
+	if u := n.unauthSocket(ctx); u != nil {
 		defer u.Close()
 		unauth = u
 	}
