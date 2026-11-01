@@ -1047,3 +1047,6 @@ vectors.
   Timeout"); signal-cli-go now opens that socket on demand, closes it
   after 30 s idle and redials it (pipe.md §5.3), in daemon, jsonRpc and
   receive. Staging runs were never idle long enough to show it.
+- Typing N2 → N3 confirmed on iOS, sent through the fixed daemon after
+  16 minutes idle (no warnings in its 17-minute log). P7 complete; next P8
+  (N1 with the JVM signal-cli, then import).

@@ -27,7 +27,7 @@ captchas, tokens or transcripts. Results go in COMPAT.md, section Production.
 - [x] 1:1 text both ways, N2 ↔ N3
 - [x] Throwaway group of N2 and N3 (test accounts only): messages both ways, with @mentions and quotes
 - [x] Images both ways (1:1 and in the group)
-- [ ] Reactions and typing indicators both ways
+- [x] Reactions and typing indicators both ways
 - [x] Receiving through `daemon --http` (`curl -N http://127.0.0.1:PORT/api/v1/events`)
 
 ## P8: import of a production account (N1)
