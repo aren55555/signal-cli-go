@@ -31,7 +31,7 @@ every session, and update both before ending one.
 | 9b | Revisit deferred items (voice calls, D-Bus client mode) | not started |
 | 10 | Stretch goal: import an existing signal-cli data dir | done (2026-10-29); `cmd/signal-cli-go-import` with modernc.org/sqlite (second amendment); account file v10 + schema 30 only; an imported reference device worked live on staging without re-linking |
 | 11 | Production environment values | done (2026-10-30): production values specified and built in alongside staging, tested against the spec; `live` still refused |
-| 12 | Production support | in progress (2026-10-31, operator-approved): see "Milestone 12 plan" |
+| 12 | Production support | production supported (2026-11-01): P1–P9 done, all production rows green; P10 (release the leased numbers) waits for the operator |
 
 The operator reviewed this file and the first COMPAT.md draft on 2026-10-23.
 
@@ -1179,3 +1179,23 @@ anyway (N3 then deleted for good).
   otherwise accept, since each part of the stranger path (PNI prekey
   fetch and PreKey decrypt from the official app, trust on first use for
   a new ACI from the official app) has now been seen live separately.
+
+### 2026-11-01, true stranger proven; production supported
+
+- True-stranger test (operator's plan): N3 deleted its account, reinstalled
+  the iOS app and registered again; N2's local data moved aside to
+  .data/live/n2-before-stranger-20261101T084851 (kept until P10) and N2
+  re-registered fresh with signal-cli-go. The server handed both numbers
+  their old ACI and PNI back; N2's new store had never seen N3. (The first
+  verify failed with 404 because the session had expired after 11 min; a
+  new register/verify within a minute worked.)
+- The app found N2 by number and sent "Hello from a true stranger":
+  delivered over SSE by `daemon --http`, unsealed PreKey message to the
+  PNI, decrypted on first delivery, trusted on first use; PNI prekeys
+  100 → 99 on server and locally. N2's reply carried the PNI signature;
+  the phone answered with a sealed receipt to N2's ACI and showed the
+  reply in the same chat. Stranger row green.
+- All 13 production rows green. README now says "production supported"
+  and lists the production gaps; COMPAT.md (status line and Production
+  section) and this plan agree. CONTRIBUTING describes guarded production
+  runs. Next: P10 on the operator's go-ahead.

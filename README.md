@@ -11,12 +11,15 @@ The main binary uses only the Go standard library and the vendored
 `google.golang.org/protobuf`, with no C code. A separate import tool also links the
 pure-Go `modernc.org/sqlite` to read signal-cli's database.
 
-> **Status: production enabled, live verification in progress — see
-> [COMPAT.md#production](COMPAT.md#production).** Like signal-cli, signal-cli-go uses
-> Signal's production service by default (`--service-environment live`);
-> `--service-environment staging` selects the staging servers. The features below
-> are proven on staging. Production is verified separately, row by row, in
-> COMPAT.md, because staging results don't count for production. Read [Known gaps](#known-gaps) and
+> **Status: production supported — see [COMPAT.md#production](COMPAT.md#production).**
+> Like signal-cli, signal-cli-go uses Signal's production service by default
+> (`--service-environment live`); `--service-environment staging` selects the staging
+> servers. Every row of COMPAT.md's Production section was proven live on production
+> with throwaway accounts and the official iOS app: registration, contact discovery,
+> 1:1 and group messaging with mentions, quotes, images, reactions and typing, a first
+> message from a stranger, the `daemon --http` event stream, importing an account
+> registered with signal-cli 0.14.7, and the JSON-RPC daemon side by side with signal-cli
+> 0.14.7. Read [Known gaps](#known-gaps) (including the production gaps) and
 > [`docs/cutover.md`](docs/cutover.md) before moving a real account.
 
 ## Status
@@ -33,11 +36,12 @@ pure-Go `modernc.org/sqlite` to read signal-cli's database.
   Every CLI command and output mode matches the recorded transcripts.
 - Existing signal-cli 0.14.7 accounts can be imported (see
   [Migrating from signal-cli](#migrating-from-signal-cli)).
-- Production: enabled, live verification in progress — see
-  [COMPAT.md#production](COMPAT.md#production). Built in are the service values of
-  signal-cli 0.14.7's production configuration, tested against the spec. The live
-  checks (messaging with an official Signal app, import of a production account, the
-  daemon side by side with signal-cli) turn green there one by one.
+- Production: supported — see [COMPAT.md#production](COMPAT.md#production). Built in are
+  the service values of signal-cli 0.14.7's production configuration, tested against
+  the spec, and every production row was proven live: messaging with an official Signal
+  app (including a stranger's first message), import of a production account, and all
+  21 JSON-RPC methods a typical bridge uses, plus the SSE event stream, compared side by
+  side with signal-cli 0.14.7. The linux/arm64 build was run on an arm64 host.
 
 ## Install
 
@@ -146,10 +150,21 @@ as JSON-RPC notifications. D-Bus (`--dbus`, `--dbus-system`) is not supported.
 [`COMPAT.md`](COMPAT.md) lists every row that isn't fully green and why. The main
 gaps:
 
-- **Production: enabled, live verification in progress** — see
-  [COMPAT.md#production](COMPAT.md#production). Until a row there is green, that feature has been
-  proven on staging only. Production rate limits and captcha challenges are
-  stricter, and the rate-limit challenge flow has never been seen live.
+- **Production gaps** (see [COMPAT.md#production](COMPAT.md#production)):
+  - The rate-limit challenge flow (a send answered with "proof required" and a captcha,
+    `submitRateLimitChallenge`) has never been seen live, on production or staging. It is
+    tested offline only. Production rate limits are stricter than staging's.
+  - Linking signal-cli-go as a secondary device to a production primary was not
+    exercised. Registration was, as was signal-cli-go as the primary adding a device.
+  - Change number and registration-lock (PIN) recovery are tested offline only.
+  - The live runs used throwaway accounts with a few contacts and groups and daemon runs
+    of up to about an hour. Large accounts, high message rates and multi-day uptime were
+    not tested live.
+  - Side by side, signal-cli-go as a primary sent its linked device two more empty sync
+    messages than signal-cli did. The event JSON was identical; the cause is not yet
+    known.
+  - The error text of `verify` after the registration session has expired
+    (`Verify error: rest: status 404`) was not compared with signal-cli's.
 - **Going back to the JVM signal-cli** after signal-cli-go has run an account
   needs care; see [`docs/cutover.md`](docs/cutover.md).
 - **Voice calls** (`startCall`, `acceptCall` and friends, call events) are

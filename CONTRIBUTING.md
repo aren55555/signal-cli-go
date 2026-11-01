@@ -45,7 +45,10 @@ in full. For contributors this means:
   (Layer B, see [`testdata/README.md`](testdata/README.md)), or a live staging run
   (Layer C). Update [`COMPAT.md`](COMPAT.md) when a row changes. A deliberate
   deviation from 0.14.7 needs a reason, recorded in COMPAT.md.
-- **Live tests use staging only:** always pass `--service-environment staging`.
+- **Live tests use staging,** with `--service-environment staging` on every command.
+  Production runs go only through `tools/live`, behind `internal/livetest`
+  (`SIGNAL_CLI_GO_LIVE=1`, numbers only from `/tmp/live-numbers`, paced, with a
+  message cap), on throwaway accounts; see [`docs/live-checklist.md`](docs/live-checklist.md).
   Never commit phone numbers, keys, captcha tokens, verification codes or
   transcripts with real identifiers. Test data uses the fictional range
   +1 NPA 555-0100…0199. Live data belongs in the gitignored `.data/` directory.
