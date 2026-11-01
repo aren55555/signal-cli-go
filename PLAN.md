@@ -90,6 +90,15 @@ Phases (each ends with `just ci` green and a commit):
 - **P9 Daemon side by side on production (item 5, live part):** the JVM
   and signal-cli-go daemons on test accounts, diffed with Layer B
   normalization, scrubbed before anything is committed.
+- **P10 Release the leased numbers (last step, before the leases end).**
+  N1, N2 and N3 are temporary leases (operator, 2026-10-31); whoever leases
+  them next must not inherit a Signal account. Delete N1 and N2's production
+  accounts from the server with signal-cli-go (`unregister --delete-account`
+  through `tools/live`; N1 is a signal-cli-go account after the P8 import),
+  check that a CDSI lookup from another account no longer finds them, and
+  remove their data under .data/live/. Remind the operator to delete N3's
+  account in the official app (Settings → Account → Delete account). Steps in
+  [`docs/live-checklist.md`](docs/live-checklist.md).
 
 Risks and open questions are recorded here as they come up.
 
@@ -1010,3 +1019,18 @@ vectors.
   at .data/interop/ref-b-go.retired and must never run again.
 - Next: P7-P9 need the operator (throwaway numbers, an official app,
   production captchas).
+
+### 2026-10-31, milestone 12 P7 (live, started)
+
+- The operator leased three temporary numbers (N1, N2, N3 in
+  /tmp/live-numbers, never committed). The live driver `tools/live` runs every
+  production command behind `internal/livetest`; checklist in
+  docs/live-checklist.md.
+- N2 registered on production by signal-cli-go (production captcha and
+  SMS code); profile name set; `listDevices` shows one primary device.
+- CDSI negative lookup: N1 (not yet registered) and N3 (leased, not yet on
+  Signal) return `isRegistered: false` without error, so the production
+  enclave attests and answers. Positive lookup waits for N3's app
+  registration.
+- Added P10: delete N1 and N2's accounts and have the operator delete N3's
+  before the leases end.

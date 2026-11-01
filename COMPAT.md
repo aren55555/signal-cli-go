@@ -206,13 +206,13 @@ counterpart where the row says so. The operator's real account is never used.
 | Feature | Status | Evidence | Notes |
 |---------|--------|----------|-------|
 | Service values (hosts, enclaves, zkgroup params, sealed-sender roots, TLS roots) | ✅ | `internal/environment` tests against [`environments.md`](spec/service/environments.md) | offline; values from signal-cli 0.14.7's production configuration |
-| `--service-environment live` reaches production (the default) | 🟡 | | enabled 2026-10-31; first live run pending (P7) |
-| Registering or linking a throwaway production number | ⬜ | | P7, needs operator numbers and a production captcha |
+| `--service-environment live` reaches production (the default) | ✅ | live 2026-10-31 (P7) | first production runs 2026-10-31: register, verify, profile, CDSI and device list against production through the live driver (`tools/live`) |
+| Registering or linking a throwaway production number | ✅ | live 2026-10-31 (P7) | N2 registered by signal-cli-go with a production captcha and SMS code; profile name set; `listDevices` shows one primary device. Linking on production not exercised |
 | 1:1 text both ways with an official Signal app | ⬜ | | P7 |
-| Group v2 messages both ways, with  and quotes | ⬜ | | P7, throwaway group of test accounts only |
+| Group v2 messages both ways, with @mentions and quotes | ⬜ | | P7, throwaway group of test accounts only |
 | Attachments both ways (images) | ⬜ | | P7 |
 | Reactions and typing indicators | ⬜ | | P7 |
-| CDSI lookups | ⬜ | | P7 |
+| CDSI lookups | 🟡 | live 2026-10-31 (P7) | negative lookup ✅: two numbers not on Signal (N1, and N3 before its app registration) returned `isRegistered: false` with no error, so attestation with the production enclave and the request worked. Positive lookup pending: N3 is registered in the official app later |
 | Receiving through `daemon --http` (SSE `GET /api/v1/events`) | ⬜ | | P7 |
 | Import of a production account registered with signal-cli 0.14.7 (sessions decrypt both ways, groups intact, no re-registration, re-link or safety-number change on the official app) | ⬜ | | P8 |
 | The operator's daemon setup (`--config <dir> -a <n> daemon --http=127.0.0.1:8080 --receive-mode=on-start`) and its methods, side by side with signal-cli 0.14.7 | ⬜ | | P9 live. Offline (P4): the exact invocation matches the reference (golden `bridge-daemon-unregistered`); `--config` is the data directory as in 0.14.7; all 21 methods replay green in Layer B; on staging the SSE stream was byte-identical (milestone 8) |
