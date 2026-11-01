@@ -58,3 +58,16 @@ pkg.go.dev
 www.ietf.org
 nvlpubs.nist.gov
 pq-crystals.org
+
+# --- Signal PRODUCTION (operator-approved 2026-10-31 for milestone 12: live
+# checks with throwaway numbers only, never the operator's bot number). Exactly
+# these hosts; still deliberately NOT *.signal.org. Remove this block to cut
+# the sandbox off from production again.
+chat.signal.org
+grpc.chat.signal.org
+storage.signal.org
+cdn.signal.org
+cdn2.signal.org
+cdn3.signal.org
+cdsi.signal.org
+svr2.signal.org
