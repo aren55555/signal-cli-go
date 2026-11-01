@@ -57,6 +57,31 @@ type liveAccount struct {
 	number    string
 	sess      *session // the shared authenticated connection; nil until needed
 	receiving bool
+	receiver  cacheRetrier // the continuous receive loop's, while it runs
+}
+
+// cacheRetrier is the part of a receive loop that retryFailed needs.
+type cacheRetrier interface {
+	RetryCache(ctx context.Context) error
+}
+
+// retryFailed schedules a retry of the account's cached envelopes on its
+// running receive loop, as signal-cli does when trust changes while the
+// daemon receives (trust.md): messages held for an untrusted identity
+// then arrive without a reconnect. It runs once the calling command has
+// released the account.
+func (d *daemonState) retryFailed(la *liveAccount) {
+	go func() {
+		la.mu.Lock()
+		r := la.receiver
+		la.mu.Unlock()
+		if r == nil {
+			return
+		}
+		if err := r.RetryCache(d.ctx); err != nil {
+			d.logf("WARN  ReceiveHelper - %v", err)
+		}
+	}()
 }
 
 func (d *daemonState) logf(format string, args ...any) {
@@ -219,6 +244,9 @@ func (d *daemonState) startReceiving(la *liveAccount) {
 				d.publish(la, rc, ev)
 			})
 			r.Lock = &la.mu
+			la.mu.Lock()
+			la.receiver = r
+			la.mu.Unlock()
 			if err := r.RetryCache(ctx); err != nil {
 				d.logf("WARN  ReceiveHelper - %v", err)
 			}
@@ -227,6 +255,9 @@ func (d *daemonState) startReceiving(la *liveAccount) {
 				return
 			}
 			la.mu.Lock()
+			if la.receiver == r {
+				la.receiver = nil
+			}
 			if la.sess == s {
 				la.sess.closeConns()
 				la.sess = nil

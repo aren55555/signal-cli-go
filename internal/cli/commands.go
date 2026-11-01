@@ -679,6 +679,11 @@ func runTrust(ctx context.Context, e *env, g *globals, recipient string, all boo
 				return errcode.TrustVerifiedFailed.Wrap(err)
 			}
 		}
+		if err == nil && g.daemon != nil {
+			if la := g.daemon.account(g.account); la != nil {
+				g.daemon.retryFailed(la)
+			}
+		}
 		return err
 	})
 }

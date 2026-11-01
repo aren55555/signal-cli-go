@@ -1146,3 +1146,36 @@ anyway (N3 then deleted for good).
   usage, and the bridge's daemon command (unregistered: exit 1) as
   signal-cli 0.14.7. arm64 row green.
 - Operator decided the stranger test: option 2, re-register N3 fresh.
+
+### 2026-11-01, stranger test, option 2 (re-register N3) result
+
+- N3 deleted its account and registered again on iOS (profile "iphone",
+  restore skipped), then messaged N2 found by number (shown as the bare
+  number). Its old ACI left both groups during deletion.
+- Signal reused N3's ACI for the re-registration, so the test did not
+  produce a stranger: N2 saw a known ACI with a new identity key and held
+  the message (UntrustedIdentityException over SSE, envelope kept in
+  msg-cache), as signal-cli does. The phone did take the stranger path:
+  it fetched a PNI prekey (server PNI 99 → 98) and sent an unsealed
+  PreKey message to N2's PNI.
+- Bug found and fixed: `trust` in a running daemon did not retry held
+  messages (trust.md: "failed messages are scheduled for retry"); they
+  waited for the next reconnect. The daemon now runs the retry on its
+  receive loop after a successful trust (retryFailed;
+  TestRetryFailedAfterTrust). Live: with N3's new key set back to
+  UNTRUSTED locally (to recreate the state before the first trust), the
+  fixed daemon kept the message held at startup and delivered it over SSE
+  1 s after `trust`; prekey counts balanced again (PNI 98/98). This is
+  also the bot's everyday case of a contact reinstalling Signal.
+- Still open: a sender with a **new** ACI messaging the PNI. What is
+  covered live: official app → PNI PreKey message (this run), official
+  app → never-seen ACI with trust on first use (N3's first reply to N2,
+  P7), signal-cli-go → PNI PreKey (N1 → N2). Remaining options:
+  1. a number that has never been on Signal, with an official app on a
+     second phone (option 1 above; re-registering a used number does not
+     give a new ACI);
+  2. accept the composition above plus TestDecryptToPNIAndSealed.
+  Recommendation: option 1 if a second phone and number are easy to get;
+  otherwise accept, since each part of the stranger path (PNI prekey
+  fetch and PreKey decrypt from the official app, trust on first use for
+  a new ACI from the official app) has now been seen live separately.
