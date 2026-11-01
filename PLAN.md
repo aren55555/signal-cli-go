@@ -1088,3 +1088,23 @@ vectors.
 - Remaining in milestone 12: running the arm64 build on an arm64 host
   (operator), and P10 (delete N1 and N2, operator deletes N3) before the
   leases end. Still unexplained: N3's very first message to N2 (P7).
+
+### 2026-11-01, the missing first message (P7 follow-up)
+
+- Question: can a first message from a stranger to a signal-cli-go
+  account be lost? N3's "hello from N3" (sent right after N3 registered,
+  before N2 wrote) never reached N2.
+- Findings: only `receive` reads and acks the chat queue (other commands
+  leave pushed envelopes unacked on the server); envelopes are cached
+  before the ack and kept on failure; nothing in N2's msg-cache; the two
+  receives right after the message found an empty queue. Decisive: N2's
+  one-time prekey counts on the server (GET /v2/keys, ACI 97/97, PNI
+  99/99 EC/Kyber) equal its unused local prekeys, so no sender ever
+  fetched a bundle whose message did not arrive. The phone never started
+  a session with N2, i.e. the message was not sent to N2.
+- Reproduced the stranger path live: N1 sent to N2's PNI (no PNI session):
+  unsealed PreKey message to the PNI, decrypted by N2 with a PNI prekey.
+  Offline coverage: TestDecryptToPNIAndSealed.
+- Conclusion: no loss in signal-cli-go; no fix needed. The prekey-count
+  comparison is a useful check for "did the sender ever try" (added to
+  docs/live-checklist.md).

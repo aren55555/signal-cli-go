@@ -56,3 +56,13 @@ So the next owner of each number doesn't inherit a Signal account:
       (Settings → Account → Delete account)
 - [ ] Remove `.data/live/` (keys of deleted accounts are of no further use)
 - [ ] Record the cleanup in PLAN.md's progress log
+
+## Diagnosing a message that never arrived
+
+A sender that starts a new session must first fetch a prekey bundle, which
+removes one one-time prekey on the server. Compare the server's counts
+(`GET /v2/keys?identity=aci|pni` with the account's credentials, `count` and
+`pqCount`) with the unused one-time prekeys stored locally. Equal counts mean
+no sender fetched a bundle without its message arriving: a first message
+that "went missing" was never sent to this account. Also check `msg-cache/`
+in the account directory, where envelopes that failed are kept.
