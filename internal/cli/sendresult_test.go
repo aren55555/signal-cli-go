@@ -4,6 +4,8 @@ package cli
 
 import (
 	"testing"
+
+	"github.com/aren55555/signal-cli-go/internal/store"
 )
 
 // TestSendResults: _send-results.md, plain and JSON, and exit codes.
@@ -28,5 +30,21 @@ func TestSendResults(t *testing.T) {
 	}
 	if out, code, _ := renderSendResults(false, 5, []sendResult{{key: "+1", number: "+1", kind: resultUnregistered}}); out != "Failed to send (some) messages:\n+1: Unregistered user \"+1\"\n5\n" || code != 1 {
 		t.Errorf("unregistered: %q %d", out, code)
+	}
+}
+
+// TestResultForCarriesNumber: a 1:1 result's address has the recipient's
+// phone number when the store knows it, as signal-cli's does (found side
+// by side on production: signal-cli-go said "number":null).
+func TestResultForCarriesNumber(t *testing.T) {
+	const aci = "b0b0b0b0-0000-4000-8000-000000000002"
+	a := &store.Account{Recipients: map[string]store.Recipient{aci: {Number: "+15555550101"}}}
+	r := resultFor(a, "+15555550101", aci, nil)
+	if got := string(resultsJSON([]sendResult{r})); got != `[{"recipientAddress":{"uuid":"`+aci+`","number":"+15555550101","username":null},"type":"SUCCESS"}]` {
+		t.Errorf("known number: %s", got)
+	}
+	r = resultFor(a, "c0c0c0c0-0000-4000-8000-000000000003", "c0c0c0c0-0000-4000-8000-000000000003", nil)
+	if r.number != "" {
+		t.Errorf("unknown recipient got number %q", r.number)
 	}
 }

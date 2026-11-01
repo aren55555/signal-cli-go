@@ -133,7 +133,7 @@ func sendDataCommand(ctx context.Context, e *env, g *globals, a *store.Account, 
 		var res []manager.SendResult
 		ts, res = s.sender.SendData(ctx, acis, d)
 		for i, r := range res {
-			results = append(results, resultFor(people[i].key, people[i].aci, transcriptOK(r.Err)))
+			results = append(results, resultFor(a, people[i].key, people[i].aci, transcriptOK(r.Err)))
 		}
 		d.Timestamp = ts
 	}

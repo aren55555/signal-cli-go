@@ -59,7 +59,7 @@ func runSendStory(ctx context.Context, e *env, g *globals, path string, noReplie
 			if key == "" {
 				key = r.Dest
 			}
-			out = append(out, resultFor(key, r.Dest, r.Err))
+			out = append(out, resultFor(a, key, r.Dest, r.Err))
 		}
 		return finishSend(e, g, ts, out)
 	})

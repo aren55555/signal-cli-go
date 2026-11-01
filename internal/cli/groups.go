@@ -48,8 +48,7 @@ func groupSendError(s *session, id []byte, err error) error {
 func groupResults(a *store.Account, key string, res []manager.SendResult) []sendResult {
 	var out []sendResult
 	for _, r := range res {
-		sr := resultFor(key, r.Dest, transcriptOK(r.Err))
-		sr.number = a.Recipients[r.Dest].Number
+		sr := resultFor(a, key, r.Dest, transcriptOK(r.Err))
 		sr.groupID = key
 		out = append(out, sr)
 	}
@@ -87,9 +86,7 @@ func memberResults(a *store.Account, res []manager.SendResult) []sendResult {
 		if key == "" {
 			key = r.Dest
 		}
-		sr := resultFor(key, r.Dest, transcriptOK(r.Err))
-		sr.number = a.Recipients[r.Dest].Number
-		out = append(out, sr)
+		out = append(out, resultFor(a, key, r.Dest, transcriptOK(r.Err)))
 	}
 	return out
 }

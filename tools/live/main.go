@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -100,8 +101,8 @@ func run(args []string) error {
 		}
 	}
 	for attempt := 0; ; attempt++ {
-		out, errOut, code := execute(client, full)
-		if err := save(tag, out, errOut); err != nil {
+		out, errOut, code, err := execute(client, full, tag)
+		if err != nil {
 			return err
 		}
 		if sending[sub] {
@@ -119,8 +120,6 @@ func run(args []string) error {
 			continue
 		}
 		state.save()
-		os.Stdout.WriteString(livetest.Mask(string(out)))
-		os.Stderr.WriteString(livetest.Mask(string(errOut)))
 		if code != 0 {
 			os.Exit(code)
 		}
@@ -137,8 +136,10 @@ func takesValue(flag string) bool {
 }
 
 // execute runs one client: our binary, or the reference through `just
-// oracle` (the only sanctioned way to run it).
-func execute(client string, args []string) ([]byte, []byte, int) {
+// oracle` (the only sanctioned way to run it). Output streams line by
+// line, raw to .data/live/cmd/TAG.{out,err} and masked to the terminal,
+// so long-running commands (link, daemon) can be followed while they run.
+func execute(client string, args []string, tag string) ([]byte, []byte, int, error) {
 	var cmd *exec.Cmd
 	switch client {
 	case "ours":
@@ -151,31 +152,72 @@ func execute(client string, args []string) ([]byte, []byte, int) {
 		cmd = exec.Command("just", "oracle", strings.Join(q, " "))
 		cmd.Env = append(os.Environ(), "LANG=C.UTF-8")
 	default:
-		return nil, []byte("live: client must be ours or ref\n"), 2
+		return nil, nil, 0, errors.New("client must be ours or ref")
+	}
+	d := filepath.Join(root, "cmd")
+	if err := os.MkdirAll(d, 0o700); err != nil {
+		return nil, nil, 0, err
 	}
 	var out, errOut bytes.Buffer
-	cmd.Stdout, cmd.Stderr = &out, &errOut
+	streams := []struct {
+		buf  *bytes.Buffer
+		ext  string
+		term io.Writer
+		dst  *io.Writer
+	}{{&out, ".out", os.Stdout, &cmd.Stdout}, {&errOut, ".err", os.Stderr, &cmd.Stderr}}
+	for _, s := range streams {
+		f, err := os.OpenFile(filepath.Join(d, tag+s.ext), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o600)
+		if err != nil {
+			return nil, nil, 0, err
+		}
+		defer f.Close()
+		w := &lines{w: s.term}
+		defer w.flush()
+		*s.dst = io.MultiWriter(s.buf, f, w)
+	}
 	err := cmd.Run()
 	code := 0
 	var ee *exec.ExitError
 	if errors.As(err, &ee) {
 		code = ee.ExitCode()
 	} else if err != nil {
-		errOut.WriteString(err.Error() + "\n")
-		code = 1
+		return nil, nil, 0, err
 	}
-	return out.Bytes(), bytes.ReplaceAll(errOut.Bytes(), []byte("JAVA_OPTS="), []byte("# JAVA_OPTS=")), code
+	return out.Bytes(), errOut.Bytes(), code, nil
 }
 
-func save(tag string, out, errOut []byte) error {
-	d := filepath.Join(root, "cmd")
-	if err := os.MkdirAll(d, 0o700); err != nil {
-		return err
+// lines writes complete lines to w with every phone number masked, and
+// turns the `just oracle` echo of the command into a comment.
+type lines struct {
+	w   io.Writer
+	buf []byte
+}
+
+func (l *lines) Write(p []byte) (int, error) {
+	l.buf = append(l.buf, p...)
+	for {
+		i := bytes.IndexByte(l.buf, '\n')
+		if i < 0 {
+			return len(p), nil
+		}
+		l.emit(l.buf[:i+1])
+		l.buf = l.buf[i+1:]
 	}
-	if err := os.WriteFile(filepath.Join(d, tag+".out"), out, 0o600); err != nil {
-		return err
+}
+
+func (l *lines) emit(b []byte) {
+	s := string(b)
+	if strings.HasPrefix(s, "JAVA_OPTS=") {
+		s = "# " + s
 	}
-	return os.WriteFile(filepath.Join(d, tag+".err"), errOut, 0o600)
+	io.WriteString(l.w, livetest.Mask(s))
+}
+
+func (l *lines) flush() {
+	if len(l.buf) > 0 {
+		l.emit(l.buf)
+		l.buf = nil
+	}
 }
 
 // pacer is the pacing state shared by the invocations of one run.

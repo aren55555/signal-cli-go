@@ -1063,3 +1063,19 @@ vectors.
   group replies (pre-import session and sender key). No notice on iOS.
 - The JVM copy is renamed .data/live/n1-jvm.retired-do-not-run; the backup
   tar stays until P10. Next: P9 (daemon side by side), then P10.
+
+### 2026-11-01, milestone 12 P9 (daemon side by side, live)
+
+- Setup: the JVM signal-cli linked as device 2 of N1 (signal-cli-go is
+  the primary, `addDevice`); signal-cli-go answered the five sync requests
+  (contacts, blocked, …) and both devices then list the same groups and
+  contacts. Both run the bridge's daemon invocation; ~/.cache/p9rpc.sh
+  sends each JSON-RPC request to both and diffs the scrubbed responses.
+- All 21 bridge methods match. Fixed: `recipientAddress.number` was null
+  in 1:1 send/typing results (resultFor now takes it from the store).
+  Expected: joinGroup key order (randomised per JVM run), and a linked
+  device's storage merge turning an empty contact family name into null.
+- Observed in the JVM, not ours: right after linking, its SyncStorageJob
+  fails with a NullPointerException (no self profile yet).
+- The live driver now streams output (masked) while commands run.
+- Open: the SSE event comparison needs messages from the iOS app.

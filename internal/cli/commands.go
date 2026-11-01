@@ -345,7 +345,7 @@ func runSend(ctx context.Context, e *env, g *globals, o sendOpts) error {
 			continue
 		}
 		ts, err = s.sender.SendTextAt(ctx, t.aci, text, ts, !o.noUrgent)
-		results = append(results, resultFor(t.key, t.aci, err))
+		results = append(results, resultFor(a, t.key, t.aci, err))
 	}
 	return finishSend(e, g, ts, results)
 }
@@ -388,7 +388,7 @@ func runSendTyping(ctx context.Context, e *env, g *globals, recipients, groupArg
 			continue
 		}
 		ts, err = s.sender.SendTyping(ctx, t.aci, stop, ts)
-		results = append(results, resultFor(t.key, t.aci, err))
+		results = append(results, resultFor(a, t.key, t.aci, err))
 	}
 	for _, id := range groupIDs {
 		gts, res, err := s.groups.SendTyping(ctx, id, stop)
@@ -436,7 +436,7 @@ func runSendReceipt(ctx context.Context, e *env, g *globals, recipient string, t
 	var results []sendResult
 	if rr := a.Data.Configuration.ReadReceipts; rr == nil || *rr {
 		ts, err = s.sender.SendReceiptAt(ctx, t.aci, rk, timestamps)
-		results = append(results, resultFor(t.key, t.aci, err))
+		results = append(results, resultFor(a, t.key, t.aci, err))
 	}
 	if err := s.sender.SendReadSync(ctx, t.aci, kind == "viewed", timestamps); err != nil {
 		fmt.Fprintf(e.stderr, "WARN  SendHelper - Failed to send read sync: %v\n", err)
@@ -444,8 +444,10 @@ func runSendReceipt(ctx context.Context, e *env, g *globals, recipient string, t
 	return finishSend(e, g, ts, results)
 }
 
-func resultFor(key, aci string, err error) sendResult {
-	r := sendResult{key: key, aci: aci, kind: resultSuccess}
+// resultFor is the send result for one recipient. Its address carries the
+// recipient's phone number when the store knows it (_send-results.md).
+func resultFor(a *store.Account, key, aci string, err error) sendResult {
+	r := sendResult{key: key, aci: aci, number: a.Recipients[aci].Number, kind: resultSuccess}
 	var se *manager.SendStatusError
 	switch {
 	case err == nil:
