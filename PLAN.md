@@ -31,7 +31,7 @@ every session, and update both before ending one.
 | 9b | Revisit deferred items (voice calls, D-Bus client mode) | not started |
 | 10 | Stretch goal: import an existing signal-cli data dir | done (2026-10-29); `cmd/signal-cli-go-import` with modernc.org/sqlite (second amendment); account file v10 + schema 30 only; an imported reference device worked live on staging without re-linking |
 | 11 | Production environment values | done (2026-10-30): production values specified and built in alongside staging, tested against the spec; `live` still refused |
-| 12 | Production support | production supported (2026-11-01): P1–P9 done, all production rows green (14, incl. linking); P10 (release the leased numbers) waits for the operator |
+| 12 | Production support | done (2026-11-01): production supported, all 14 production rows green; leased numbers released (P10) |
 
 The operator reviewed this file and the first COMPAT.md draft on 2026-10-23.
 
@@ -1216,3 +1216,28 @@ anyway (N3 then deleted for good).
   P9 listed itself TRUSTED_VERIFIED from link time; linking.md is silent,
   so this rests on that observation). TestLink covers it; the device
   linked today predates the fix.
+
+### 2026-11-01, P10: leased numbers released
+
+- N3: deleted by the operator in the iOS app (this also removed the
+  signal-cli-go linked device).
+- N2: `unregister --delete-account` with signal-cli-go. The server deleted
+  the account and closed the chat connection with 4401 before replying,
+  so the command printed an error and exited 3; N2's credentials were then
+  refused (401).
+- From N1, CDSI: N2 and N3 both `isRegistered: false`.
+- N1: deleted with signal-cli 0.14.7 from the retired pre-import copy (a
+  deliberate one-off: the account was going away, and it records the
+  reference's behaviour): `Unregister error: StatusCode: 4401`, exit 3,
+  after `Delete svr2 failed: EnclaveNotFound`. N1's credentials then
+  refused (401); its JVM linked device went with it. The wording
+  difference is listed with the production gaps.
+- Local cleanup: .data/live/ removed (all account data, backups, logs,
+  link URI/QR); live helpers and scratch in ~/.cache removed (driver
+  binary, P9 RPC scripts, link loop, QR tool, SSE/contact extracts, the
+  root cert copy, edit scripts, commit-message drafts). A search for the
+  live numbers in ~/.cache, /tmp and the repo (outside .data and .git)
+  found only /tmp/live-numbers. /tmp/live-numbers and the iPhone
+  screenshot in /tmp are deleted after this commit; /tmp/staging-number-c
+  and the staging wrappers in ~/.cache/live stay.
+- Milestone 12 done.

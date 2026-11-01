@@ -48,16 +48,17 @@ captchas, tokens or transcripts. Results go in COMPAT.md, section Production.
 
 So the next owner of each number doesn't inherit a Signal account:
 
-- [ ] Delete N2's account from the server:
+- [x] Delete N2's account from the server (2026-11-01; exit 3 after the server's 4401 close, credentials then refused):
       `~/.cache/live-driver ours .data/live/n2 p10-n2 -- -a @N2 unregister --delete-account`
-- [ ] Delete N1's account the same way, from its imported signal-cli-go data
+- [x] Delete N1's account the same way (2026-11-01, with signal-cli 0.14.7 from the retired copy; credentials then refused), from its imported signal-cli-go data
       directory (or with `ref` if the import never happened)
-- [ ] From a remaining account, `getUserStatus @N1 @N2` returns `isRegistered: false`
-      for both. Run this before N3 is deleted, or skip it if N3 is already gone
-- [ ] **Remind the operator** to delete N3's account in the official app
+- [x] Confirm they are gone: from N1 (before its deletion) `getUserStatus @N2 @N3`
+      returned `isRegistered: false` for both; after the deletions N1's and N2's
+      credentials were refused (HTTP 401)
+- [x] **Remind the operator** to delete N3's account in the official app
       (Settings → Account → Delete account)
-- [ ] Remove `.data/live/` (keys of deleted accounts are of no further use)
-- [ ] Record the cleanup in PLAN.md's progress log
+- [x] Remove `.data/live/` (keys of deleted accounts are of no further use)
+- [x] Record the cleanup in PLAN.md's progress log
 
 ## Diagnosing a message that never arrived
 

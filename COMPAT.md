@@ -217,6 +217,12 @@ All rows were green on 2026-11-01. Remaining production gaps, not covered by any
   known.
 - The error text of `verify` after the registration session expired
   (`Verify error: rest: status 404`) was not compared with signal-cli's.
+- `unregister --delete-account` on production: the server deletes the account and closes
+  the connection with 4401 before replying, so both clients report an error with exit 3
+  after a successful deletion. signal-cli 0.14.7 prints `Unregister error: StatusCode: 4401`
+  (and first tries to delete the PIN backup, `Delete svr2 failed: EnclaveNotFound`);
+  signal-cli-go prints `Unregister error: websocket: closed by server with code 4401
+  "Reauthentication required"` and does not try the SVR2 delete.
 
 | Feature | Status | Evidence | Notes |
 |---------|--------|----------|-------|

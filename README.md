@@ -163,6 +163,10 @@ gaps:
     known.
   - The error text of `verify` after the registration session has expired
     (`Verify error: rest: status 404`) was not compared with signal-cli's.
+  - `unregister --delete-account`: the server deletes the account and closes the connection
+    (4401) before replying, so both clients exit 3 with "Unregister error: …" after a
+    successful deletion. The text differs (signal-cli: `StatusCode: 4401`), and signal-cli also
+    tries to delete the PIN backup (SVR2) first, which signal-cli-go does not.
 - **Going back to the JVM signal-cli** after signal-cli-go has run an account
   needs care; see [`docs/cutover.md`](docs/cutover.md).
 - **Voice calls** (`startCall`, `acceptCall` and friends, call events) are
